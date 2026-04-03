@@ -1,6 +1,105 @@
-<div class="dashboard">
+<!-- Toast -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
+    <span class="material-icons">{{ toastIcon(t.type) }}</span>
+    <span>{{ t.message }}</span>
+    <button class="toast-close"><span class="material-icons">close</span></button>
+  </div>
+</div>
 
-  <!-- ── Sidebar ── -->
+<!-- Notif backdrop -->
+<div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
+
+<!-- Patient detail modal -->
+<div class="modal-overlay" *ngIf="showPatientModal" (click)="closePatient()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-lg">{{ selectedPatient?.initials }}</div>
+      <div style="flex:1">
+        <h2 style="margin-bottom:2px">{{ selectedPatient?.name }}</h2>
+        <span style="font-size:12px;color:var(--c-text-3)">Machine {{ selectedPatient?.machine }} · {{ selectedPatient?.time }}</span>
+      </div>
+      <span class="badge" [ngClass]="selectedPatient?.status === 'warn' ? 'warn' : 'ok'">
+        {{ selectedPatient?.status === 'warn' ? 'PA Élevée' : 'Normal' }}
+      </span>
+      <button class="modal-close-btn" (click)="closePatient()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stat-row">
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Pression Artérielle</span>
+          <span class="modal-stat-val mono {{ selectedPatient?.paClass }}">{{ selectedPatient?.pa }} mmHg</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Fréquence Cardiaque</span>
+          <span class="modal-stat-val mono">{{ selectedPatient?.fc }} bpm</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Débit Sang</span>
+          <span class="modal-stat-val mono">{{ selectedPatient?.debit }} mL/min</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Poids Perdu</span>
+          <span class="modal-stat-val mono">{{ selectedPatient?.poidsPerdu }} kg</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Temps restant</span>
+          <span class="modal-stat-val mono">{{ selectedPatient?.timeLeft }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Progression</span>
+          <span class="modal-stat-val mono">{{ selectedPatient?.progress }}%</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="showToast('Constantes enregistrées pour ' + selectedPatient?.name, 'success'); closePatient()">
+          <span class="material-icons">save</span> Enregistrer constantes
+        </button>
+        <button class="btn-outline-sm" (click)="alerterMedecin(selectedPatient!)">
+          <span class="material-icons">notification_important</span> Alerter le médecin
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Note ajoutée au dossier', 'info'); closePatient()">
+          <span class="material-icons">edit_note</span> Ajouter note
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add task modal -->
+<div class="modal-overlay" *ngIf="showAddTaskModal" (click)="showAddTaskModal = false">
+  <div class="modal-panel modal-panel--sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Nouvelle Tâche</h2>
+      <button class="modal-close-btn" (click)="showAddTaskModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label>Description <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newTask.title" placeholder="Ex: Contrôler PA — Patient X" />
+        </div>
+        <div class="form-field">
+          <label>Patient concerné</label>
+          <input type="text" [(ngModel)]="newTask.patient" placeholder="Nom du patient" />
+        </div>
+        <div class="form-field">
+          <label>Priorité</label>
+          <select [(ngModel)]="newTask.priority">
+            <option value="standard">Standard</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="ajouterTask()"><span class="material-icons">add</span> Ajouter</button>
+        <button class="btn-outline-sm" (click)="showAddTaskModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard">
   <aside class="sidebar">
     <div class="sidebar__logo">
       <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
@@ -10,333 +109,201 @@
       </svg>
       <span>DialySys</span>
     </div>
-
     <nav class="sidebar__nav">
       <div class="nav-section-label">Mon Espace</div>
-      <a href="#" class="nav-item active">
+      <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
         <span class="material-icons">dashboard</span><span>Tableau de bord</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='seances'" (click)="setSection('seances')">
         <span class="material-icons">schedule</span><span>Mes Séances</span>
         <span class="nav-badge">6</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
         <span class="material-icons">people</span><span>Mes Patients</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='taches'" (click)="setSection('taches')">
         <span class="material-icons">task_alt</span><span>Mes Tâches</span>
-        <span class="nav-badge warn">4</span>
+        <span class="nav-badge warn">{{ urgentPending.length + standardPending.length }}</span>
       </a>
-
       <div class="nav-section-label">Soins</div>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('soins')">
         <span class="material-icons">medical_services</span><span>Soins Infirmiers</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('monitoring')">
         <span class="material-icons">monitor_heart</span><span>Monitoring</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('machines')">
         <span class="material-icons">precision_manufacturing</span><span>Machines</span>
       </a>
     </nav>
-
     <div class="sidebar__user">
       <div class="user-avatar">IN</div>
       <div class="user-info">
         <span class="user-name">Inf. N. Tazi</span>
         <span class="user-role">Infirmier·ère</span>
       </div>
-      <button class="logout-btn" (click)="logout()">
-        <span class="material-icons">logout</span>
-      </button>
+      <button class="logout-btn" (click)="logout()"><span class="material-icons">logout</span></button>
     </div>
   </aside>
 
-  <!-- ── Main ── -->
   <div class="main">
     <header class="topbar">
       <div class="topbar__left">
         <h1>Tableau de Bord</h1>
-        <span class="topbar__date">Mercredi, 2 Avril 2026 — Vacation Matin</span>
+        <span class="topbar__date">Jeudi, 3 Avril 2026 — Vacation Matin</span>
       </div>
       <div class="topbar__right">
-        <button class="icon-btn notif-btn">
-          <span class="material-icons">notifications</span>
-          <span class="notif-dot"></span>
-        </button>
-        <button class="icon-btn">
-          <span class="material-icons">settings</span>
-        </button>
+        <div class="notif-wrapper">
+          <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
+            <span class="material-icons">notifications</span>
+            <span class="notif-dot" *ngIf="unreadCount > 0"></span>
+          </button>
+          <div class="notif-panel" *ngIf="showNotifPanel">
+            <div class="notif-panel__head">
+              <span>Notifications</span>
+              <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
+            </div>
+            <div class="notif-list">
+              <div *ngFor="let n of notifications" class="notif-item" [class.notif-item--unread]="!n.read" (click)="markRead(n)">
+                <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
+                <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
+                <span class="notif-unread-dot" *ngIf="!n.read"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="icon-btn" (click)="openSettings()"><span class="material-icons">settings</span></button>
       </div>
     </header>
 
     <!-- KPI -->
     <div class="kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-teal-soft)">
-          <span class="material-icons" style="color:var(--c-teal)">event_available</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">6</span>
-          <span class="kpi-lbl">Séances aujourd'hui</span>
-        </div>
+      <div class="kpi-card" style="cursor:pointer" (click)="setSection('seances')">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
+        <div class="kpi-body"><span class="kpi-val">6</span><span class="kpi-lbl">Séances aujourd'hui</span></div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-blue-soft)">
-          <span class="material-icons" style="color:var(--c-blue)">monitor_heart</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">3</span>
-          <span class="kpi-lbl">En dialyse actuellement</span>
-        </div>
+      <div class="kpi-card" style="cursor:pointer" (click)="setSection('patients')">
+        <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">monitor_heart</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ patients.length }}</span><span class="kpi-lbl">En dialyse actuellement</span></div>
         <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-amber-soft)">
-          <span class="material-icons" style="color:var(--c-amber)">task_alt</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">4</span>
-          <span class="kpi-lbl">Tâches en attente</span>
-        </div>
-        <span class="kpi-trend warn">Urgentes</span>
+      <div class="kpi-card" style="cursor:pointer" (click)="setSection('taches')">
+        <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">task_alt</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ urgentPending.length + standardPending.length }}</span><span class="kpi-lbl">Tâches en attente</span></div>
+        <span class="kpi-trend warn" *ngIf="urgentPending.length > 0">Urgentes</span>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-green-soft)">
-          <span class="material-icons" style="color:var(--c-green)">check_circle</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">12</span>
-          <span class="kpi-lbl">Séances terminées ce mois</span>
-        </div>
+        <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ doneTasks.length }}</span><span class="kpi-lbl">Séances terminées ce mois</span></div>
         <span class="kpi-trend up">↑ +3</span>
       </div>
     </div>
 
-    <!-- Content -->
     <div class="content-grid">
-
-      <!-- Active monitoring -->
+      <!-- Monitoring -->
       <div class="panel">
         <div class="panel__head">
           <h2>Patients en Dialyse — Monitoring Temps Réel</h2>
-          <span class="badge info">3 actifs</span>
+          <span class="badge info">{{ patients.length }} actifs</span>
         </div>
         <div class="monitoring-grid">
-
-          <div class="monitor-card">
+          <div class="monitor-card" *ngFor="let p of patients"
+               [class.warn-card]="p.status === 'warn'"
+               (click)="openPatient(p)" style="cursor:pointer">
             <div class="monitor-card__header">
               <div class="patient-cell">
-                <div class="avatar-sm">SB</div>
-                <div>
-                  <b>Saidi Bouchra</b>
-                  <span>Machine M-07 · 10:30 → 14:30</span>
-                </div>
+                <div class="avatar-sm">{{ p.initials }}</div>
+                <div><b>{{ p.name }}</b><span>Machine {{ p.machine }} · {{ p.time }}</span></div>
               </div>
-              <span class="badge info">2h15 restantes</span>
+              <span class="badge" [ngClass]="p.status === 'warn' ? 'warn' : 'info'">
+                {{ p.status === 'warn' ? 'PA Élevée' : p.timeLeft + ' restantes' }}
+              </span>
             </div>
             <div class="vitals-row">
               <div class="vital">
                 <span class="vital-lbl">PA</span>
-                <span class="vital-val ok">128/82</span>
+                <span class="vital-val" [ngClass]="p.paClass">{{ p.pa }}</span>
                 <span class="vital-unit">mmHg</span>
               </div>
               <div class="vital">
                 <span class="vital-lbl">FC</span>
-                <span class="vital-val">74</span>
+                <span class="vital-val">{{ p.fc }}</span>
                 <span class="vital-unit">bpm</span>
               </div>
               <div class="vital">
                 <span class="vital-lbl">Poids perdus</span>
-                <span class="vital-val">1.2</span>
+                <span class="vital-val">{{ p.poidsPerdu }}</span>
                 <span class="vital-unit">kg</span>
               </div>
               <div class="vital">
                 <span class="vital-lbl">Débit</span>
-                <span class="vital-val">350</span>
+                <span class="vital-val">{{ p.debit }}</span>
                 <span class="vital-unit">mL/min</span>
               </div>
             </div>
             <div class="session-progress">
               <div class="progress-bar">
-                <div class="progress-fill" style="width:44%"></div>
+                <div class="progress-fill" [class.warn]="p.status === 'warn'" [style.width.%]="p.progress"></div>
               </div>
-              <span>44% terminé</span>
+              <span>{{ p.progress }}% terminé</span>
             </div>
           </div>
-
-          <div class="monitor-card warn-card">
-            <div class="monitor-card__header">
-              <div class="patient-cell">
-                <div class="avatar-sm">ME</div>
-                <div>
-                  <b>Moussaoui El Hassan</b>
-                  <span>Machine M-02 · 09:00 → 13:00</span>
-                </div>
-              </div>
-              <span class="badge warn">PA Élevée</span>
-            </div>
-            <div class="vitals-row">
-              <div class="vital">
-                <span class="vital-lbl">PA</span>
-                <span class="vital-val warn-val">172/98</span>
-                <span class="vital-unit">mmHg</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">FC</span>
-                <span class="vital-val">88</span>
-                <span class="vital-unit">bpm</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">Poids perdus</span>
-                <span class="vital-val">2.1</span>
-                <span class="vital-unit">kg</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">Débit</span>
-                <span class="vital-val">300</span>
-                <span class="vital-unit">mL/min</span>
-              </div>
-            </div>
-            <div class="session-progress">
-              <div class="progress-bar">
-                <div class="progress-fill warn" style="width:72%"></div>
-              </div>
-              <span>72% terminé</span>
-            </div>
-          </div>
-
-          <div class="monitor-card">
-            <div class="monitor-card__header">
-              <div class="patient-cell">
-                <div class="avatar-sm">OB</div>
-                <div>
-                  <b>Ouali Badreddine</b>
-                  <span>Machine M-05 · 09:30 → 13:30</span>
-                </div>
-              </div>
-              <span class="badge ok">Normal</span>
-            </div>
-            <div class="vitals-row">
-              <div class="vital">
-                <span class="vital-lbl">PA</span>
-                <span class="vital-val ok">122/76</span>
-                <span class="vital-unit">mmHg</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">FC</span>
-                <span class="vital-val">68</span>
-                <span class="vital-unit">bpm</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">Poids perdus</span>
-                <span class="vital-val">0.8</span>
-                <span class="vital-unit">kg</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">Débit</span>
-                <span class="vital-val">380</span>
-                <span class="vital-unit">mL/min</span>
-              </div>
-            </div>
-            <div class="session-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" style="width:58%"></div>
-              </div>
-              <span>58% terminé</span>
-            </div>
-          </div>
-
         </div>
       </div>
 
-      <!-- Right col -->
       <div class="right-col">
-
+        <!-- Tasks -->
         <div class="panel">
           <div class="panel__head">
             <h2>Tâches du Jour</h2>
-            <button class="btn-sm-primary">
+            <button class="btn-sm-primary" (click)="showAddTaskModal = true">
               <span class="material-icons">add</span> Ajouter
             </button>
           </div>
           <div class="task-list">
-            <div class="task-item">
-              <span class="task-check urgent">
-                <span class="material-icons">priority_high</span>
-              </span>
+            <!-- Urgent pending -->
+            <div class="task-item" *ngFor="let t of urgentPending">
+              <span class="task-check urgent"><span class="material-icons">priority_high</span></span>
               <div class="task-body">
-                <b>Contrôler PA — Moussaoui H.</b>
-                <span>Pression artérielle élevée · Urgent</span>
+                <b>{{ t.title }}</b>
+                <span>{{ t.patient }} · Urgent</span>
               </div>
-              <button class="btn-teal-xs">Fait</button>
+              <button class="btn-teal-xs" (click)="markDone(t)">Fait</button>
             </div>
-            <div class="task-item">
-              <span class="task-check">
-                <span class="material-icons">radio_button_unchecked</span>
-              </span>
+            <!-- Standard pending -->
+            <div class="task-item" *ngFor="let t of standardPending">
+              <span class="task-check"><span class="material-icons">radio_button_unchecked</span></span>
               <div class="task-body">
-                <b>Préparer Machine M-09</b>
-                <span>Séance 14h00 — Filali Zineb</span>
+                <b>{{ t.title }}</b>
+                <span>{{ t.patient }}</span>
               </div>
-              <button class="btn-teal-xs">Fait</button>
+              <button class="btn-teal-xs" (click)="markDone(t)">Fait</button>
             </div>
-            <div class="task-item">
-              <span class="task-check">
-                <span class="material-icons">radio_button_unchecked</span>
-              </span>
+            <!-- Done -->
+            <div class="task-item done" *ngFor="let t of doneTasks">
+              <span class="task-check done"><span class="material-icons">check_circle</span></span>
               <div class="task-body">
-                <b>Injecter EPO 4000 UI</b>
-                <span>Alaoui K. — Avant prochaine séance</span>
-              </div>
-              <button class="btn-teal-xs">Fait</button>
-            </div>
-            <div class="task-item done">
-              <span class="task-check done">
-                <span class="material-icons">check_circle</span>
-              </span>
-              <div class="task-body">
-                <b>Pesée post-séance</b>
-                <span>Saidi Bouchra — 10:25</span>
+                <b>{{ t.title }}</b>
+                <span>{{ t.patient }}</span>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Machines -->
         <div class="panel">
           <div class="panel__head">
             <h2>État des Machines</h2>
-            <span class="badge ok">5/8 opérationnelles</span>
+            <span class="badge ok">{{ availableMachinesCount }}/{{ machines.length }} libres</span>
           </div>
           <div class="machine-list">
-            <div class="machine-row">
-              <span class="machine-id">M-02</span>
-              <span class="machine-name">Fresenius 5008S</span>
-              <span class="badge info">En cours</span>
-            </div>
-            <div class="machine-row">
-              <span class="machine-id">M-05</span>
-              <span class="machine-name">B.Braun Dialog+</span>
-              <span class="badge info">En cours</span>
-            </div>
-            <div class="machine-row">
-              <span class="machine-id">M-07</span>
-              <span class="machine-name">Fresenius 5008S</span>
-              <span class="badge info">En cours</span>
-            </div>
-            <div class="machine-row">
-              <span class="machine-id">M-09</span>
-              <span class="machine-name">B.Braun Dialog+</span>
-              <span class="badge ok">Disponible</span>
-            </div>
-            <div class="machine-row">
-              <span class="machine-id">M-11</span>
-              <span class="machine-name">Gambro AK 200S</span>
-              <span class="badge crit">Maintenance</span>
+            <div class="machine-row" *ngFor="let m of machines" (click)="machineClick(m)" style="cursor:pointer">
+              <span class="machine-id">{{ m.id }}</span>
+              <span class="machine-name">{{ m.model }}</span>
+              <span class="badge {{ m.statusClass }}">{{ m.label }}</span>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>

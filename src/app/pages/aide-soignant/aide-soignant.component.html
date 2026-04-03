@@ -1,3 +1,13 @@
+<!-- Toast -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
+    <span class="material-icons">{{ toastIcon(t.type) }}</span>
+    <span>{{ t.message }}</span>
+    <button class="toast-close"><span class="material-icons">close</span></button>
+  </div>
+</div>
+<div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
+
 <div class="dashboard">
 
   <!-- ── Sidebar ── -->
@@ -13,25 +23,25 @@
 
     <nav class="sidebar__nav">
       <div class="nav-section-label">Mon Espace</div>
-      <a href="#" class="nav-item active">
+      <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
         <span class="material-icons">dashboard</span><span>Tableau de bord</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='taches'" (click)="setSection('taches')">
         <span class="material-icons">assignment</span><span>Mes Tâches</span>
         <span class="nav-badge warn">{{ urgentTasks.length + pendingTasks.length }}</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
         <span class="material-icons">people</span><span>Patients Assignés</span>
       </a>
 
       <div class="nav-section-label">Équipements</div>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('machines')">
         <span class="material-icons">precision_manufacturing</span><span>Machines</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('consommables')">
         <span class="material-icons">inventory_2</span><span>Consommables</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('nettoyage')">
         <span class="material-icons">cleaning_services</span><span>Nettoyage</span>
       </a>
     </nav>
@@ -69,11 +79,26 @@
         <span class="topbar__date">Mercredi, 2 Avril 2026</span>
       </div>
       <div class="topbar__right">
-        <button class="icon-btn notif-btn">
-          <span class="material-icons">notifications</span>
-          <span class="notif-dot" *ngIf="urgentTasks.length > 0"></span>
-        </button>
-        <button class="icon-btn">
+        <div class="notif-wrapper">
+          <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
+            <span class="material-icons">notifications</span>
+            <span class="notif-dot" *ngIf="unreadCount > 0 || urgentTasks.length > 0"></span>
+          </button>
+          <div class="notif-panel" *ngIf="showNotifPanel">
+            <div class="notif-panel__head">
+              <span>Notifications</span>
+              <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
+            </div>
+            <div class="notif-list">
+              <div *ngFor="let n of notifications" class="notif-item" [class.notif-item--unread]="!n.read" (click)="markRead(n)">
+                <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
+                <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
+                <span class="notif-unread-dot" *ngIf="!n.read"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="icon-btn" (click)="openSettings()">
           <span class="material-icons">settings</span>
         </button>
       </div>

@@ -1,6 +1,46 @@
-<div class="dashboard">
+<!-- Toast -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
+    <span class="material-icons">{{ toastIcon(t.type) }}</span>
+    <span>{{ t.message }}</span>
+    <button class="toast-close"><span class="material-icons">close</span></button>
+  </div>
+</div>
 
-  <!-- ── Sidebar ── -->
+<!-- Notif backdrop -->
+<div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
+
+<!-- Session modal -->
+<div class="modal-overlay" *ngIf="showSessionModal" (click)="showSessionModal = false">
+  <div class="modal-panel modal-panel--sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ sessionModalTitle }}</h2>
+      <button class="modal-close-btn" (click)="showSessionModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stat-row" style="grid-template-columns:1fr 1fr">
+        <div class="modal-stat"><span class="modal-stat-lbl">Type</span><span class="modal-stat-val">Hémodialyse</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Durée</span><span class="modal-stat-val mono">4 heures</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Salle</span><span class="modal-stat-val">Salle A · M-03</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Infirmier(e)</span><span class="modal-stat-val">Inf. N. Tazi</span></div>
+      </div>
+      <div class="modal-note">
+        <span class="material-icons">info</span>
+        <p>Présentez-vous 15 min avant l'heure de la séance. Pesée obligatoire à l'entrée.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="showToast('Rappel SMS configuré pour cette séance', 'success'); showSessionModal = false">
+          <span class="material-icons">notifications_active</span> Rappel SMS
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Questions envoyées au Dr. Benali', 'info'); showSessionModal = false">
+          <span class="material-icons">question_answer</span> Poser une question
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard">
   <aside class="sidebar">
     <div class="sidebar__logo">
       <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
@@ -10,58 +50,67 @@
       </svg>
       <span>DialySys</span>
     </div>
-
     <nav class="sidebar__nav">
       <div class="nav-section-label">Mon Espace</div>
-      <a href="#" class="nav-item active">
+      <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
         <span class="material-icons">dashboard</span><span>Tableau de bord</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='seances'" (click)="setSection('seances')">
         <span class="material-icons">event</span><span>Mes Séances</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('historique')">
         <span class="material-icons">history</span><span>Historique</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection==='traitements'" (click)="setSection('traitements')">
         <span class="material-icons">medication</span><span>Mes Traitements</span>
       </a>
-
       <div class="nav-section-label">Santé</div>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('analyses')">
         <span class="material-icons">science</span><span>Mes Analyses</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('constantes')">
         <span class="material-icons">monitor_heart</span><span>Mes Constantes</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('medecin')">
         <span class="material-icons">local_hospital</span><span>Mon Médecin</span>
       </a>
     </nav>
-
     <div class="sidebar__user">
       <div class="user-avatar">AK</div>
       <div class="user-info">
         <span class="user-name">Alaoui Khalid</span>
         <span class="user-role">Patient · DRC</span>
       </div>
-      <button class="logout-btn" (click)="logout()">
-        <span class="material-icons">logout</span>
-      </button>
+      <button class="logout-btn" (click)="logout()"><span class="material-icons">logout</span></button>
     </div>
   </aside>
 
-  <!-- ── Main ── -->
   <div class="main">
     <header class="topbar">
       <div class="topbar__left">
         <h1>Mon Espace Santé</h1>
-        <span class="topbar__date">Bonjour, Khalid — 2 Avril 2026</span>
+        <span class="topbar__date">Bonjour, Khalid — 3 Avril 2026</span>
       </div>
       <div class="topbar__right">
-        <button class="icon-btn notif-btn">
-          <span class="material-icons">notifications</span>
-          <span class="notif-dot"></span>
-        </button>
+        <div class="notif-wrapper">
+          <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
+            <span class="material-icons">notifications</span>
+            <span class="notif-dot" *ngIf="unreadCount > 0"></span>
+          </button>
+          <div class="notif-panel" *ngIf="showNotifPanel">
+            <div class="notif-panel__head">
+              <span>Notifications</span>
+              <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
+            </div>
+            <div class="notif-list">
+              <div *ngFor="let n of notifications" class="notif-item" [class.notif-item--unread]="!n.read" (click)="markRead(n)">
+                <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
+                <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
+                <span class="notif-unread-dot" *ngIf="!n.read"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -80,46 +129,34 @@
         </div>
       </div>
       <div class="profile-banner__stats">
-        <div class="p-stat">
-          <b>Kt/V</b>
-          <span class="mono">1.42</span>
-          <em>Adéquat</em>
+        <div class="p-stat" (click)="showToast('Rapport Kt/V affiché', 'info')" style="cursor:pointer">
+          <b>Kt/V</b><span class="mono">1.42</span><em>Adéquat</em>
         </div>
-        <div class="p-stat">
-          <b>Poids sec</b>
-          <span class="mono">72 kg</span>
-          <em>Stable</em>
+        <div class="p-stat" (click)="showToast('Historique poids affiché', 'info')" style="cursor:pointer">
+          <b>Poids sec</b><span class="mono">72 kg</span><em>Stable</em>
         </div>
-        <div class="p-stat warn">
-          <b>Créatinine</b>
-          <span class="mono" style="color:var(--c-red)">9.2 mg/dL</span>
-          <em style="color:var(--c-red)">Élevée</em>
+        <div class="p-stat warn" (click)="showToast('Résultat créatinine — Dr. Benali a été alerté', 'warning')" style="cursor:pointer" title="Cliquer pour en savoir plus">
+          <b>Créatinine</b><span class="mono" style="color:var(--c-red)">9.2 mg/dL</span><em style="color:var(--c-red)">Élevée</em>
         </div>
-        <div class="p-stat">
-          <b>Hémoglobine</b>
-          <span class="mono">10.8 g/dL</span>
-          <em>Limite</em>
+        <div class="p-stat" (click)="showToast('Résultat hémoglobine affiché', 'info')" style="cursor:pointer">
+          <b>Hémoglobine</b><span class="mono">10.8 g/dL</span><em>Limite</em>
         </div>
       </div>
     </div>
 
-    <!-- Content -->
     <div class="patient-grid">
-
       <!-- Next sessions -->
       <div class="panel">
         <div class="panel__head">
           <h2>Prochaines Séances</h2>
-          <button class="btn-outline-sm">
+          <button class="btn-outline-sm" (click)="ouvrirCalendrier()">
             <span class="material-icons">calendar_month</span> Calendrier
           </button>
         </div>
         <div class="next-sessions">
-          <div class="next-session next-session--next">
+          <div class="next-session next-session--next" (click)="openSessionModal('Hémodialyse — JEU 03 AVR · 08:00')" style="cursor:pointer">
             <div class="next-session__date">
-              <span class="day">JEU</span>
-              <span class="num">03</span>
-              <span class="month">AVR</span>
+              <span class="day">JEU</span><span class="num">03</span><span class="month">AVR</span>
             </div>
             <div class="next-session__info">
               <b>Hémodialyse</b>
@@ -132,11 +169,9 @@
               <span class="countdown">Dans 20h</span>
             </div>
           </div>
-          <div class="next-session">
+          <div class="next-session" (click)="openSessionModal('Hémodialyse — SAM 05 AVR · 08:00')" style="cursor:pointer">
             <div class="next-session__date">
-              <span class="day">SAM</span>
-              <span class="num">05</span>
-              <span class="month">AVR</span>
+              <span class="day">SAM</span><span class="num">05</span><span class="month">AVR</span>
             </div>
             <div class="next-session__info">
               <b>Hémodialyse</b>
@@ -147,11 +182,9 @@
               <span class="badge purple">Planifiée</span>
             </div>
           </div>
-          <div class="next-session">
+          <div class="next-session" (click)="openSessionModal('Hémodialyse — LUN 07 AVR · 08:00')" style="cursor:pointer">
             <div class="next-session__date">
-              <span class="day">LUN</span>
-              <span class="num">07</span>
-              <span class="month">AVR</span>
+              <span class="day">LUN</span><span class="num">07</span><span class="month">AVR</span>
             </div>
             <div class="next-session__info">
               <b>Hémodialyse</b>
@@ -164,9 +197,7 @@
         </div>
       </div>
 
-      <!-- Right column -->
       <div class="right-col">
-
         <!-- Vitals -->
         <div class="panel">
           <div class="panel__head">
@@ -174,159 +205,102 @@
             <span class="topbar__date">02/04/2026</span>
           </div>
           <div class="vitals-list">
-            <div class="vital-entry">
+            <div class="vital-entry" (click)="showToast('Évolution PA affichée', 'info')" style="cursor:pointer">
               <div class="vital-entry__left">
                 <span class="material-icons" style="color:var(--c-red)">favorite</span>
                 <span class="vital-entry__name">Pression artérielle</span>
               </div>
               <div class="vital-entry__right">
-                <span class="mono crit-val">158/96</span>
-                <span class="badge warn">Élevée</span>
+                <span class="mono crit-val">158/96</span><span class="badge warn">Élevée</span>
               </div>
             </div>
-            <div class="vital-entry">
+            <div class="vital-entry" (click)="showToast('Évolution FC affichée', 'info')" style="cursor:pointer">
               <div class="vital-entry__left">
                 <span class="material-icons" style="color:var(--c-blue)">monitor_heart</span>
                 <span class="vital-entry__name">Fréquence cardiaque</span>
               </div>
               <div class="vital-entry__right">
-                <span class="mono">82 bpm</span>
-                <span class="badge ok">Normal</span>
+                <span class="mono">82 bpm</span><span class="badge ok">Normal</span>
               </div>
             </div>
-            <div class="vital-entry">
+            <div class="vital-entry" (click)="showToast('Évolution poids affichée', 'info')" style="cursor:pointer">
               <div class="vital-entry__left">
                 <span class="material-icons" style="color:var(--c-teal)">scale</span>
                 <span class="vital-entry__name">Poids pré-séance</span>
               </div>
               <div class="vital-entry__right">
-                <span class="mono">74.2 kg</span>
-                <span class="badge warn">+2.2 kg</span>
+                <span class="mono">74.2 kg</span><span class="badge warn">+2.2 kg</span>
               </div>
             </div>
-            <div class="vital-entry">
+            <div class="vital-entry" (click)="showToast('Évolution température affichée', 'info')" style="cursor:pointer">
               <div class="vital-entry__left">
                 <span class="material-icons" style="color:var(--c-amber)">thermostat</span>
                 <span class="vital-entry__name">Température</span>
               </div>
               <div class="vital-entry__right">
-                <span class="mono">37.1 °C</span>
-                <span class="badge ok">Normal</span>
+                <span class="mono">37.1 °C</span><span class="badge ok">Normal</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Prescriptions -->
+        <!-- Traitements -->
         <div class="panel">
           <div class="panel__head">
             <h2>Mes Traitements</h2>
           </div>
           <div class="med-list">
-            <div class="med-item">
-              <div class="med-icon">
-                <span class="material-icons">medication</span>
-              </div>
-              <div class="med-info">
-                <b>Érythropoïétine (EPO)</b>
-                <span>4000 UI · Sous-cutanée · 1×/sem</span>
-              </div>
-              <span class="badge info">Actif</span>
-            </div>
-            <div class="med-item">
-              <div class="med-icon">
-                <span class="material-icons">medication</span>
-              </div>
-              <div class="med-info">
-                <b>Furosémide 40 mg</b>
-                <span>Orale · 1 comprimé/jour</span>
-              </div>
-              <span class="badge info">Actif</span>
-            </div>
-            <div class="med-item">
-              <div class="med-icon">
-                <span class="material-icons">medication</span>
-              </div>
-              <div class="med-info">
-                <b>Calcium carbonate 500 mg</b>
-                <span>Orale · 3×/jour avec les repas</span>
-              </div>
+            <div class="med-item" *ngFor="let med of [
+              {nom:'Érythropoïétine (EPO)', detail:'4000 UI · Sous-cutanée · 1×/sem'},
+              {nom:'Furosémide 40 mg',       detail:'Orale · 1 comprimé/jour'},
+              {nom:'Calcium carbonate 500 mg',detail:'Orale · 3×/jour avec les repas'}
+            ]" (click)="showToast('Détails de ' + med.nom + ' affichés', 'info')" style="cursor:pointer">
+              <div class="med-icon"><span class="material-icons">medication</span></div>
+              <div class="med-info"><b>{{ med.nom }}</b><span>{{ med.detail }}</span></div>
               <span class="badge info">Actif</span>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Session History Table -->
+      <!-- History -->
       <div class="panel panel--history">
         <div class="panel__head">
           <h2>Historique des Séances</h2>
-          <button class="btn-outline-sm">
+          <button class="btn-outline-sm" (click)="exporterPDF()">
             <span class="material-icons">download</span> Exporter PDF
           </button>
         </div>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Durée</th>
-              <th>Poids avant</th>
-              <th>Poids après</th>
-              <th>UF</th>
-              <th>PA pré</th>
-              <th>Kt/V</th>
-              <th>Statut</th>
+              <th>Date</th><th>Durée</th><th>Poids avant</th><th>Poids après</th>
+              <th>UF</th><th>PA pré</th><th>Kt/V</th><th>Statut</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><span class="mono">29/03</span></td>
-              <td>4h00</td>
-              <td><span class="mono">74.0 kg</span></td>
-              <td><span class="mono">71.8 kg</span></td>
-              <td><span class="mono">2.2 L</span></td>
-              <td><span class="mono">152/94</span></td>
-              <td><span class="mono ok">1.44</span></td>
-              <td><span class="badge ok">Complète</span></td>
-            </tr>
-            <tr>
-              <td><span class="mono">27/03</span></td>
-              <td>4h00</td>
-              <td><span class="mono">73.8 kg</span></td>
-              <td><span class="mono">71.6 kg</span></td>
-              <td><span class="mono">2.2 L</span></td>
-              <td><span class="mono">148/90</span></td>
-              <td><span class="mono ok">1.41</span></td>
-              <td><span class="badge ok">Complète</span></td>
-            </tr>
-            <tr>
-              <td><span class="mono">25/03</span></td>
-              <td>3h30</td>
-              <td><span class="mono">75.1 kg</span></td>
-              <td><span class="mono">72.9 kg</span></td>
-              <td><span class="mono">2.2 L</span></td>
-              <td><span class="mono warn-val">170/100</span></td>
-              <td><span class="mono warn-val">1.28</span></td>
-              <td><span class="badge warn">Écourtée</span></td>
-            </tr>
-            <tr>
-              <td><span class="mono">22/03</span></td>
-              <td>4h00</td>
-              <td><span class="mono">73.5 kg</span></td>
-              <td><span class="mono">71.3 kg</span></td>
-              <td><span class="mono">2.2 L</span></td>
-              <td><span class="mono">144/88</span></td>
-              <td><span class="mono ok">1.46</span></td>
-              <td><span class="badge ok">Complète</span></td>
+            <tr *ngFor="let row of [
+              {date:'29/03', dur:'4h00', av:'74.0 kg', ap:'71.8 kg', uf:'2.2 L', pa:'152/94', ktv:'1.44', ktvClass:'ok', st:'ok', stLbl:'Complète'},
+              {date:'27/03', dur:'4h00', av:'73.8 kg', ap:'71.6 kg', uf:'2.2 L', pa:'148/90', ktv:'1.41', ktvClass:'ok', st:'ok', stLbl:'Complète'},
+              {date:'25/03', dur:'3h30', av:'75.1 kg', ap:'72.9 kg', uf:'2.2 L', pa:'170/100',ktv:'1.28', ktvClass:'warn-val', st:'warn', stLbl:'Écourtée'},
+              {date:'22/03', dur:'4h00', av:'73.5 kg', ap:'71.3 kg', uf:'2.2 L', pa:'144/88', ktv:'1.46', ktvClass:'ok', st:'ok', stLbl:'Complète'}
+            ]" (click)="showToast('Rapport de séance du ' + row.date + ' ouvert', 'info')" style="cursor:pointer">
+              <td><span class="mono">{{ row.date }}</span></td>
+              <td>{{ row.dur }}</td>
+              <td><span class="mono">{{ row.av }}</span></td>
+              <td><span class="mono">{{ row.ap }}</span></td>
+              <td><span class="mono">{{ row.uf }}</span></td>
+              <td><span class="mono" [ngClass]="row.pa.includes('170') ? 'warn-val' : ''">{{ row.pa }}</span></td>
+              <td><span class="mono" [ngClass]="row.ktvClass">{{ row.ktv }}</span></td>
+              <td><span class="badge {{ row.st }}">{{ row.stLbl }}</span></td>
             </tr>
           </tbody>
         </table>
         <div class="panel__footer">
-          Affichage 4 dernières séances · <a href="#">Voir tout l'historique</a>
+          4 dernières séances ·
+          <a style="cursor:pointer" (click)="voirHistorique()">Voir tout l'historique</a>
         </div>
       </div>
-
     </div>
   </div>
 </div>

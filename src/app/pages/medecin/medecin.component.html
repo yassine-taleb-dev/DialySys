@@ -1,3 +1,117 @@
+<!-- ── Toast Container ── -->
+<div class="toast-container">
+  <div
+    *ngFor="let t of toasts"
+    class="toast toast--{{ t.type }}"
+    (click)="removeToast(t.id)"
+  >
+    <span class="material-icons">{{ toastIcon(t.type) }}</span>
+    <span>{{ t.message }}</span>
+    <button class="toast-close"><span class="material-icons">close</span></button>
+  </div>
+</div>
+
+<!-- ── Notification Backdrop ── -->
+<div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
+
+<!-- ── Patient Detail Modal ── -->
+<div class="modal-overlay" *ngIf="showPatientModal" (click)="closePatientModal()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-lg">{{ selectedPatient?.initials }}</div>
+      <div class="modal-patient-info">
+        <h2>{{ selectedPatient?.nom }}</h2>
+        <span>{{ selectedPatient?.genre === 'H' ? 'Homme' : 'Femme' }} · {{ selectedPatient?.age }} ans · {{ selectedPatient?.pathologie }}</span>
+      </div>
+      <span class="badge {{ selectedPatient?.statutClass }}">{{ selectedPatient?.statut }}</span>
+      <button class="modal-close-btn" (click)="closePatientModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stat-row">
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Dernière Créatinine</span>
+          <span class="modal-stat-val {{ selectedPatient?.creatinineClass }} mono">{{ selectedPatient?.creatinine }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Prochaine Séance</span>
+          <span class="modal-stat-val mono">{{ selectedPatient?.prochaine }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Pathologie</span>
+          <span class="modal-stat-val">{{ selectedPatient?.pathologie }}</span>
+        </div>
+      </div>
+      <div class="modal-note">
+        <span class="material-icons">info</span>
+        <p>Dossier médical complet disponible dans le module EHR. Dernière mise à jour : 01/04/2026.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="patientAction('dossier')">
+          <span class="material-icons">folder_open</span> Dossier complet
+        </button>
+        <button class="btn-outline-sm" (click)="patientAction('ordonnance')">
+          <span class="material-icons">edit_note</span> Ordonnance
+        </button>
+        <button class="btn-outline-sm" (click)="patientAction('planifier')">
+          <span class="material-icons">event</span> Planifier séance
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Nouveau Patient Modal ── -->
+<div class="modal-overlay" *ngIf="showNouveauPatientModal" (click)="fermerNouveauPatient()">
+  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <h2>Nouveau Patient</h2>
+      <button class="modal-close-btn" (click)="fermerNouveauPatient()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newPatient.nom" placeholder="Nom de famille" />
+        </div>
+        <div class="form-field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newPatient.prenom" placeholder="Prénom" />
+        </div>
+        <div class="form-field">
+          <label>Âge <span class="req">*</span></label>
+          <input type="number" [(ngModel)]="newPatient.age" placeholder="Âge" min="1" max="120" />
+        </div>
+        <div class="form-field">
+          <label>Genre</label>
+          <select [(ngModel)]="newPatient.genre">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+        <div class="form-field form-field--full">
+          <label>Pathologie</label>
+          <select [(ngModel)]="newPatient.pathologie">
+            <option value="IRC">Insuffisance Rénale Chronique (IRC)</option>
+            <option value="DRC">Dialyse Rénale Chronique (DRC)</option>
+            <option value="SN">Syndrome Néphrotique (SN)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="ajouterPatient()">
+          <span class="material-icons">person_add</span> Ajouter Patient
+        </button>
+        <button class="btn-outline-sm" (click)="fermerNouveauPatient()">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Dashboard ── -->
 <div class="dashboard">
 
   <!-- ── Sidebar ── -->
@@ -13,32 +127,32 @@
 
     <nav class="sidebar__nav">
       <div class="nav-section-label">Principal</div>
-      <a href="#" class="nav-item active">
+      <a class="nav-item" [class.active]="activeSection === 'dashboard'" (click)="setSection('dashboard')">
         <span class="material-icons">dashboard</span><span>Tableau de bord</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection === 'patients'" (click)="setSection('patients')">
         <span class="material-icons">people</span><span>Mes Patients</span>
-        <span class="nav-badge">24</span>
+        <span class="nav-badge">{{ allPatients.length }}</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection === 'planning'" (click)="setSection('planning')">
         <span class="material-icons">event_note</span><span>Planning Séances</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection === 'prescriptions'" (click)="setSection('prescriptions')">
         <span class="material-icons">medication</span><span>Prescriptions</span>
-        <span class="nav-badge warn">3</span>
+        <span class="nav-badge warn">{{ prescriptions.length }}</span>
       </a>
 
       <div class="nav-section-label">Médical</div>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('bilans')">
         <span class="material-icons">monitor_heart</span><span>Bilans & Résultats</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('analyses')">
         <span class="material-icons">science</span><span>Analyses Biologique</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" (click)="setSection('protocoles')">
         <span class="material-icons">local_hospital</span><span>Protocoles</span>
       </a>
-      <a href="#" class="nav-item">
+      <a class="nav-item" [class.active]="activeSection === 'alertes'" (click)="setSection('alertes')">
         <span class="material-icons">notifications</span><span>Alertes</span>
         <span class="nav-badge crit">2</span>
       </a>
@@ -50,7 +164,7 @@
         <span class="user-name">Dr. Karim Benali</span>
         <span class="user-role">Néphrologue</span>
       </div>
-      <button class="logout-btn" (click)="logout()">
+      <button class="logout-btn" (click)="logout()" title="Se déconnecter">
         <span class="material-icons">logout</span>
       </button>
     </div>
@@ -63,17 +177,44 @@
     <header class="topbar">
       <div class="topbar__left">
         <h1>Tableau de Bord</h1>
-        <span class="topbar__date">Mercredi, 2 Avril 2026</span>
+        <span class="topbar__date">Jeudi, 3 Avril 2026</span>
       </div>
       <div class="topbar__right">
-        <button class="icon-btn">
+        <button class="icon-btn" (click)="openSearch()" title="Recherche globale">
           <span class="material-icons">search</span>
         </button>
-        <button class="icon-btn notif-btn">
-          <span class="material-icons">notifications</span>
-          <span class="notif-dot"></span>
-        </button>
-        <button class="icon-btn">
+
+        <!-- Notifications -->
+        <div class="notif-wrapper">
+          <button class="icon-btn notif-btn" (click)="toggleNotifPanel()" title="Notifications">
+            <span class="material-icons">notifications</span>
+            <span class="notif-dot" *ngIf="unreadCount > 0"></span>
+          </button>
+          <!-- Notification Panel -->
+          <div class="notif-panel" *ngIf="showNotifPanel">
+            <div class="notif-panel__head">
+              <span>Notifications</span>
+              <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
+            </div>
+            <div class="notif-list">
+              <div
+                *ngFor="let n of notifications"
+                class="notif-item"
+                [class.notif-item--unread]="!n.read"
+                (click)="markNotifRead(n)"
+              >
+                <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
+                <div class="notif-content">
+                  <p>{{ n.text }}</p>
+                  <span>{{ n.time }}</span>
+                </div>
+                <span class="notif-unread-dot" *ngIf="!n.read"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="icon-btn" (click)="openSettings()" title="Paramètres">
           <span class="material-icons">settings</span>
         </button>
       </div>
@@ -81,17 +222,17 @@
 
     <!-- KPI Cards -->
     <div class="kpi-row">
-      <div class="kpi-card">
+      <div class="kpi-card" (click)="setSection('patients')" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-teal-soft)">
           <span class="material-icons" style="color:var(--c-teal)">people</span>
         </div>
         <div class="kpi-body">
-          <span class="kpi-val">24</span>
+          <span class="kpi-val">{{ allPatients.length }}</span>
           <span class="kpi-lbl">Patients actifs</span>
         </div>
         <span class="kpi-trend up">+2 <span class="material-icons">trending_up</span></span>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card" (click)="setSection('planning')" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-blue-soft)">
           <span class="material-icons" style="color:var(--c-blue)">event</span>
         </div>
@@ -101,17 +242,17 @@
         </div>
         <span class="kpi-trend neutral">= stables</span>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card" (click)="setSection('prescriptions')" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-amber-soft)">
           <span class="material-icons" style="color:var(--c-amber)">medication</span>
         </div>
         <div class="kpi-body">
-          <span class="kpi-val">3</span>
+          <span class="kpi-val">{{ prescriptions.length }}</span>
           <span class="kpi-lbl">Prescriptions en attente</span>
         </div>
         <span class="kpi-trend warn">Urgent</span>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card" (click)="setSection('alertes')" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-red-soft)">
           <span class="material-icons" style="color:var(--c-red)">warning</span>
         </div>
@@ -133,9 +274,14 @@
           <div class="panel__actions">
             <div class="search-mini">
               <span class="material-icons">search</span>
-              <input type="text" placeholder="Rechercher...">
+              <input
+                #searchInput
+                type="text"
+                placeholder="Rechercher..."
+                [(ngModel)]="searchQuery"
+              />
             </div>
-            <button class="btn-sm-primary">
+            <button class="btn-sm-primary" (click)="ouvrirNouveauPatient()">
               <span class="material-icons">add</span> Nouveau
             </button>
           </div>
@@ -152,86 +298,37 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr *ngFor="let p of filteredPatients">
               <td>
                 <div class="patient-cell">
-                  <div class="avatar-sm">AK</div>
+                  <div class="avatar-sm">{{ p.initials }}</div>
                   <div>
-                    <b>Alaoui Khalid</b>
-                    <span>H · 58 ans · DRC</span>
+                    <b>{{ p.nom }}</b>
+                    <span>{{ p.genre === 'H' ? 'H' : 'F' }} · {{ p.age }} ans · {{ p.pathologie }}</span>
                   </div>
                 </div>
               </td>
-              <td><span class="mono">03/04 · 08:00</span></td>
-              <td><span class="mono crit-val">9.2 mg/dL</span></td>
-              <td><span class="badge crit">Critique</span></td>
-              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+              <td><span class="mono">{{ p.prochaine }}</span></td>
+              <td><span class="mono {{ p.creatinineClass }}">{{ p.creatinine }}</span></td>
+              <td><span class="badge {{ p.statutClass }}">{{ p.statut }}</span></td>
+              <td>
+                <button class="row-btn" (click)="openPatient(p)" title="Voir le dossier">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </td>
             </tr>
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="avatar-sm">SB</div>
-                  <div>
-                    <b>Saidi Bouchra</b>
-                    <span>F · 45 ans · IRC</span>
-                  </div>
-                </div>
+            <tr *ngIf="filteredPatients.length === 0">
+              <td colspan="5" class="empty-row">
+                <span class="material-icons">search_off</span>
+                Aucun patient trouvé pour "{{ searchQuery }}"
               </td>
-              <td><span class="mono">03/04 · 10:30</span></td>
-              <td><span class="mono">5.8 mg/dL</span></td>
-              <td><span class="badge ok">Stable</span></td>
-              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
-            </tr>
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="avatar-sm">ME</div>
-                  <div>
-                    <b>Moussaoui El Hassan</b>
-                    <span>H · 67 ans · DRC</span>
-                  </div>
-                </div>
-              </td>
-              <td><span class="mono">04/04 · 08:00</span></td>
-              <td><span class="mono warn-val">7.1 mg/dL</span></td>
-              <td><span class="badge warn">Attention</span></td>
-              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
-            </tr>
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="avatar-sm">FZ</div>
-                  <div>
-                    <b>Filali Zineb</b>
-                    <span>F · 52 ans · IRC</span>
-                  </div>
-                </div>
-              </td>
-              <td><span class="mono">05/04 · 14:00</span></td>
-              <td><span class="mono">4.9 mg/dL</span></td>
-              <td><span class="badge ok">Stable</span></td>
-              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
-            </tr>
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="avatar-sm">OB</div>
-                  <div>
-                    <b>Ouali Badreddine</b>
-                    <span>H · 39 ans · IRC</span>
-                  </div>
-                </div>
-              </td>
-              <td><span class="mono">05/04 · 16:30</span></td>
-              <td><span class="mono">5.2 mg/dL</span></td>
-              <td><span class="badge ok">Stable</span></td>
-              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
             </tr>
           </tbody>
         </table>
 
         <div class="panel__footer">
-          Affichage 5 sur 24 patients · <a href="#">Voir tous</a>
+          Affichage {{ filteredPatients.length }} sur {{ allPatients.length }} patients ·
+          <a (click)="showToast('Vue complète disponible dans le module patients', 'info')" style="cursor:pointer">Voir tous</a>
         </div>
       </div>
 
@@ -251,7 +348,7 @@
                 <b>Alaoui Khalid – Créatinine élevée</b>
                 <span>9.2 mg/dL — Seuil critique dépassé · il y a 2h</span>
               </div>
-              <button class="btn-outline-sm">Voir</button>
+              <button class="btn-outline-sm" (click)="voirAlert('Alaoui')">Voir</button>
             </div>
             <div class="alert-item alert-item--warn">
               <span class="material-icons">warning_amber</span>
@@ -259,7 +356,7 @@
                 <b>Moussaoui El H. – Pression artérielle</b>
                 <span>180/105 mmHg — Mesure à vérifier · il y a 5h</span>
               </div>
-              <button class="btn-outline-sm">Voir</button>
+              <button class="btn-outline-sm" (click)="voirAlert('Moussaoui')">Voir</button>
             </div>
           </div>
         </div>
@@ -271,7 +368,7 @@
             <span class="topbar__date">03 Avril</span>
           </div>
           <div class="session-timeline">
-            <div class="session-item done">
+            <div class="session-item done" (click)="voirAlert('Alaoui')" style="cursor:pointer" title="Voir le dossier">
               <div class="session-time">08:00</div>
               <div class="session-dot"></div>
               <div class="session-body">
@@ -280,7 +377,7 @@
               </div>
               <span class="badge ok">Terminé</span>
             </div>
-            <div class="session-item active">
+            <div class="session-item active" (click)="voirAlert('Saidi')" style="cursor:pointer" title="Voir le dossier">
               <div class="session-time">10:30</div>
               <div class="session-dot"></div>
               <div class="session-body">
@@ -289,7 +386,7 @@
               </div>
               <span class="badge info">En cours</span>
             </div>
-            <div class="session-item">
+            <div class="session-item" (click)="voirAlert('Filali')" style="cursor:pointer" title="Voir le dossier">
               <div class="session-time">14:00</div>
               <div class="session-dot"></div>
               <div class="session-body">
@@ -305,34 +402,27 @@
         <div class="panel panel--rx">
           <div class="panel__head">
             <h2>Prescriptions en Attente</h2>
-            <button class="btn-sm-primary">
+            <button class="btn-sm-primary" (click)="nouvelleOrdonnance()">
               <span class="material-icons">add</span> Nouvelle
             </button>
           </div>
           <div class="rx-list">
-            <div class="rx-item">
-              <span class="material-icons" style="color:var(--c-amber)">medication</span>
+            <div class="rx-item" *ngFor="let rx of prescriptions" [class.rx-item--prescribed]="rx.prescribed">
+              <span class="material-icons" [style.color]="rx.prescribed ? 'var(--c-green)' : 'var(--c-amber)'">
+                {{ rx.prescribed ? 'check_circle' : 'medication' }}
+              </span>
               <div>
-                <b>EPO 4000 UI / Sous-cut.</b>
-                <span>Alaoui K. — Renouvellement urgent</span>
+                <b>{{ rx.nom }}</b>
+                <span>{{ rx.patient }} — {{ rx.note }}</span>
               </div>
-              <button class="btn-teal-xs">Prescrire</button>
-            </div>
-            <div class="rx-item">
-              <span class="material-icons" style="color:var(--c-amber)">medication</span>
-              <div>
-                <b>Furosémide 40 mg / Oral</b>
-                <span>Moussaoui H. — En attente validation</span>
-              </div>
-              <button class="btn-teal-xs">Prescrire</button>
-            </div>
-            <div class="rx-item">
-              <span class="material-icons" style="color:var(--c-amber)">medication</span>
-              <div>
-                <b>Fer IV 200 mg / Perf.</b>
-                <span>Saidi B. — Bilan anémie</span>
-              </div>
-              <button class="btn-teal-xs">Prescrire</button>
+              <button
+                class="btn-teal-xs"
+                [class.btn-done]="rx.prescribed"
+                [disabled]="rx.prescribed"
+                (click)="prescrire(rx)"
+              >
+                {{ rx.prescribed ? 'Prescrit' : 'Prescrire' }}
+              </button>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgFor, NgClass, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface Task {
   id: number;
@@ -32,14 +33,52 @@ interface MachineClean {
   status: 'done' | 'pending' | 'inProgress';
 }
 
+interface Toast { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
+interface Notif  { icon: string; text: string; time: string; type: string; read: boolean; }
+
 @Component({
   selector: 'app-aide-soignant',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf],
+  imports: [NgFor, NgClass, NgIf, FormsModule],
   templateUrl: './aide-soignant.component.html',
   styleUrl: './aide-soignant.component.scss'
 })
 export class AideSoignantComponent {
+
+  // ── Navigation ──
+  activeSection = 'dashboard';
+  setSection(s: string): void {
+    const dev: Record<string,string> = { machines: 'État des Machines', consommables: 'Consommables', nettoyage: 'Nettoyage' };
+    if (dev[s]) { this.showToast(`${dev[s]} — section en développement`, 'info'); return; }
+    this.activeSection = s;
+    this.showNotifPanel = false;
+  }
+
+  // ── Notifications ──
+  showNotifPanel = false;
+  notifications: Notif[] = [
+    { icon: 'priority_high', text: 'Nettoyage machine M-02 — Urgent',           time: 'il y a 10min', type: 'warn', read: false },
+    { icon: 'inventory_2',   text: 'Dialyseur FX80 à préparer pour Filali Z.',  time: 'il y a 30min', type: 'info', read: false },
+    { icon: 'check_circle',  text: 'Nettoyage M-03 confirmé avec succès',        time: 'il y a 1h',    type: 'ok',   read: true  },
+  ];
+  get unreadCount() { return this.notifications.filter(n => !n.read).length; }
+  toggleNotifPanel(): void { this.showNotifPanel = !this.showNotifPanel; }
+  markAllRead(): void { this.notifications.forEach(n => n.read = true); this.showToast('Notifications marquées comme lues', 'info'); }
+  markRead(n: Notif): void { n.read = true; }
+  openSettings(): void { this.showToast('Paramètres — bientôt disponible', 'info'); }
+
+  // ── Toast ──
+  private tid = 0;
+  toasts: Toast[] = [];
+  showToast(message: string, type: Toast['type'] = 'info'): void {
+    const id = ++this.tid;
+    this.toasts.push({ message, type, id });
+    setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 3500);
+  }
+  removeToast(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }
+  toastIcon(type: string): string {
+    return ({ success: 'check_circle', warning: 'warning', error: 'error', info: 'info' } as Record<string,string>)[type] ?? 'info';
+  }
 
   tasks: Task[] = [
     { id: 1, title: 'Nettoyage machine M-02',                          time: '11:10', person: 'Inf. Haddad',   priority: 'urgent',   done: false },
@@ -86,8 +125,14 @@ export class AideSoignantComponent {
   get pendingChecks() { return this.checkItems.filter(c => !c.done).length; }
 
   /* ── Actions ── */
-  toggleTask(task: Task): void  { task.done = !task.done; }
-  toggleCheck(item: CheckItem): void { item.done = !item.done; }
+  toggleTask(task: Task): void {
+    task.done = !task.done;
+    if (task.done) this.showToast(`"${task.title}" — marquée comme faite`, 'success');
+  }
+  toggleCheck(item: CheckItem): void {
+    item.done = !item.done;
+    if (item.done) this.showToast(`"${item.label}" — coché`, 'success');
+  }
 
   patientBadgeClass(status: string): string {
     return status === 'post' ? 'ok' : status === 'active' ? 'info' : 'purple';

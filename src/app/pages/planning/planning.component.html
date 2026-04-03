@@ -1,0 +1,388 @@
+<!-- Toasts -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
+    <span class="material-icons">{{ toastIcon(t.type) }}</span>
+    <span>{{ t.message }}</span>
+    <button class="toast-close"><span class="material-icons">close</span></button>
+  </div>
+</div>
+
+<!-- ── Session Detail Modal ── -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetail()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-lg">{{ selectedSession?.patientInit }}</div>
+      <div style="flex:1">
+        <h2 style="margin-bottom:3px">{{ selectedSession?.patient }}</h2>
+        <span style="font-size:12px;color:var(--c-text-3)">
+          {{ dayName(selectedSession?.dayOffset ?? 0) }} ·
+          {{ formatTime(selectedSession?.hour ?? 0, selectedSession?.minute ?? 0) }} →
+          Machine {{ selectedSession?.machine }}
+        </span>
+      </div>
+      <span class="badge {{ selectedSession?.statusClass }}">{{ selectedSession?.statusLabel }}</span>
+      <button class="modal-close-btn" (click)="closeDetail()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stat-row">
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Heure de début</span>
+          <span class="modal-stat-val mono">{{ formatTime(selectedSession?.hour ?? 0, selectedSession?.minute ?? 0) }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Durée</span>
+          <span class="modal-stat-val mono">{{ selectedSession?.duration }}h</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Machine</span>
+          <span class="modal-stat-val mono">{{ selectedSession?.machine }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Infirmier(e)</span>
+          <span class="modal-stat-val">{{ selectedSession?.infirmier }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Heure de fin</span>
+          <span class="modal-stat-val mono">{{ sessionEndTime(selectedSession!) }}</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-lbl">Statut</span>
+          <span class="modal-stat-val">{{ selectedSession?.statusLabel }}</span>
+        </div>
+      </div>
+      <div class="modal-note" *ngIf="selectedSession?.note">
+        <span class="material-icons">notes</span>
+        <p>{{ selectedSession?.note }}</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="showToast('Modifications enregistrées', 'success'); closeDetail()">
+          <span class="material-icons">edit</span> Modifier
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Rapport de séance généré', 'info'); closeDetail()">
+          <span class="material-icons">summarize</span> Rapport
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Infirmier(e) réassigné(e)', 'info'); closeDetail()">
+          <span class="material-icons">swap_horiz</span> Réassigner
+        </button>
+        <button class="btn-delete" (click)="deleteSession(selectedSession!)">
+          <span class="material-icons">delete_outline</span> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Nouvelle Séance Modal ── -->
+<div class="modal-overlay" *ngIf="showNewModal" (click)="showNewModal = false">
+  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Planifier une Séance</h2>
+      <button class="modal-close-btn" (click)="showNewModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label>Patient <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newSession.patient" placeholder="Nom complet du patient" />
+        </div>
+        <div class="form-field">
+          <label>Jour</label>
+          <select [(ngModel)]="newSession.dayOffset">
+            <option *ngFor="let d of weekDays; let i = index" [value]="i">{{ dayLabels[i] }} {{ formatDate(d) }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Heure de début</label>
+          <select [(ngModel)]="newSession.hour">
+            <option *ngFor="let h of hours" [value]="h">{{ formatHour(h) }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Minutes</label>
+          <select [(ngModel)]="newSession.minute">
+            <option [value]="0">:00</option>
+            <option [value]="30">:30</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Durée</label>
+          <select [(ngModel)]="newSession.duration">
+            <option [value]="3">3 heures</option>
+            <option [value]="3.5">3h30</option>
+            <option [value]="4">4 heures</option>
+            <option [value]="4.5">4h30</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Machine <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newSession.machine" placeholder="Ex: M-09" />
+        </div>
+        <div class="form-field form-field--full">
+          <label>Infirmier(e)</label>
+          <input type="text" [(ngModel)]="newSession.infirmier" placeholder="Nom de l'infirmier(e)" />
+        </div>
+        <div class="form-field form-field--full">
+          <label>Note (optionnel)</label>
+          <textarea [(ngModel)]="newSession.note" placeholder="Observations, précautions…"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveNewSession()">
+          <span class="material-icons">event_available</span> Planifier la séance
+        </button>
+        <button class="btn-outline-sm" (click)="showNewModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Page Layout ── -->
+<div class="planning-shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>DialySys</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Planning</div>
+      <a class="nav-item active">
+        <span class="material-icons">calendar_month</span><span>Planning Séances</span>
+      </a>
+      <a class="nav-item" (click)="backToDashboard()">
+        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
+      </a>
+
+      <div class="nav-section-label">Statistiques semaine</div>
+
+      <div class="sidebar-stat">
+        <span class="material-icons" style="color:var(--c-teal)">event_available</span>
+        <div><b>{{ weekSessionCount }}</b><span>Séances au total</span></div>
+      </div>
+      <div class="sidebar-stat">
+        <span class="material-icons" style="color:var(--c-green)">check_circle</span>
+        <div><b>{{ completedCount }}</b><span>Terminées</span></div>
+      </div>
+      <div class="sidebar-stat">
+        <span class="material-icons" style="color:var(--c-blue)">monitor_heart</span>
+        <div><b>{{ ongoingCount }}</b><span>En cours</span></div>
+      </div>
+      <div class="sidebar-stat">
+        <span class="material-icons" style="color:var(--c-purple)">pending</span>
+        <div><b>{{ plannedCount }}</b><span>Planifiées</span></div>
+      </div>
+      <div class="sidebar-stat">
+        <span class="material-icons" style="color:var(--c-amber)">precision_manufacturing</span>
+        <div><b>{{ machinesUsed }}</b><span>Machines actives</span></div>
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Filtres</div>
+      <div class="sidebar-filter">
+        <label>Machine</label>
+        <select [(ngModel)]="filterMachine">
+          <option value="">Toutes</option>
+          <option *ngFor="let m of allMachines" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+      <div class="sidebar-filter">
+        <label>Infirmier(e)</label>
+        <select [(ngModel)]="filterInfirmier">
+          <option value="">Tous</option>
+          <option *ngFor="let inf of allInfirmiers" [value]="inf">{{ inf }}</option>
+        </select>
+      </div>
+      <div class="sidebar-filter">
+        <label>Statut</label>
+        <select [(ngModel)]="filterStatus">
+          <option value="">Tous</option>
+          <option value="ok">Terminées</option>
+          <option value="info">En cours</option>
+          <option value="purple">Planifiées</option>
+          <option value="warn">Alertes</option>
+        </select>
+      </div>
+      <button class="clear-filters-btn" *ngIf="hasActiveFilters" (click)="clearFilters()">
+        <span class="material-icons">filter_alt_off</span> Effacer les filtres
+      </button>
+    </nav>
+
+    <div class="sidebar__user">
+      <div class="user-avatar">DR</div>
+      <div class="user-info">
+        <span class="user-name">Dr. Karim Benali</span>
+        <span class="user-role">Néphrologue</span>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Se déconnecter">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="planning-main">
+
+    <!-- Top bar -->
+    <header class="planning-topbar">
+      <div class="planning-topbar__nav">
+        <button class="nav-arrow" (click)="prevWeek()" title="Semaine précédente">
+          <span class="material-icons">chevron_left</span>
+        </button>
+        <div class="week-label">
+          <span class="material-icons">calendar_today</span>
+          {{ weekRangeLabel }}
+        </div>
+        <button class="nav-arrow" (click)="nextWeek()" title="Semaine suivante">
+          <span class="material-icons">chevron_right</span>
+        </button>
+        <button class="today-btn" (click)="goToday()" [class.active]="currentWeekOffset === 0">
+          Aujourd'hui
+        </button>
+      </div>
+
+      <div class="planning-topbar__actions">
+        <!-- View toggle -->
+        <div class="view-toggle">
+          <button [class.active]="viewMode === 'semaine'" (click)="viewMode = 'semaine'">
+            <span class="material-icons">view_week</span> Semaine
+          </button>
+          <button [class.active]="viewMode === 'liste'" (click)="viewMode = 'liste'">
+            <span class="material-icons">list</span> Liste
+          </button>
+        </div>
+        <button class="btn-sm-primary" (click)="openNewModal()">
+          <span class="material-icons">add</span> Nouvelle Séance
+        </button>
+      </div>
+    </header>
+
+    <!-- Filter indicator -->
+    <div class="filter-bar" *ngIf="hasActiveFilters">
+      <span class="material-icons">filter_alt</span>
+      Filtres actifs — {{ filteredWeekSessions.length }} séance(s) affichée(s)
+      <button (click)="clearFilters()">Effacer <span class="material-icons">close</span></button>
+    </div>
+
+    <!-- ═══ WEEK VIEW ═══ -->
+    <div class="calendar-wrap" *ngIf="viewMode === 'semaine'">
+
+      <!-- Day headers -->
+      <div class="cal-header">
+        <div class="cal-time-gutter"></div>
+        <div
+          *ngFor="let day of weekDays; let i = index"
+          class="cal-day-header"
+          [class.today]="isToday(day)"
+          [class.past]="isPast(day) && !isToday(day)"
+        >
+          <span class="day-abbr">{{ dayLabels[i] }}</span>
+          <span class="day-num">{{ day.getDate() }}</span>
+          <span class="day-count" *ngIf="getFilteredSessionsForDay(i).length > 0">
+            {{ getFilteredSessionsForDay(i).length }} séance{{ getFilteredSessionsForDay(i).length > 1 ? 's' : '' }}
+          </span>
+          <button class="add-day-btn" (click)="openNewModal(i)" title="Ajouter une séance ce jour">
+            <span class="material-icons">add</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid body -->
+      <div class="cal-body">
+        <!-- Time gutter -->
+        <div class="cal-time-gutter cal-time-gutter--body">
+          <div class="time-label" *ngFor="let h of hours" [style.height.px]="pxPerHour">
+            {{ formatHour(h) }}
+          </div>
+        </div>
+
+        <!-- Day columns -->
+        <div
+          *ngFor="let day of weekDays; let i = index"
+          class="cal-day-col"
+          [class.today]="isToday(day)"
+          [class.past]="isPast(day) && !isToday(day)"
+          [style.height.px]="hours.length * pxPerHour"
+        >
+          <!-- Hour grid lines -->
+          <div
+            class="grid-line"
+            *ngFor="let h of hours"
+            [style.top.px]="(h - 8) * pxPerHour"
+          ></div>
+          <!-- Half-hour lines -->
+          <div
+            class="grid-line grid-line--half"
+            *ngFor="let h of hours"
+            [style.top.px]="(h - 8) * pxPerHour + pxPerHour / 2"
+          ></div>
+
+          <!-- Session cards -->
+          <div
+            *ngFor="let s of getFilteredSessionsForDay(i)"
+            class="session-card session-card--{{ s.statusClass }}"
+            [style.top.px]="sessionTop(s)"
+            [style.height.px]="sessionHeight(s)"
+            (click)="openSession(s)"
+          >
+            <div class="session-card__time">{{ formatTime(s.hour, s.minute) }}</div>
+            <div class="session-card__patient">{{ s.patient }}</div>
+            <div class="session-card__meta">
+              <span class="material-icons">precision_manufacturing</span>{{ s.machine }}
+            </div>
+            <div class="session-card__duration">{{ s.duration }}h</div>
+          </div>
+
+          <!-- Today current time indicator -->
+          <div class="now-line" *ngIf="isToday(day)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LIST VIEW ═══ -->
+    <div class="list-view" *ngIf="viewMode === 'liste'">
+      <div class="list-day-group" *ngFor="let day of weekDays; let i = index">
+        <div class="list-day-header" [class.today]="isToday(day)">
+          <span class="list-day-name">{{ dayLabels[i] }} {{ day.getDate() }}</span>
+          <span class="badge info" *ngIf="isToday(day)">Aujourd'hui</span>
+          <span class="badge ok" *ngIf="isPast(day) && !isToday(day)">Passé</span>
+          <span class="badge purple" *ngIf="!isPast(day) && !isToday(day)">À venir</span>
+          <span class="list-day-count">{{ getFilteredSessionsForDay(i).length }} séance(s)</span>
+          <button class="btn-teal-xs" (click)="openNewModal(i)">
+            <span class="material-icons">add</span> Ajouter
+          </button>
+        </div>
+
+        <div *ngIf="getFilteredSessionsForDay(i).length === 0" class="list-empty">
+          <span class="material-icons">event_busy</span> Aucune séance ce jour
+        </div>
+
+        <div
+          *ngFor="let s of getFilteredSessionsForDay(i)"
+          class="list-session-row"
+          (click)="openSession(s)"
+        >
+          <div class="list-session-time">
+            <span class="mono">{{ formatTime(s.hour, s.minute) }}</span>
+            <span class="list-dur">{{ s.duration }}h</span>
+          </div>
+          <div class="list-session-bar" [ngClass]="'bar--' + s.statusClass"></div>
+          <div class="list-session-patient">
+            <div class="avatar-sm">{{ s.patientInit }}</div>
+            <div>
+              <b>{{ s.patient }}</b>
+              <span>{{ s.infirmier }} · {{ s.machine }}</span>
+            </div>
+          </div>
+          <span class="badge {{ s.statusClass }}">{{ s.statusLabel }}</span>
+          <span class="material-icons list-chevron">chevron_right</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
