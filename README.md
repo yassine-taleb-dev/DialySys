@@ -45,3 +45,5 @@ DialySys/
         ├── environment.ts
         └── environment.development.ts
 ```
+## l'architecture monolithique :
+<img width="808" height="866" alt="image" src="https://github.com/user-attachments/assets/9ec39570-fde0-473b-a7eb-f5d87ee59379" />
