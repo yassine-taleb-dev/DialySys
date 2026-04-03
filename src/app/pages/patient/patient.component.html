@@ -1,0 +1,332 @@
+<div class="dashboard">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>DialySys</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Mon Espace</div>
+      <a href="#" class="nav-item active">
+        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">event</span><span>Mes Séances</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">history</span><span>Historique</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">medication</span><span>Mes Traitements</span>
+      </a>
+
+      <div class="nav-section-label">Santé</div>
+      <a href="#" class="nav-item">
+        <span class="material-icons">science</span><span>Mes Analyses</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">monitor_heart</span><span>Mes Constantes</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">local_hospital</span><span>Mon Médecin</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__user">
+      <div class="user-avatar">AK</div>
+      <div class="user-info">
+        <span class="user-name">Alaoui Khalid</span>
+        <span class="user-role">Patient · DRC</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__left">
+        <h1>Mon Espace Santé</h1>
+        <span class="topbar__date">Bonjour, Khalid — 2 Avril 2026</span>
+      </div>
+      <div class="topbar__right">
+        <button class="icon-btn notif-btn">
+          <span class="material-icons">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Profile Banner -->
+    <div class="profile-banner">
+      <div class="profile-banner__info">
+        <div class="profile-avatar">AK</div>
+        <div class="profile-details">
+          <h2>Alaoui Khalid</h2>
+          <div class="profile-meta">
+            <span><span class="material-icons">person</span> Homme · 58 ans</span>
+            <span><span class="material-icons">local_hospital</span> DRC — Dialyse 3×/sem.</span>
+            <span><span class="material-icons">badge</span> Dossier: DRC-2019-0042</span>
+            <span><span class="material-icons">person_4</span> Dr. Benali Karim</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-banner__stats">
+        <div class="p-stat">
+          <b>Kt/V</b>
+          <span class="mono">1.42</span>
+          <em>Adéquat</em>
+        </div>
+        <div class="p-stat">
+          <b>Poids sec</b>
+          <span class="mono">72 kg</span>
+          <em>Stable</em>
+        </div>
+        <div class="p-stat warn">
+          <b>Créatinine</b>
+          <span class="mono" style="color:var(--c-red)">9.2 mg/dL</span>
+          <em style="color:var(--c-red)">Élevée</em>
+        </div>
+        <div class="p-stat">
+          <b>Hémoglobine</b>
+          <span class="mono">10.8 g/dL</span>
+          <em>Limite</em>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="patient-grid">
+
+      <!-- Next sessions -->
+      <div class="panel">
+        <div class="panel__head">
+          <h2>Prochaines Séances</h2>
+          <button class="btn-outline-sm">
+            <span class="material-icons">calendar_month</span> Calendrier
+          </button>
+        </div>
+        <div class="next-sessions">
+          <div class="next-session next-session--next">
+            <div class="next-session__date">
+              <span class="day">JEU</span>
+              <span class="num">03</span>
+              <span class="month">AVR</span>
+            </div>
+            <div class="next-session__info">
+              <b>Hémodialyse</b>
+              <span><span class="material-icons">schedule</span> 08:00 — 12:00 (4 heures)</span>
+              <span><span class="material-icons">room</span> Salle A · Machine M-03</span>
+              <span><span class="material-icons">person</span> Inf. N. Tazi</span>
+            </div>
+            <div class="next-session__badge">
+              <span class="badge info">Demain</span>
+              <span class="countdown">Dans 20h</span>
+            </div>
+          </div>
+          <div class="next-session">
+            <div class="next-session__date">
+              <span class="day">SAM</span>
+              <span class="num">05</span>
+              <span class="month">AVR</span>
+            </div>
+            <div class="next-session__info">
+              <b>Hémodialyse</b>
+              <span><span class="material-icons">schedule</span> 08:00 — 12:00 (4 heures)</span>
+              <span><span class="material-icons">room</span> Salle A · Machine M-03</span>
+            </div>
+            <div class="next-session__badge">
+              <span class="badge purple">Planifiée</span>
+            </div>
+          </div>
+          <div class="next-session">
+            <div class="next-session__date">
+              <span class="day">LUN</span>
+              <span class="num">07</span>
+              <span class="month">AVR</span>
+            </div>
+            <div class="next-session__info">
+              <b>Hémodialyse</b>
+              <span><span class="material-icons">schedule</span> 08:00 — 12:00 (4 heures)</span>
+            </div>
+            <div class="next-session__badge">
+              <span class="badge purple">Planifiée</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="right-col">
+
+        <!-- Vitals -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Dernières Constantes</h2>
+            <span class="topbar__date">02/04/2026</span>
+          </div>
+          <div class="vitals-list">
+            <div class="vital-entry">
+              <div class="vital-entry__left">
+                <span class="material-icons" style="color:var(--c-red)">favorite</span>
+                <span class="vital-entry__name">Pression artérielle</span>
+              </div>
+              <div class="vital-entry__right">
+                <span class="mono crit-val">158/96</span>
+                <span class="badge warn">Élevée</span>
+              </div>
+            </div>
+            <div class="vital-entry">
+              <div class="vital-entry__left">
+                <span class="material-icons" style="color:var(--c-blue)">monitor_heart</span>
+                <span class="vital-entry__name">Fréquence cardiaque</span>
+              </div>
+              <div class="vital-entry__right">
+                <span class="mono">82 bpm</span>
+                <span class="badge ok">Normal</span>
+              </div>
+            </div>
+            <div class="vital-entry">
+              <div class="vital-entry__left">
+                <span class="material-icons" style="color:var(--c-teal)">scale</span>
+                <span class="vital-entry__name">Poids pré-séance</span>
+              </div>
+              <div class="vital-entry__right">
+                <span class="mono">74.2 kg</span>
+                <span class="badge warn">+2.2 kg</span>
+              </div>
+            </div>
+            <div class="vital-entry">
+              <div class="vital-entry__left">
+                <span class="material-icons" style="color:var(--c-amber)">thermostat</span>
+                <span class="vital-entry__name">Température</span>
+              </div>
+              <div class="vital-entry__right">
+                <span class="mono">37.1 °C</span>
+                <span class="badge ok">Normal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prescriptions -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Mes Traitements</h2>
+          </div>
+          <div class="med-list">
+            <div class="med-item">
+              <div class="med-icon">
+                <span class="material-icons">medication</span>
+              </div>
+              <div class="med-info">
+                <b>Érythropoïétine (EPO)</b>
+                <span>4000 UI · Sous-cutanée · 1×/sem</span>
+              </div>
+              <span class="badge info">Actif</span>
+            </div>
+            <div class="med-item">
+              <div class="med-icon">
+                <span class="material-icons">medication</span>
+              </div>
+              <div class="med-info">
+                <b>Furosémide 40 mg</b>
+                <span>Orale · 1 comprimé/jour</span>
+              </div>
+              <span class="badge info">Actif</span>
+            </div>
+            <div class="med-item">
+              <div class="med-icon">
+                <span class="material-icons">medication</span>
+              </div>
+              <div class="med-info">
+                <b>Calcium carbonate 500 mg</b>
+                <span>Orale · 3×/jour avec les repas</span>
+              </div>
+              <span class="badge info">Actif</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Session History Table -->
+      <div class="panel panel--history">
+        <div class="panel__head">
+          <h2>Historique des Séances</h2>
+          <button class="btn-outline-sm">
+            <span class="material-icons">download</span> Exporter PDF
+          </button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Durée</th>
+              <th>Poids avant</th>
+              <th>Poids après</th>
+              <th>UF</th>
+              <th>PA pré</th>
+              <th>Kt/V</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="mono">29/03</span></td>
+              <td>4h00</td>
+              <td><span class="mono">74.0 kg</span></td>
+              <td><span class="mono">71.8 kg</span></td>
+              <td><span class="mono">2.2 L</span></td>
+              <td><span class="mono">152/94</span></td>
+              <td><span class="mono ok">1.44</span></td>
+              <td><span class="badge ok">Complète</span></td>
+            </tr>
+            <tr>
+              <td><span class="mono">27/03</span></td>
+              <td>4h00</td>
+              <td><span class="mono">73.8 kg</span></td>
+              <td><span class="mono">71.6 kg</span></td>
+              <td><span class="mono">2.2 L</span></td>
+              <td><span class="mono">148/90</span></td>
+              <td><span class="mono ok">1.41</span></td>
+              <td><span class="badge ok">Complète</span></td>
+            </tr>
+            <tr>
+              <td><span class="mono">25/03</span></td>
+              <td>3h30</td>
+              <td><span class="mono">75.1 kg</span></td>
+              <td><span class="mono">72.9 kg</span></td>
+              <td><span class="mono">2.2 L</span></td>
+              <td><span class="mono warn-val">170/100</span></td>
+              <td><span class="mono warn-val">1.28</span></td>
+              <td><span class="badge warn">Écourtée</span></td>
+            </tr>
+            <tr>
+              <td><span class="mono">22/03</span></td>
+              <td>4h00</td>
+              <td><span class="mono">73.5 kg</span></td>
+              <td><span class="mono">71.3 kg</span></td>
+              <td><span class="mono">2.2 L</span></td>
+              <td><span class="mono">144/88</span></td>
+              <td><span class="mono ok">1.46</span></td>
+              <td><span class="badge ok">Complète</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="panel__footer">
+          Affichage 4 dernières séances · <a href="#">Voir tout l'historique</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,344 @@
+<div class="dashboard">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>DialySys</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Principal</div>
+      <a href="#" class="nav-item active">
+        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">people</span><span>Mes Patients</span>
+        <span class="nav-badge">24</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">event_note</span><span>Planning Séances</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">medication</span><span>Prescriptions</span>
+        <span class="nav-badge warn">3</span>
+      </a>
+
+      <div class="nav-section-label">Médical</div>
+      <a href="#" class="nav-item">
+        <span class="material-icons">monitor_heart</span><span>Bilans & Résultats</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">science</span><span>Analyses Biologique</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">local_hospital</span><span>Protocoles</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">notifications</span><span>Alertes</span>
+        <span class="nav-badge crit">2</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__user">
+      <div class="user-avatar">DR</div>
+      <div class="user-info">
+        <span class="user-name">Dr. Karim Benali</span>
+        <span class="user-role">Néphrologue</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <h1>Tableau de Bord</h1>
+        <span class="topbar__date">Mercredi, 2 Avril 2026</span>
+      </div>
+      <div class="topbar__right">
+        <button class="icon-btn">
+          <span class="material-icons">search</span>
+        </button>
+        <button class="icon-btn notif-btn">
+          <span class="material-icons">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="icon-btn">
+          <span class="material-icons">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)">
+          <span class="material-icons" style="color:var(--c-teal)">people</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">24</span>
+          <span class="kpi-lbl">Patients actifs</span>
+        </div>
+        <span class="kpi-trend up">+2 <span class="material-icons">trending_up</span></span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-blue-soft)">
+          <span class="material-icons" style="color:var(--c-blue)">event</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">8</span>
+          <span class="kpi-lbl">Séances aujourd'hui</span>
+        </div>
+        <span class="kpi-trend neutral">= stables</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-amber-soft)">
+          <span class="material-icons" style="color:var(--c-amber)">medication</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">3</span>
+          <span class="kpi-lbl">Prescriptions en attente</span>
+        </div>
+        <span class="kpi-trend warn">Urgent</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-red-soft)">
+          <span class="material-icons" style="color:var(--c-red)">warning</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">2</span>
+          <span class="kpi-lbl">Alertes critiques</span>
+        </div>
+        <span class="kpi-trend crit">Voir maintenant</span>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+
+      <!-- Patient List -->
+      <div class="panel panel--patients">
+        <div class="panel__head">
+          <h2>Liste des Patients</h2>
+          <div class="panel__actions">
+            <div class="search-mini">
+              <span class="material-icons">search</span>
+              <input type="text" placeholder="Rechercher...">
+            </div>
+            <button class="btn-sm-primary">
+              <span class="material-icons">add</span> Nouveau
+            </button>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Prochaine Séance</th>
+              <th>Dernière Créatinine</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">AK</div>
+                  <div>
+                    <b>Alaoui Khalid</b>
+                    <span>H · 58 ans · DRC</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="mono">03/04 · 08:00</span></td>
+              <td><span class="mono crit-val">9.2 mg/dL</span></td>
+              <td><span class="badge crit">Critique</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">SB</div>
+                  <div>
+                    <b>Saidi Bouchra</b>
+                    <span>F · 45 ans · IRC</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="mono">03/04 · 10:30</span></td>
+              <td><span class="mono">5.8 mg/dL</span></td>
+              <td><span class="badge ok">Stable</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">ME</div>
+                  <div>
+                    <b>Moussaoui El Hassan</b>
+                    <span>H · 67 ans · DRC</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="mono">04/04 · 08:00</span></td>
+              <td><span class="mono warn-val">7.1 mg/dL</span></td>
+              <td><span class="badge warn">Attention</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">FZ</div>
+                  <div>
+                    <b>Filali Zineb</b>
+                    <span>F · 52 ans · IRC</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="mono">05/04 · 14:00</span></td>
+              <td><span class="mono">4.9 mg/dL</span></td>
+              <td><span class="badge ok">Stable</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">OB</div>
+                  <div>
+                    <b>Ouali Badreddine</b>
+                    <span>H · 39 ans · IRC</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="mono">05/04 · 16:30</span></td>
+              <td><span class="mono">5.2 mg/dL</span></td>
+              <td><span class="badge ok">Stable</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="panel__footer">
+          Affichage 5 sur 24 patients · <a href="#">Voir tous</a>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="right-col">
+
+        <!-- Alerts Panel -->
+        <div class="panel panel--alerts">
+          <div class="panel__head">
+            <h2>Alertes Critiques</h2>
+            <span class="badge crit">2 actives</span>
+          </div>
+          <div class="alerts-list">
+            <div class="alert-item alert-item--crit">
+              <span class="material-icons">emergency</span>
+              <div>
+                <b>Alaoui Khalid – Créatinine élevée</b>
+                <span>9.2 mg/dL — Seuil critique dépassé · il y a 2h</span>
+              </div>
+              <button class="btn-outline-sm">Voir</button>
+            </div>
+            <div class="alert-item alert-item--warn">
+              <span class="material-icons">warning_amber</span>
+              <div>
+                <b>Moussaoui El H. – Pression artérielle</b>
+                <span>180/105 mmHg — Mesure à vérifier · il y a 5h</span>
+              </div>
+              <button class="btn-outline-sm">Voir</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Sessions -->
+        <div class="panel panel--sessions">
+          <div class="panel__head">
+            <h2>Séances du Jour</h2>
+            <span class="topbar__date">03 Avril</span>
+          </div>
+          <div class="session-timeline">
+            <div class="session-item done">
+              <div class="session-time">08:00</div>
+              <div class="session-dot"></div>
+              <div class="session-body">
+                <b>Alaoui Khalid</b>
+                <span>Hémodialyse 4h · Machine M-03</span>
+              </div>
+              <span class="badge ok">Terminé</span>
+            </div>
+            <div class="session-item active">
+              <div class="session-time">10:30</div>
+              <div class="session-dot"></div>
+              <div class="session-body">
+                <b>Saidi Bouchra</b>
+                <span>Hémodialyse 4h · Machine M-07</span>
+              </div>
+              <span class="badge info">En cours</span>
+            </div>
+            <div class="session-item">
+              <div class="session-time">14:00</div>
+              <div class="session-dot"></div>
+              <div class="session-body">
+                <b>Filali Zineb</b>
+                <span>Hémodialyse 3.5h · Machine M-02</span>
+              </div>
+              <span class="badge purple">Planifiée</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prescriptions Panel -->
+        <div class="panel panel--rx">
+          <div class="panel__head">
+            <h2>Prescriptions en Attente</h2>
+            <button class="btn-sm-primary">
+              <span class="material-icons">add</span> Nouvelle
+            </button>
+          </div>
+          <div class="rx-list">
+            <div class="rx-item">
+              <span class="material-icons" style="color:var(--c-amber)">medication</span>
+              <div>
+                <b>EPO 4000 UI / Sous-cut.</b>
+                <span>Alaoui K. — Renouvellement urgent</span>
+              </div>
+              <button class="btn-teal-xs">Prescrire</button>
+            </div>
+            <div class="rx-item">
+              <span class="material-icons" style="color:var(--c-amber)">medication</span>
+              <div>
+                <b>Furosémide 40 mg / Oral</b>
+                <span>Moussaoui H. — En attente validation</span>
+              </div>
+              <button class="btn-teal-xs">Prescrire</button>
+            </div>
+            <div class="rx-item">
+              <span class="material-icons" style="color:var(--c-amber)">medication</span>
+              <div>
+                <b>Fer IV 200 mg / Perf.</b>
+                <span>Saidi B. — Bilan anémie</span>
+              </div>
+              <button class="btn-teal-xs">Prescrire</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

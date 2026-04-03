@@ -1,0 +1,298 @@
+<div class="dashboard">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>DialySys</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Mon Espace</div>
+      <a href="#" class="nav-item active">
+        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">assignment</span><span>Mes Tâches</span>
+        <span class="nav-badge warn">{{ urgentTasks.length + pendingTasks.length }}</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">people</span><span>Patients Assignés</span>
+      </a>
+
+      <div class="nav-section-label">Équipements</div>
+      <a href="#" class="nav-item">
+        <span class="material-icons">precision_manufacturing</span><span>Machines</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">inventory_2</span><span>Consommables</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">cleaning_services</span><span>Nettoyage</span>
+      </a>
+    </nav>
+
+    <!-- Daily progress in sidebar -->
+    <div class="sidebar__progress">
+      <div class="sp-label">
+        <span>Progression du jour</span>
+        <span class="sp-pct">{{ progressPct }}%</span>
+      </div>
+      <div class="sp-bar">
+        <div class="sp-fill" [style.width.%]="progressPct"></div>
+      </div>
+      <span class="sp-sub">{{ doneCount }} / {{ totalTasks }} tâches terminées</span>
+    </div>
+
+    <div class="sidebar__user">
+      <div class="user-avatar">AS</div>
+      <div class="user-info">
+        <span class="user-name">A.S. Y. Kettani</span>
+        <span class="user-role">Aide-Soignant</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <h1>Mon Espace</h1>
+        <span class="topbar__date">Mercredi, 2 Avril 2026</span>
+      </div>
+      <div class="topbar__right">
+        <button class="icon-btn notif-btn">
+          <span class="material-icons">notifications</span>
+          <span class="notif-dot" *ngIf="urgentTasks.length > 0"></span>
+        </button>
+        <button class="icon-btn">
+          <span class="material-icons">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card" [class.kpi-card--alert]="urgentTasks.length > 0">
+        <div class="kpi-icon" style="background:var(--c-red-soft)">
+          <span class="material-icons" style="color:var(--c-red)">priority_high</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ urgentTasks.length }}</span>
+          <span class="kpi-lbl">Tâches urgentes</span>
+        </div>
+        <span class="kpi-trend crit" *ngIf="urgentTasks.length > 0">À traiter</span>
+        <span class="kpi-trend up" *ngIf="urgentTasks.length === 0">Aucune</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-amber-soft)">
+          <span class="material-icons" style="color:var(--c-amber)">assignment</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ pendingTasks.length }}</span>
+          <span class="kpi-lbl">Tâches en attente</span>
+        </div>
+        <span class="kpi-trend warn">Standard</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-green-soft)">
+          <span class="material-icons" style="color:var(--c-green)">check_circle</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ doneCount }}</span>
+          <span class="kpi-lbl">Terminées</span>
+        </div>
+        <span class="kpi-trend up">Aujourd'hui</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)">
+          <span class="material-icons" style="color:var(--c-teal)">people</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">{{ patients.length }}</span>
+          <span class="kpi-lbl">Patients assignés</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+
+      <!-- ── Tasks Panel ── -->
+      <div class="panel as-tasks-panel">
+        <div class="panel__head">
+          <h2>Tâches du Jour</h2>
+          <div class="panel__actions">
+            <div class="progress-pill">
+              <div class="progress-pill__fill" [style.width.%]="progressPct"></div>
+              <span>{{ progressPct }}%</span>
+            </div>
+            <span class="topbar__date">{{ doneCount }}/{{ totalTasks }} faites</span>
+          </div>
+        </div>
+
+        <!-- Urgent -->
+        <div class="task-group" *ngIf="urgentTasks.length > 0">
+          <div class="task-group__label urgent">
+            <span class="material-icons">error</span>
+            Urgentes — {{ urgentTasks.length }} en attente
+          </div>
+          <div class="task-row" *ngFor="let task of urgentTasks">
+            <div class="task-row__icon urgent">
+              <span class="material-icons">priority_high</span>
+            </div>
+            <div class="task-row__body">
+              <span class="task-row__title">{{ task.title }}</span>
+              <span class="task-row__meta">
+                <span class="material-icons">schedule</span>{{ task.time }}
+                <ng-container *ngIf="task.person">
+                  <span class="material-icons">person</span>{{ task.person }}
+                </ng-container>
+              </span>
+            </div>
+            <button class="btn-done" (click)="toggleTask(task)">
+              <span class="material-icons">check</span> Fait
+            </button>
+          </div>
+        </div>
+
+        <!-- All done urgent notice -->
+        <div class="task-group" *ngIf="urgentTasks.length === 0">
+          <div class="task-group__label done">
+            <span class="material-icons">check_circle</span>
+            Toutes les tâches urgentes sont traitées
+          </div>
+        </div>
+
+        <!-- Standard -->
+        <div class="task-group" *ngIf="pendingTasks.length > 0">
+          <div class="task-group__label standard">
+            <span class="material-icons">assignment</span>
+            Standard — {{ pendingTasks.length }} restante(s)
+          </div>
+          <div class="task-row" *ngFor="let task of pendingTasks">
+            <div class="task-row__icon">
+              <span class="material-icons">radio_button_unchecked</span>
+            </div>
+            <div class="task-row__body">
+              <span class="task-row__title">{{ task.title }}</span>
+              <span class="task-row__meta">
+                <span class="material-icons">schedule</span>{{ task.time }}
+                <ng-container *ngIf="task.person">
+                  <span class="material-icons">person</span>{{ task.person }}
+                </ng-container>
+              </span>
+            </div>
+            <button class="btn-done" (click)="toggleTask(task)">
+              <span class="material-icons">check</span> Fait
+            </button>
+          </div>
+        </div>
+
+        <!-- Done -->
+        <div class="task-group task-group--done" *ngIf="doneTasks.length > 0">
+          <div class="task-group__label done">
+            <span class="material-icons">check_circle</span>
+            Terminées — {{ doneTasks.length }}
+          </div>
+          <div class="task-row task-row--done" *ngFor="let task of doneTasks">
+            <div class="task-row__icon done">
+              <span class="material-icons">check_circle</span>
+            </div>
+            <div class="task-row__body">
+              <span class="task-row__title">{{ task.title }}</span>
+              <span class="task-row__meta">
+                <span class="material-icons">schedule</span>{{ task.time }}
+              </span>
+            </div>
+            <button class="btn-undo" (click)="toggleTask(task)" title="Annuler">
+              <span class="material-icons">undo</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right Column ── -->
+      <div class="right-col">
+
+        <!-- Patients assignés -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Patients Assignés</h2>
+            <span class="badge info">{{ patients.length }}</span>
+          </div>
+          <div class="assigned-list">
+            <div class="assigned-patient" *ngFor="let p of patients">
+              <div class="patient-cell">
+                <div class="avatar-sm">{{ p.initials }}</div>
+                <div>
+                  <b>{{ p.name }}</b>
+                  <span>{{ p.info }}</span>
+                </div>
+              </div>
+              <span class="badge" [ngClass]="patientBadgeClass(p.status)">
+                {{ patientBadgeLabel(p.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checklist équipement -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Checklist Équipement</h2>
+            <span class="badge" [ngClass]="pendingChecks > 0 ? 'warn' : 'ok'">
+              {{ pendingChecks > 0 ? pendingChecks + ' restants' : 'Complet' }}
+            </span>
+          </div>
+          <div class="checklist">
+            <div class="check-item"
+                 *ngFor="let item of checkItems"
+                 [class.done]="item.done"
+                 (click)="toggleCheck(item)">
+              <span class="material-icons check-icon">
+                {{ item.done ? 'check_box' : 'check_box_outline_blank' }}
+              </span>
+              <span class="check-label">{{ item.label }}</span>
+              <span class="badge info check-machine" *ngIf="item.machine">{{ item.machine }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nettoyage machines -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Nettoyage Machines</h2>
+            <span class="badge warn">3 à nettoyer</span>
+          </div>
+          <div class="machine-clean-list">
+            <div class="machine-clean-row" *ngFor="let m of machines">
+              <div class="machine-clean-row__left">
+                <span class="machine-id">{{ m.id }}</span>
+                <div>
+                  <b>{{ m.model }}</b>
+                  <span>Dernier: {{ m.lastClean }}</span>
+                </div>
+              </div>
+              <span class="badge" [ngClass]="machineStatusClass(m.status)">
+                {{ machineStatusLabel(m.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,336 @@
+<div class="dashboard">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>DialySys</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Gestion</div>
+      <a href="#" class="nav-item active">
+        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">supervisor_account</span><span>Équipe Soignante</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">calendar_month</span><span>Planning Global</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">people</span><span>Tous les Patients</span>
+        <span class="nav-badge">24</span>
+      </a>
+
+      <div class="nav-section-label">Supervision</div>
+      <a href="#" class="nav-item">
+        <span class="material-icons">monitor_heart</span><span>Monitoring Global</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">assessment</span><span>Rapports & Stats</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">report_problem</span><span>Incidents</span>
+        <span class="nav-badge crit">1</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-icons">inventory_2</span><span>Stocks & Consommables</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__user">
+      <div class="user-avatar">IM</div>
+      <div class="user-info">
+        <span class="user-name">Inf. Maj. F. Chraibi</span>
+        <span class="user-role">Infirmier·ère Major</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__left">
+        <h1>Supervision Générale</h1>
+        <span class="topbar__date">Service Hémodialyse — 2 Avril 2026</span>
+      </div>
+      <div class="topbar__right">
+        <button class="btn-sm-primary">
+          <span class="material-icons">add</span> Nouvelle Séance
+        </button>
+        <button class="icon-btn notif-btn">
+          <span class="material-icons">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)">
+          <span class="material-icons" style="color:var(--c-teal)">event_available</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">14</span>
+          <span class="kpi-lbl">Séances programmées</span>
+        </div>
+        <span class="kpi-trend up">↑ +2 vs hier</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-blue-soft)">
+          <span class="material-icons" style="color:var(--c-blue)">monitor_heart</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">7</span>
+          <span class="kpi-lbl">En dialyse (temps réel)</span>
+        </div>
+        <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-green-soft)">
+          <span class="material-icons" style="color:var(--c-green)">people</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">6</span>
+          <span class="kpi-lbl">Infirmiers en service</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-red-soft)">
+          <span class="material-icons" style="color:var(--c-red)">report_problem</span>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-val">1</span>
+          <span class="kpi-lbl">Incident en cours</span>
+        </div>
+        <span class="kpi-trend crit">À traiter</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-grid">
+
+      <!-- Planning Table -->
+      <div class="panel">
+        <div class="panel__head">
+          <h2>Planning des Séances — Aujourd'hui</h2>
+          <div class="panel__actions">
+            <div class="search-mini">
+              <span class="material-icons">search</span>
+              <input type="text" placeholder="Rechercher...">
+            </div>
+            <button class="btn-outline-sm">
+              <span class="material-icons">filter_list</span> Filtrer
+            </button>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Heure</th>
+              <th>Patient</th>
+              <th>Infirmier(e)</th>
+              <th>Machine</th>
+              <th>Durée</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="mono">08:00</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">AK</div>
+                  <span>Alaoui Khalid</span>
+                </div>
+              </td>
+              <td>Inf. N. Tazi</td>
+              <td><span class="mono">M-03</span></td>
+              <td>4h</td>
+              <td><span class="badge ok">Terminé</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td><span class="mono">09:00</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">ME</div>
+                  <span>Moussaoui H.</span>
+                </div>
+              </td>
+              <td>Inf. A. Haddad</td>
+              <td><span class="mono">M-02</span></td>
+              <td>4h</td>
+              <td><span class="badge warn">Alerte PA</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td><span class="mono">09:30</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">OB</div>
+                  <span>Ouali Badreddine</span>
+                </div>
+              </td>
+              <td>Inf. N. Tazi</td>
+              <td><span class="mono">M-05</span></td>
+              <td>4h</td>
+              <td><span class="badge info">En cours</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td><span class="mono">10:30</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">SB</div>
+                  <span>Saidi Bouchra</span>
+                </div>
+              </td>
+              <td>Inf. L. Mansouri</td>
+              <td><span class="mono">M-07</span></td>
+              <td>4h</td>
+              <td><span class="badge info">En cours</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+            <tr>
+              <td><span class="mono">14:00</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">FZ</div>
+                  <span>Filali Zineb</span>
+                </div>
+              </td>
+              <td>Inf. R. Berrada</td>
+              <td><span class="mono">M-09</span></td>
+              <td>3.5h</td>
+              <td><span class="badge purple">Planifiée</span></td>
+              <td><button class="row-btn"><span class="material-icons">chevron_right</span></button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="panel__footer">
+          5 affichées sur 14 séances du jour · <a href="#">Voir toutes</a>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="right-col">
+
+        <!-- Team roster -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Équipe en Service</h2>
+            <span class="badge ok">6 présents</span>
+          </div>
+          <div class="staff-list">
+            <div class="staff-row">
+              <div class="avatar-sm">NT</div>
+              <div class="staff-info">
+                <b>Inf. N. Tazi</b>
+                <span>2 patients assignés</span>
+              </div>
+              <span class="badge info">Actif</span>
+            </div>
+            <div class="staff-row">
+              <div class="avatar-sm">AH</div>
+              <div class="staff-info">
+                <b>Inf. A. Haddad</b>
+                <span>1 patient assigné</span>
+              </div>
+              <span class="badge warn">Alerte</span>
+            </div>
+            <div class="staff-row">
+              <div class="avatar-sm">LM</div>
+              <div class="staff-info">
+                <b>Inf. L. Mansouri</b>
+                <span>1 patient assigné</span>
+              </div>
+              <span class="badge info">Actif</span>
+            </div>
+            <div class="staff-row">
+              <div class="avatar-sm">RB</div>
+              <div class="staff-info">
+                <b>Inf. R. Berrada</b>
+                <span>En préparation</span>
+              </div>
+              <span class="badge purple">Prép.</span>
+            </div>
+            <div class="staff-row">
+              <div class="avatar-sm">YK</div>
+              <div class="staff-info">
+                <b>Aide-Soig. Y. Kettani</b>
+                <span>Nettoyage M-03</span>
+              </div>
+              <span class="badge ok">Actif</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock & Incident -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Stocks Critiques</h2>
+            <span class="badge warn">2 alertes</span>
+          </div>
+          <div class="stock-list">
+            <div class="stock-item">
+              <span class="material-icons" style="color:var(--c-amber)">inventory_2</span>
+              <div>
+                <b>Bicarbonate 8.4% — 500mL</b>
+                <span>Stock: 12 flacons · Seuil: 20</span>
+              </div>
+              <button class="btn-outline-sm">Commander</button>
+            </div>
+            <div class="stock-item">
+              <span class="material-icons" style="color:var(--c-amber)">inventory_2</span>
+              <div>
+                <b>Dialyseurs FX80</b>
+                <span>Stock: 8 unités · Seuil: 15</span>
+              </div>
+              <button class="btn-outline-sm">Commander</button>
+            </div>
+            <div class="stock-item ok-item">
+              <span class="material-icons" style="color:var(--c-green)">inventory_2</span>
+              <div>
+                <b>Lignes artérielles</b>
+                <span>Stock: 45 unités · OK</span>
+              </div>
+              <span class="badge ok">OK</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Incident -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Incidents Signalés</h2>
+            <span class="badge crit">1 ouvert</span>
+          </div>
+          <div class="alerts-list">
+            <div class="alert-item alert-item--warn">
+              <span class="material-icons">report_problem</span>
+              <div>
+                <b>Alarme pression veineuse — M-02</b>
+                <span>Moussaoui H. · Signalé à 11:05 · Inf. Haddad</span>
+              </div>
+              <button class="btn-teal-xs">Traiter</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
