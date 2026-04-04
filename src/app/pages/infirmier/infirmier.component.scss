@@ -135,3 +135,195 @@
   font-size: 12.5px;
   color: var(--c-text-2);
 }
+
+/* ─── Alert banner ─── */
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,193,7,.1);
+  border: 1px solid rgba(255,193,7,.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--c-amber);
+  .material-icons { font-size: 20px; }
+}
+
+/* ─── Full monitor grid ─── */
+.monitor-fullgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+
+.monitor-card--full {
+  .monitor-card__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--c-border);
+  }
+}
+
+.vitals-row--lg { grid-template-columns: repeat(5, 1fr); }
+
+.vital--lg {
+  padding: 12px 6px;
+  .vital-val--lg { font-size: 18px; font-weight: 700; }
+}
+
+/* ─── Section bar ─── */
+.section-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+  &__filters { display: flex; align-items: center; gap: 10px; }
+}
+
+.filter-select {
+  height: 34px;
+  padding: 0 10px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  color: var(--c-text-1);
+  font-size: 13px;
+  cursor: pointer;
+  &:focus { outline: none; border-color: var(--c-teal); }
+}
+
+/* ─── Row actions mini ─── */
+.row-actions-mini { display: flex; gap: 4px; }
+
+/* ─── Task list full ─── */
+.task-list--full { padding: 0 4px; }
+
+.task-item--full {
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.task-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  .material-icons { font-size: 14px; }
+
+  &--urgent { color: var(--c-red); }
+  &--done   { color: var(--c-green); }
+}
+
+/* ─── Soins ─── */
+.soin-type-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(0,217,196,.1);
+  color: var(--c-teal);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.row-done td { opacity: .55; }
+
+/* ─── Machines grid ─── */
+.machines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.machine-card {
+  background: var(--c-card);
+  border: 1.5px solid var(--c-border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color .2s;
+
+  &:hover { border-color: var(--c-border-hi); }
+  &--ok   { border-color: rgba(0,217,196,.25); background: rgba(0,217,196,.03); }
+  &--warn { border-color: rgba(255,87,87,.25);  background: rgba(255,87,87,.03); }
+  &--busy { border-color: rgba(41,182,246,.2); }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__id {
+    font-family: var(--f-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--c-teal);
+  }
+
+  &__model {
+    font-size: 13px;
+    color: var(--c-text-2);
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--c-text-3);
+    .material-icons { font-size: 14px; }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--c-border);
+  }
+}
+
+.btn-warn:hover {
+  border-color: var(--c-red) !important;
+  color: var(--c-red) !important;
+}
+
+/* ─── Empty row ─── */
+.empty-row {
+  text-align: center;
+  color: var(--c-text-3);
+  padding: 32px 16px !important;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  .material-icons { font-size: 28px; }
+}
+
+/* ─── Misc helpers ─── */
+.badge--lg { font-size: 12px; padding: 4px 12px; }
+.modal-panel--monitor { max-width: 600px; }
+.modal-stat-row--3 { grid-template-columns: repeat(3, 1fr); }
+.panel__footer {
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--c-text-3);
+  border-top: 1px solid var(--c-border);
+  a { color: var(--c-teal); cursor: pointer; text-decoration: none; &:hover { text-decoration: underline; } }
+}
+.modal-header--simple { gap: 0; h2 { flex: 1; } }
+.req { color: var(--c-red); }

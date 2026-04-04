@@ -10,29 +10,29 @@
 <!-- Notif backdrop -->
 <div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
 
-<!-- Session detail modal -->
-<div class="modal-overlay" *ngIf="showSessionModal" (click)="closeSession()">
+<!-- ══ MODAL — Session detail ══ -->
+<div class="modal-overlay" *ngIf="showSessionModal && selectedSession" (click)="closeSession()">
   <div class="modal-panel" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <div class="avatar-lg">{{ selectedSession?.patientInit }}</div>
+      <div class="avatar-lg">{{ selectedSession!.patientInit }}</div>
       <div style="flex:1">
-        <h2 style="margin-bottom:2px">{{ selectedSession?.patientNom }}</h2>
-        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedSession?.heure }} · {{ selectedSession?.duree }} · Machine {{ selectedSession?.machine }}</span>
+        <h2>{{ selectedSession!.patientNom }}</h2>
+        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedSession!.heure }} · {{ selectedSession!.duree }} · Machine {{ selectedSession!.machine }}</span>
       </div>
-      <span class="badge {{ selectedSession?.statusClass }}">{{ selectedSession?.statusLabel }}</span>
+      <span class="badge {{ selectedSession!.statusClass }}">{{ selectedSession!.statusLabel }}</span>
       <button class="modal-close-btn" (click)="closeSession()"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body">
       <div class="modal-stat-row">
-        <div class="modal-stat"><span class="modal-stat-lbl">Infirmier(e)</span><span class="modal-stat-val">{{ selectedSession?.infirmier }}</span></div>
-        <div class="modal-stat"><span class="modal-stat-lbl">Machine</span><span class="modal-stat-val mono">{{ selectedSession?.machine }}</span></div>
-        <div class="modal-stat"><span class="modal-stat-lbl">Durée</span><span class="modal-stat-val mono">{{ selectedSession?.duree }}</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Infirmier(e)</span><span class="modal-stat-val">{{ selectedSession!.infirmier }}</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Machine</span><span class="modal-stat-val mono">{{ selectedSession!.machine }}</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Durée</span><span class="modal-stat-val mono">{{ selectedSession!.duree }}</span></div>
       </div>
       <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="showToast('Séance de ' + selectedSession?.patientNom + ' mise à jour', 'success'); closeSession()">
+        <button class="btn-sm-primary" (click)="showToast('Séance mise à jour', 'success'); closeSession()">
           <span class="material-icons">edit</span> Modifier
         </button>
-        <button class="btn-outline-sm" (click)="showToast('Rapport de séance généré', 'info'); closeSession()">
+        <button class="btn-outline-sm" (click)="showToast('Rapport généré', 'info'); closeSession()">
           <span class="material-icons">summarize</span> Rapport
         </button>
         <button class="btn-outline-sm" (click)="showToast('Infirmier(e) réassigné(e)', 'info'); closeSession()">
@@ -43,10 +43,10 @@
   </div>
 </div>
 
-<!-- Nouvelle Séance modal -->
+<!-- ══ MODAL — Nouvelle Séance ══ -->
 <div class="modal-overlay" *ngIf="showNouvelleSeanceModal" (click)="showNouvelleSeanceModal = false">
   <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+    <div class="modal-header modal-header--simple">
       <h2>Nouvelle Séance</h2>
       <button class="modal-close-btn" (click)="showNouvelleSeanceModal = false"><span class="material-icons">close</span></button>
     </div>
@@ -71,7 +71,10 @@
         </div>
         <div class="form-field">
           <label>Infirmier(e)</label>
-          <input type="text" [(ngModel)]="newSeance.infirmier" placeholder="Nom infirmier" />
+          <select [(ngModel)]="newSeance.infirmier">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let s of staff" [value]="s.nom">{{ s.nom }}</option>
+          </select>
         </div>
         <div class="form-field">
           <label>Machine</label>
@@ -79,14 +82,52 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="ajouterSeance()"><span class="material-icons">add</span> Créer la séance</button>
+        <button class="btn-sm-primary" (click)="ajouterSeance()">
+          <span class="material-icons">add</span> Créer la séance
+        </button>
         <button class="btn-outline-sm" (click)="showNouvelleSeanceModal = false">Annuler</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ══ MODAL — Staff ══ -->
+<div class="modal-overlay" *ngIf="showStaffModal && selectedStaff" (click)="closeStaff()">
+  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-lg">{{ selectedStaff!.init }}</div>
+      <div style="flex:1">
+        <h2>{{ selectedStaff!.nom }}</h2>
+        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedStaff!.role }} · {{ selectedStaff!.vacation }}</span>
+      </div>
+      <span class="badge {{ selectedStaff!.statutClass }}">{{ selectedStaff!.statut }}</span>
+      <button class="modal-close-btn" (click)="closeStaff()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stat-row">
+        <div class="modal-stat"><span class="modal-stat-lbl">Patients assignés</span><span class="modal-stat-val mono">{{ selectedStaff!.patients }}</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Vacation</span><span class="modal-stat-val" style="font-size:12px">{{ selectedStaff!.vacation }}</span></div>
+        <div class="modal-stat"><span class="modal-stat-lbl">Téléphone</span><span class="modal-stat-val mono" style="font-size:12px">{{ selectedStaff!.telephone }}</span></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="showToast('Message envoyé à ' + selectedStaff!.nom, 'info'); closeStaff()">
+          <span class="material-icons">message</span> Contacter
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Planning de ' + selectedStaff!.nom + ' ouvert', 'info'); closeStaff()">
+          <span class="material-icons">calendar_month</span> Planning
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Tâche assignée', 'success'); closeStaff()">
+          <span class="material-icons">assignment</span> Assigner tâche
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
 <div class="dashboard">
+
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar__logo">
       <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
@@ -101,15 +142,16 @@
       <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
         <span class="material-icons">dashboard</span><span>Tableau de bord</span>
       </a>
-      <a class="nav-item" [class.active]="activeSection==='equipe'" (click)="setSection('equipe')">
-        <span class="material-icons">supervisor_account</span><span>Équipe Soignante</span>
-      </a>
       <a class="nav-item" [class.active]="activeSection==='planning'" (click)="setSection('planning')">
         <span class="material-icons">calendar_month</span><span>Planning Global</span>
       </a>
+      <a class="nav-item" [class.active]="activeSection==='equipe'" (click)="setSection('equipe')">
+        <span class="material-icons">supervisor_account</span><span>Équipe Soignante</span>
+        <span class="nav-badge">{{ staff.length }}</span>
+      </a>
       <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
         <span class="material-icons">people</span><span>Tous les Patients</span>
-        <span class="nav-badge">{{ sessions.length }}</span>
+        <span class="nav-badge">{{ allPatients.length }}</span>
       </a>
       <div class="nav-section-label">Supervision</div>
       <a class="nav-item" (click)="setSection('monitoring')">
@@ -120,10 +162,11 @@
       </a>
       <a class="nav-item" [class.active]="activeSection==='incidents'" (click)="setSection('incidents')">
         <span class="material-icons">report_problem</span><span>Incidents</span>
-        <span class="nav-badge crit" *ngIf="!incidentResolu">1</span>
+        <span class="nav-badge crit" *ngIf="incidentsOuverts.length > 0">{{ incidentsOuverts.length }}</span>
       </a>
-      <a class="nav-item" (click)="setSection('stocks')">
+      <a class="nav-item" [class.active]="activeSection==='stocks'" (click)="setSection('stocks')">
         <span class="material-icons">inventory_2</span><span>Stocks & Consommables</span>
+        <span class="nav-badge warn" *ngIf="criticalStocksCount > 0">{{ criticalStocksCount }}</span>
       </a>
     </nav>
     <div class="sidebar__user">
@@ -136,10 +179,13 @@
     </div>
   </aside>
 
+  <!-- Main -->
   <div class="main">
+
+    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar__left">
-        <h1>Supervision Générale</h1>
+        <h1>{{ sectionTitle }}</h1>
         <span class="topbar__date">Service Hémodialyse — 3 Avril 2026</span>
       </div>
       <div class="topbar__right">
@@ -157,7 +203,8 @@
               <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
             </div>
             <div class="notif-list">
-              <div *ngFor="let n of notifications" class="notif-item" [class.notif-item--unread]="!n.read" (click)="markRead(n)">
+              <div *ngFor="let n of notifications" class="notif-item"
+                [class.notif-item--unread]="!n.read" (click)="markRead(n)">
                 <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
                 <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
                 <span class="notif-unread-dot" *ngIf="!n.read"></span>
@@ -168,150 +215,340 @@
       </div>
     </header>
 
-    <!-- KPI -->
-    <div class="kpi-row">
-      <div class="kpi-card" style="cursor:pointer" (click)="setSection('planning')">
-        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
-        <div class="kpi-body"><span class="kpi-val">{{ sessions.length }}</span><span class="kpi-lbl">Séances programmées</span></div>
-        <span class="kpi-trend up">↑ +2 vs hier</span>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">monitor_heart</span></div>
-        <div class="kpi-body"><span class="kpi-val">7</span><span class="kpi-lbl">En dialyse (temps réel)</span></div>
-        <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
-      </div>
-      <div class="kpi-card" style="cursor:pointer" (click)="setSection('equipe')">
-        <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">people</span></div>
-        <div class="kpi-body"><span class="kpi-val">6</span><span class="kpi-lbl">Infirmiers en service</span></div>
-      </div>
-      <div class="kpi-card" style="cursor:pointer" (click)="setSection('incidents')">
-        <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">report_problem</span></div>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ incidentResolu ? 0 : 1 }}</span>
-          <span class="kpi-lbl">Incident en cours</span>
-        </div>
-        <span class="kpi-trend crit" *ngIf="!incidentResolu">À traiter</span>
-        <span class="kpi-trend up" *ngIf="incidentResolu">Résolu</span>
-      </div>
-    </div>
+    <!-- ════ DASHBOARD ════ -->
+    <ng-container *ngIf="activeSection === 'dashboard'">
 
-    <div class="content-grid">
-      <!-- Planning Table -->
-      <div class="panel">
-        <div class="panel__head">
-          <h2>Planning des Séances — Aujourd'hui</h2>
-          <div class="panel__actions">
-            <div class="search-mini">
-              <span class="material-icons">search</span>
-              <input type="text" placeholder="Rechercher..." [(ngModel)]="searchQuery" />
+      <div class="kpi-row">
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('dashboard')">
+          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ sessions.length }}</span><span class="kpi-lbl">Séances programmées</span></div>
+          <span class="kpi-trend up">aujourd'hui</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ sessionsEnCours }}</span><span class="kpi-lbl">En dialyse (live)</span></div>
+          <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
+        </div>
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('equipe')">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">people</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ staffEnService }}</span><span class="kpi-lbl">Infirmiers en service</span></div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('incidents')">
+          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">report_problem</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ incidentsOuverts.length }}</span><span class="kpi-lbl">Incidents ouverts</span></div>
+          <span class="kpi-trend crit" *ngIf="incidentsOuverts.length > 0">À traiter</span>
+          <span class="kpi-trend up" *ngIf="incidentsOuverts.length === 0">Tout résolu</span>
+        </div>
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('stocks')">
+          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">inventory_2</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ criticalStocksCount }}</span><span class="kpi-lbl">Stocks critiques</span></div>
+          <span class="kpi-trend warn" *ngIf="criticalStocksCount > 0">Commande urgente</span>
+        </div>
+      </div>
+
+      <div class="content-grid">
+
+        <!-- Planning table -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Planning des Séances</h2>
+            <div class="panel__actions">
+              <div class="search-mini">
+                <span class="material-icons">search</span>
+                <input type="text" placeholder="Rechercher..." [(ngModel)]="searchQuery" />
+              </div>
             </div>
-            <button class="btn-outline-sm" (click)="filterAction()">
-              <span class="material-icons">filter_list</span> Filtrer
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Heure</th><th>Patient</th><th>Infirmier(e)</th><th>Machine</th><th>Durée</th><th>Statut</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of filteredSessions">
+                <td><span class="mono">{{ s.heure }}</span></td>
+                <td><div class="patient-cell"><div class="avatar-sm">{{ s.patientInit }}</div><span>{{ s.patientNom }}</span></div></td>
+                <td>{{ s.infirmier }}</td>
+                <td><span class="mono">{{ s.machine }}</span></td>
+                <td>{{ s.duree }}</td>
+                <td><span class="badge {{ s.statusClass }}">{{ s.statusLabel }}</span></td>
+                <td><button class="row-btn" (click)="openSession(s)"><span class="material-icons">chevron_right</span></button></td>
+              </tr>
+              <tr *ngIf="filteredSessions.length === 0">
+                <td colspan="7" class="empty-row"><span class="material-icons">search_off</span>Aucune séance trouvée</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="panel__footer">{{ filteredSessions.length }} sur {{ sessions.length }} séances</div>
+        </div>
+
+        <div class="right-col">
+
+          <!-- Staff quick -->
+          <div class="panel">
+            <div class="panel__head">
+              <h2>Équipe en Service</h2>
+              <span class="badge ok">{{ staffEnService }} présents</span>
+            </div>
+            <div class="staff-list">
+              <div class="staff-row" *ngFor="let s of staff" (click)="openStaff(s)" style="cursor:pointer">
+                <div class="avatar-sm">{{ s.init }}</div>
+                <div class="staff-info"><b>{{ s.nom }}</b><span>{{ s.role }} · {{ s.patients }} patient(s)</span></div>
+                <span class="badge {{ s.statutClass }}">{{ s.statut }}</span>
+              </div>
+            </div>
+            <div class="panel__footer"><a style="cursor:pointer" (click)="setSection('equipe')">Gérer l'équipe →</a></div>
+          </div>
+
+          <!-- Stocks quick -->
+          <div class="panel">
+            <div class="panel__head">
+              <h2>Stocks Critiques</h2>
+              <span class="badge warn">{{ criticalStocksCount }} alertes</span>
+            </div>
+            <div class="stock-list">
+              <div class="stock-item" *ngFor="let item of stocks | slice:0:4" [class.ok-item]="item.statusClass === 'ok'">
+                <span class="material-icons" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.icon }}</span>
+                <div><b>{{ item.nom }}</b><span>{{ item.quantite }} / {{ item.seuil * 2 }} unités</span></div>
+                <button class="btn-outline-sm" *ngIf="item.statusClass !== 'ok'" (click)="commanderStock(item)"
+                  [disabled]="item.ordered" [class.btn-done-rx]="item.ordered">
+                  {{ item.ordered ? 'Commandé ✓' : 'Commander' }}
+                </button>
+                <span class="badge ok" *ngIf="item.statusClass === 'ok'">OK</span>
+              </div>
+            </div>
+            <div class="panel__footer"><a style="cursor:pointer" (click)="setSection('stocks')">Gérer les stocks →</a></div>
+          </div>
+
+          <!-- Incidents quick -->
+          <div class="panel">
+            <div class="panel__head">
+              <h2>Incidents</h2>
+              <span class="badge" [ngClass]="incidentsOuverts.length > 0 ? 'crit' : 'ok'">
+                {{ incidentsOuverts.length > 0 ? incidentsOuverts.length + ' ouverts' : 'Tout résolu' }}
+              </span>
+            </div>
+            <div class="alerts-list">
+              <div class="alert-item" *ngFor="let i of incidents | slice:0:2"
+                [class.alert-item--crit]="i.priorite === 'critique'"
+                [class.alert-item--warn]="i.priorite === 'elevee'">
+                <span class="material-icons">{{ i.statut === 'resolu' ? 'check_circle' : 'report_problem' }}</span>
+                <div><b>{{ i.type }} — {{ i.machine }}</b><span>{{ i.description | slice:0:60 }}…</span></div>
+                <button class="btn-teal-xs" *ngIf="i.statut === 'ouvert'" (click)="prendreEnCharge(i)">Traiter</button>
+                <span class="badge ok" *ngIf="i.statut === 'resolu'">Résolu</span>
+              </div>
+            </div>
+            <div class="panel__footer"><a style="cursor:pointer" (click)="setSection('incidents')">Voir tous les incidents →</a></div>
+          </div>
+
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ ÉQUIPE ════ -->
+    <ng-container *ngIf="activeSection === 'equipe'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ staffEnService }}</span><span class="kpi-lbl">En service</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">person_off</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ staffAbsents }}</span><span class="kpi-lbl">Absents</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">people</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ staff.length }}</span><span class="kpi-lbl">Total équipe</span></div>
+        </div>
+      </div>
+
+      <div class="staff-cards-grid">
+        <div class="staff-card" *ngFor="let s of staff"
+          [class.staff-card--warn]="s.statut === 'Absent'"
+          [class.staff-card--alert]="s.statut === 'Alerte'"
+          (click)="openStaff(s)" style="cursor:pointer">
+          <div class="staff-card__head">
+            <div class="staff-avatar">{{ s.init }}</div>
+            <span class="badge {{ s.statutClass }}">{{ s.statut }}</span>
+          </div>
+          <div class="staff-card__name">{{ s.nom }}</div>
+          <div class="staff-card__role">{{ s.role }}</div>
+          <div class="staff-card__meta">
+            <div><span class="material-icons">people</span> {{ s.patients }} patient(s)</div>
+            <div><span class="material-icons">schedule</span> {{ s.vacation }}</div>
+            <div><span class="material-icons">phone</span> {{ s.telephone }}</div>
+          </div>
+          <div class="staff-card__actions" (click)="$event.stopPropagation()">
+            <button class="btn-outline-sm" (click)="showToast('Message envoyé à ' + s.nom, 'info')">
+              <span class="material-icons">message</span> Contacter
+            </button>
+            <button class="btn-outline-sm" (click)="showToast('Planning ouvert', 'info')">
+              <span class="material-icons">calendar_month</span>
             </button>
           </div>
         </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ PATIENTS ════ -->
+    <ng-container *ngIf="activeSection === 'patients'">
+
+      <div class="section-bar">
+        <div class="search-mini">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Nom, infirmier, machine…" [(ngModel)]="searchPatients" />
+        </div>
+      </div>
+
+      <div class="panel panel--full">
         <table class="data-table">
           <thead>
-            <tr>
-              <th>Heure</th><th>Patient</th><th>Infirmier(e)</th><th>Machine</th><th>Durée</th><th>Statut</th><th></th>
-            </tr>
+            <tr><th>Patient</th><th>Pathologie</th><th>Infirmier(e)</th><th>Machine</th><th>PA</th><th>FC</th><th>Progression</th><th>Statut</th></tr>
           </thead>
           <tbody>
-            <tr *ngFor="let s of filteredSessions">
-              <td><span class="mono">{{ s.heure }}</span></td>
+            <tr *ngFor="let p of filteredPatients">
+              <td><div class="patient-cell"><div class="avatar-sm">{{ p.init }}</div><b>{{ p.nom }}</b></div></td>
+              <td><span class="patho-tag">{{ p.pathologie }}</span></td>
+              <td>{{ p.infirmier }}</td>
+              <td><span class="mono">{{ p.machine }}</span></td>
+              <td><span class="mono {{ p.paClass }}">{{ p.pa }}</span></td>
+              <td><span class="mono" *ngIf="p.fc > 0">{{ p.fc }} bpm</span><span *ngIf="p.fc === 0">—</span></td>
               <td>
-                <div class="patient-cell">
-                  <div class="avatar-sm">{{ s.patientInit }}</div>
-                  <span>{{ s.patientNom }}</span>
+                <div class="progress-mini" *ngIf="p.progress > 0">
+                  <div class="progress-mini__bar">
+                    <div class="progress-mini__fill" [style.width.%]="p.progress" [class.warn]="p.statutClass === 'warn'"></div>
+                  </div>
+                  <span>{{ p.progress }}%</span>
                 </div>
+                <span *ngIf="p.progress === 0" style="color:var(--c-text-3);font-size:12px">—</span>
               </td>
-              <td>{{ s.infirmier }}</td>
-              <td><span class="mono">{{ s.machine }}</span></td>
-              <td>{{ s.duree }}</td>
-              <td><span class="badge {{ s.statusClass }}">{{ s.statusLabel }}</span></td>
-              <td><button class="row-btn" (click)="openSession(s)"><span class="material-icons">chevron_right</span></button></td>
-            </tr>
-            <tr *ngIf="filteredSessions.length === 0">
-              <td colspan="7" class="empty-row">
-                <span class="material-icons">search_off</span>
-                Aucune séance trouvée pour "{{ searchQuery }}"
-              </td>
+              <td><span class="badge {{ p.statutClass }}">{{ p.statut }}</span></td>
             </tr>
           </tbody>
         </table>
-        <div class="panel__footer">
-          {{ filteredSessions.length }} affichées sur {{ sessions.length }} séances du jour ·
-          <a style="cursor:pointer" (click)="showToast('Vue complète du planning ouverte', 'info')">Voir toutes</a>
+        <div class="panel__footer">{{ filteredPatients.length }} patient(s)</div>
+      </div>
+    </ng-container>
+
+    <!-- ════ STOCKS ════ -->
+    <ng-container *ngIf="activeSection === 'stocks'">
+
+      <div class="section-bar">
+        <div class="section-bar__filters">
+          <select class="filter-select" [(ngModel)]="filterStockStatus">
+            <option value="">Tous</option>
+            <option value="warn">Critiques</option>
+            <option value="ok">OK</option>
+          </select>
+        </div>
+        <button class="btn-sm-primary" *ngIf="criticalStocksCount > 0" (click)="commanderTout()">
+          <span class="material-icons">shopping_cart</span> Commander tout ({{ criticalStocksCount }})
+        </button>
+      </div>
+
+      <div class="stocks-grid">
+        <div class="stock-card" *ngFor="let item of filteredStocks"
+          [class.stock-card--crit]="item.statusClass === 'warn'">
+          <div class="stock-card__head">
+            <span class="material-icons stock-icon" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.icon }}</span>
+            <span class="badge" [ngClass]="item.statusClass === 'ok' ? 'ok' : 'warn'">
+              {{ item.statusClass === 'ok' ? 'Suffisant' : 'Critique' }}
+            </span>
+          </div>
+          <div class="stock-card__nom">{{ item.nom }}</div>
+          <div class="stock-card__detail">{{ item.detail }}</div>
+
+          <div class="stock-card__quantities">
+            <div class="stock-qty">
+              <span class="stock-qty__lbl">Stock actuel</span>
+              <span class="stock-qty__val" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.quantite }}</span>
+            </div>
+            <div class="stock-qty">
+              <span class="stock-qty__lbl">Seuil minimum</span>
+              <span class="stock-qty__val">{{ item.seuil }}</span>
+            </div>
+          </div>
+
+          <div class="stock-card__bar">
+            <div class="stock-bar">
+              <div class="stock-bar__fill" [class.ok]="item.statusClass === 'ok'" [style.width.%]="stockPct(item)"></div>
+            </div>
+            <span>{{ stockPct(item) }}%</span>
+          </div>
+
+          <button class="btn-sm-primary stock-btn" *ngIf="item.statusClass === 'warn' && !item.ordered" (click)="commanderStock(item)">
+            <span class="material-icons">shopping_cart</span> Commander
+          </button>
+          <div class="stock-ordered" *ngIf="item.ordered">
+            <span class="material-icons">check_circle</span> Commande envoyée
+          </div>
+          <div class="stock-ok-msg" *ngIf="item.statusClass === 'ok' && !item.ordered">
+            <span class="material-icons">check_circle</span> Stock suffisant
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ INCIDENTS ════ -->
+    <ng-container *ngIf="activeSection === 'incidents'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">report_problem</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ incidentsOuverts.length }}</span><span class="kpi-lbl">Incidents ouverts</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ incidentsResolus.length }}</span><span class="kpi-lbl">Résolus aujourd'hui</span></div>
         </div>
       </div>
 
-      <div class="right-col">
-        <!-- Staff -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Équipe en Service</h2>
-            <span class="badge ok">6 présents</span>
-          </div>
-          <div class="staff-list">
-            <div class="staff-row" *ngFor="let staff of [
-              {init:'NT', nom:'Inf. N. Tazi',         detail:'2 patients assignés', st:'info',   stLbl:'Actif'},
-              {init:'AH', nom:'Inf. A. Haddad',        detail:'1 patient assigné',  st:'warn',   stLbl:'Alerte'},
-              {init:'LM', nom:'Inf. L. Mansouri',      detail:'1 patient assigné',  st:'info',   stLbl:'Actif'},
-              {init:'RB', nom:'Inf. R. Berrada',        detail:'En préparation',     st:'purple', stLbl:'Prép.'},
-              {init:'YK', nom:'Aide-Soig. Y. Kettani', detail:'Nettoyage M-03',      st:'ok',     stLbl:'Actif'}
-            ]" (click)="staffAction(staff.nom)" style="cursor:pointer">
-              <div class="avatar-sm">{{ staff.init }}</div>
-              <div class="staff-info"><b>{{ staff.nom }}</b><span>{{ staff.detail }}</span></div>
-              <span class="badge {{ staff.st }}">{{ staff.stLbl }}</span>
-            </div>
-          </div>
-        </div>
+      <div class="incidents-list">
+        <div class="incident-card" *ngFor="let i of incidents"
+          [class.incident-card--crit]="i.priorite === 'critique' && i.statut !== 'resolu'"
+          [class.incident-card--warn]="i.priorite === 'elevee'   && i.statut !== 'resolu'"
+          [class.incident-card--done]="i.statut === 'resolu'">
 
-        <!-- Stocks -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Stocks Critiques</h2>
-            <span class="badge warn">{{ criticalStocksCount }} alertes</span>
+          <div class="incident-card__side">
+            <div class="incident-icon" [ngClass]="'incident-icon--' + incidentPrioriteClass(i.priorite)">
+              <span class="material-icons">{{ i.statut === 'resolu' ? 'check_circle' : 'report_problem' }}</span>
+            </div>
+            <span class="mono" style="font-size:11px;color:var(--c-text-3)">{{ i.heure }}</span>
           </div>
-          <div class="stock-list">
-            <div class="stock-item" *ngFor="let item of stocks" [class.ok-item]="item.statusClass === 'ok'">
-              <span class="material-icons" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.icon }}</span>
-              <div><b>{{ item.nom }}</b><span>{{ item.detail }}</span></div>
-              <button class="btn-outline-sm" *ngIf="item.statusClass !== 'ok'" (click)="commanderStock(item)"
-                [ngClass]="{'btn-done-rx': item.ordered}" [disabled]="item.ordered">
-                {{ item.ordered ? 'Commandé' : 'Commander' }}
+
+          <div class="incident-card__body">
+            <div class="incident-card__head">
+              <div>
+                <span class="incident-machine">{{ i.machine }}</span>
+                <b class="incident-type">{{ i.type }}</b>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span class="badge {{ incidentPrioriteClass(i.priorite) }}">{{ i.priorite | titlecase }}</span>
+                <span class="badge {{ incidentStatutClass(i.statut) }}">{{ incidentStatutLabel(i.statut) }}</span>
+              </div>
+            </div>
+            <p class="incident-desc">{{ i.description }}</p>
+            <div class="incident-meta">
+              <span class="material-icons">person</span> Signalé par {{ i.signalePar }}
+            </div>
+            <div class="incident-card__actions">
+              <button class="btn-sm-primary" *ngIf="i.statut === 'ouvert'" (click)="prendreEnCharge(i)">
+                <span class="material-icons">engineering</span> Prendre en charge
               </button>
-              <span class="badge ok" *ngIf="item.statusClass === 'ok'">OK</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Incident -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Incidents Signalés</h2>
-            <span class="badge" [ngClass]="incidentResolu ? 'ok' : 'crit'">{{ incidentResolu ? 'Résolu' : '1 ouvert' }}</span>
-          </div>
-          <div class="alerts-list">
-            <div class="alert-item alert-item--warn" *ngIf="!incidentResolu">
-              <span class="material-icons">report_problem</span>
-              <div>
-                <b>Alarme pression veineuse — M-02</b>
-                <span>Moussaoui H. · Signalé à 11:05 · Inf. Haddad</span>
-              </div>
-              <button class="btn-teal-xs" (click)="traiterIncident()">Traiter</button>
-            </div>
-            <div class="alert-item" *ngIf="incidentResolu" style="opacity:.6">
-              <span class="material-icons" style="color:var(--c-green)">check_circle</span>
-              <div>
-                <b>Alarme pression veineuse — M-02</b>
-                <span>Résolu · Technicien alerté</span>
-              </div>
-              <span class="badge ok">Résolu</span>
+              <button class="btn-sm-primary" *ngIf="i.statut === 'en-cours'" (click)="resoudreIncident(i)">
+                <span class="material-icons">check</span> Marquer résolu
+              </button>
+              <button class="btn-outline-sm" (click)="showToast('Rapport incident généré', 'info')">
+                <span class="material-icons">summarize</span> Rapport
+              </button>
+              <button class="btn-outline-sm" (click)="showToast('Technicien alerté', 'warning')">
+                <span class="material-icons">engineering</span> Alerter technicien
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
+
   </div>
 </div>

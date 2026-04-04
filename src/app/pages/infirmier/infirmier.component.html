@@ -10,66 +10,100 @@
 <!-- Notif backdrop -->
 <div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
 
-<!-- Patient detail modal -->
-<div class="modal-overlay" *ngIf="showPatientModal" (click)="closePatient()">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
+<!-- ══ MODAL — Patient Monitoring ══ -->
+<div class="modal-overlay" *ngIf="showPatientModal && selectedPatient" (click)="closePatient()">
+  <div class="modal-panel modal-panel--monitor" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <div class="avatar-lg">{{ selectedPatient?.initials }}</div>
+      <div class="avatar-lg">{{ selectedPatient!.initials }}</div>
       <div style="flex:1">
-        <h2 style="margin-bottom:2px">{{ selectedPatient?.name }}</h2>
-        <span style="font-size:12px;color:var(--c-text-3)">Machine {{ selectedPatient?.machine }} · {{ selectedPatient?.time }}</span>
+        <h2 style="margin-bottom:2px">{{ selectedPatient!.name }}</h2>
+        <span style="font-size:12px;color:var(--c-text-3)">Machine {{ selectedPatient!.machine }} · {{ selectedPatient!.time }}</span>
       </div>
-      <span class="badge" [ngClass]="selectedPatient?.status === 'warn' ? 'warn' : 'ok'">
-        {{ selectedPatient?.status === 'warn' ? 'PA Élevée' : 'Normal' }}
+      <span class="badge" [ngClass]="selectedPatient!.status === 'warn' ? 'warn' : 'info'">
+        {{ selectedPatient!.status === 'warn' ? 'PA Élevée' : selectedPatient!.timeLeft + ' restantes' }}
       </span>
       <button class="modal-close-btn" (click)="closePatient()"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body">
-      <div class="modal-stat-row">
-        <div class="modal-stat">
-          <span class="modal-stat-lbl">Pression Artérielle</span>
-          <span class="modal-stat-val mono {{ selectedPatient?.paClass }}">{{ selectedPatient?.pa }} mmHg</span>
+
+      <!-- Vitals display -->
+      <div *ngIf="!showVitalsEdit">
+        <div class="modal-stat-row modal-stat-row--3">
+          <div class="modal-stat">
+            <span class="modal-stat-lbl">Pression Artérielle</span>
+            <span class="modal-stat-val mono {{ selectedPatient!.paClass }}">{{ selectedPatient!.pa }} mmHg</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-lbl">Fréquence Cardiaque</span>
+            <span class="modal-stat-val mono">{{ selectedPatient!.fc }} bpm</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-lbl">Débit Sang</span>
+            <span class="modal-stat-val mono">{{ selectedPatient!.debit }} mL/min</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-lbl">Poids Perdu</span>
+            <span class="modal-stat-val mono">{{ selectedPatient!.poidsPerdu }} kg</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-lbl">Temps restant</span>
+            <span class="modal-stat-val mono">{{ selectedPatient!.timeLeft }}</span>
+          </div>
+          <div class="modal-stat">
+            <span class="modal-stat-lbl">Progression</span>
+            <span class="modal-stat-val mono">{{ selectedPatient!.progress }}%</span>
+          </div>
         </div>
-        <div class="modal-stat">
-          <span class="modal-stat-lbl">Fréquence Cardiaque</span>
-          <span class="modal-stat-val mono">{{ selectedPatient?.fc }} bpm</span>
-        </div>
-        <div class="modal-stat">
-          <span class="modal-stat-lbl">Débit Sang</span>
-          <span class="modal-stat-val mono">{{ selectedPatient?.debit }} mL/min</span>
-        </div>
-        <div class="modal-stat">
-          <span class="modal-stat-lbl">Poids Perdu</span>
-          <span class="modal-stat-val mono">{{ selectedPatient?.poidsPerdu }} kg</span>
-        </div>
-        <div class="modal-stat">
-          <span class="modal-stat-lbl">Temps restant</span>
-          <span class="modal-stat-val mono">{{ selectedPatient?.timeLeft }}</span>
-        </div>
-        <div class="modal-stat">
-          <span class="modal-stat-lbl">Progression</span>
-          <span class="modal-stat-val mono">{{ selectedPatient?.progress }}%</span>
+        <div class="modal-actions">
+          <button class="btn-sm-primary" (click)="startEditVitals(selectedPatient!)">
+            <span class="material-icons">edit</span> Mettre à jour les constantes
+          </button>
+          <button class="btn-outline-sm" (click)="alerterMedecin(selectedPatient!)">
+            <span class="material-icons">notification_important</span> Alerter médecin
+          </button>
+          <button class="btn-outline-sm" (click)="showToast('Note ajoutée au dossier', 'info'); closePatient()">
+            <span class="material-icons">edit_note</span> Ajouter note
+          </button>
         </div>
       </div>
-      <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="showToast('Constantes enregistrées pour ' + selectedPatient?.name, 'success'); closePatient()">
-          <span class="material-icons">save</span> Enregistrer constantes
-        </button>
-        <button class="btn-outline-sm" (click)="alerterMedecin(selectedPatient!)">
-          <span class="material-icons">notification_important</span> Alerter le médecin
-        </button>
-        <button class="btn-outline-sm" (click)="showToast('Note ajoutée au dossier', 'info'); closePatient()">
-          <span class="material-icons">edit_note</span> Ajouter note
-        </button>
+
+      <!-- Vitals edit form -->
+      <div *ngIf="showVitalsEdit">
+        <p style="font-size:12px;color:var(--c-text-3);margin-bottom:14px">Saisie des nouvelles constantes pour {{ selectedPatient!.name }}</p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Pression Artérielle</label>
+            <input type="text" [(ngModel)]="editedPa" placeholder="Ex: 128/82" />
+          </div>
+          <div class="form-field">
+            <label>Fréquence Cardiaque (bpm)</label>
+            <input type="number" [(ngModel)]="editedFc" min="30" max="200" />
+          </div>
+          <div class="form-field">
+            <label>Débit Sang (mL/min)</label>
+            <input type="number" [(ngModel)]="editedDebit" min="100" max="500" />
+          </div>
+          <div class="form-field">
+            <label>Poids perdu (kg)</label>
+            <input type="number" [(ngModel)]="editedPoids" min="0" max="10" step="0.1" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-sm-primary" (click)="saveVitals(selectedPatient!)">
+            <span class="material-icons">save</span> Enregistrer
+          </button>
+          <button class="btn-outline-sm" (click)="showVitalsEdit = false">Annuler</button>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- Add task modal -->
+<!-- ══ MODAL — Add Task ══ -->
 <div class="modal-overlay" *ngIf="showAddTaskModal" (click)="showAddTaskModal = false">
   <div class="modal-panel modal-panel--sm" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+    <div class="modal-header modal-header--simple">
       <h2>Nouvelle Tâche</h2>
       <button class="modal-close-btn" (click)="showAddTaskModal = false"><span class="material-icons">close</span></button>
     </div>
@@ -92,14 +126,19 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="ajouterTask()"><span class="material-icons">add</span> Ajouter</button>
+        <button class="btn-sm-primary" (click)="ajouterTask()">
+          <span class="material-icons">add</span> Ajouter
+        </button>
         <button class="btn-outline-sm" (click)="showAddTaskModal = false">Annuler</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ══ SHELL ══ -->
 <div class="dashboard">
+
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar__logo">
       <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
@@ -111,29 +150,29 @@
     </div>
     <nav class="sidebar__nav">
       <div class="nav-section-label">Mon Espace</div>
-      <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
+      <a class="nav-item" [class.active]="activeSection==='dashboard'"  (click)="setSection('dashboard')">
         <span class="material-icons">dashboard</span><span>Tableau de bord</span>
       </a>
-      <a class="nav-item" [class.active]="activeSection==='seances'" (click)="setSection('seances')">
+      <a class="nav-item" [class.active]="activeSection==='seances'"    (click)="setSection('seances')">
         <span class="material-icons">schedule</span><span>Mes Séances</span>
-        <span class="nav-badge">6</span>
+        <span class="nav-badge">{{ seancesJour.length }}</span>
       </a>
-      <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
-        <span class="material-icons">people</span><span>Mes Patients</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='taches'" (click)="setSection('taches')">
+      <a class="nav-item" [class.active]="activeSection==='taches'"     (click)="setSection('taches')">
         <span class="material-icons">task_alt</span><span>Mes Tâches</span>
         <span class="nav-badge warn">{{ urgentPending.length + standardPending.length }}</span>
       </a>
       <div class="nav-section-label">Soins</div>
-      <a class="nav-item" (click)="setSection('soins')">
-        <span class="material-icons">medical_services</span><span>Soins Infirmiers</span>
-      </a>
-      <a class="nav-item" (click)="setSection('monitoring')">
+      <a class="nav-item" [class.active]="activeSection==='monitoring'" (click)="setSection('monitoring')">
         <span class="material-icons">monitor_heart</span><span>Monitoring</span>
+        <span class="nav-badge warn" *ngIf="warnPatientsCount > 0">!</span>
       </a>
-      <a class="nav-item" (click)="setSection('machines')">
+      <a class="nav-item" [class.active]="activeSection==='soins'"      (click)="setSection('soins')">
+        <span class="material-icons">medical_services</span><span>Soins Infirmiers</span>
+        <span class="nav-badge">{{ soinsUrgents.length + soinsNormaux.length }}</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection==='machines'"   (click)="setSection('machines')">
         <span class="material-icons">precision_manufacturing</span><span>Machines</span>
+        <span class="nav-badge ok">{{ availableMachinesCount }}</span>
       </a>
     </nav>
     <div class="sidebar__user">
@@ -146,13 +185,19 @@
     </div>
   </aside>
 
+  <!-- Main -->
   <div class="main">
+
+    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar__left">
-        <h1>Tableau de Bord</h1>
+        <h1>{{ sectionTitle }}</h1>
         <span class="topbar__date">Jeudi, 3 Avril 2026 — Vacation Matin</span>
       </div>
       <div class="topbar__right">
+        <button class="btn-sm-primary" *ngIf="activeSection === 'taches'" (click)="showAddTaskModal = true">
+          <span class="material-icons">add</span> Nouvelle tâche
+        </button>
         <div class="notif-wrapper">
           <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
             <span class="material-icons">notifications</span>
@@ -164,7 +209,8 @@
               <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
             </div>
             <div class="notif-list">
-              <div *ngFor="let n of notifications" class="notif-item" [class.notif-item--unread]="!n.read" (click)="markRead(n)">
+              <div *ngFor="let n of notifications" class="notif-item"
+                [class.notif-item--unread]="!n.read" (click)="markRead(n)">
                 <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
                 <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
                 <span class="notif-unread-dot" *ngIf="!n.read"></span>
@@ -176,135 +222,433 @@
       </div>
     </header>
 
-    <!-- KPI -->
-    <div class="kpi-row">
-      <div class="kpi-card" style="cursor:pointer" (click)="setSection('seances')">
-        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
-        <div class="kpi-body"><span class="kpi-val">6</span><span class="kpi-lbl">Séances aujourd'hui</span></div>
-      </div>
-      <div class="kpi-card" style="cursor:pointer" (click)="setSection('patients')">
-        <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">monitor_heart</span></div>
-        <div class="kpi-body"><span class="kpi-val">{{ patients.length }}</span><span class="kpi-lbl">En dialyse actuellement</span></div>
-        <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
-      </div>
-      <div class="kpi-card" style="cursor:pointer" (click)="setSection('taches')">
-        <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">task_alt</span></div>
-        <div class="kpi-body"><span class="kpi-val">{{ urgentPending.length + standardPending.length }}</span><span class="kpi-lbl">Tâches en attente</span></div>
-        <span class="kpi-trend warn" *ngIf="urgentPending.length > 0">Urgentes</span>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-        <div class="kpi-body"><span class="kpi-val">{{ doneTasks.length }}</span><span class="kpi-lbl">Séances terminées ce mois</span></div>
-        <span class="kpi-trend up">↑ +3</span>
-      </div>
-    </div>
+    <!-- ════ DASHBOARD ════ -->
+    <ng-container *ngIf="activeSection === 'dashboard'">
 
-    <div class="content-grid">
-      <!-- Monitoring -->
-      <div class="panel">
-        <div class="panel__head">
-          <h2>Patients en Dialyse — Monitoring Temps Réel</h2>
-          <span class="badge info">{{ patients.length }} actifs</span>
+      <div class="kpi-row">
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('seances')">
+          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesJour.length }}</span><span class="kpi-lbl">Séances aujourd'hui</span></div>
         </div>
-        <div class="monitoring-grid">
-          <div class="monitor-card" *ngFor="let p of patients"
-               [class.warn-card]="p.status === 'warn'"
-               (click)="openPatient(p)" style="cursor:pointer">
-            <div class="monitor-card__header">
-              <div class="patient-cell">
-                <div class="avatar-sm">{{ p.initials }}</div>
-                <div><b>{{ p.name }}</b><span>Machine {{ p.machine }} · {{ p.time }}</span></div>
-              </div>
-              <span class="badge" [ngClass]="p.status === 'warn' ? 'warn' : 'info'">
-                {{ p.status === 'warn' ? 'PA Élevée' : p.timeLeft + ' restantes' }}
-              </span>
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('monitoring')">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">monitor_heart</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ patients.length }}</span><span class="kpi-lbl">En dialyse actuellement</span></div>
+          <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
+        </div>
+        <div class="kpi-card" style="cursor:pointer" (click)="setSection('taches')">
+          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">task_alt</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ urgentPending.length + standardPending.length }}</span><span class="kpi-lbl">Tâches en attente</span></div>
+          <span class="kpi-trend warn" *ngIf="urgentPending.length > 0">{{ urgentPending.length }} urgentes</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesTerminees.length }}</span><span class="kpi-lbl">Séances terminées</span></div>
+          <span class="kpi-trend up">aujourd'hui</span>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <!-- Monitoring cards -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Patients en Dialyse — Temps Réel</h2>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="badge info">{{ patients.length }} actifs</span>
+              <button class="btn-outline-sm" (click)="setSection('monitoring')">
+                <span class="material-icons">open_in_full</span> Plein écran
+              </button>
             </div>
-            <div class="vitals-row">
-              <div class="vital">
-                <span class="vital-lbl">PA</span>
-                <span class="vital-val" [ngClass]="p.paClass">{{ p.pa }}</span>
-                <span class="vital-unit">mmHg</span>
+          </div>
+          <div class="monitoring-grid">
+            <div class="monitor-card" *ngFor="let p of patients"
+                 [class.warn-card]="p.status === 'warn'"
+                 (click)="openPatient(p)" style="cursor:pointer">
+              <div class="monitor-card__header">
+                <div class="patient-cell">
+                  <div class="avatar-sm">{{ p.initials }}</div>
+                  <div><b>{{ p.name }}</b><span>Machine {{ p.machine }} · {{ p.time }}</span></div>
+                </div>
+                <span class="badge" [ngClass]="p.status === 'warn' ? 'warn' : 'info'">
+                  {{ p.status === 'warn' ? 'PA Élevée' : p.timeLeft + ' rest.' }}
+                </span>
               </div>
-              <div class="vital">
-                <span class="vital-lbl">FC</span>
-                <span class="vital-val">{{ p.fc }}</span>
-                <span class="vital-unit">bpm</span>
+              <div class="vitals-row">
+                <div class="vital"><span class="vital-lbl">PA</span><span class="vital-val" [ngClass]="p.paClass">{{ p.pa }}</span><span class="vital-unit">mmHg</span></div>
+                <div class="vital"><span class="vital-lbl">FC</span><span class="vital-val">{{ p.fc }}</span><span class="vital-unit">bpm</span></div>
+                <div class="vital"><span class="vital-lbl">Poids</span><span class="vital-val">{{ p.poidsPerdu }}</span><span class="vital-unit">kg</span></div>
+                <div class="vital"><span class="vital-lbl">Débit</span><span class="vital-val">{{ p.debit }}</span><span class="vital-unit">mL/min</span></div>
               </div>
-              <div class="vital">
-                <span class="vital-lbl">Poids perdus</span>
-                <span class="vital-val">{{ p.poidsPerdu }}</span>
-                <span class="vital-unit">kg</span>
-              </div>
-              <div class="vital">
-                <span class="vital-lbl">Débit</span>
-                <span class="vital-val">{{ p.debit }}</span>
-                <span class="vital-unit">mL/min</span>
+              <div class="session-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [class.warn]="p.status === 'warn'" [style.width.%]="p.progress"></div>
+                </div>
+                <span>{{ p.progress }}% terminé</span>
               </div>
             </div>
-            <div class="session-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" [class.warn]="p.status === 'warn'" [style.width.%]="p.progress"></div>
+          </div>
+        </div>
+
+        <div class="right-col">
+          <!-- Tasks quick view -->
+          <div class="panel">
+            <div class="panel__head">
+              <h2>Tâches du Jour</h2>
+              <button class="btn-sm-primary" (click)="showAddTaskModal = true">
+                <span class="material-icons">add</span>
+              </button>
+            </div>
+            <div class="task-list">
+              <div class="task-item" *ngFor="let t of urgentPending">
+                <span class="task-check urgent"><span class="material-icons">priority_high</span></span>
+                <div class="task-body"><b>{{ t.title }}</b><span>{{ t.patient }} · Urgent</span></div>
+                <button class="btn-teal-xs" (click)="markDone(t)">Fait</button>
               </div>
-              <span>{{ p.progress }}% terminé</span>
+              <div class="task-item" *ngFor="let t of standardPending">
+                <span class="task-check"><span class="material-icons">radio_button_unchecked</span></span>
+                <div class="task-body"><b>{{ t.title }}</b><span>{{ t.patient }}</span></div>
+                <button class="btn-teal-xs" (click)="markDone(t)">Fait</button>
+              </div>
+              <div class="task-item done" *ngFor="let t of doneTasks">
+                <span class="task-check done"><span class="material-icons">check_circle</span></span>
+                <div class="task-body"><b>{{ t.title }}</b><span>{{ t.patient }}</span></div>
+              </div>
+            </div>
+            <div class="panel__footer">
+              <a style="cursor:pointer" (click)="setSection('taches')">Gérer toutes les tâches →</a>
+            </div>
+          </div>
+
+          <!-- Machines quick view -->
+          <div class="panel">
+            <div class="panel__head">
+              <h2>État des Machines</h2>
+              <span class="badge ok">{{ availableMachinesCount }}/{{ machines.length }} libres</span>
+            </div>
+            <div class="machine-list">
+              <div class="machine-row" *ngFor="let m of machines" (click)="machineClick(m)" style="cursor:pointer">
+                <span class="machine-id">{{ m.id }}</span>
+                <span class="machine-name">{{ m.model }}</span>
+                <span class="badge {{ m.statusClass }}">{{ m.label }}</span>
+              </div>
+            </div>
+            <div class="panel__footer">
+              <a style="cursor:pointer" (click)="setSection('machines')">Voir toutes les machines →</a>
             </div>
           </div>
         </div>
       </div>
+    </ng-container>
 
-      <div class="right-col">
-        <!-- Tasks -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Tâches du Jour</h2>
-            <button class="btn-sm-primary" (click)="showAddTaskModal = true">
-              <span class="material-icons">add</span> Ajouter
+    <!-- ════ MONITORING ════ -->
+    <ng-container *ngIf="activeSection === 'monitoring'">
+      <div class="alert-banner" *ngIf="warnPatientsCount > 0">
+        <span class="material-icons">warning</span>
+        <b>{{ warnPatientsCount }} patient(s) nécessitent une attention immédiate</b>
+      </div>
+
+      <div class="monitor-fullgrid">
+        <div class="monitor-card monitor-card--full"
+             *ngFor="let p of patients"
+             [class.warn-card]="p.status === 'warn'"
+             (click)="openPatient(p)" style="cursor:pointer">
+          <div class="monitor-card__header">
+            <div class="patient-cell">
+              <div class="avatar-sm" style="width:40px;height:40px;font-size:14px">{{ p.initials }}</div>
+              <div>
+                <b style="font-size:15px">{{ p.name }}</b>
+                <span>Machine {{ p.machine }} · {{ p.time }}</span>
+              </div>
+            </div>
+            <span class="badge badge--lg" [ngClass]="p.status === 'warn' ? 'warn' : 'info'">
+              {{ p.status === 'warn' ? 'Alerte PA' : p.timeLeft + ' restantes' }}
+            </span>
+          </div>
+          <div class="vitals-row vitals-row--lg">
+            <div class="vital vital--lg">
+              <span class="vital-lbl">Pression Artérielle</span>
+              <span class="vital-val vital-val--lg" [ngClass]="p.paClass">{{ p.pa }}</span>
+              <span class="vital-unit">mmHg</span>
+            </div>
+            <div class="vital vital--lg">
+              <span class="vital-lbl">Fréquence Cardiaque</span>
+              <span class="vital-val vital-val--lg">{{ p.fc }}</span>
+              <span class="vital-unit">bpm</span>
+            </div>
+            <div class="vital vital--lg">
+              <span class="vital-lbl">Poids Perdu</span>
+              <span class="vital-val vital-val--lg">{{ p.poidsPerdu }}</span>
+              <span class="vital-unit">kg</span>
+            </div>
+            <div class="vital vital--lg">
+              <span class="vital-lbl">Débit Sang</span>
+              <span class="vital-val vital-val--lg">{{ p.debit }}</span>
+              <span class="vital-unit">mL/min</span>
+            </div>
+            <div class="vital vital--lg">
+              <span class="vital-lbl">Temps Restant</span>
+              <span class="vital-val vital-val--lg">{{ p.timeLeft }}</span>
+              <span class="vital-unit"></span>
+            </div>
+          </div>
+          <div class="session-progress" style="margin-top:12px">
+            <div class="progress-bar" style="height:8px">
+              <div class="progress-fill" [class.warn]="p.status === 'warn'" [style.width.%]="p.progress"></div>
+            </div>
+            <span>{{ p.progress }}% terminé</span>
+          </div>
+          <div class="monitor-card__actions" (click)="$event.stopPropagation()">
+            <button class="btn-outline-sm" (click)="openPatient(p)">
+              <span class="material-icons">edit</span> Constantes
+            </button>
+            <button class="btn-outline-sm" (click)="alerterMedecin(p)" *ngIf="p.status === 'warn'">
+              <span class="material-icons">notification_important</span> Alerter médecin
+            </button>
+            <button class="btn-outline-sm" (click)="showToast('Note ajoutée', 'info')">
+              <span class="material-icons">edit_note</span> Note
             </button>
           </div>
-          <div class="task-list">
-            <!-- Urgent pending -->
-            <div class="task-item" *ngFor="let t of urgentPending">
-              <span class="task-check urgent"><span class="material-icons">priority_high</span></span>
-              <div class="task-body">
-                <b>{{ t.title }}</b>
-                <span>{{ t.patient }} · Urgent</span>
-              </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ SÉANCES ════ -->
+    <ng-container *ngIf="activeSection === 'seances'">
+
+      <!-- Stats row -->
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesTerminees.length }}</span><span class="kpi-lbl">Terminées</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesEnCours.length }}</span><span class="kpi-lbl">En cours</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-purple-soft, rgba(167,139,250,.1))"><span class="material-icons" style="color:var(--c-purple)">event</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesPlanifiees.length }}</span><span class="kpi-lbl">Planifiées</span></div>
+        </div>
+      </div>
+
+      <div class="panel panel--full">
+        <div class="panel__head">
+          <h2>Planning des Séances — 3 Avril 2026</h2>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Heure</th><th>Patient</th><th>Machine</th><th>Durée</th><th>Infirmier(e)</th><th>Fin prévue</th><th>Statut</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of seancesJour">
+              <td><span class="mono">{{ s.heure }}</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">{{ s.patientInit }}</div>
+                  <span>{{ s.patient }}</span>
+                </div>
+              </td>
+              <td><span class="mono">{{ s.machine }}</span></td>
+              <td>{{ s.duree }}</td>
+              <td>{{ s.infirmier }}</td>
+              <td><span class="mono">{{ s.heureEnd }}</span></td>
+              <td><span class="badge {{ s.statutClass }}">{{ statutSeanceLabel(s.statut) }}</span></td>
+              <td>
+                <div class="row-actions-mini">
+                  <button class="row-btn" (click)="showToast('Rapport de séance ouvert', 'info')" title="Rapport">
+                    <span class="material-icons">summarize</span>
+                  </button>
+                  <button class="row-btn" (click)="showToast('Infirmier réassigné', 'info')" title="Réassigner" *ngIf="s.statut !== 'terminee'">
+                    <span class="material-icons">swap_horiz</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="panel__footer">{{ seancesJour.length }} séances programmées aujourd'hui</div>
+      </div>
+    </ng-container>
+
+    <!-- ════ TÂCHES ════ -->
+    <ng-container *ngIf="activeSection === 'taches'">
+
+      <div class="section-bar">
+        <div class="section-bar__filters">
+          <select class="filter-select" [(ngModel)]="filterTaskPriority">
+            <option value="">Toutes les priorités</option>
+            <option value="urgent">Urgent</option>
+            <option value="standard">Standard</option>
+          </select>
+        </div>
+        <button class="btn-sm-primary" (click)="showAddTaskModal = true">
+          <span class="material-icons">add</span> Nouvelle tâche
+        </button>
+      </div>
+
+      <div class="panel panel--full">
+        <div class="task-list task-list--full">
+
+          <!-- Urgentes -->
+          <div class="task-group-label task-group-label--urgent" *ngIf="urgentPending.length > 0">
+            <span class="material-icons">priority_high</span> Urgentes ({{ urgentPending.length }})
+          </div>
+          <div class="task-item task-item--full" *ngFor="let t of urgentPending">
+            <span class="task-check urgent"><span class="material-icons">priority_high</span></span>
+            <div class="task-body">
+              <b>{{ t.title }}</b>
+              <span>{{ t.patient }} · Priorité urgente</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn-sm-primary" (click)="markDone(t)">
+                <span class="material-icons">check</span> Fait
+              </button>
+              <button class="row-btn" (click)="deleteTask(t)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+            </div>
+          </div>
+
+          <!-- Standard -->
+          <div class="task-group-label" *ngIf="standardPending.length > 0">
+            <span class="material-icons">radio_button_unchecked</span> Standard ({{ standardPending.length }})
+          </div>
+          <div class="task-item task-item--full" *ngFor="let t of standardPending">
+            <span class="task-check"><span class="material-icons">radio_button_unchecked</span></span>
+            <div class="task-body">
+              <b>{{ t.title }}</b>
+              <span>{{ t.patient }}</span>
+            </div>
+            <div style="display:flex;gap:6px">
               <button class="btn-teal-xs" (click)="markDone(t)">Fait</button>
+              <button class="row-btn" (click)="deleteTask(t)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
             </div>
-            <!-- Standard pending -->
-            <div class="task-item" *ngFor="let t of standardPending">
-              <span class="task-check"><span class="material-icons">radio_button_unchecked</span></span>
-              <div class="task-body">
-                <b>{{ t.title }}</b>
-                <span>{{ t.patient }}</span>
-              </div>
-              <button class="btn-teal-xs" (click)="markDone(t)">Fait</button>
+          </div>
+
+          <!-- Faites -->
+          <div class="task-group-label task-group-label--done" *ngIf="doneTasks.length > 0">
+            <span class="material-icons">check_circle</span> Effectuées ({{ doneTasks.length }})
+          </div>
+          <div class="task-item task-item--full done" *ngFor="let t of doneTasks">
+            <span class="task-check done"><span class="material-icons">check_circle</span></span>
+            <div class="task-body">
+              <b>{{ t.title }}</b>
+              <span>{{ t.patient }}</span>
             </div>
-            <!-- Done -->
-            <div class="task-item done" *ngFor="let t of doneTasks">
-              <span class="task-check done"><span class="material-icons">check_circle</span></span>
-              <div class="task-body">
-                <b>{{ t.title }}</b>
-                <span>{{ t.patient }}</span>
-              </div>
-            </div>
+          </div>
+
+          <div class="empty-row" *ngIf="tasks.length === 0">
+            <span class="material-icons">task_alt</span> Aucune tâche pour aujourd'hui
           </div>
         </div>
+        <div class="panel__footer">{{ tasks.length }} tâches au total · {{ doneTasks.length }} effectuées</div>
+      </div>
+    </ng-container>
 
-        <!-- Machines -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>État des Machines</h2>
-            <span class="badge ok">{{ availableMachinesCount }}/{{ machines.length }} libres</span>
+    <!-- ════ SOINS ════ -->
+    <ng-container *ngIf="activeSection === 'soins'">
+
+      <div class="section-bar">
+        <div class="section-bar__filters">
+          <select class="filter-select" [(ngModel)]="filterSoinPriorite">
+            <option value="">Tous</option>
+            <option value="urgent">Urgents</option>
+            <option value="normal">Normaux</option>
+          </select>
+        </div>
+        <span style="font-size:13px;color:var(--c-text-3)">{{ soinsUrgents.length }} soins urgents · {{ soinsNormaux.length }} en attente</span>
+      </div>
+
+      <div class="panel panel--full">
+        <table class="data-table">
+          <thead>
+            <tr><th>Heure</th><th>Patient</th><th>Type de soin</th><th>Description</th><th>Priorité</th><th>État</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of filteredSoins" [class.row-done]="s.fait">
+              <td><span class="mono">{{ s.heure }}</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">{{ s.patientInit }}</div>
+                  <span>{{ s.patient }}</span>
+                </div>
+              </td>
+              <td><span class="soin-type-tag">{{ s.type }}</span></td>
+              <td style="font-size:12px;color:var(--c-text-2);max-width:280px">{{ s.description }}</td>
+              <td>
+                <span class="badge" [ngClass]="s.priorite === 'urgent' ? 'crit' : 'info'">
+                  {{ s.priorite === 'urgent' ? 'Urgent' : 'Normal' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="s.fait ? 'ok' : 'warn'">{{ s.fait ? 'Effectué' : 'En attente' }}</span>
+              </td>
+              <td>
+                <button class="btn-teal-xs" *ngIf="!s.fait" (click)="marquerSoinFait(s)">
+                  <span class="material-icons" style="font-size:14px">check</span> Fait
+                </button>
+                <span *ngIf="s.fait" style="font-size:11px;color:var(--c-green)">✓</span>
+              </td>
+            </tr>
+            <tr *ngIf="filteredSoins.length === 0">
+              <td colspan="7" class="empty-row">
+                <span class="material-icons">medical_services</span> Aucun soin en attente
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="panel__footer">{{ soinsFaits.length }} soins effectués · {{ soinsUrgents.length + soinsNormaux.length }} en attente</div>
+      </div>
+    </ng-container>
+
+    <!-- ════ MACHINES ════ -->
+    <ng-container *ngIf="activeSection === 'machines'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ machinesEnCours }}</span><span class="kpi-lbl">En utilisation</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ availableMachinesCount }}</span><span class="kpi-lbl">Disponibles</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">build</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ machinesEnMaintenance }}</span><span class="kpi-lbl">En maintenance</span></div>
+        </div>
+      </div>
+
+      <div class="machines-grid">
+        <div class="machine-card" *ngFor="let m of machines"
+             [class.machine-card--warn]="m.statusClass === 'crit'"
+             [class.machine-card--ok]="m.statusClass === 'ok'"
+             [class.machine-card--busy]="m.statusClass === 'info'">
+          <div class="machine-card__head">
+            <div class="machine-card__id">{{ m.id }}</div>
+            <span class="badge {{ m.statusClass }}">{{ m.label }}</span>
           </div>
-          <div class="machine-list">
-            <div class="machine-row" *ngFor="let m of machines" (click)="machineClick(m)" style="cursor:pointer">
-              <span class="machine-id">{{ m.id }}</span>
-              <span class="machine-name">{{ m.model }}</span>
-              <span class="badge {{ m.statusClass }}">{{ m.label }}</span>
-            </div>
+          <div class="machine-card__model">{{ m.model }}</div>
+          <div class="machine-card__info" *ngIf="m.statusClass === 'info'">
+            <span class="material-icons">person</span> {{ m.patient }}
+            <span style="margin-left:8px"><span class="material-icons">water_drop</span> {{ m.debit }} mL/min</span>
+          </div>
+          <div class="machine-card__info" *ngIf="m.statusClass === 'ok'" style="color:var(--c-green)">
+            <span class="material-icons">check_circle</span> Prête à l'emploi
+          </div>
+          <div class="machine-card__info" *ngIf="m.statusClass === 'crit'" style="color:var(--c-red)">
+            <span class="material-icons">build</span> Maintenance en cours
+          </div>
+          <div class="machine-card__actions">
+            <button class="btn-outline-sm" *ngIf="m.statusClass !== 'crit'" (click)="machineClick(m)">
+              <span class="material-icons">info</span> Détail
+            </button>
+            <button class="btn-outline-sm btn-warn" (click)="signalerPanne(m)">
+              <span class="material-icons">report_problem</span> Signaler
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
+
   </div>
 </div>

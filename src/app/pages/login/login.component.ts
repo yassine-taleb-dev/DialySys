@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-type Role = 'medecin' | 'infirmier' | 'infirmier-majeur' | 'aide-soignant' | 'patient';
+type Role = 'medecin' | 'infirmier' | 'infirmier-majeur' | 'aide-soignant' | 'patient' | 'admin';
 
 @Component({
   selector: 'app-login',
@@ -38,6 +38,7 @@ export class LoginComponent {
     'infirmier-majeur': '/infirmier-majeur',
     'aide-soignant':    '/aide-soignant',
     'patient':          '/patient',
+    'admin':            '/admin',
   };
 
   private readonly roleLabels: Record<Role, string> = {
@@ -46,6 +47,7 @@ export class LoginComponent {
     'infirmier-majeur': 'Infirmier Majeur',
     'aide-soignant':    'Aide-Soignant',
     'patient':          'Patient',
+    'admin':            'Administrateur',
   };
 
   constructor(private router: Router) {}
@@ -61,6 +63,7 @@ export class LoginComponent {
       'infirmier-majeur': { id: 'IM-2024-008',   pw: 'majeur123'    },
       'aide-soignant':    { id: 'AS-2024-021',   pw: 'soignant123'  },
       'patient':          { id: 'PAT-2019-0042', pw: 'patient123'   },
+      'admin':            { id: 'ADMIN-001',      pw: 'admin123'     },
     };
     this.identifiant = demos[role].id;
     this.motDePasse  = demos[role].pw;

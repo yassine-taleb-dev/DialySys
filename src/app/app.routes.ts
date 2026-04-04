@@ -10,6 +10,7 @@ export const routes: Routes = [
   { path: 'infirmier',       loadComponent: () => import('./pages/infirmier/infirmier.component').then(m => m.InfirmierComponent) },
   { path: 'infirmier-majeur',loadComponent: () => import('./pages/infirmier-majeur/infirmier-majeur.component').then(m => m.InfirmierMajeurComponent) },
   { path: 'aide-soignant',   loadComponent: () => import('./pages/aide-soignant/aide-soignant.component').then(m => m.AideSoignantComponent) },
+  { path: 'admin',           loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent) },
 
   { path: '**', redirectTo: '/login' }
 ];
