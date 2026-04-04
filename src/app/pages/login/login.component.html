@@ -112,6 +112,7 @@
         <button type="button" class="role-tab" [class.active]="selectedRole === 'infirmier-majeur'" (click)="selectRole('infirmier-majeur')">Inf. Majeur</button>
         <button type="button" class="role-tab" [class.active]="selectedRole === 'aide-soignant'"    (click)="selectRole('aide-soignant')">Aide-Soignant</button>
         <button type="button" class="role-tab" [class.active]="selectedRole === 'patient'"          (click)="selectRole('patient')">Patient</button>
+        <button type="button" class="role-tab role-tab--admin" [class.active]="selectedRole === 'admin'" (click)="selectRole('admin')">Admin</button>
       </div>
 
       <!-- Success overlay -->

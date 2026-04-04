@@ -1,0 +1,438 @@
+<!-- Toasts -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
+    <span class="material-icons">{{ toastIcon(t.type) }}</span>
+    <span>{{ t.message }}</span>
+    <button class="toast-close"><span class="material-icons">close</span></button>
+  </div>
+</div>
+
+<!-- ── User detail modal ── -->
+<div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
+  <div class="modal-panel modal-panel--lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(selectedUser!.role) + ' 15%, transparent)'">
+        <span [style.color]="roleColorVar(selectedUser!.role)">{{ initials(selectedUser!) }}</span>
+      </div>
+      <div style="flex:1">
+        <h2>{{ selectedUser?.prenom }} {{ selectedUser?.nom }}</h2>
+        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedUser?.matricule }} · {{ roleLabel(selectedUser!.role) }}</span>
+      </div>
+      <span class="badge {{ statusClass(selectedUser!.statut) }}">{{ statusLabel(selectedUser!.statut) }}</span>
+      <button class="modal-close-btn" (click)="closeUserModal()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="selectedUser!.nom" />
+        </div>
+        <div class="form-field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="selectedUser!.prenom" />
+        </div>
+        <div class="form-field">
+          <label>Matricule</label>
+          <input type="text" [(ngModel)]="selectedUser!.matricule" />
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="selectedUser!.email" />
+        </div>
+        <div class="form-field">
+          <label>Téléphone</label>
+          <input type="text" [(ngModel)]="selectedUser!.telephone" placeholder="06 XX XX XX XX" />
+        </div>
+        <div class="form-field">
+          <label>Service</label>
+          <input type="text" [(ngModel)]="selectedUser!.service" />
+        </div>
+        <div class="form-field">
+          <label>Rôle</label>
+          <select [(ngModel)]="selectedUser!.role">
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Statut</label>
+          <select [(ngModel)]="selectedUser!.statut">
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+            <option value="suspendu">Suspendu</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveUser()">
+          <span class="material-icons">save</span> Enregistrer
+        </button>
+        <button class="btn-outline-sm" (click)="resetPassword(selectedUser!)">
+          <span class="material-icons">lock_reset</span> Réinitialiser MDP
+        </button>
+        <button class="btn-outline-sm btn-warn" *ngIf="selectedUser!.statut !== 'suspendu'" (click)="suspendUser(selectedUser!)">
+          <span class="material-icons">block</span> Suspendre
+        </button>
+        <button class="btn-outline-sm btn-warn" *ngIf="selectedUser!.statut === 'suspendu'" (click)="selectedUser!.statut = 'actif'">
+          <span class="material-icons">check_circle</span> Réactiver
+        </button>
+        <button class="btn-delete" (click)="deleteUser(selectedUser!)">
+          <span class="material-icons">delete_outline</span> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── New user modal ── -->
+<div class="modal-overlay" *ngIf="showNewUserModal" (click)="showNewUserModal = false">
+  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Créer un Utilisateur</h2>
+      <button class="modal-close-btn" (click)="showNewUserModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newUser.nom" placeholder="Nom de famille" />
+        </div>
+        <div class="form-field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newUser.prenom" placeholder="Prénom" />
+        </div>
+        <div class="form-field">
+          <label>Matricule <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newUser.matricule" placeholder="Ex: INF-2025-060" />
+        </div>
+        <div class="form-field">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" [(ngModel)]="newUser.email" placeholder="prenom.nom@dialysys.ma" />
+        </div>
+        <div class="form-field">
+          <label>Rôle</label>
+          <select [(ngModel)]="newUser.role">
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Service</label>
+          <input type="text" [(ngModel)]="newUser.service" placeholder="Hémodialyse" />
+        </div>
+        <div class="form-field">
+          <label>Téléphone</label>
+          <input type="text" [(ngModel)]="newUser.telephone" placeholder="06 XX XX XX XX" />
+        </div>
+        <div class="form-field">
+          <label>Mot de passe temporaire</label>
+          <input type="text" [(ngModel)]="newUser.motDePasse" placeholder="Généré automatiquement si vide" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveNewUser()">
+          <span class="material-icons">person_add</span> Créer le compte
+        </button>
+        <button class="btn-outline-sm" (click)="showNewUserModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Shell ── -->
+<div class="admin-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>DialySys</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Administration</div>
+      <a class="nav-item" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+        <span class="material-icons">manage_accounts</span><span>Utilisateurs</span>
+        <span class="nav-badge">{{ totalUsers }}</span>
+      </a>
+      <a class="nav-item" [class.active]="activeTab === 'roles'" (click)="activeTab = 'roles'">
+        <span class="material-icons">admin_panel_settings</span><span>Rôles & Permissions</span>
+      </a>
+      <a class="nav-item" [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">
+        <span class="material-icons">history</span><span>Journal d'activité</span>
+      </a>
+
+      <div class="nav-section-label" style="margin-top:8px">Répartition</div>
+      <div class="role-summary" *ngFor="let r of roles">
+        <span class="role-dot" [style.background]="r.colorVar"></span>
+        <span class="role-summary__name">{{ r.label }}</span>
+        <span class="role-summary__count">{{ usersForRole(r.id).length }}</span>
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Statuts</div>
+      <div class="role-summary">
+        <span class="role-dot" style="background:var(--c-green)"></span>
+        <span class="role-summary__name">Actifs</span>
+        <span class="role-summary__count">{{ activeUsers }}</span>
+      </div>
+      <div class="role-summary" *ngIf="suspendedCount > 0">
+        <span class="role-dot" style="background:var(--c-red)"></span>
+        <span class="role-summary__name">Suspendus</span>
+        <span class="role-summary__count">{{ suspendedCount }}</span>
+      </div>
+    </nav>
+
+    <div class="sidebar__user">
+      <div class="user-avatar" style="background:rgba(255,87,87,.12);border-color:rgba(255,87,87,.3);color:var(--c-red)">AD</div>
+      <div class="user-info">
+        <span class="user-name">Administrateur</span>
+        <span class="user-role">Accès total</span>
+      </div>
+      <button class="logout-btn" (click)="logout()"><span class="material-icons">logout</span></button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <h1>{{ activeTab === 'users' ? 'Gestion des Utilisateurs' : activeTab === 'roles' ? 'Rôles & Permissions' : 'Journal d\'activité' }}</h1>
+        <span class="topbar__date">Panneau d'administration · DialySys</span>
+      </div>
+      <div class="topbar__right">
+        <button class="btn-sm-primary" *ngIf="activeTab === 'users'" (click)="openNewUser()">
+          <span class="material-icons">person_add</span> Nouvel utilisateur
+        </button>
+        <button class="icon-btn" (click)="showToast('Paramètres système — bientôt disponible', 'info')">
+          <span class="material-icons">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI row -->
+    <div class="kpi-row">
+      <div class="kpi-card" (click)="activeTab='users'; filterRole=''" style="cursor:pointer">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">group</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ totalUsers }}</span><span class="kpi-lbl">Utilisateurs au total</span></div>
+        <span class="kpi-trend up">{{ activeUsers }} actifs</span>
+      </div>
+      <div class="kpi-card" (click)="activeTab='users'; filterRole='medecin'" style="cursor:pointer">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">medical_services</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ medecinCount }}</span><span class="kpi-lbl">Médecins</span></div>
+      </div>
+      <div class="kpi-card" (click)="activeTab='users'; filterRole='infirmier-majeur'" style="cursor:pointer">
+        <div class="kpi-icon" style="background:var(--c-purple-soft)"><span class="material-icons" style="color:var(--c-purple)">supervisor_account</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ infMajeurCount }}</span><span class="kpi-lbl">Inf. Majeurs</span></div>
+      </div>
+      <div class="kpi-card" (click)="activeTab='users'; filterRole='infirmier'" style="cursor:pointer">
+        <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">local_hospital</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ infirmierCount }}</span><span class="kpi-lbl">Infirmiers</span></div>
+      </div>
+      <div class="kpi-card" (click)="activeTab='users'; filterRole='aide-soignant'" style="cursor:pointer">
+        <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">volunteer_activism</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ aideSoignantCount }}</span><span class="kpi-lbl">Aides-Soignants</span></div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: USERS ═══ -->
+    <div class="tab-content" *ngIf="activeTab === 'users'">
+      <div class="panel panel--full">
+        <div class="panel__head">
+          <h2>Liste des Utilisateurs</h2>
+          <div class="panel__actions">
+            <div class="search-mini">
+              <span class="material-icons">search</span>
+              <input type="text" placeholder="Nom, matricule, email…" [(ngModel)]="searchQuery" />
+            </div>
+            <select class="filter-select" [(ngModel)]="filterRole">
+              <option value="">Tous les rôles</option>
+              <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
+            </select>
+            <select class="filter-select" [(ngModel)]="filterStatus">
+              <option value="">Tous les statuts</option>
+              <option value="actif">Actif</option>
+              <option value="inactif">Inactif</option>
+              <option value="suspendu">Suspendu</option>
+            </select>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Matricule</th>
+              <th>Rôle</th>
+              <th>Service</th>
+              <th>Statut</th>
+              <th>Dernière connexion</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of filteredUsers">
+              <td>
+                <div class="user-cell">
+                  <div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 15%, transparent)'">
+                    <span [style.color]="roleColorVar(u.role)">{{ initials(u) }}</span>
+                  </div>
+                  <div>
+                    <b>{{ u.prenom }} {{ u.nom }}</b>
+                    <span>{{ u.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="mono">{{ u.matricule }}</span></td>
+              <td>
+                <span class="role-chip" [style.color]="roleColorVar(u.role)" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 12%, transparent)'">
+                  <span class="material-icons">{{ getRoleConfig(u.role)?.icon }}</span>
+                  {{ roleLabel(u.role) }}
+                </span>
+              </td>
+              <td>{{ u.service }}</td>
+              <td>
+                <span class="badge {{ statusClass(u.statut) }}">{{ statusLabel(u.statut) }}</span>
+              </td>
+              <td class="last-seen">{{ u.derniereConnexion }}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="row-btn" (click)="openUser(u)" title="Modifier"><span class="material-icons">edit</span></button>
+                  <button class="row-btn" (click)="resetPassword(u)" title="Réinitialiser MDP"><span class="material-icons">lock_reset</span></button>
+                  <button class="row-btn" [ngClass]="u.statut === 'actif' ? 'row-btn--warn' : 'row-btn--ok'" (click)="toggleUserStatus(u)"
+                    [title]="u.statut === 'actif' ? 'Désactiver' : 'Activer'">
+                    <span class="material-icons">{{ u.statut === 'actif' ? 'person_off' : 'person' }}</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredUsers.length === 0">
+              <td colspan="7" class="empty-row">
+                <span class="material-icons">search_off</span>
+                Aucun utilisateur trouvé
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="panel__footer">
+          {{ filteredUsers.length }} sur {{ totalUsers }} utilisateurs ·
+          <a style="cursor:pointer" (click)="showToast('Export CSV généré', 'info')">Exporter CSV</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: ROLES ═══ -->
+    <div class="tab-content" *ngIf="activeTab === 'roles'">
+      <div class="roles-layout">
+
+        <!-- Role selector (left) -->
+        <div class="role-selector-col">
+          <div
+            *ngFor="let r of roles"
+            class="role-card"
+            [class.active]="selectedRoleId === r.id"
+            (click)="selectedRoleId = r.id"
+          >
+            <div class="role-card__icon" [style.background]="'color-mix(in srgb,' + r.colorVar + ' 15%, transparent)'">
+              <span class="material-icons" [style.color]="r.colorVar">{{ r.icon }}</span>
+            </div>
+            <div class="role-card__body">
+              <b>{{ r.label }}</b>
+              <span>{{ usersForRole(r.id).length }} utilisateur(s)</span>
+            </div>
+            <div class="role-card__perm-count">
+              <span>{{ permCount(r) }}</span>
+              <em>permissions</em>
+            </div>
+            <span class="unsaved-dot" *ngIf="unsavedChanges[r.id]" title="Modifications non enregistrées"></span>
+          </div>
+        </div>
+
+        <!-- Permissions matrix (right) -->
+        <div class="perm-matrix-col">
+          <div class="perm-matrix-header">
+            <div>
+              <h2>{{ selectedRole.label }}</h2>
+              <p>{{ selectedRole.description }}</p>
+            </div>
+            <div class="perm-matrix-header__actions">
+              <span class="unsaved-label" *ngIf="unsavedChanges[selectedRoleId]">
+                <span class="material-icons">edit</span> Modifications non enregistrées
+              </span>
+              <button class="btn-outline-sm" (click)="resetRole(selectedRole)">
+                <span class="material-icons">restart_alt</span> Réinitialiser
+              </button>
+              <button class="btn-sm-primary" (click)="saveRolePermissions(selectedRole)" [disabled]="!unsavedChanges[selectedRoleId]">
+                <span class="material-icons">save</span> Enregistrer
+              </button>
+            </div>
+          </div>
+
+          <div class="perm-categories">
+            <div class="perm-category" *ngFor="let cat of permCategories">
+              <div class="perm-category__label">
+                <span class="material-icons perm-cat-icon">
+                  {{ cat === 'Patients' ? 'people' : cat === 'Médical' ? 'medical_services' : cat === 'Planning' ? 'calendar_month' : cat === 'Monitoring' ? 'monitor_heart' : cat === 'Équipement' ? 'precision_manufacturing' : cat === 'Rapports' ? 'assessment' : 'admin_panel_settings' }}
+                </span>
+                {{ cat }}
+              </div>
+              <div class="perm-items">
+                <div class="perm-item" *ngFor="let perm of permsByCategory(cat)"
+                     [class.perm-item--on]="selectedRole.permissions[perm.id]"
+                     (click)="togglePermission(selectedRole, perm.id)">
+                  <div class="perm-toggle" [class.on]="selectedRole.permissions[perm.id]">
+                    <div class="perm-toggle__thumb"></div>
+                  </div>
+                  <div class="perm-item__text">
+                    <span class="perm-item__label">{{ perm.label }}</span>
+                    <span class="perm-item__desc">{{ perm.description }}</span>
+                  </div>
+                  <span class="material-icons perm-item__status"
+                    [style.color]="selectedRole.permissions[perm.id] ? 'var(--c-green)' : 'var(--c-text-3)'">
+                    {{ selectedRole.permissions[perm.id] ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: ACTIVITY ═══ -->
+    <div class="tab-content" *ngIf="activeTab === 'activity'">
+      <div class="panel panel--full">
+        <div class="panel__head">
+          <h2>Journal d'activité</h2>
+          <button class="btn-outline-sm" (click)="showToast('Export du journal en cours…', 'info')">
+            <span class="material-icons">download</span> Exporter
+          </button>
+        </div>
+        <div class="activity-timeline">
+          <div class="activity-item" *ngFor="let a of activityLog">
+            <div class="activity-icon activity-icon--{{ a.type }}">
+              <span class="material-icons">{{ a.icon }}</span>
+            </div>
+            <div class="activity-body">
+              <span class="activity-text">{{ a.text }}</span>
+              <div class="activity-meta">
+                <span class="material-icons">person</span>{{ a.user }} ·
+                <span class="material-icons">schedule</span>{{ a.time }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel__footer">
+          {{ activityLog.length }} entrées récentes ·
+          <a style="cursor:pointer" (click)="showToast('Historique complet chargé', 'info')">Voir tout l'historique</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
