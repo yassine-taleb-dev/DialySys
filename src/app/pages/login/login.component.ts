@@ -2,79 +2,55 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
-type Role = 'medecin' | 'infirmier' | 'infirmier-majeur' | 'aide-soignant' | 'patient' | 'admin';
+import { AuthService } from '../../../services/auth.service'; // ✅ chemin depuis pages/login/
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule], // ✅ pas besoin d'ajouter HttpClient ici
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
 
-  // ── Form state ──
-  selectedRole: Role = 'medecin';
   identifiant  = '';
   motDePasse   = '';
   rememberMe   = false;
   showPassword = false;
-
-  // ── UI state ──
   isLoading    = false;
   errorMessage = '';
   loginSuccess = false;
+  roleLabel    = '';
 
-  // ── Forgot password modal ──
-  showForgotModal    = false;
-  forgotId           = '';
-  forgotSent         = false;
-  forgotLoading      = false;
+  showForgotModal = false;
+  forgotId        = '';
+  forgotSent      = false;
+  forgotLoading   = false;
 
-  private readonly roleRoutes: Record<Role, string> = {
-    'medecin':          '/medecin',
-    'infirmier':        '/infirmier',
-    'infirmier-majeur': '/infirmier-majeur',
-    'aide-soignant':    '/aide-soignant',
-    'patient':          '/patient',
-    'admin':            '/admin',
+  private readonly roleRoutes: Record<string, string> = {
+    'MEDECIN':          '/medecin',
+    'INFIRMIER':        '/infirmier',
+    'INFIRMIER_MAJEUR': '/infirmier-majeur',
+    'AIDE_SOIGNANT':    '/aide-soignant',
+    'PATIENT':          '/patient',
+     'ADMIN':            '/admin',
   };
 
-  private readonly roleLabels: Record<Role, string> = {
-    'medecin':          'Médecin',
-    'infirmier':        'Infirmier(e)',
-    'infirmier-majeur': 'Infirmier Majeur',
-    'aide-soignant':    'Aide-Soignant',
-    'patient':          'Patient',
-    'admin':            'Administrateur',
+  private readonly roleLabels: Record<string, string> = {
+    'MEDECIN':          'Médecin',
+    'INFIRMIER':        'Infirmier(e)',
+    'INFIRMIER_MAJEUR': 'Infirmier Majeur',
+    'AIDE_SOIGNANT':    'Aide-Soignant',
+    'PATIENT':          'Patient',
+    'ADMIN':            '/admin',
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {} // ✅ AuthService
 
-  // ── Role selection ──
-  selectRole(role: Role): void {
-    this.selectedRole = role;
-    this.errorMessage = '';
-    // Prefill demo credentials per role
-    const demos: Record<Role, {id: string; pw: string}> = {
-      'medecin':          { id: 'MED-2024-001',  pw: 'medecin123'   },
-      'infirmier':        { id: 'INF-2024-042',  pw: 'infirmier123' },
-      'infirmier-majeur': { id: 'IM-2024-008',   pw: 'majeur123'    },
-      'aide-soignant':    { id: 'AS-2024-021',   pw: 'soignant123'  },
-      'patient':          { id: 'PAT-2019-0042', pw: 'patient123'   },
-      'admin':            { id: 'ADMIN-001',      pw: 'admin123'     },
-    };
-    this.identifiant = demos[role].id;
-    this.motDePasse  = demos[role].pw;
-  }
-
-  // ── Password visibility ──
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // ── Login ──
   login(): void {
     this.errorMessage = '';
 
@@ -86,31 +62,46 @@ export class LoginComponent {
       this.errorMessage = 'Veuillez saisir votre mot de passe.';
       return;
     }
-    if (this.motDePasse.trim().length < 6) {
-      this.errorMessage = 'Le mot de passe doit contenir au moins 6 caractères.';
-      return;
-    }
 
     this.isLoading = true;
 
-    // Simulate authentication delay then navigate
-    setTimeout(() => {
-      this.isLoading    = false;
-      this.loginSuccess = true;
+    // ✅ Utiliser AuthService au lieu de HttpClient directement
+    this.authService.login(this.identifiant.trim(), this.motDePasse.trim()).subscribe({
+      next: (response) => {
+        this.isLoading = false;
 
-      setTimeout(() => {
-        const route = this.roleRoutes[this.selectedRole];
-        this.router.navigate([route]);
-      }, 600);
-    }, 1200);
+        // ✅ Sauvegarder token selon rememberMe
+        const storage = this.rememberMe ? localStorage : sessionStorage;
+        storage.setItem('token', response.token);
+        storage.setItem('utilisateur', JSON.stringify(response.utilisateur));
+
+        const role: string = response.utilisateur.role?.toUpperCase() ?? '';
+        this.roleLabel = this.roleLabels[role] ?? role;
+        this.loginSuccess = true;
+
+        setTimeout(() => {
+          const route = this.roleRoutes[role] ?? '/login';
+          this.router.navigate([route]);
+        }, 800);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (err.status === 401) {
+          this.errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+        } else if (err.status === 403) {
+          this.errorMessage = 'Votre compte est désactivé. Contactez l\'administrateur.';
+        } else {
+          this.errorMessage = 'Erreur de connexion au serveur. Réessayez plus tard.';
+        }
+      }
+    });
   }
 
-  // ── Forgot password ──
   openForgot(event: Event): void {
     event.preventDefault();
-    this.forgotId     = this.identifiant;
-    this.forgotSent   = false;
-    this.forgotLoading = false;
+    this.forgotId        = this.identifiant;
+    this.forgotSent      = false;
+    this.forgotLoading   = false;
     this.showForgotModal = true;
   }
 
@@ -125,9 +116,5 @@ export class LoginComponent {
       this.forgotLoading = false;
       this.forgotSent    = true;
     }, 1400);
-  }
-
-  get roleLabel(): string {
-    return this.roleLabels[this.selectedRole];
   }
 }

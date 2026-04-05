@@ -2,32 +2,35 @@
 <div class="modal-overlay" *ngIf="showForgotModal" (click)="closeForgot()">
   <div class="forgot-modal" (click)="$event.stopPropagation()">
 
-    <!-- Not sent yet -->
     <ng-container *ngIf="!forgotSent">
       <div class="forgot-modal__head">
         <span class="material-icons forgot-icon">lock_reset</span>
         <h3>Réinitialisation du mot de passe</h3>
-        <p>Saisissez votre matricule. Un lien de réinitialisation vous sera envoyé.</p>
+        <p>Saisissez votre matricule. Un lien vous sera envoyé.</p>
       </div>
       <div class="forgot-modal__body">
         <div class="input-wrap" style="margin-bottom:16px">
           <span class="material-icons prefix-icon">badge</span>
-          <input type="text" placeholder="Matricule / Identifiant" [(ngModel)]="forgotId" />
+          <input type="text" placeholder="Matricule / Identifiant"
+                 [(ngModel)]="forgotId" />
         </div>
-        <button class="btn-submit btn-submit--sm" [disabled]="forgotLoading || !forgotId.trim()" (click)="envoyerReset()">
+        <button class="btn-submit btn-submit--sm"
+                [disabled]="forgotLoading || !forgotId.trim()"
+                (click)="envoyerReset()">
           <span class="spinner" *ngIf="forgotLoading"></span>
-          <span *ngIf="!forgotLoading"><span class="material-icons">send</span> Envoyer le lien</span>
+          <span *ngIf="!forgotLoading">
+            <span class="material-icons">send</span> Envoyer le lien
+          </span>
         </button>
         <button class="forgot-cancel" (click)="closeForgot()">Annuler</button>
       </div>
     </ng-container>
 
-    <!-- Sent confirmation -->
     <ng-container *ngIf="forgotSent">
       <div class="forgot-success">
         <span class="material-icons forgot-check">check_circle</span>
         <h3>Lien envoyé !</h3>
-        <p>Un e-mail de réinitialisation a été envoyé à l'adresse associée au compte <b>{{ forgotId }}</b>. Vérifiez votre messagerie.</p>
+        <p>Un e-mail a été envoyé au compte <b>{{ forgotId }}</b>.</p>
         <button class="btn-submit btn-submit--sm" (click)="closeForgot()">
           <span class="material-icons">done</span> Fermer
         </button>
@@ -44,7 +47,6 @@
   <aside class="brand">
     <div class="hex-bg"></div>
     <div class="brand__inner">
-
       <div class="brand__logo">
         <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
           <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z"
@@ -58,7 +60,6 @@
       </div>
 
       <p class="brand__sub">Système de Gestion<br>d'Hémodialyse</p>
-
       <div class="brand__divider"></div>
 
       <div class="brand__metrics">
@@ -105,15 +106,7 @@
         <p>Bienvenue — accédez à votre espace médical</p>
       </div>
 
-      <!-- Role selector -->
-      <div class="role-tabs">
-        <button type="button" class="role-tab" [class.active]="selectedRole === 'medecin'"          (click)="selectRole('medecin')">Médecin</button>
-        <button type="button" class="role-tab" [class.active]="selectedRole === 'infirmier'"        (click)="selectRole('infirmier')">Infirmier</button>
-        <button type="button" class="role-tab" [class.active]="selectedRole === 'infirmier-majeur'" (click)="selectRole('infirmier-majeur')">Inf. Majeur</button>
-        <button type="button" class="role-tab" [class.active]="selectedRole === 'aide-soignant'"    (click)="selectRole('aide-soignant')">Aide-Soignant</button>
-        <button type="button" class="role-tab" [class.active]="selectedRole === 'patient'"          (click)="selectRole('patient')">Patient</button>
-        <button type="button" class="role-tab role-tab--admin" [class.active]="selectedRole === 'admin'" (click)="selectRole('admin')">Admin</button>
-      </div>
+      <!-- ✅ Plus de role-tabs — le rôle vient du backend -->
 
       <!-- Success overlay -->
       <div class="success-overlay" *ngIf="loginSuccess">
@@ -149,7 +142,9 @@
               name="motDePasse"
               [disabled]="isLoading" />
             <button type="button" class="vis-btn" (click)="togglePassword()">
-              <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              <span class="material-icons">
+                {{ showPassword ? 'visibility_off' : 'visibility' }}
+              </span>
             </button>
           </div>
         </div>
@@ -165,7 +160,9 @@
             <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
             <span>Se souvenir de moi</span>
           </label>
-          <a href="#" class="forgot-link" (click)="openForgot($event)">Mot de passe oublié ?</a>
+          <a href="#" class="forgot-link" (click)="openForgot($event)">
+            Mot de passe oublié ?
+          </a>
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="isLoading">
@@ -175,11 +172,6 @@
             <span class="material-icons">arrow_forward</span>
           </ng-container>
         </button>
-
-        <div class="demo-hint">
-          <span class="material-icons">info</span>
-          Les identifiants sont pré-remplis — cliquez sur un rôle pour les changer.
-        </div>
 
       </form>
 
