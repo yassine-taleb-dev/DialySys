@@ -10,11 +10,16 @@ export type UserStatus = 'actif' | 'inactif' | 'suspendu';
 
 export interface AppUser {
   id: number;
+  login: string;
+  role: RoleId;
+  mat: string;
   nom: string;
   prenom: string;
-  matricule: string;
   email: string;
-  role: RoleId;
+  mdp: string;
+  username: string;
+  dateCreation: string;
+  actif: boolean;
   statut: UserStatus;
   derniereConnexion: string;
   telephone?: string;
@@ -187,16 +192,16 @@ export class AdminComponent {
   filterStatus: UserStatus | '' = '';
 
   users: AppUser[] = [
-    { id: 1,  nom: 'Benali',     prenom: 'Karim',      matricule: 'MED-2024-001',  email: 'k.benali@dialysys.ma',      role: 'medecin',          statut: 'actif',    derniereConnexion: 'il y a 5 min',  telephone: '06 12 34 56 78', service: 'Hémodialyse' },
-    { id: 2,  nom: 'Chraibi',    prenom: 'Fatima',     matricule: 'IM-2024-008',   email: 'f.chraibi@dialysys.ma',     role: 'infirmier-majeur', statut: 'actif',    derniereConnexion: 'il y a 12 min', telephone: '06 23 45 67 89', service: 'Hémodialyse' },
-    { id: 3,  nom: 'Tazi',       prenom: 'Nadia',      matricule: 'INF-2024-042',  email: 'n.tazi@dialysys.ma',        role: 'infirmier',        statut: 'actif',    derniereConnexion: 'il y a 1h',     telephone: '06 34 56 78 90', service: 'Hémodialyse' },
-    { id: 4,  nom: 'Haddad',     prenom: 'Amine',      matricule: 'INF-2024-031',  email: 'a.haddad@dialysys.ma',      role: 'infirmier',        statut: 'actif',    derniereConnexion: 'il y a 2h',     telephone: '06 45 67 89 01', service: 'Hémodialyse' },
-    { id: 5,  nom: 'Mansouri',   prenom: 'Leila',      matricule: 'INF-2024-027',  email: 'l.mansouri@dialysys.ma',    role: 'infirmier',        statut: 'actif',    derniereConnexion: 'Hier 16:45',    telephone: '06 56 78 90 12', service: 'Hémodialyse' },
-    { id: 6,  nom: 'Berrada',    prenom: 'Rachid',     matricule: 'INF-2024-019',  email: 'r.berrada@dialysys.ma',     role: 'infirmier',        statut: 'actif',    derniereConnexion: 'Hier 14:20',    telephone: '06 67 89 01 23', service: 'Hémodialyse' },
-    { id: 7,  nom: 'Kettani',    prenom: 'Youssef',    matricule: 'AS-2024-021',   email: 'y.kettani@dialysys.ma',     role: 'aide-soignant',    statut: 'actif',    derniereConnexion: 'il y a 3h',     telephone: '06 78 90 12 34', service: 'Hémodialyse' },
-    { id: 8,  nom: 'Oulmane',    prenom: 'Sara',       matricule: 'AS-2024-015',   email: 's.oulmane@dialysys.ma',     role: 'aide-soignant',    statut: 'inactif',  derniereConnexion: 'il y a 3 jours', telephone: '06 89 01 23 45', service: 'Hémodialyse' },
-    { id: 9,  nom: 'Lachgar',    prenom: 'Hassan',     matricule: 'MED-2023-004',  email: 'h.lachgar@dialysys.ma',     role: 'medecin',          statut: 'suspendu', derniereConnexion: 'il y a 8 jours', telephone: '06 90 12 34 56', service: 'Consultation' },
-    { id: 10, nom: 'Bouchekif',  prenom: 'Samira',     matricule: 'INF-2023-055',  email: 's.bouchekif@dialysys.ma',   role: 'infirmier',        statut: 'inactif',  derniereConnexion: 'il y a 5 jours', telephone: '06 01 23 45 67', service: 'Hémodialyse' },
+    { id: 1,  login: 'k.benali',    username: 'KBenali',    mat: 'MED-2024-001', nom: 'Benali',    prenom: 'Karim',   email: 'k.benali@dialysys.ma',    role: 'medecin',          mdp: '********', dateCreation: '10/01/2024', actif: true,  statut: 'actif',    derniereConnexion: 'il y a 5 min',   telephone: '06 12 34 56 78', service: 'Hémodialyse'  },
+    { id: 2,  login: 'f.chraibi',   username: 'FChraibi',   mat: 'IM-2024-008',  nom: 'Chraibi',   prenom: 'Fatima',  email: 'f.chraibi@dialysys.ma',   role: 'infirmier-majeur', mdp: '********', dateCreation: '15/01/2024', actif: true,  statut: 'actif',    derniereConnexion: 'il y a 12 min',  telephone: '06 23 45 67 89', service: 'Hémodialyse'  },
+    { id: 3,  login: 'n.tazi',      username: 'NTazi',      mat: 'INF-2024-042', nom: 'Tazi',      prenom: 'Nadia',   email: 'n.tazi@dialysys.ma',      role: 'infirmier',        mdp: '********', dateCreation: '20/02/2024', actif: true,  statut: 'actif',    derniereConnexion: 'il y a 1h',      telephone: '06 34 56 78 90', service: 'Hémodialyse'  },
+    { id: 4,  login: 'a.haddad',    username: 'AHaddad',    mat: 'INF-2024-031', nom: 'Haddad',    prenom: 'Amine',   email: 'a.haddad@dialysys.ma',    role: 'infirmier',        mdp: '********', dateCreation: '05/02/2024', actif: true,  statut: 'actif',    derniereConnexion: 'il y a 2h',      telephone: '06 45 67 89 01', service: 'Hémodialyse'  },
+    { id: 5,  login: 'l.mansouri',  username: 'LMansouri',  mat: 'INF-2024-027', nom: 'Mansouri',  prenom: 'Leila',   email: 'l.mansouri@dialysys.ma',  role: 'infirmier',        mdp: '********', dateCreation: '01/02/2024', actif: true,  statut: 'actif',    derniereConnexion: 'Hier 16:45',     telephone: '06 56 78 90 12', service: 'Hémodialyse'  },
+    { id: 6,  login: 'r.berrada',   username: 'RBerrada',   mat: 'INF-2024-019', nom: 'Berrada',   prenom: 'Rachid',  email: 'r.berrada@dialysys.ma',   role: 'infirmier',        mdp: '********', dateCreation: '22/01/2024', actif: true,  statut: 'actif',    derniereConnexion: 'Hier 14:20',     telephone: '06 67 89 01 23', service: 'Hémodialyse'  },
+    { id: 7,  login: 'y.kettani',   username: 'YKettani',   mat: 'AS-2024-021',  nom: 'Kettani',   prenom: 'Youssef', email: 'y.kettani@dialysys.ma',   role: 'aide-soignant',    mdp: '********', dateCreation: '10/02/2024', actif: true,  statut: 'actif',    derniereConnexion: 'il y a 3h',      telephone: '06 78 90 12 34', service: 'Hémodialyse'  },
+    { id: 8,  login: 's.oulmane',   username: 'SOulmane',   mat: 'AS-2024-015',  nom: 'Oulmane',   prenom: 'Sara',    email: 's.oulmane@dialysys.ma',   role: 'aide-soignant',    mdp: '********', dateCreation: '18/01/2024', actif: false, statut: 'inactif',  derniereConnexion: 'il y a 3 jours', telephone: '06 89 01 23 45', service: 'Hémodialyse'  },
+    { id: 9,  login: 'h.lachgar',   username: 'HLachgar',   mat: 'MED-2023-004', nom: 'Lachgar',   prenom: 'Hassan',  email: 'h.lachgar@dialysys.ma',   role: 'medecin',          mdp: '********', dateCreation: '03/06/2023', actif: false, statut: 'suspendu', derniereConnexion: 'il y a 8 jours', telephone: '06 90 12 34 56', service: 'Consultation' },
+    { id: 10, login: 's.bouchekif', username: 'SBouchekif', mat: 'INF-2023-055', nom: 'Bouchekif', prenom: 'Samira',  email: 's.bouchekif@dialysys.ma', role: 'infirmier',        mdp: '********', dateCreation: '12/09/2023', actif: false, statut: 'inactif',  derniereConnexion: 'il y a 5 jours', telephone: '06 01 23 45 67', service: 'Hémodialyse'  },
   ];
 
   get filteredUsers(): AppUser[] {
@@ -205,7 +210,9 @@ export class AdminComponent {
       (!this.filterStatus || u.statut === this.filterStatus) &&
       (!this.searchQuery  || u.nom.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                              u.prenom.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                             u.matricule.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                             u.login.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                             u.username.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                             u.mat.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                              u.email.toLowerCase().includes(this.searchQuery.toLowerCase()))
     );
   }
@@ -260,41 +267,52 @@ export class AdminComponent {
 
   // ── New user modal ──
   showNewUserModal = false;
-  newUser: Partial<AppUser> & { motDePasse: string } = {
-    nom: '', prenom: '', matricule: '', email: '',
-    role: 'infirmier', statut: 'actif', telephone: '', service: 'Hémodialyse',
-    motDePasse: '',
+  newUser = {
+    login: '', username: '', mat: '', nom: '', prenom: '',
+    email: '', mdp: '', role: 'infirmier' as RoleId,
+    actif: true, telephone: '', service: 'Hémodialyse',
   };
 
   openNewUser(): void {
     this.newUser = {
-      nom: '', prenom: '', matricule: '', email: '',
-      role: 'infirmier', statut: 'actif', telephone: '', service: 'Hémodialyse',
-      motDePasse: '',
+      login: '', username: '', mat: '', nom: '', prenom: '',
+      email: '', mdp: '', role: 'infirmier',
+      actif: true, telephone: '', service: 'Hémodialyse',
     };
     this.showNewUserModal = true;
   }
 
   saveNewUser(): void {
-    if (!this.newUser.nom?.trim() || !this.newUser.prenom?.trim() ||
-        !this.newUser.matricule?.trim() || !this.newUser.email?.trim()) {
-      this.showToast('Veuillez remplir tous les champs obligatoires', 'warning');
+    if (!this.newUser.nom.trim() || !this.newUser.prenom.trim() ||
+        !this.newUser.login.trim() || !this.newUser.email.trim() || !this.newUser.mat.trim()) {
+      this.showToast('Veuillez remplir tous les champs obligatoires (*)', 'warning');
       return;
     }
+    const today = new Date().toLocaleDateString('fr-FR');
+    // Auto-generate username if empty
+    const username = this.newUser.username.trim() ||
+      (this.newUser.prenom[0] + this.newUser.nom).replace(/\s+/g, '');
+    // Auto-generate mdp if empty
+    const mdp = this.newUser.mdp.trim() || 'Temp@' + Math.random().toString(36).slice(2, 8);
     this.users.unshift({
       id:                ++this.nextUserId,
-      nom:               this.newUser.nom!,
-      prenom:            this.newUser.prenom!,
-      matricule:         this.newUser.matricule!,
-      email:             this.newUser.email!,
-      role:              this.newUser.role as RoleId,
-      statut:            this.newUser.statut as UserStatus,
+      login:             this.newUser.login,
+      username,
+      mat:               this.newUser.mat,
+      nom:               this.newUser.nom,
+      prenom:            this.newUser.prenom,
+      email:             this.newUser.email,
+      mdp,
+      role:              this.newUser.role,
+      actif:             this.newUser.actif,
+      statut:            this.newUser.actif ? 'actif' : 'inactif',
+      dateCreation:      today,
       telephone:         this.newUser.telephone,
       service:           this.newUser.service,
       derniereConnexion: 'Jamais connecté',
     });
     this.showNewUserModal = false;
-    this.showToast(`Utilisateur ${this.newUser.prenom} ${this.newUser.nom} créé`, 'success');
+    this.showToast(`Compte de ${this.newUser.prenom} ${this.newUser.nom} créé`, 'success');
   }
 
   // ── Activity log ──

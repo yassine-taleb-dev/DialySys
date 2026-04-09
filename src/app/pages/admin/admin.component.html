@@ -16,12 +16,15 @@
       </div>
       <div style="flex:1">
         <h2>{{ selectedUser?.prenom }} {{ selectedUser?.nom }}</h2>
-        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedUser?.matricule }} · {{ roleLabel(selectedUser!.role) }}</span>
+        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedUser?.mat }} · {{ roleLabel(selectedUser!.role) }}</span>
       </div>
       <span class="badge {{ statusClass(selectedUser!.statut) }}">{{ statusLabel(selectedUser!.statut) }}</span>
       <button class="modal-close-btn" (click)="closeUserModal()"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body">
+
+      <!-- Identité -->
+      <div class="form-section-label"><span class="material-icons">badge</span> Identité</div>
       <div class="form-grid">
         <div class="form-field">
           <label>Nom <span class="req">*</span></label>
@@ -32,8 +35,8 @@
           <input type="text" [(ngModel)]="selectedUser!.prenom" />
         </div>
         <div class="form-field">
-          <label>Matricule</label>
-          <input type="text" [(ngModel)]="selectedUser!.matricule" />
+          <label>Matricule (Mat)</label>
+          <input type="text" [(ngModel)]="selectedUser!.mat" />
         </div>
         <div class="form-field">
           <label>Email</label>
@@ -47,6 +50,19 @@
           <label>Service</label>
           <input type="text" [(ngModel)]="selectedUser!.service" />
         </div>
+      </div>
+
+      <!-- Accès -->
+      <div class="form-section-label" style="margin-top:8px"><span class="material-icons">lock</span> Accès &amp; Connexion</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Login</label>
+          <input type="text" [(ngModel)]="selectedUser!.login" />
+        </div>
+        <div class="form-field">
+          <label>Username</label>
+          <input type="text" [(ngModel)]="selectedUser!.username" />
+        </div>
         <div class="form-field">
           <label>Rôle</label>
           <select [(ngModel)]="selectedUser!.role">
@@ -55,11 +71,26 @@
         </div>
         <div class="form-field">
           <label>Statut</label>
-          <select [(ngModel)]="selectedUser!.statut">
+          <select [(ngModel)]="selectedUser!.statut" (change)="selectedUser!.actif = selectedUser!.statut === 'actif'">
             <option value="actif">Actif</option>
             <option value="inactif">Inactif</option>
             <option value="suspendu">Suspendu</option>
           </select>
+        </div>
+        <div class="form-field">
+          <label>Date de création</label>
+          <input type="text" [value]="selectedUser!.dateCreation" disabled style="opacity:.6" />
+        </div>
+        <div class="form-field">
+          <label>Compte actif</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="selectedUser!.actif"
+                (change)="selectedUser!.statut = selectedUser!.actif ? 'actif' : 'inactif'" />
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label">{{ selectedUser!.actif ? 'Actif' : 'Inactif' }}</span>
+          </div>
         </div>
       </div>
 
@@ -86,12 +117,18 @@
 
 <!-- ── New user modal ── -->
 <div class="modal-overlay" *ngIf="showNewUserModal" (click)="showNewUserModal = false">
-  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+  <div class="modal-panel modal-panel--new-user" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-teal);font-size:22px">person_add</span>
       <h2>Créer un Utilisateur</h2>
       <button class="modal-close-btn" (click)="showNewUserModal = false"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body">
+
+      <!-- Section: Identité -->
+      <div class="form-section-label">
+        <span class="material-icons">badge</span> Identité
+      </div>
       <div class="form-grid">
         <div class="form-field">
           <label>Nom <span class="req">*</span></label>
@@ -102,32 +139,58 @@
           <input type="text" [(ngModel)]="newUser.prenom" placeholder="Prénom" />
         </div>
         <div class="form-field">
-          <label>Matricule <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="newUser.matricule" placeholder="Ex: INF-2025-060" />
+          <label>Matricule (Mat) <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newUser.mat" placeholder="Ex : INF-2025-060" />
         </div>
         <div class="form-field">
           <label>Email <span class="req">*</span></label>
           <input type="email" [(ngModel)]="newUser.email" placeholder="prenom.nom@dialysys.ma" />
         </div>
         <div class="form-field">
-          <label>Rôle</label>
-          <select [(ngModel)]="newUser.role">
-            <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
-          </select>
+          <label>Téléphone</label>
+          <input type="text" [(ngModel)]="newUser.telephone" placeholder="06 XX XX XX XX" />
         </div>
         <div class="form-field">
           <label>Service</label>
           <input type="text" [(ngModel)]="newUser.service" placeholder="Hémodialyse" />
         </div>
+      </div>
+
+      <!-- Section: Accès -->
+      <div class="form-section-label" style="margin-top:8px">
+        <span class="material-icons">lock</span> Accès &amp; Connexion
+      </div>
+      <div class="form-grid">
         <div class="form-field">
-          <label>Téléphone</label>
-          <input type="text" [(ngModel)]="newUser.telephone" placeholder="06 XX XX XX XX" />
+          <label>Login <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newUser.login" placeholder="Ex : p.nom" />
         </div>
         <div class="form-field">
-          <label>Mot de passe temporaire</label>
-          <input type="text" [(ngModel)]="newUser.motDePasse" placeholder="Généré automatiquement si vide" />
+          <label>Username</label>
+          <input type="text" [(ngModel)]="newUser.username" placeholder="Auto-généré si vide" />
+        </div>
+        <div class="form-field">
+          <label>Mot de passe (MdP)</label>
+          <input type="password" [(ngModel)]="newUser.mdp" placeholder="Généré automatiquement si vide" />
+        </div>
+        <div class="form-field">
+          <label>Rôle <span class="req">*</span></label>
+          <select [(ngModel)]="newUser.role">
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
+          </select>
+        </div>
+        <div class="form-field form-field--full">
+          <label>Compte actif</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="newUser.actif" />
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label">{{ newUser.actif ? 'Compte actif dès la création' : 'Compte inactif (activation manuelle requise)' }}</span>
+          </div>
         </div>
       </div>
+
       <div class="modal-actions">
         <button class="btn-sm-primary" (click)="saveNewUser()">
           <span class="material-icons">person_add</span> Créer le compte
@@ -287,7 +350,7 @@
                   </div>
                 </div>
               </td>
-              <td><span class="mono">{{ u.matricule }}</span></td>
+              <td><span class="mono">{{ u.mat }}</span></td>
               <td>
                 <span class="role-chip" [style.color]="roleColorVar(u.role)" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 12%, transparent)'">
                   <span class="material-icons">{{ getRoleConfig(u.role)?.icon }}</span>

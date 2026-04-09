@@ -327,3 +327,319 @@
 }
 .modal-header--simple { gap: 0; h2 { flex: 1; } }
 .req { color: var(--c-red); }
+
+/* ─── Rapport modal ─── */
+.modal-panel--rapport { max-width: 680px; }
+
+/* ─── Fiche patient modal ─── */
+.modal-panel--fiche {
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+
+  .modal-body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.rapport-header-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.rapport-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 14px;
+  border-right: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+  &:nth-child(3n) { border-right: none; }
+  &:nth-last-child(-n+3) { border-bottom: none; }
+  span { font-size: 10.5px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .04em; }
+  b { font-size: 13px; color: var(--c-text-1); font-weight: 600; }
+}
+
+.rapport-section-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+  margin-top: 4px;
+  .material-icons { font-size: 15px; color: var(--c-teal); }
+}
+
+.rapport-vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.rapport-vital {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  &--warn { border-color: rgba(255,193,7,.4); background: rgba(255,193,7,.04); }
+}
+
+.rv-lbl { font-size: 10.5px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; }
+.rv-val { font-size: 16px; font-weight: 700; color: var(--c-text-1); }
+
+.rapport-text-block {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--c-text-2);
+  line-height: 1.6;
+  margin-bottom: 16px;
+
+  &--warn { border-color: rgba(255,193,7,.4); background: rgba(255,193,7,.04); color: var(--c-amber); }
+}
+
+.rapport-soins-list {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rapport-soin-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--c-text-1);
+  padding: 8px 12px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 7px;
+  .material-icons { font-size: 15px; color: var(--c-green); flex-shrink: 0; }
+
+  &--pending .material-icons { color: var(--c-blue); }
+}
+
+/* ─── Mes Patients grid ─── */
+.mes-patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.patient-fiche-card {
+  background: var(--c-card);
+  border: 1.5px solid var(--c-border);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color .2s, box-shadow .2s;
+  &:hover { border-color: var(--c-teal); box-shadow: 0 0 0 3px rgba(0,217,196,.07); }
+
+  &--warn { border-color: rgba(255,193,7,.4); }
+  &--crit { border-color: rgba(255,87,87,.4); }
+}
+
+.pfc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pfc-avatar {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: var(--c-teal-soft);
+  border: 2px solid var(--c-teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: var(--c-teal);
+  flex-shrink: 0;
+
+  &--crit {
+    background: rgba(255,87,87,.1);
+    border-color: var(--c-red);
+    color: var(--c-red);
+  }
+}
+
+.pfc-identity {
+  flex: 1;
+  b { display: block; font-size: 14px; font-weight: 700; color: var(--c-text-1); margin-bottom: 2px; }
+  span { font-size: 12px; color: var(--c-text-3); }
+}
+
+.pfc-vitals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pfc-vital {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+
+  .material-icons { font-size: 15px; color: var(--c-teal); flex-shrink: 0; margin-top: 1px; }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    span { font-size: 10.5px; color: var(--c-text-3); font-weight: 600; }
+    b { font-size: 13px; color: var(--c-text-1); }
+  }
+}
+
+.pfc-antecedents {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--c-text-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  .material-icons { font-size: 14px; color: var(--c-text-3); flex-shrink: 0; margin-top: 1px; }
+}
+
+.pfc-soins-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--c-amber);
+  font-weight: 600;
+  .material-icons { font-size: 15px; }
+}
+
+.pfc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ─── Rapport button style ─── */
+.row-btn--rapport {
+  color: var(--c-teal) !important;
+  border-color: rgba(0,217,196,.3) !important;
+  &:hover { background: var(--c-teal-soft) !important; }
+}
+
+/* ─── Ordonnance card (fiche patient modal) ─── */
+.ord-fiche-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-teal);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ord-fiche-dates {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--c-text-2);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    .material-icons { font-size: 14px; color: var(--c-teal); }
+  }
+}
+
+.ord-fiche-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ord-fiche-lbl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--c-text-3);
+  .material-icons { font-size: 13px; }
+}
+
+.ord-fiche-val {
+  font-size: 12.5px;
+  color: var(--c-text-1);
+  line-height: 1.5;
+  padding-left: 2px;
+
+  &--warn {
+    color: var(--c-amber);
+    font-style: italic;
+  }
+}
+
+/* ─── Ordonnance badge on patient cards ─── */
+.pfc-ordonnance {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(0,217,196,.05);
+  border: 1px solid rgba(0,217,196,.2);
+  border-radius: 8px;
+  padding: 8px 10px;
+
+  > .material-icons { font-size: 15px; color: var(--c-teal); flex-shrink: 0; margin-top: 2px; }
+}
+
+.pfc-ord-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pfc-ord-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--c-teal);
+}
+
+.pfc-ord-meds {
+  font-size: 11.5px;
+  color: var(--c-text-2);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

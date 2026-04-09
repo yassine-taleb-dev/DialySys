@@ -135,6 +135,187 @@
   </div>
 </div>
 
+<!-- ══ MODAL — Rapport de Séance ══ -->
+<div class="modal-overlay" *ngIf="showRapportModal && selectedRapport" (click)="showRapportModal = false">
+  <div class="modal-panel modal-panel--rapport" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-lg">{{ selectedRapport!.patientInit }}</div>
+      <div class="modal-patient-info">
+        <h2>Rapport de Séance</h2>
+        <span>{{ selectedRapport!.patient }} · Machine {{ selectedRapport!.machine }}</span>
+      </div>
+      <button class="modal-close-btn" (click)="showRapportModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- En-tête du rapport -->
+      <div class="rapport-header-grid">
+        <div class="rapport-info-item"><span>Infirmier(e)</span><b>{{ selectedRapport!.infirmier }}</b></div>
+        <div class="rapport-info-item"><span>Machine</span><b class="mono">{{ selectedRapport!.machine }}</b></div>
+        <div class="rapport-info-item"><span>Heure début</span><b class="mono">{{ selectedRapport!.heure }}</b></div>
+        <div class="rapport-info-item"><span>Heure fin</span><b class="mono">{{ selectedRapport!.heureEnd }}</b></div>
+        <div class="rapport-info-item"><span>Durée</span><b>{{ selectedRapport!.duree }}</b></div>
+        <div class="rapport-info-item"><span>Date</span><b>03/04/2026</b></div>
+      </div>
+
+      <!-- Constantes vitales -->
+      <div class="rapport-section-label"><span class="material-icons">monitor_heart</span> Constantes Vitales</div>
+      <div class="rapport-vitals-grid">
+        <div class="rapport-vital">
+          <span class="rv-lbl">Pression Artérielle</span>
+          <span class="rv-val mono">{{ selectedRapport!.pa }}</span>
+        </div>
+        <div class="rapport-vital">
+          <span class="rv-lbl">Fréquence Cardiaque</span>
+          <span class="rv-val mono">{{ selectedRapport!.fc }} bpm</span>
+        </div>
+        <div class="rapport-vital">
+          <span class="rv-lbl">Poids début séance</span>
+          <span class="rv-val mono">{{ selectedRapport!.poidsDebut }} kg</span>
+        </div>
+        <div class="rapport-vital">
+          <span class="rv-lbl">Poids fin séance</span>
+          <span class="rv-val mono">{{ selectedRapport!.poidsFin }} kg</span>
+        </div>
+        <div class="rapport-vital">
+          <span class="rv-lbl">Débit sanguin</span>
+          <span class="rv-val mono">{{ selectedRapport!.debit }} mL/min</span>
+        </div>
+        <div class="rapport-vital">
+          <span class="rv-lbl">UF réalisée</span>
+          <span class="rv-val mono">{{ (selectedRapport!.poidsDebut - selectedRapport!.poidsFin).toFixed(1) }} L</span>
+        </div>
+      </div>
+
+      <!-- Observations -->
+      <div class="rapport-section-label"><span class="material-icons">description</span> Observations</div>
+      <div class="rapport-text-block">{{ selectedRapport!.observations }}</div>
+
+      <!-- Incidents -->
+      <div class="rapport-section-label"><span class="material-icons">warning_amber</span> Incidents</div>
+      <div class="rapport-text-block" [class.rapport-text-block--warn]="selectedRapport!.incidents !== 'Aucun incident signalé.'">
+        {{ selectedRapport!.incidents }}
+      </div>
+
+      <!-- Soins réalisés -->
+      <div class="rapport-section-label"><span class="material-icons">medical_services</span> Soins Réalisés</div>
+      <div *ngIf="selectedRapport!.soinsRealises.length > 0" class="rapport-soins-list">
+        <div class="rapport-soin-item" *ngFor="let s of selectedRapport!.soinsRealises">
+          <span class="material-icons">check_circle</span> {{ s }}
+        </div>
+      </div>
+      <div *ngIf="selectedRapport!.soinsRealises.length === 0" class="rapport-text-block" style="color:var(--c-text-3)">
+        Aucun soin enregistré pour cette séance.
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="imprimerRapport()">
+          <span class="material-icons">print</span> Imprimer le rapport
+        </button>
+        <button class="btn-outline-sm" (click)="showToast('Rapport exporté en PDF', 'info')">
+          <span class="material-icons">download</span> Exporter PDF
+        </button>
+        <button class="btn-outline-sm" (click)="showRapportModal = false">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL — Fiche Patient ══ -->
+<div class="modal-overlay" *ngIf="showPatientFicheModal && selectedPatientFiche" (click)="showPatientFicheModal = false">
+  <div class="modal-panel modal-panel--fiche" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="avatar-lg" [style.background]="selectedPatientFiche!.statut === 'crit' ? 'rgba(255,87,87,.15)' : 'var(--c-teal-soft)'">
+        <span [style.color]="selectedPatientFiche!.statut === 'crit' ? 'var(--c-red)' : 'var(--c-teal)'">{{ selectedPatientFiche!.initials }}</span>
+      </div>
+      <div class="modal-patient-info">
+        <h2>{{ selectedPatientFiche!.nom }}</h2>
+        <span>{{ selectedPatientFiche!.age }} ans · <span class="patho-tag">{{ selectedPatientFiche!.pathologie }}</span></span>
+      </div>
+      <span class="badge" [ngClass]="selectedPatientFiche!.statut">{{ selectedPatientFiche!.statutLabel }}</span>
+      <button class="modal-close-btn" (click)="showPatientFicheModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Infos générales -->
+      <div class="rapport-header-grid">
+        <div class="rapport-info-item"><span>Groupe sanguin</span><b style="color:var(--c-red)">{{ selectedPatientFiche!.groupeSanguin }}</b></div>
+        <div class="rapport-info-item"><span>Machine assignée</span><b class="mono">{{ selectedPatientFiche!.machine }}</b></div>
+        <div class="rapport-info-item"><span>Prochaine séance</span><b class="mono">{{ selectedPatientFiche!.prochainSeance }}</b></div>
+        <div class="rapport-info-item"><span>Poids habituel</span><b>{{ selectedPatientFiche!.poids }}</b></div>
+      </div>
+
+      <!-- Constantes actuelles -->
+      <div class="rapport-section-label"><span class="material-icons">monitor_heart</span> Dernières Constantes</div>
+      <div class="rapport-vitals-grid">
+        <div class="rapport-vital" [class.rapport-vital--warn]="selectedPatientFiche!.statut !== 'ok'">
+          <span class="rv-lbl">Pression Artérielle</span>
+          <span class="rv-val mono">{{ selectedPatientFiche!.pa }}</span>
+        </div>
+        <div class="rapport-vital">
+          <span class="rv-lbl">Fréquence Cardiaque</span>
+          <span class="rv-val mono">{{ selectedPatientFiche!.fc }} bpm</span>
+        </div>
+      </div>
+
+      <!-- Antécédents -->
+      <div class="rapport-section-label"><span class="material-icons">history_edu</span> Antécédents</div>
+      <div class="rapport-text-block">{{ selectedPatientFiche!.antecedents }}</div>
+
+      <!-- Ordonnance active -->
+      <div class="rapport-section-label"><span class="material-icons">description</span> Ordonnance Active</div>
+      <ng-container *ngIf="selectedPatientFiche!.ordonnance; else noOrd">
+        <div class="ord-fiche-card">
+          <div class="ord-fiche-dates">
+            <span><span class="material-icons">today</span> Émise le {{ selectedPatientFiche!.ordonnance!.dateEmission }}</span>
+            <span><span class="material-icons">event</span> Expire le {{ selectedPatientFiche!.ordonnance!.dateExpiration }}</span>
+            <span class="badge ok">{{ selectedPatientFiche!.ordonnance!.statut }}</span>
+          </div>
+          <div class="ord-fiche-row">
+            <span class="ord-fiche-lbl"><span class="material-icons">medication</span> Médicaments</span>
+            <span class="ord-fiche-val">{{ selectedPatientFiche!.ordonnance!.medicaments }}</span>
+          </div>
+          <div class="ord-fiche-row">
+            <span class="ord-fiche-lbl"><span class="material-icons">schedule</span> Posologie</span>
+            <span class="ord-fiche-val">{{ selectedPatientFiche!.ordonnance!.posologie }}</span>
+          </div>
+          <div class="ord-fiche-row">
+            <span class="ord-fiche-lbl"><span class="material-icons">info_outline</span> Instructions</span>
+            <span class="ord-fiche-val ord-fiche-val--warn">{{ selectedPatientFiche!.ordonnance!.instructions }}</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noOrd>
+        <div class="rapport-text-block" style="color:var(--c-text-3)">Aucune ordonnance active pour ce patient.</div>
+      </ng-template>
+
+      <!-- Soins en attente pour ce patient -->
+      <div class="rapport-section-label"><span class="material-icons">medical_services</span> Soins en Attente</div>
+      <div class="rapport-soins-list">
+        <div class="rapport-soin-item rapport-soin-item--pending"
+          *ngFor="let s of soinsPendingPour(selectedPatientFiche!.nom)">
+          <span class="material-icons" [style.color]="s.priorite === 'urgent' ? 'var(--c-red)' : 'var(--c-blue)'">
+            {{ s.priorite === 'urgent' ? 'priority_high' : 'radio_button_unchecked' }}
+          </span>
+          <span>{{ s.heure }} — {{ s.type }}</span>
+          <button class="btn-teal-xs" style="margin-left:auto" (click)="marquerSoinFait(s)">Fait</button>
+        </div>
+        <div class="rapport-text-block" style="color:var(--c-text-3)"
+          *ngIf="soinsPendingPour(selectedPatientFiche!.nom).length === 0">
+          Aucun soin en attente pour ce patient.
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="alerterPatientFiche(selectedPatientFiche!)" *ngIf="selectedPatientFiche!.statut !== 'ok'">
+          <span class="material-icons">notification_important</span> Alerter médecin
+        </button>
+        <button class="btn-outline-sm" (click)="showPatientFicheModal = false">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ SHELL ══ -->
 <div class="dashboard">
 
@@ -155,11 +336,15 @@
       </a>
       <a class="nav-item" [class.active]="activeSection==='seances'"    (click)="setSection('seances')">
         <span class="material-icons">schedule</span><span>Mes Séances</span>
-        <span class="nav-badge">{{ seancesJour.length }}</span>
+        <span class="nav-badge">{{ mesSeances.length }}</span>
       </a>
       <a class="nav-item" [class.active]="activeSection==='taches'"     (click)="setSection('taches')">
         <span class="material-icons">task_alt</span><span>Mes Tâches</span>
         <span class="nav-badge warn">{{ urgentPending.length + standardPending.length }}</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
+        <span class="material-icons">people</span><span>Mes Patients</span>
+        <span class="nav-badge">{{ mesPatients.length }}</span>
       </a>
       <div class="nav-section-label">Soins</div>
       <a class="nav-item" [class.active]="activeSection==='monitoring'" (click)="setSection('monitoring')">
@@ -228,7 +413,7 @@
       <div class="kpi-row">
         <div class="kpi-card" style="cursor:pointer" (click)="setSection('seances')">
           <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ seancesJour.length }}</span><span class="kpi-lbl">Séances aujourd'hui</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ mesSeances.length }}</span><span class="kpi-lbl">Séances aujourd'hui</span></div>
         </div>
         <div class="kpi-card" style="cursor:pointer" (click)="setSection('monitoring')">
           <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">monitor_heart</span></div>
@@ -441,7 +626,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let s of seancesJour">
+            <tr *ngFor="let s of mesSeances">
               <td><span class="mono">{{ s.heure }}</span></td>
               <td>
                 <div class="patient-cell">
@@ -456,18 +641,15 @@
               <td><span class="badge {{ s.statutClass }}">{{ statutSeanceLabel(s.statut) }}</span></td>
               <td>
                 <div class="row-actions-mini">
-                  <button class="row-btn" (click)="showToast('Rapport de séance ouvert', 'info')" title="Rapport">
+                  <button class="row-btn row-btn--rapport" (click)="ouvrirRapport(s)" title="Voir le rapport">
                     <span class="material-icons">summarize</span>
-                  </button>
-                  <button class="row-btn" (click)="showToast('Infirmier réassigné', 'info')" title="Réassigner" *ngIf="s.statut !== 'terminee'">
-                    <span class="material-icons">swap_horiz</span>
                   </button>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
-        <div class="panel__footer">{{ seancesJour.length }} séances programmées aujourd'hui</div>
+        <div class="panel__footer">{{ mesSeances.length }} séances programmées pour vous aujourd'hui</div>
       </div>
     </ng-container>
 
@@ -598,6 +780,101 @@
         </table>
         <div class="panel__footer">{{ soinsFaits.length }} soins effectués · {{ soinsUrgents.length + soinsNormaux.length }} en attente</div>
       </div>
+    </ng-container>
+
+    <!-- ════ MES PATIENTS ════ -->
+    <ng-container *ngIf="activeSection === 'patients'">
+
+      <div class="section-bar">
+        <div class="section-bar__filters">
+          <div class="search-mini">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher un patient…" [(ngModel)]="searchPatients" />
+          </div>
+        </div>
+        <span style="font-size:13px;color:var(--c-text-3)">{{ mesPatients.length }} patient(s) assigné(s)</span>
+      </div>
+
+      <div class="mes-patients-grid">
+        <div class="patient-fiche-card" *ngFor="let p of filteredMesPatients"
+          [class.patient-fiche-card--warn]="p.statut === 'warn'"
+          [class.patient-fiche-card--crit]="p.statut === 'crit'">
+
+          <div class="pfc-header">
+            <div class="pfc-avatar" [class.pfc-avatar--crit]="p.statut === 'crit'">{{ p.initials }}</div>
+            <div class="pfc-identity">
+              <b>{{ p.nom }}</b>
+              <span>{{ p.age }} ans · {{ p.pathologie }}</span>
+            </div>
+            <span class="badge" [ngClass]="p.statut">{{ p.statutLabel }}</span>
+          </div>
+
+          <div class="pfc-vitals">
+            <div class="pfc-vital">
+              <span class="material-icons">favorite</span>
+              <div>
+                <span>Tension artérielle</span>
+                <b [class.warn-val]="p.statut !== 'ok'">{{ p.pa }}</b>
+              </div>
+            </div>
+            <div class="pfc-vital">
+              <span class="material-icons">speed</span>
+              <div>
+                <span>Fréquence cardiaque</span>
+                <b>{{ p.fc }} bpm</b>
+              </div>
+            </div>
+            <div class="pfc-vital">
+              <span class="material-icons">precision_manufacturing</span>
+              <div>
+                <span>Machine</span>
+                <b class="mono">{{ p.machine }}</b>
+              </div>
+            </div>
+            <div class="pfc-vital">
+              <span class="material-icons">event</span>
+              <div>
+                <span>Prochaine séance</span>
+                <b class="mono">{{ p.prochainSeance }}</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="pfc-antecedents">
+            <span class="material-icons">history_edu</span>
+            <span>{{ p.antecedents }}</span>
+          </div>
+
+          <div class="pfc-ordonnance" *ngIf="p.ordonnance">
+            <span class="material-icons">description</span>
+            <div class="pfc-ord-content">
+              <span class="pfc-ord-label">Ordonnance active</span>
+              <span class="pfc-ord-meds">{{ p.ordonnance.medicaments }}</span>
+            </div>
+            <span class="badge ok" style="margin-left:auto">{{ p.ordonnance.statut }}</span>
+          </div>
+
+          <div class="pfc-soins-count" *ngIf="soinsPendingPour(p.nom).length > 0">
+            <span class="material-icons">medical_services</span>
+            <span>{{ soinsPendingPour(p.nom).length }} soin(s) en attente</span>
+            <span class="badge warn" style="margin-left:auto">!</span>
+          </div>
+
+          <div class="pfc-actions">
+            <button class="btn-sm-primary" (click)="openPatientFiche(p)">
+              <span class="material-icons">folder_open</span> Consulter
+            </button>
+            <button class="btn-outline-sm" (click)="alerterPatientFiche(p)" *ngIf="p.statut !== 'ok'">
+              <span class="material-icons">notification_important</span> Alerter
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-row panel panel--full" *ngIf="filteredMesPatients.length === 0">
+          <span class="material-icons">people</span> Aucun patient trouvé
+        </div>
+      </div>
+
     </ng-container>
 
     <!-- ════ MACHINES ════ -->

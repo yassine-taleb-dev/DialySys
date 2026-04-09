@@ -34,6 +34,50 @@ interface SoinItem {
   priorite: 'urgent' | 'normal'; fait: boolean;
 }
 
+interface OrdonnanceInfirmier {
+  medicaments: string;
+  posologie: string;
+  instructions: string;
+  dateEmission: string;
+  dateExpiration: string;
+  statut: 'active' | 'terminee' | 'annulee';
+}
+
+interface PatientInfirmier {
+  initials: string;
+  nom: string;
+  age: number;
+  pathologie: string;
+  groupeSanguin: string;
+  machine: string;
+  prochainSeance: string;
+  statut: 'ok' | 'warn' | 'crit';
+  statutLabel: string;
+  pa: string;
+  fc: number;
+  poids: string;
+  antecedents: string;
+  ordonnance: OrdonnanceInfirmier | null;
+}
+
+interface RapportSeance {
+  patient: string;
+  patientInit: string;
+  machine: string;
+  heure: string;
+  heureEnd: string;
+  duree: string;
+  infirmier: string;
+  pa: string;
+  fc: number;
+  poidsDebut: number;
+  poidsFin: number;
+  debit: number;
+  observations: string;
+  incidents: string;
+  soinsRealises: string[];
+}
+
 interface Toast  { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
 interface Notif  { icon: string; text: string; time: string; type: string; read: boolean; }
 
@@ -61,6 +105,7 @@ export class InfirmierComponent {
       soins:      'Soins Infirmiers',
       machines:   'État des Machines',
       patients:   'Mes Patients',
+      rapport:    'Rapport de Séance',
     };
     return map[this.activeSection] ?? 'Tableau de Bord';
   }
@@ -118,6 +163,9 @@ export class InfirmierComponent {
     this.showToast(`Constantes de ${p.name} enregistrées`, 'success');
   }
 
+  // ── Infirmier connecté ──
+  readonly currentInfirmier = 'Inf. N. Tazi';
+
   // ── Séances du jour ──
   seancesJour: SeanceJour[] = [
     { heure: '08:00', heureEnd: '12:00', patient: 'Alaoui Khalid',      patientInit: 'AK', machine: 'M-03', duree: '4h',   infirmier: 'Inf. N. Tazi',    statut: 'terminee',  statutClass: 'ok'     },
@@ -128,9 +176,10 @@ export class InfirmierComponent {
     { heure: '16:30', heureEnd: '20:30', patient: 'Ouali Badreddine',    patientInit: 'OB', machine: 'M-05', duree: '4h',   infirmier: 'Inf. N. Tazi',    statut: 'planifiee', statutClass: 'purple' },
   ];
 
-  get seancesTerminees():  SeanceJour[] { return this.seancesJour.filter(s => s.statut === 'terminee');  }
-  get seancesEnCours():    SeanceJour[] { return this.seancesJour.filter(s => s.statut === 'en-cours');   }
-  get seancesPlanifiees(): SeanceJour[] { return this.seancesJour.filter(s => s.statut === 'planifiee'); }
+  get mesSeances(): SeanceJour[] { return this.seancesJour.filter(s => s.infirmier === this.currentInfirmier); }
+  get seancesTerminees():  SeanceJour[] { return this.mesSeances.filter(s => s.statut === 'terminee');  }
+  get seancesEnCours():    SeanceJour[] { return this.mesSeances.filter(s => s.statut === 'en-cours');   }
+  get seancesPlanifiees(): SeanceJour[] { return this.mesSeances.filter(s => s.statut === 'planifiee'); }
 
   statutSeanceLabel(s: string): string { return ({ terminee: 'Terminée', 'en-cours': 'En cours', planifiee: 'Planifiée' } as Record<string,string>)[s] ?? s; }
 
@@ -221,6 +270,119 @@ export class InfirmierComponent {
 
   signalerPanne(m: {id: string}): void {
     this.showToast(`Panne signalée pour ${m.id} — Technicien alerté`, 'warning');
+  }
+
+  // ── Mes Patients ──
+  mesPatients: PatientInfirmier[] = [
+    {
+      initials: 'AK', nom: 'Alaoui Khalid',       age: 58, pathologie: 'DRC', groupeSanguin: 'B+',
+      machine: 'M-03', prochainSeance: '03/04 · 08:00',
+      statut: 'crit', statutLabel: 'Critique',
+      pa: '145/92 mmHg', fc: 92, poids: '72 kg',
+      antecedents: 'IRC stade 5, HTA, Diabète type 2, Allergie Pénicilline',
+      ordonnance: {
+        medicaments: 'Amlodipine 5 mg, Furosémide 40 mg, Érythropoïétine 4000 UI',
+        posologie: 'Amlodipine : 1 cp/j le matin — Furosémide : 1 cp/j le matin — EPO : 1 inj. 3×/sem après séance',
+        instructions: 'Surveillance PA avant/après séance. Ne pas administrer Furosémide si PA < 100/60.',
+        dateEmission: '20/03/2026',
+        dateExpiration: '20/06/2026',
+        statut: 'active',
+      },
+    },
+    {
+      initials: 'SB', nom: 'Saidi Bouchra',       age: 45, pathologie: 'IRC', groupeSanguin: 'A+',
+      machine: 'M-07', prochainSeance: '03/04 · 10:30',
+      statut: 'ok', statutLabel: 'Stable',
+      pa: '130/82 mmHg', fc: 76, poids: '58 kg',
+      antecedents: 'IRC stade 4, Aucune allergie',
+      ordonnance: {
+        medicaments: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
+        posologie: 'Bicarbonate : 2 cp/j — Fer IV : perfusion 1×/sem en fin de séance',
+        instructions: 'Administrer le fer IV lentement sur 15 min. Surveiller signes allergiques.',
+        dateEmission: '15/03/2026',
+        dateExpiration: '15/06/2026',
+        statut: 'active',
+      },
+    },
+    {
+      initials: 'FZ', nom: 'Filali Zineb',        age: 52, pathologie: 'IRC', groupeSanguin: 'AB+',
+      machine: 'M-09', prochainSeance: '03/04 · 14:00',
+      statut: 'ok', statutLabel: 'Stable',
+      pa: '125/78 mmHg', fc: 72, poids: '62 kg',
+      antecedents: 'IRC stade 4, Allergie Aspirine, Hypothyroïdie',
+      ordonnance: {
+        medicaments: 'Lévothyroxine 50 µg, Calcium carbonate 500 mg',
+        posologie: 'Lévothyroxine : 1 cp/j à jeun — Calcium : 1 cp 3×/j aux repas',
+        instructions: 'Ne pas administrer Calcium en même temps que Lévothyroxine (intervalle ≥ 2h). Éviter Aspirine.',
+        dateEmission: '10/03/2026',
+        dateExpiration: '10/06/2026',
+        statut: 'active',
+      },
+    },
+  ];
+
+  searchPatients = '';
+  selectedPatientFiche: PatientInfirmier | null = null;
+  showPatientFicheModal = false;
+
+  get filteredMesPatients(): PatientInfirmier[] {
+    const q = this.searchPatients.trim().toLowerCase();
+    return this.mesPatients.filter(p =>
+      !q || p.nom.toLowerCase().includes(q) || p.pathologie.toLowerCase().includes(q)
+    );
+  }
+
+  openPatientFiche(p: PatientInfirmier): void {
+    this.selectedPatientFiche = p;
+    this.showPatientFicheModal = true;
+    this.showNotifPanel = false;
+  }
+
+  soinsPendingPour(nom: string): SoinItem[] {
+    return this.soins.filter(s => s.patient === nom && !s.fait);
+  }
+
+  // ── Rapport de Séance ──
+  showRapportModal = false;
+  selectedRapport: RapportSeance | null = null;
+
+  ouvrirRapport(s: SeanceJour): void {
+    // Build rapport from séance + live monitoring data
+    const live = this.patients.find(p => p.name.toLowerCase().includes(s.patient.split(' ')[0].toLowerCase()));
+    this.selectedRapport = {
+      patient:       s.patient,
+      patientInit:   s.patientInit,
+      machine:       s.machine,
+      heure:         s.heure,
+      heureEnd:      s.heureEnd,
+      duree:         s.duree,
+      infirmier:     s.infirmier,
+      pa:            live?.pa ?? '—',
+      fc:            live?.fc ?? 0,
+      poidsDebut:    live ? +(live.poidsPerdu + 72).toFixed(1) : 72,
+      poidsFin:      live ? +(72 - live.poidsPerdu).toFixed(1) : 72,
+      debit:         live?.debit ?? 0,
+      observations:  s.statut === 'terminee'
+        ? 'Séance terminée sans incident. Paramètres dans les normes en fin de séance.'
+        : s.statut === 'en-cours'
+        ? 'Séance en cours. Surveillance continue. Paramètres stables.'
+        : 'Séance planifiée — rapport disponible après réalisation.',
+      incidents:     live?.status === 'warn' ? 'PA élevée signalée — Médecin alerté.' : 'Aucun incident signalé.',
+      soinsRealises: this.soins
+        .filter(so => so.patient === s.patient && so.fait)
+        .map(so => `${so.heure} — ${so.type} : ${so.description}`),
+    };
+    this.showRapportModal = true;
+    this.showNotifPanel = false;
+  }
+
+  imprimerRapport(): void {
+    this.showToast('Impression du rapport de séance en cours…', 'info');
+  }
+
+  alerterPatientFiche(p: PatientInfirmier): void {
+    this.showToast(`Dr. Benali alerté pour ${p.nom} — PA ${p.pa}`, 'warning');
+    this.showPatientFicheModal = false;
   }
 
   // ── Notifications ──
