@@ -337,3 +337,318 @@
 }
 .modal-header--simple { gap: 0; h2 { flex: 1; } }
 .req { color: var(--c-red); }
+
+/* ─── Supervision des infirmiers ─── */
+.supervision-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.supervision-card {
+  background: var(--c-card-hi);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color .2s;
+
+  &--alert { border-color: rgba(245,166,35,.35); }
+  &--absent { border-color: rgba(255,87,87,.25); opacity: .85; }
+  &:hover { border-color: var(--c-border-hi); }
+}
+
+.sup-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sup-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--c-teal-soft);
+  color: var(--c-teal);
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.sup-identity {
+  flex: 1;
+  b    { display: block; font-size: 13px; font-weight: 600; color: var(--c-text-1); }
+  span { display: block; font-size: 11px; color: var(--c-text-3); }
+}
+
+.sup-contact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--c-text-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  .material-icons { font-size: 14px; color: var(--c-text-3); }
+}
+
+.sup-patients-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--c-text-3);
+  .material-icons { font-size: 14px; }
+}
+
+.sup-patients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sup-patient-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: 12px;
+
+  &--warn { border-color: rgba(245,166,35,.3); background: rgba(245,166,35,.04); }
+
+  .patient-cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    div { display: flex; flex-direction: column; gap: 1px;
+      b { font-size: 12px; color: var(--c-text-1); }
+    }
+  }
+}
+
+.sup-patient-vitals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  font-size: 12px;
+  color: var(--c-text-2);
+}
+
+.sup-empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--c-text-3);
+  padding: 8px 4px;
+  .material-icons { font-size: 16px; }
+}
+
+.sup-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--c-border);
+}
+
+/* ─── Monitoring Global ─── */
+.monitor-global-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.monitor-global-card {
+  background: var(--c-card-hi);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &--warn { border-color: rgba(245,166,35,.4); }
+  &--crit { border-color: rgba(255,87,87,.4); }
+}
+
+.mgc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mgc-identity {
+  flex: 1;
+  b    { display: block; font-size: 13px; font-weight: 600; color: var(--c-text-1); }
+  span { display: block; font-size: 11px; color: var(--c-text-3); }
+}
+
+.mgc-vitals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mgc-vital {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--alert {
+    border-color: rgba(245,166,35,.4);
+    background: rgba(245,166,35,.05);
+  }
+}
+
+.mgc-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--c-text-3);
+}
+
+.mgc-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text-1);
+}
+
+.mgc-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--c-border);
+}
+
+/* ─── Planning Detail Modal ─── */
+.modal-panel--planning-detail {
+  max-width: 660px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+
+  .modal-body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.pld-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--c-text-3);
+  margin: 14px 0 8px;
+
+  &:first-child { margin-top: 0; }
+
+  .material-icons { font-size: 14px; color: var(--c-teal); }
+}
+
+.pld-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.pld-info-item {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pld-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--c-text-3);
+}
+
+.pld-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text-1);
+}
+
+.pld-vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.pld-vital {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  &--warn {
+    border-color: rgba(245,166,35,.4);
+    background: rgba(245,166,35,.05);
+  }
+}
+
+.pld-v-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--c-text-3);
+}
+
+.pld-v-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text-1);
+}
+
+.pld-text-block {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  color: var(--c-text-2);
+  line-height: 1.55;
+
+  &--ord {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-left: 3px solid var(--c-teal);
+    color: var(--c-text-1);
+    .material-icons { font-size: 15px; color: var(--c-teal); flex-shrink: 0; margin-top: 1px; }
+  }
+}

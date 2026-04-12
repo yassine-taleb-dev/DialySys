@@ -124,6 +124,112 @@
   </div>
 </div>
 
+<!-- ══ MODAL — Détail Séance Planning ══ -->
+<div class="modal-overlay" *ngIf="showPlanningDetailModal && selectedPlanning" (click)="closePlanningDetail()">
+  <div class="modal-panel modal-panel--planning-detail" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="avatar-lg"
+        [style.background]="selectedPlanning!.statut === 'en-cours' ? 'var(--c-blue-soft)' :
+                            selectedPlanning!.statut === 'terminee'  ? 'var(--c-teal-soft)' :
+                            'rgba(167,139,250,.1)'">
+        <span [style.color]="selectedPlanning!.statut === 'en-cours' ? 'var(--c-blue)' :
+                              selectedPlanning!.statut === 'terminee'  ? 'var(--c-teal)' :
+                              'var(--c-purple)'">{{ selectedPlanning!.patientInit }}</span>
+      </div>
+      <div class="modal-patient-info">
+        <h2>{{ selectedPlanning!.patient }}</h2>
+        <span>{{ selectedPlanning!.pathologie }} · Groupe <b>{{ selectedPlanning!.groupeSanguin }}</b></span>
+      </div>
+      <span class="badge {{ planningStatutClass(selectedPlanning!.statut) }}">
+        {{ planningStatutLabel(selectedPlanning!.statut) }}
+      </span>
+      <button class="modal-close-btn" (click)="closePlanningDetail()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Infos séance -->
+      <div class="pld-section-label"><span class="material-icons">event</span> Informations Séance</div>
+      <div class="pld-info-grid">
+        <div class="pld-info-item">
+          <span class="pld-lbl">Heure début</span>
+          <span class="pld-val mono">{{ selectedPlanning!.heure }}</span>
+        </div>
+        <div class="pld-info-item">
+          <span class="pld-lbl">Heure fin</span>
+          <span class="pld-val mono">{{ selectedPlanning!.heureEnd }}</span>
+        </div>
+        <div class="pld-info-item">
+          <span class="pld-lbl">Durée</span>
+          <span class="pld-val mono">{{ selectedPlanning!.duree }}</span>
+        </div>
+        <div class="pld-info-item">
+          <span class="pld-lbl">Machine</span>
+          <span class="pld-val mono">{{ selectedPlanning!.machine }}</span>
+        </div>
+        <div class="pld-info-item">
+          <span class="pld-lbl">Infirmier(e)</span>
+          <span class="pld-val">{{ selectedPlanning!.infirmier }}</span>
+        </div>
+        <div class="pld-info-item">
+          <span class="pld-lbl">Poids</span>
+          <span class="pld-val">{{ selectedPlanning!.poids }}</span>
+        </div>
+      </div>
+
+      <!-- Constantes vitales (si disponibles) -->
+      <ng-container *ngIf="selectedPlanning!.statut !== 'planifiee'">
+        <div class="pld-section-label"><span class="material-icons">monitor_heart</span> Constantes Vitales</div>
+        <div class="pld-vitals-grid">
+          <div class="pld-vital" [class.pld-vital--warn]="selectedPlanning!.statut === 'en-cours' && selectedPlanning!.pa !== '—' && selectedPlanning!.pa!.startsWith('17')">
+            <span class="pld-v-lbl">Pression Artérielle</span>
+            <span class="pld-v-val mono">{{ selectedPlanning!.pa }}</span>
+          </div>
+          <div class="pld-vital" *ngIf="selectedPlanning!.fc! > 0">
+            <span class="pld-v-lbl">Fréq. Cardiaque</span>
+            <span class="pld-v-val mono">{{ selectedPlanning!.fc }} bpm</span>
+          </div>
+          <div class="pld-vital" *ngIf="selectedPlanning!.saturation! > 0">
+            <span class="pld-v-lbl">SpO₂</span>
+            <span class="pld-v-val mono">{{ selectedPlanning!.saturation }}%</span>
+          </div>
+          <div class="pld-vital" *ngIf="selectedPlanning!.debit! > 0">
+            <span class="pld-v-lbl">Débit dialyse</span>
+            <span class="pld-v-val mono">{{ selectedPlanning!.debit }} mL/min</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Ordonnance -->
+      <div class="pld-section-label"><span class="material-icons">description</span> Ordonnance Active</div>
+      <div class="pld-text-block pld-text-block--ord">
+        <span class="material-icons">medication</span>
+        <span>{{ selectedPlanning!.ordonnance }}</span>
+      </div>
+
+      <!-- Observations -->
+      <div class="pld-section-label"><span class="material-icons">notes</span> Observations</div>
+      <div class="pld-text-block">{{ selectedPlanning!.observations }}</div>
+
+      <div class="modal-actions">
+        <button class="btn-sm-primary" *ngIf="selectedPlanning!.statut === 'en-cours'"
+          (click)="showToast('Infirmier(e) alerté(e) — ' + selectedPlanning!.infirmier, 'warning'); closePlanningDetail()">
+          <span class="material-icons">notification_important</span> Alerter infirmier
+        </button>
+        <button class="btn-outline-sm"
+          (click)="showToast('Rapport de ' + selectedPlanning!.patient + ' généré', 'info'); closePlanningDetail()">
+          <span class="material-icons">summarize</span> Rapport
+        </button>
+        <button class="btn-outline-sm" (click)="closePlanningDetail()">Fermer</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ══ SHELL ══ -->
 <div class="dashboard">
 
@@ -144,20 +250,25 @@
       </a>
       <a class="nav-item" [class.active]="activeSection==='planning'" (click)="setSection('planning')">
         <span class="material-icons">calendar_month</span><span>Planning Global</span>
+        <span class="nav-badge">{{ planningSeances.length }}</span>
       </a>
       <a class="nav-item" [class.active]="activeSection==='equipe'" (click)="setSection('equipe')">
-        <span class="material-icons">supervisor_account</span><span>Équipe Soignante</span>
+        <span class="material-icons">supervisor_account</span><span>Équipe Aide-Soignante</span>
         <span class="nav-badge">{{ staff.length }}</span>
       </a>
       <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
         <span class="material-icons">people</span><span>Tous les Patients</span>
         <span class="nav-badge">{{ allPatients.length }}</span>
       </a>
-      <div class="nav-section-label">Supervision</div>
-      <a class="nav-item" (click)="setSection('monitoring')">
-        <span class="material-icons">monitor_heart</span><span>Monitoring Global</span>
+      <a class="nav-item" [class.active]="activeSection==='supervision'" (click)="setSection('supervision')">
+        <span class="material-icons">manage_accounts</span><span>Supervision Infirmiers</span>
       </a>
-      <a class="nav-item" (click)="setSection('rapports')">
+      <div class="nav-section-label">Supervision</div>
+      <a class="nav-item" [class.active]="activeSection==='monitoring'" (click)="setSection('monitoring')">
+        <span class="material-icons">monitor_heart</span><span>Monitoring Global</span>
+        <span class="nav-badge warn" *ngIf="monitorsEnAlerte > 0">{{ monitorsEnAlerte }}</span>
+      </a>
+      <a class="nav-item" [class.active]="activeSection==='rapports'" (click)="setSection('rapports')">
         <span class="material-icons">assessment</span><span>Rapports & Stats</span>
       </a>
       <a class="nav-item" [class.active]="activeSection==='incidents'" (click)="setSection('incidents')">
@@ -547,6 +658,292 @@
             </div>
           </div>
         </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ SUPERVISION INFIRMIERS ════ -->
+    <ng-container *ngIf="activeSection === 'supervision'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ staffEnService }}</span><span class="kpi-lbl">En service</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">warning</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ monitorsEnAlerte }}</span><span class="kpi-lbl">Patients en alerte</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ sessionsEnCours }}</span><span class="kpi-lbl">Séances en cours</span></div>
+        </div>
+      </div>
+
+      <div class="supervision-grid">
+        <div class="supervision-card" *ngFor="let sup of supervisionInfirmiers"
+          [class.supervision-card--alert]="sup.membre.statut === 'Alerte'"
+          [class.supervision-card--absent]="sup.membre.statut === 'Absent'">
+
+          <div class="sup-header">
+            <div class="sup-avatar">{{ sup.membre.init }}</div>
+            <div class="sup-identity">
+              <b>{{ sup.membre.nom }}</b>
+              <span>{{ sup.membre.vacation }}</span>
+            </div>
+            <span class="badge {{ sup.membre.statutClass }}">{{ sup.membre.statut }}</span>
+          </div>
+
+          <div class="sup-contact">
+            <span class="material-icons">phone</span>
+            <span>{{ sup.membre.telephone }}</span>
+            <button class="btn-teal-xs" style="margin-left:auto"
+              (click)="showToast('Message envoyé à ' + sup.membre.nom, 'info')">
+              <span class="material-icons">message</span> Contacter
+            </button>
+          </div>
+
+          <div class="sup-patients-label">
+            <span class="material-icons">people</span>
+            {{ sup.patients.length }} patient(s) assigné(s)
+          </div>
+
+          <div class="sup-patients-list" *ngIf="sup.patients.length > 0">
+            <div class="sup-patient-row" *ngFor="let p of sup.patients"
+              [class.sup-patient-row--warn]="p.statutClass === 'warn'">
+              <div class="patient-cell">
+                <div class="avatar-sm">{{ p.init }}</div>
+                <div>
+                  <b>{{ p.nom }}</b>
+                  <span class="mono" style="font-size:11px;color:var(--c-text-3)">{{ p.machine }}</span>
+                </div>
+              </div>
+              <div class="sup-patient-vitals">
+                <span class="mono {{ p.paClass }}">{{ p.pa }}</span>
+                <span *ngIf="p.fc > 0" class="mono" style="font-size:11px;color:var(--c-text-3)">{{ p.fc }} bpm</span>
+              </div>
+              <span class="badge {{ p.statutClass }}">{{ p.statut }}</span>
+            </div>
+          </div>
+
+          <div class="sup-empty" *ngIf="sup.patients.length === 0">
+            <span class="material-icons">inbox</span> Aucun patient en cours
+          </div>
+
+          <div class="sup-actions">
+            <button class="btn-outline-sm" (click)="showToast('Planning de ' + sup.membre.nom + ' ouvert', 'info')">
+              <span class="material-icons">calendar_month</span> Planning
+            </button>
+            <button class="btn-outline-sm" (click)="showToast('Tâche assignée à ' + sup.membre.nom, 'success')">
+              <span class="material-icons">assignment</span> Assigner
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ MONITORING GLOBAL ════ -->
+    <ng-container *ngIf="activeSection === 'monitoring'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ monitorCards.length }}</span><span class="kpi-lbl">Patients en dialyse</span></div>
+          <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">warning</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ monitorsEnAlerte }}</span><span class="kpi-lbl">Alertes actives</span></div>
+          <span class="kpi-trend warn" *ngIf="monitorsEnAlerte > 0">Vérifier</span>
+          <span class="kpi-trend up" *ngIf="monitorsEnAlerte === 0">Tout stable</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ monitorCards.length - monitorsEnAlerte }}</span><span class="kpi-lbl">Stables</span></div>
+        </div>
+      </div>
+
+      <div class="monitor-global-grid">
+        <div class="monitor-global-card" *ngFor="let m of monitorCards"
+          [class.monitor-global-card--warn]="m.statut === 'warn'"
+          [class.monitor-global-card--crit]="m.statut === 'crit'">
+
+          <div class="mgc-header">
+            <div class="avatar-lg"
+              [style.background]="m.statut !== 'ok' ? 'rgba(245,166,35,.12)' : 'var(--c-teal-soft)'">
+              <span [style.color]="m.statut !== 'ok' ? 'var(--c-amber)' : 'var(--c-teal)'">{{ m.init }}</span>
+            </div>
+            <div class="mgc-identity">
+              <b>{{ m.nom }}</b>
+              <span>{{ m.infirmier }} · Machine <span class="mono">{{ m.machine }}</span></span>
+            </div>
+            <span class="badge"
+              [ngClass]="m.statut === 'warn' ? 'warn' : m.statut === 'crit' ? 'crit' : 'ok'">
+              {{ m.statutLabel }}
+            </span>
+          </div>
+
+          <div class="mgc-vitals">
+            <div class="mgc-vital" [class.mgc-vital--alert]="m.statut !== 'ok'">
+              <span class="mgc-lbl">Pression Artérielle</span>
+              <span class="mgc-val mono {{ m.paClass }}">{{ m.pa }}</span>
+            </div>
+            <div class="mgc-vital">
+              <span class="mgc-lbl">Fréq. Cardiaque</span>
+              <span class="mgc-val mono">{{ m.fc }} bpm</span>
+            </div>
+            <div class="mgc-vital">
+              <span class="mgc-lbl">SpO₂</span>
+              <span class="mgc-val mono">{{ m.saturation }}%</span>
+            </div>
+            <div class="mgc-vital">
+              <span class="mgc-lbl">Débit dialyse</span>
+              <span class="mgc-val mono">{{ m.debit }} mL/min</span>
+            </div>
+          </div>
+
+          <div class="mgc-footer">
+            <span class="material-icons" style="font-size:14px;color:var(--c-text-3)">timer</span>
+            <span style="font-size:12px;color:var(--c-text-2)">
+              Durée restante : <b>{{ m.dureeRestante }}</b>
+            </span>
+            <button class="btn-outline-sm" style="margin-left:auto" *ngIf="m.statut !== 'ok'"
+              (click)="alerterInfirmier(m)">
+              <span class="material-icons">notification_important</span> Alerter infirmier
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ════ RAPPORTS & STATS ════ -->
+    <ng-container *ngIf="activeSection === 'rapports'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">summarize</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesTotal }}</span><span class="kpi-lbl">Séances enregistrées</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesCompletes }}</span><span class="kpi-lbl">Rapports complets</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">pending</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesTotal - seancesCompletes }}</span><span class="kpi-lbl">Incomplets</span></div>
+        </div>
+      </div>
+
+      <div class="section-bar">
+        <div class="search-mini">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Patient, infirmier…" [(ngModel)]="searchRapports" />
+        </div>
+        <button class="btn-outline-sm" (click)="showToast('Export global en cours…', 'info')">
+          <span class="material-icons">download</span> Exporter tout
+        </button>
+      </div>
+
+      <div class="panel panel--full">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Patient</th><th>Infirmier(e)</th><th>Machine</th>
+              <th>Durée</th><th>PA fin</th><th>FC fin</th><th>Incidents</th>
+              <th>Statut</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of filteredRapports">
+              <td class="mono">{{ r.date }}</td>
+              <td><b>{{ r.patient }}</b></td>
+              <td>{{ r.infirmier }}</td>
+              <td class="mono">{{ r.machine }}</td>
+              <td class="mono">{{ r.duree }}</td>
+              <td class="mono">{{ r.pa }}</td>
+              <td class="mono" *ngIf="r.fc > 0">{{ r.fc }} bpm</td>
+              <td *ngIf="r.fc === 0">—</td>
+              <td [style.color]="r.incidents !== 'Aucun' ? 'var(--c-amber)' : 'var(--c-text-3)'"
+                  style="font-size:12px">{{ r.incidents }}</td>
+              <td><span class="badge" [ngClass]="r.statut === 'complet' ? 'ok' : 'warn'">{{ r.statut }}</span></td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="row-btn" (click)="voirRapport(r)"><span class="material-icons">visibility</span></button>
+                  <button class="row-btn" (click)="exporterRapport(r)"><span class="material-icons">download</span></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredRapports.length === 0">
+              <td colspan="10" class="empty-row">
+                <span class="material-icons">search_off</span> Aucun rapport trouvé
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="panel__footer">{{ filteredRapports.length }} rapport(s) — 2 derniers jours</div>
+      </div>
+    </ng-container>
+
+    <!-- ════ PLANNING GLOBAL ════ -->
+    <ng-container *ngIf="activeSection === 'planning'">
+
+      <div class="kpi-row" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ planningTerminees }}</span><span class="kpi-lbl">Terminées</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ planningEnCours }}</span><span class="kpi-lbl">En cours</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:rgba(167,139,250,.1)"><span class="material-icons" style="color:var(--c-purple)">event</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ planningPlanifiees }}</span><span class="kpi-lbl">Planifiées</span></div>
+        </div>
+      </div>
+
+      <div class="section-bar">
+        <select class="filter-select" [(ngModel)]="filterPlanningStatut">
+          <option value="">Tous les statuts</option>
+          <option value="en-cours">En cours</option>
+          <option value="planifiee">Planifiées</option>
+          <option value="terminee">Terminées</option>
+        </select>
+        <button class="btn-sm-primary" (click)="showNouvelleSeanceModal = true">
+          <span class="material-icons">add</span> Nouvelle Séance
+        </button>
+      </div>
+
+      <div class="panel panel--full">
+        <table class="data-table">
+          <thead>
+            <tr><th>Heure</th><th>Patient</th><th>Fin</th><th>Infirmier(e)</th><th>Machine</th><th>Durée</th><th>Statut</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of filteredPlanning">
+              <td><span class="mono">{{ s.heure }}</span></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar-sm">{{ s.patientInit }}</div>
+                  <span>{{ s.patient }}</span>
+                </div>
+              </td>
+              <td><span class="mono">{{ s.heureEnd }}</span></td>
+              <td>{{ s.infirmier }}</td>
+              <td><span class="mono">{{ s.machine }}</span></td>
+              <td>{{ s.duree }}</td>
+              <td><span class="badge {{ planningStatutClass(s.statut) }}">{{ planningStatutLabel(s.statut) }}</span></td>
+              <td>
+                <button class="row-btn" (click)="openPlanningDetail(s)">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredPlanning.length === 0">
+              <td colspan="8" class="empty-row"><span class="material-icons">event_busy</span> Aucune séance</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="panel__footer">{{ filteredPlanning.length }} séance(s) — 12 Avril 2026</div>
       </div>
     </ng-container>
 

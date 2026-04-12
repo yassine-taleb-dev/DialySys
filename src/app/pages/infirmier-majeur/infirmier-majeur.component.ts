@@ -35,6 +35,29 @@ interface Incident {
   statut: 'ouvert' | 'en-cours' | 'resolu';
 }
 
+interface MonitorCard {
+  init: string; nom: string; machine: string; infirmier: string;
+  pa: string; paClass: string; fc: number; saturation: number;
+  poids: string; debit: number; dureeRestante: string;
+  statut: 'ok' | 'warn' | 'crit'; statutLabel: string;
+}
+
+interface RapportStat {
+  id: number; date: string; infirmier: string;
+  patient: string; machine: string; duree: string;
+  pa: string; fc: number; incidents: string; statut: 'complet' | 'incomplet';
+}
+
+interface PlanningSeanceIM {
+  heure: string; heureEnd: string; patient: string; patientInit: string;
+  infirmier: string; machine: string; duree: string;
+  statut: 'en-cours' | 'planifiee' | 'terminee';
+  // détail
+  pathologie?: string; groupeSanguin?: string;
+  pa?: string; fc?: number; poids?: string; saturation?: number;
+  debit?: number; observations?: string; ordonnance?: string;
+}
+
 interface Toast { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
 interface Notif  { icon: string; text: string; time: string; type: string; read: boolean; }
 
@@ -55,20 +78,20 @@ export class InfirmierMajeurComponent {
 
   get sectionTitle(): string {
     const map: Record<string, string> = {
-      dashboard: 'Supervision Générale',
-      planning:  'Planning des Séances',
-      equipe:    'Équipe Soignante',
-      patients:  'Tous les Patients',
-      stocks:    'Stocks & Consommables',
-      incidents: 'Incidents Signalés',
+      dashboard:   'Supervision Générale',
+      planning:    'Planning Global des Séances',
+      equipe:      'Équipe Aide-Soignante',
+      supervision: 'Supervision des Infirmiers',
+      patients:    'Tous les Patients',
+      monitoring:  'Monitoring Global en Temps Réel',
+      rapports:    'Rapports & Statistiques',
+      stocks:      'Stocks & Consommables',
+      incidents:   'Incidents Signalés',
     };
     return map[this.activeSection] ?? 'Tableau de Bord';
   }
 
   setSection(s: string): void {
-    if (s === 'planning') { this.router.navigate(['/planning']); return; }
-    const dev: Record<string,string> = { monitoring: 'Monitoring Global', rapports: 'Rapports & Stats' };
-    if (dev[s]) { this.showToast(`${dev[s]} — section en développement`, 'info'); return; }
     this.activeSection = s;
     this.showNotifPanel = false;
   }
@@ -222,6 +245,135 @@ export class InfirmierMajeurComponent {
 
   incidentStatutLabel(s: string): string {
     return ({ ouvert: 'Ouvert', 'en-cours': 'En charge', resolu: 'Résolu' } as Record<string,string>)[s] ?? s;
+  }
+
+  // ── Monitoring Global ──
+  monitorCards: MonitorCard[] = [
+    { init: 'ME', nom: 'Moussaoui El Hassan', machine: 'M-02', infirmier: 'Inf. A. Haddad',   pa: '172/98', paClass: 'warn-val', fc: 88, saturation: 95, poids: '68 kg', debit: 250, dureeRestante: '1h 10min', statut: 'warn', statutLabel: 'Alerte PA'  },
+    { init: 'OB', nom: 'Ouali Badreddine',    machine: 'M-05', infirmier: 'Inf. N. Tazi',     pa: '122/76', paClass: 'ok',       fc: 68, saturation: 98, poids: '74 kg', debit: 300, dureeRestante: '1h 42min', statut: 'ok',   statutLabel: 'En cours'   },
+    { init: 'SB', nom: 'Saidi Bouchra',       machine: 'M-07', infirmier: 'Inf. L. Mansouri', pa: '128/82', paClass: 'ok',       fc: 74, saturation: 97, poids: '57 kg', debit: 280, dureeRestante: '2h 16min', statut: 'ok',   statutLabel: 'En cours'   },
+  ];
+
+  get monitorsEnAlerte(): number { return this.monitorCards.filter(m => m.statut !== 'ok').length; }
+
+  alerterInfirmier(m: MonitorCard): void {
+    this.showToast(`${m.infirmier} alerté(e) pour ${m.nom} — PA ${m.pa}`, 'warning');
+  }
+
+  // ── Rapports ──
+  rapports: RapportStat[] = [
+    { id: 1, date: '12/04/2026', infirmier: 'Inf. N. Tazi',     patient: 'Alaoui Khalid',      machine: 'M-03', duree: '4h',   pa: '138/88', fc: 72, incidents: 'Aucun',               statut: 'complet'   },
+    { id: 2, date: '12/04/2026', infirmier: 'Inf. A. Haddad',   patient: 'Moussaoui El Hassan', machine: 'M-02', duree: '4h',   pa: '172/98', fc: 88, incidents: 'Alarme pression veineuse', statut: 'complet' },
+    { id: 3, date: '12/04/2026', infirmier: 'Inf. L. Mansouri', patient: 'Saidi Bouchra',       machine: 'M-07', duree: '4h',   pa: '128/82', fc: 74, incidents: 'Aucun',               statut: 'complet'   },
+    { id: 4, date: '11/04/2026', infirmier: 'Inf. N. Tazi',     patient: 'Ouali Badreddine',    machine: 'M-05', duree: '4h',   pa: '120/74', fc: 70, incidents: 'Aucun',               statut: 'complet'   },
+    { id: 5, date: '11/04/2026', infirmier: 'Inf. R. Berrada',  patient: 'Filali Zineb',        machine: 'M-09', duree: '3.5h', pa: '126/80', fc: 72, incidents: 'Aucun',               statut: 'incomplet' },
+  ];
+
+  searchRapports = '';
+  filterRapportDate = '';
+
+  get filteredRapports(): RapportStat[] {
+    const q = this.searchRapports.trim().toLowerCase();
+    return this.rapports.filter(r =>
+      (!q || r.patient.toLowerCase().includes(q) || r.infirmier.toLowerCase().includes(q)) &&
+      (!this.filterRapportDate || r.date === this.filterRapportDate)
+    );
+  }
+
+  get seancesTotal():    number { return this.rapports.length; }
+  get seancesCompletes(): number { return this.rapports.filter(r => r.statut === 'complet').length; }
+
+  voirRapport(r: RapportStat): void {
+    this.showToast(`Rapport de ${r.patient} — ${r.date} ouvert`, 'info');
+  }
+  exporterRapport(r: RapportStat): void {
+    this.showToast(`Rapport exporté en PDF — ${r.patient}`, 'success');
+  }
+
+  // ── Planning Global (interne) ──
+  planningSeances: PlanningSeanceIM[] = [
+    {
+      heure: '08:00', heureEnd: '12:00', patient: 'Alaoui Khalid',      patientInit: 'AK',
+      machine: 'M-03', duree: '4h',   infirmier: 'Inf. N. Tazi',     statut: 'terminee',
+      pathologie: 'DRC', groupeSanguin: 'B+', pa: '138/88', fc: 72, poids: '72 kg',
+      saturation: 97, debit: 300,
+      observations: 'Séance bien tolérée. Pas de complication. PA stable tout au long de la séance.',
+      ordonnance: 'Amlodipine 5 mg, Furosémide 40 mg, EPO 4000 UI',
+    },
+    {
+      heure: '09:00', heureEnd: '13:00', patient: 'Moussaoui El Hassan', patientInit: 'ME',
+      machine: 'M-02', duree: '4h',   infirmier: 'Inf. A. Haddad',   statut: 'en-cours',
+      pathologie: 'DRC', groupeSanguin: 'A+', pa: '172/98', fc: 88, poids: '68 kg',
+      saturation: 95, debit: 250,
+      observations: 'Alarme pression veineuse déclenchée à 11h05. Débit réduit. Médecin informé.',
+      ordonnance: 'Amlodipine 10 mg, Bisoprolol 5 mg',
+    },
+    {
+      heure: '09:30', heureEnd: '13:30', patient: 'Ouali Badreddine',    patientInit: 'OB',
+      machine: 'M-05', duree: '4h',   infirmier: 'Inf. N. Tazi',     statut: 'en-cours',
+      pathologie: 'IRC', groupeSanguin: 'O+', pa: '122/76', fc: 68, poids: '74 kg',
+      saturation: 98, debit: 300,
+      observations: 'Séance en cours, constantes stables.',
+      ordonnance: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
+    },
+    {
+      heure: '10:30', heureEnd: '14:30', patient: 'Saidi Bouchra',       patientInit: 'SB',
+      machine: 'M-07', duree: '4h',   infirmier: 'Inf. L. Mansouri', statut: 'en-cours',
+      pathologie: 'IRC', groupeSanguin: 'A+', pa: '128/82', fc: 74, poids: '57 kg',
+      saturation: 97, debit: 280,
+      observations: 'Séance en cours, aucun incident signalé.',
+      ordonnance: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
+    },
+    {
+      heure: '14:00', heureEnd: '17:30', patient: 'Filali Zineb',        patientInit: 'FZ',
+      machine: 'M-09', duree: '3.5h', infirmier: 'Inf. R. Berrada',  statut: 'planifiee',
+      pathologie: 'IRC', groupeSanguin: 'AB+', pa: '—', fc: 0, poids: '62 kg',
+      saturation: 0, debit: 0,
+      observations: 'Séance planifiée — patient attendu à 13h45.',
+      ordonnance: 'Lévothyroxine 50 µg, Calcium carbonate 500 mg',
+    },
+    {
+      heure: '16:30', heureEnd: '20:30', patient: 'Ouali Badreddine',    patientInit: 'OB',
+      machine: 'M-05', duree: '4h',   infirmier: 'Inf. N. Tazi',     statut: 'planifiee',
+      pathologie: 'IRC', groupeSanguin: 'O+', pa: '—', fc: 0, poids: '74 kg',
+      saturation: 0, debit: 0,
+      observations: 'Deuxième séance de la journée — surveillance renforcée recommandée.',
+      ordonnance: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
+    },
+  ];
+
+  filterPlanningStatut = '';
+  selectedPlanning: PlanningSeanceIM | null = null;
+  showPlanningDetailModal = false;
+
+  get filteredPlanning(): PlanningSeanceIM[] {
+    return this.planningSeances.filter(s => !this.filterPlanningStatut || s.statut === this.filterPlanningStatut);
+  }
+
+  openPlanningDetail(s: PlanningSeanceIM): void {
+    this.selectedPlanning = s;
+    this.showPlanningDetailModal = true;
+  }
+  closePlanningDetail(): void {
+    this.showPlanningDetailModal = false;
+    this.selectedPlanning = null;
+  }
+
+  planningStatutClass(s: string): string { return s === 'terminee' ? 'ok' : s === 'en-cours' ? 'info' : 'purple'; }
+  planningStatutLabel(s: string): string { return ({ terminee: 'Terminée', 'en-cours': 'En cours', planifiee: 'Planifiée' } as Record<string,string>)[s] ?? s; }
+
+  get planningTerminees():  number { return this.planningSeances.filter(s => s.statut === 'terminee').length; }
+  get planningEnCours():    number { return this.planningSeances.filter(s => s.statut === 'en-cours').length; }
+  get planningPlanifiees(): number { return this.planningSeances.filter(s => s.statut === 'planifiee').length; }
+
+  // ── Supervision des infirmiers ──
+  get supervisionInfirmiers(): { membre: StaffMember; patients: Patient[] }[] {
+    return this.staff
+      .filter(s => s.role === 'Infirmier(e)')
+      .map(s => ({
+        membre: s,
+        patients: this.allPatients.filter(p => p.infirmier === s.nom),
+      }));
   }
 
   // ── Notifications ──
