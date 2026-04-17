@@ -3,27 +3,33 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-export interface PlanningSession {
-  id: number;
-  weekOffset: number;   // 0 = current week, -1 = prev week, +1 = next, …
-  dayOffset: number;    // 0 = Mon … 5 = Sat
-  hour: number;         // 8–17
-  minute: number;       // 0 or 30
-  duration: number;     // hours (e.g. 4, 3.5)
-  patient: string;
-  patientInit: string;
-  infirmier: string;
-  machine: string;
-  statusClass: string;
-  statusLabel: string;
-  note?: string;
-}
+import { SeanceService }  from '../../../services/seance.service';
+import { PatientService } from '../../../services/patient.service';
+import { AuthService }    from '../../../services/auth.service';
+
+// ✅ CHANGEMENT: Importer les DTOs au lieu des modèles internes
+import { SeanceDto } from '../../../models/seance-dto';
+import { PatientDto } from '../../../models/patient-dto';
 
 interface Toast { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
 
-const PX_PER_HOUR = 80;   // 1 hour = 80 px in the grid
-const GRID_START  = 8;    // 08:00
-const GRID_END    = 18;   // 18:00 (exclusive)
+const PX_PER_HOUR = 80;
+const GRID_START  = 8;
+const GRID_END    = 18;
+
+// ── Helper local : "yyyy-MM-dd" en heure LOCALE (pas UTC) ──────────────────
+function toLocalIso(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// ── Helper local : parser "yyyy-MM-dd" sans décalage UTC ───────────────────
+function parseLocalDate(iso: string): Date {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);   // ← heure locale, pas UTC
+}
 
 @Component({
   selector: 'app-planning',
@@ -34,35 +40,74 @@ const GRID_END    = 18;   // 18:00 (exclusive)
 })
 export class PlanningComponent implements OnInit {
 
-  constructor(private router: Router) {}
+  constructor(
+    private router:     Router,
+    private seanceSvc:  SeanceService,
+    private patientSvc: PatientService,
+    private authSvc:    AuthService,
+  ) {}
 
-  // ── Time grid ──
+  // ── Grille ──────────────────────────────────────────────────────────────
   readonly hours: number[] = Array.from({ length: GRID_END - GRID_START }, (_, i) => GRID_START + i);
   readonly pxPerHour = PX_PER_HOUR;
   readonly dayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
-  // ── Week navigation ──
-  currentWeekOffset = 0;   // 0 = current calendar week
-  private weekStartBase!: Date;
+  // ── Navigation semaine ───────────────────────────────────────────────────
+  currentWeekOffset = 0;
+  private weekStartBase!: Date;   // Lundi de la semaine courante réelle
 
+  // ── Données ──────────────────────────────────────────────────────────────
+  // ✅ CHANGEMENT: Utiliser SeanceDto[] et PatientDto[]
+  seances:  SeanceDto[]  = [];
+  patients: PatientDto[] = [];
+  isLoading = false;
+
+  // ── Filtres ──────────────────────────────────────────────────────────────
+  filterMachine   = '';
+  filterStatut    = '';
+  viewMode: 'semaine' | 'liste' = 'semaine';
+
+  // ── Modals ───────────────────────────────────────────────────────────────
+  selectedSeance:  SeanceDto | null = null;
+  showDetailModal  = false;
+  showNewModal     = false;
+
+  newSeance = {
+    patientId:    0,
+    dayOffset:    0,
+    hour:         8,
+    minute:       0,
+    dureeHeures:  4,
+    machine:      '',
+    notes:        '',
+  };
+
+  // ────────────────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    // Compute Monday of the current real week
+    // Trouver le lundi de la semaine en cours (en heure LOCALE)
     const today = new Date();
-    const dow   = today.getDay();                  // 0=Sun … 6=Sat
-    const diff  = dow === 0 ? -6 : 1 - dow;       // days to Monday
+    today.setHours(0, 0, 0, 0);
+    const dow  = today.getDay();                 // 0=dim … 6=sam
+    const diff = dow === 0 ? -6 : 1 - dow;      // distance au lundi
     this.weekStartBase = new Date(today);
     this.weekStartBase.setDate(today.getDate() + diff);
-    this.weekStartBase.setHours(0, 0, 0, 0);
+
+    this.loadWeek();
+    
+    // ✅ CHANGEMENT: S'assurer que les données sont du bon type
+    this.patientSvc.getAll().subscribe({ 
+      next: p => this.patients = p as PatientDto[] 
+    });
   }
 
-  /** Date object for the Monday of the displayed week */
+  // ── Calcul du lundi affiché ──────────────────────────────────────────────
   get displayedWeekStart(): Date {
     const d = new Date(this.weekStartBase);
     d.setDate(d.getDate() + this.currentWeekOffset * 7);
     return d;
   }
 
-  /** Array of 6 Date objects (Mon–Sat) for the displayed week */
+  // ── Les 6 jours (lun-sam) de la semaine affichée ──────────────────────────
   get weekDays(): Date[] {
     const start = this.displayedWeekStart;
     return Array.from({ length: 6 }, (_, i) => {
@@ -72,13 +117,79 @@ export class PlanningComponent implements OnInit {
     });
   }
 
+  // ── Label "13 avril — 18 avril 2026" ────────────────────────────────────
   get weekRangeLabel(): string {
-    const days   = this.weekDays;
+    const days  = this.weekDays;
     const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-    const locale = 'fr-FR';
-    const start  = days[0].toLocaleDateString(locale, opts);
-    const end    = days[5].toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+    const start = days[0].toLocaleDateString('fr-FR', opts);
+    const end   = days[5].toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     return `${start} — ${end}`;
+  }
+
+  // ── Chargement des séances de la semaine depuis le backend ───────────────
+  loadWeek(): void {
+    this.isLoading = true;
+    const days  = this.weekDays;
+    const debut = toLocalIso(days[0]);           // "2026-04-13"
+    const fin   = toLocalIso(days[days.length - 1]); // "2026-04-18"
+
+    this.seanceSvc.getByPeriode(debut, fin).subscribe({
+      next:  s  => { 
+        this.seances = s as SeanceDto[]; 
+        this.isLoading = false; 
+      },
+      error: () => { 
+        this.isLoading = false; 
+        this.showToast('Erreur chargement séances', 'error'); 
+      }
+    });
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  prevWeek(): void { this.currentWeekOffset--; this.loadWeek(); }
+  nextWeek(): void { this.currentWeekOffset++; this.loadWeek(); }
+  goToday():  void { this.currentWeekOffset = 0; this.loadWeek(); }
+
+  // ── Filtrage par jour ─────────────────────────────────────────────────────
+  getSeancesForDay(dayIndex: number): SeanceDto[] {
+    const dayIso = toLocalIso(this.weekDays[dayIndex]); // "2026-04-13"
+    return this.seances.filter(s => {
+      const match = s.date?.substring(0, 10) === dayIso;
+      const mMachine = !this.filterMachine || s.machine === this.filterMachine;
+      const mStatut  = !this.filterStatut  || s.statut  === this.filterStatut;
+      return match && mMachine && mStatut;
+    });
+  }
+
+  // ── Positionnement CSS des cartes ─────────────────────────────────────────
+  sessionTop(s: SeanceDto): number {
+    const [hh, mm] = (s.heureDebut ?? '08:00').split(':').map(Number);
+    return (hh - GRID_START) * PX_PER_HOUR + (mm / 60) * PX_PER_HOUR;
+  }
+
+  sessionHeight(s: SeanceDto): number {
+    return Math.max(s.dureeHeures * PX_PER_HOUR, 40);
+  }
+
+  // ── Helpers affichage ────────────────────────────────────────────────────
+  patientNom(s: SeanceDto): string {
+    return s.patient ? `${s.patient.nom} ${s.patient.prenom}` : '—';
+  }
+
+  patientInit(s: SeanceDto): string {
+    return `${s.patient?.nom?.[0] ?? ''}${s.patient?.prenom?.[0] ?? ''}`.toUpperCase();
+  }
+
+  utilisateurNom(s: SeanceDto): string {
+    return s.utilisateur ? `${s.utilisateur.nom} ${s.utilisateur.prenom}` : '—';
+  }
+
+  statutClass(statut: string): string {
+    return ({ TERMINEE: 'ok', EN_COURS: 'info', PLANIFIEE: 'purple', ANNULEE: 'danger' } as Record<string,string>)[statut] ?? 'purple';
+  }
+
+  statutLabel(statut: string): string {
+    return ({ TERMINEE: 'Terminée', EN_COURS: 'En cours', PLANIFIEE: 'Planifiée', ANNULEE: 'Annulée' } as Record<string,string>)[statut] ?? statut;
   }
 
   isToday(date: Date): boolean {
@@ -93,202 +204,113 @@ export class PlanningComponent implements OnInit {
     return date < t;
   }
 
-  prevWeek(): void { this.currentWeekOffset--; }
-  nextWeek(): void { this.currentWeekOffset++; }
-  goToday():  void { this.currentWeekOffset = 0; }
+  formatHour(h: number): string { return `${String(h).padStart(2, '0')}:00`; }
 
-  // ── Sessions data ──
-  private nextId = 100;
+  formatTime(s: SeanceDto): string { return s.heureDebut?.substring(0, 5) ?? '—'; }
 
-  sessions: PlanningSession[] = [
-    // ── Week 0 Monday ──
-    { id:1,  weekOffset:0, dayOffset:0, hour:8,  minute:0,  duration:4,   patient:'Alaoui Khalid',       patientInit:'AK', infirmier:'Inf. N. Tazi',      machine:'M-03', statusClass:'ok',     statusLabel:'Terminé',    note:'Séance régulière. RAS.'                  },
-    { id:2,  weekOffset:0, dayOffset:0, hour:9,  minute:0,  duration:4,   patient:'Moussaoui El Hassan',  patientInit:'ME', infirmier:'Inf. A. Haddad',    machine:'M-02', statusClass:'ok',     statusLabel:'Terminé',    note:'PA stable en fin de séance.'             },
-    { id:3,  weekOffset:0, dayOffset:0, hour:14, minute:0,  duration:4,   patient:'Saidi Bouchra',        patientInit:'SB', infirmier:'Inf. L. Mansouri',  machine:'M-07', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    // ── Week 0 Tuesday ──
-    { id:4,  weekOffset:0, dayOffset:1, hour:8,  minute:0,  duration:4,   patient:'Ouali Badreddine',     patientInit:'OB', infirmier:'Inf. N. Tazi',      machine:'M-05', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    { id:5,  weekOffset:0, dayOffset:1, hour:9,  minute:30, duration:3.5, patient:'Filali Zineb',         patientInit:'FZ', infirmier:'Inf. R. Berrada',   machine:'M-09', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    { id:6,  weekOffset:0, dayOffset:1, hour:14, minute:0,  duration:4,   patient:'Alaoui Khalid',       patientInit:'AK', infirmier:'Inf. A. Haddad',    machine:'M-03', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    // ── Week 0 Wednesday ──
-    { id:7,  weekOffset:0, dayOffset:2, hour:8,  minute:0,  duration:4,   patient:'Moussaoui El Hassan',  patientInit:'ME', infirmier:'Inf. A. Haddad',    machine:'M-02', statusClass:'ok',     statusLabel:'Terminé',    note:'Alarme PA à 11h05 — traitée.'            },
-    { id:8,  weekOffset:0, dayOffset:2, hour:10, minute:30, duration:4,   patient:'Ouali Badreddine',     patientInit:'OB', infirmier:'Inf. N. Tazi',      machine:'M-05', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    { id:9,  weekOffset:0, dayOffset:2, hour:14, minute:0,  duration:4,   patient:'Saidi Bouchra',        patientInit:'SB', infirmier:'Inf. L. Mansouri',  machine:'M-07', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    // ── Week 0 Thursday ──
-    { id:10, weekOffset:0, dayOffset:3, hour:8,  minute:0,  duration:4,   patient:'Alaoui Khalid',       patientInit:'AK', infirmier:'Inf. N. Tazi',      machine:'M-03', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    { id:11, weekOffset:0, dayOffset:3, hour:9,  minute:0,  duration:4,   patient:'Filali Zineb',         patientInit:'FZ', infirmier:'Inf. R. Berrada',   machine:'M-09', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    { id:12, weekOffset:0, dayOffset:3, hour:14, minute:0,  duration:4,   patient:'Moussaoui El Hassan',  patientInit:'ME', infirmier:'Inf. A. Haddad',    machine:'M-02', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    // ── Week 0 Friday (today) ──
-    { id:13, weekOffset:0, dayOffset:4, hour:8,  minute:0,  duration:4,   patient:'Saidi Bouchra',        patientInit:'SB', infirmier:'Inf. N. Tazi',      machine:'M-07', statusClass:'ok',     statusLabel:'Terminé'                                                    },
-    { id:14, weekOffset:0, dayOffset:4, hour:9,  minute:0,  duration:4,   patient:'Ouali Badreddine',     patientInit:'OB', infirmier:'Inf. A. Haddad',    machine:'M-05', statusClass:'info',   statusLabel:'En cours'                                                   },
-    { id:15, weekOffset:0, dayOffset:4, hour:14, minute:0,  duration:4,   patient:'Alaoui Khalid',       patientInit:'AK', infirmier:'Inf. L. Mansouri',  machine:'M-03', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    // ── Week 0 Saturday ──
-    { id:16, weekOffset:0, dayOffset:5, hour:8,  minute:0,  duration:4,   patient:'Moussaoui El Hassan',  patientInit:'ME', infirmier:'Inf. N. Tazi',      machine:'M-02', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    { id:17, weekOffset:0, dayOffset:5, hour:9,  minute:30, duration:3.5, patient:'Filali Zineb',         patientInit:'FZ', infirmier:'Inf. R. Berrada',   machine:'M-09', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    // ── Week 1 (next week) — light preview ──
-    { id:18, weekOffset:1, dayOffset:0, hour:8,  minute:0,  duration:4,   patient:'Alaoui Khalid',       patientInit:'AK', infirmier:'Inf. N. Tazi',      machine:'M-03', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    { id:19, weekOffset:1, dayOffset:0, hour:14, minute:0,  duration:4,   patient:'Saidi Bouchra',        patientInit:'SB', infirmier:'Inf. L. Mansouri',  machine:'M-07', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    { id:20, weekOffset:1, dayOffset:2, hour:8,  minute:0,  duration:4,   patient:'Moussaoui El Hassan',  patientInit:'ME', infirmier:'Inf. A. Haddad',    machine:'M-02', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    { id:21, weekOffset:1, dayOffset:4, hour:8,  minute:0,  duration:4,   patient:'Filali Zineb',         patientInit:'FZ', infirmier:'Inf. R. Berrada',   machine:'M-09', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-    { id:22, weekOffset:1, dayOffset:5, hour:9,  minute:0,  duration:4,   patient:'Ouali Badreddine',     patientInit:'OB', infirmier:'Inf. N. Tazi',      machine:'M-05', statusClass:'purple', statusLabel:'Planifiée'                                                  },
-  ];
-
-  getSessionsForDay(dayOffset: number): PlanningSession[] {
-    return this.sessions.filter(s => s.weekOffset === this.currentWeekOffset && s.dayOffset === dayOffset);
-  }
-
-  sessionTop(s: PlanningSession): number {
-    return (s.hour - GRID_START) * PX_PER_HOUR + (s.minute / 60) * PX_PER_HOUR;
-  }
-
-  sessionHeight(s: PlanningSession): number {
-    return Math.max(s.duration * PX_PER_HOUR, 40);   // min 40px
-  }
-
-  formatHour(h: number): string {
-    return `${String(h).padStart(2, '0')}:00`;
-  }
-
-  formatTime(h: number, m: number): string {
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  }
-
-  // ── Stats ──
-  get weekSessions(): PlanningSession[] {
-    return this.sessions.filter(s => s.weekOffset === this.currentWeekOffset);
-  }
-  get weekSessionCount():   number { return this.weekSessions.length; }
-  get ongoingCount():       number { return this.weekSessions.filter(s => s.statusClass === 'info').length; }
-  get plannedCount():       number { return this.weekSessions.filter(s => s.statusClass === 'purple').length; }
-  get completedCount():     number { return this.weekSessions.filter(s => s.statusClass === 'ok').length; }
-  get machinesUsed():       number { return new Set(this.weekSessions.map(s => s.machine)).size; }
-
-  // ── Session detail modal ──
-  selectedSession: PlanningSession | null = null;
-  showDetailModal = false;
-
-  openSession(s: PlanningSession): void {
-    this.selectedSession = { ...s };
-    this.showDetailModal = true;
-  }
-
-  closeDetail(): void {
-    this.showDetailModal = false;
-    this.selectedSession = null;
-  }
-
-  deleteSession(s: PlanningSession): void {
-    this.sessions = this.sessions.filter(x => x.id !== s.id);
-    this.closeDetail();
-    this.showToast(`Séance de ${s.patient} supprimée`, 'warning');
-  }
-
-  // ── New session modal ──
-  showNewModal = false;
-  newSession = {
-    patient: '', infirmier: '', machine: '', dayOffset: 0,
-    hour: 8, minute: 0, duration: 4, note: ''
-  };
-
-  openNewModal(dayOffset?: number): void {
-    this.newSession = {
-      patient: '', infirmier: '', machine: '',
-      dayOffset: dayOffset ?? 0, hour: 8, minute: 0, duration: 4, note: ''
-    };
-    this.showNewModal = true;
-  }
-
-  saveNewSession(): void {
-    if (!this.newSession.patient.trim() || !this.newSession.machine.trim()) {
-      this.showToast('Patient et machine sont obligatoires', 'warning');
-      return;
-    }
-    const initials = this.newSession.patient.trim().split(' ')
-      .map(w => w[0]).join('').toUpperCase().slice(0, 2);
-
-    this.sessions.push({
-      id:          ++this.nextId,
-      weekOffset:  this.currentWeekOffset,
-      dayOffset:   +this.newSession.dayOffset,
-      hour:        +this.newSession.hour,
-      minute:      +this.newSession.minute,
-      duration:    +this.newSession.duration,
-      patient:     this.newSession.patient.trim(),
-      patientInit: initials,
-      infirmier:   this.newSession.infirmier.trim() || 'À assigner',
-      machine:     this.newSession.machine.trim().toUpperCase(),
-      note:        this.newSession.note.trim(),
-      statusClass: 'purple',
-      statusLabel: 'Planifiée',
-    });
-
-    this.showNewModal = false;
-    this.showToast(`Séance de ${this.newSession.patient} planifiée`, 'success');
-  }
-
-  // ── Filters ──
-  filterMachine  = '';
-  filterInfirmier = '';
-  filterStatus   = '';
-
-  get filteredWeekSessions(): PlanningSession[] {
-    return this.weekSessions.filter(s =>
-      (!this.filterMachine   || s.machine.toLowerCase().includes(this.filterMachine.toLowerCase())) &&
-      (!this.filterInfirmier || s.infirmier.toLowerCase().includes(this.filterInfirmier.toLowerCase())) &&
-      (!this.filterStatus    || s.statusClass === this.filterStatus)
-    );
-  }
-
-  getFilteredSessionsForDay(dayOffset: number): PlanningSession[] {
-    return this.filteredWeekSessions.filter(s => s.dayOffset === dayOffset);
-  }
-
-  get hasActiveFilters(): boolean {
-    return !!(this.filterMachine || this.filterInfirmier || this.filterStatus);
-  }
-
-  clearFilters(): void {
-    this.filterMachine   = '';
-    this.filterInfirmier = '';
-    this.filterStatus    = '';
-  }
-
-  // ── View mode ──
-  viewMode: 'semaine' | 'liste' = 'semaine';
-
-  // ── Toast ──
-  private tid = 0;
-  toasts: Toast[] = [];
-  showToast(message: string, type: Toast['type'] = 'info'): void {
-    const id = ++this.tid;
-    this.toasts.push({ message, type, id });
-    setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 3500);
-  }
-  removeToast(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }
-  toastIcon(type: string): string {
-    return ({ success:'check_circle', warning:'warning', error:'error', info:'info' } as Record<string,string>)[type] ?? 'info';
-  }
-
-  // ── Helpers ──
-  dayName(dayOffset: number): string {
-    const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-    return days[dayOffset] ?? '';
-  }
-
-  sessionEndTime(s: PlanningSession): string {
-    const totalMin = s.hour * 60 + s.minute + s.duration * 60;
-    return this.formatTime(Math.floor(totalMin / 60), totalMin % 60);
-  }
+  formatTimeFin(s: SeanceDto): string { return s.heureFin?.substring(0, 5) ?? '—'; }
 
   formatDate(date: Date): string {
     return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
   }
 
-  get allMachines(): string[] {
-    return [...new Set(this.sessions.map(s => s.machine))].sort();
+  dayName(index: number): string {
+    return ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][index] ?? '';
   }
 
-  get allInfirmiers(): string[] {
-    return [...new Set(this.sessions.map(s => s.infirmier))].sort();
+  // ── Stats semaine ────────────────────────────────────────────────────────
+  get weekSessionCount():  number { return this.seances.length; }
+  get completedCount():    number { return this.seances.filter(s => s.statut === 'TERMINEE').length; }
+  get ongoingCount():      number { return this.seances.filter(s => s.statut === 'EN_COURS').length; }
+  get plannedCount():      number { return this.seances.filter(s => s.statut === 'PLANIFIEE').length; }
+  get machinesUsed():      number { return new Set(this.seances.map(s => s.machine).filter(Boolean)).size; }
+
+  get allMachines(): string[] {
+    return [...new Set(this.seances.map(s => s.machine).filter((m): m is string => !!m))].sort();
+  }
+
+  get hasActiveFilters(): boolean { return !!(this.filterMachine || this.filterStatut); }
+  clearFilters(): void { this.filterMachine = ''; this.filterStatut = ''; }
+
+  // ── Détail séance ─────────────────────────────────────────────────────────
+  openSession(s: SeanceDto): void {
+    this.selectedSeance  = s;
+    this.showDetailModal = true;
+  }
+
+  closeDetail(): void {
+    this.showDetailModal = false;
+    this.selectedSeance  = null;
+  }
+
+  // ── Nouvelle séance ───────────────────────────────────────────────────────
+  openNewModal(dayIndex?: number): void {
+    this.newSeance = {
+      patientId: 0, dayOffset: dayIndex ?? 0,
+      hour: 8, minute: 0, dureeHeures: 4, machine: '', notes: '',
+    };
+    this.showNewModal = true;
+  }
+
+  saveNewSession(): void {
+    if (!this.newSeance.patientId || !this.newSeance.machine.trim()) {
+      this.showToast('Patient et machine sont obligatoires', 'warning');
+      return;
+    }
+
+    const utilisateurId = this.authSvc.utilisateurId;
+    if (!utilisateurId) { 
+      this.showToast('Utilisateur non authentifié', 'error'); 
+      return; 
+    }
+
+    const day = this.weekDays[this.newSeance.dayOffset];
+    const dateStr    = toLocalIso(day);
+    const heureDebut = `${String(this.newSeance.hour).padStart(2,'0')}:${String(this.newSeance.minute).padStart(2,'0')}:00`;
+    const totalMin   = this.newSeance.hour * 60 + this.newSeance.minute + this.newSeance.dureeHeures * 60;
+    const heureFin   = `${String(Math.floor(totalMin/60)).padStart(2,'0')}:${String(totalMin%60).padStart(2,'0')}:00`;
+
+    const payload = {
+      date:         dateStr,
+      heureDebut,
+      heureFin,
+      machine:      this.newSeance.machine.trim().toUpperCase(),
+      notes:        this.newSeance.notes,
+      dureeHeures:  this.newSeance.dureeHeures,
+      patientId:    this.newSeance.patientId,
+      utilisateurId,
+    };
+
+    this.seanceSvc.create(payload).subscribe({
+      next: (created) => {
+        // ✅ CHANGEMENT: Ajouter la nouvelle séance comme SeanceDto
+        this.seances.push(created as SeanceDto);
+        this.showNewModal = false;
+        this.showToast('Séance planifiée avec succès', 'success');
+        this.seanceSvc.invalidateCache();
+        this.loadWeek();
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'Erreur lors de la création';
+        this.showToast(msg, 'error');
+      }
+    });
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  private tid = 0;
+  toasts: Toast[] = [];
+
+  showToast(message: string, type: Toast['type'] = 'info'): void {
+    const id = ++this.tid;
+    this.toasts.push({ message, type, id });
+    setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 3500);
+  }
+
+  removeToast(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }
+
+  toastIcon(type: string): string {
+    return ({ success:'check_circle', warning:'warning', error:'error', info:'info' } as Record<string,string>)[type] ?? 'info';
   }
 
   backToDashboard(): void { this.router.navigate(['/medecin']); }

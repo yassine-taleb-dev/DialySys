@@ -44,15 +44,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { roles: ['MEDECIN', 'INFIRMIER', 'INFIRMIER_MAJEUR', 'AIDE_SOIGNANT'] }
   },
-
-  // ✅ Route admin ajoutée avec guard
   {
     path: 'admin',
     loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
     canActivate: [authGuard],
     data: { roles: ['ADMIN'] }
   },
-
   {
     path: 'unauthorized',
     loadComponent: () => import('./pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
