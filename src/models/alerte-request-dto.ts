@@ -1,5 +1,5 @@
 export interface AlerteRequestDto {
   patientId: number;
-  type: string;
+  type: 'CRITIQUE' | 'ATTENTION' | 'INFO';
   message: string;
 }
