@@ -1,10 +1,10 @@
-import { PatientSummaryDto } from "./patient-summary-dto";
+import { PatientSummaryDto } from './patient-summary-dto';
 
 export interface AlerteDto {
   id: number;
-  type: string;
+  type: 'CRITIQUE' | 'ATTENTION' | 'INFO';
   message: string;
-  dateCreation: string;
+  dateCreation: string;   // LocalDateTime → string ISO en JSON
   lue: boolean;
   patient: PatientSummaryDto;
 }
