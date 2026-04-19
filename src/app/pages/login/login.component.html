@@ -118,7 +118,7 @@
       <!-- Success overlay -->
       <div class="success-overlay" *ngIf="loginSuccess">
         <span class="material-icons success-check">check_circle</span>
-        <span>Connecté en tant que <b>{{ roleLabel }}</b></span>
+        <span>Bienvenue, <b>{{ roleLabel }}</b></span>
       </div>
 
       <form class="login-form" (ngSubmit)="login()" *ngIf="!loginSuccess">
@@ -176,9 +176,9 @@
           </ng-container>
         </button>
 
-        <div class="demo-hint">
+        <div class="demo-hint" *ngIf="isDev">
           <span class="material-icons">info</span>
-          Les identifiants sont pré-remplis — cliquez sur un rôle pour les changer.
+          [DEV] Identifiants pré-remplis — cliquez sur un rôle pour les changer.
         </div>
 
       </form>

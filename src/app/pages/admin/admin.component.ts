@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { mapUtilisateurToAppUser, UtilisateurResponseDto } from '../../models/utilisateur.model';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -203,6 +204,11 @@ export class AdminComponent {
     { id: 9,  login: 'h.lachgar',   username: 'HLachgar',   mat: 'MED-2023-004', nom: 'Lachgar',   prenom: 'Hassan',  email: 'h.lachgar@dialysys.ma',   role: 'medecin',          mdp: '********', dateCreation: '03/06/2023', actif: false, statut: 'suspendu', derniereConnexion: 'il y a 8 jours', telephone: '06 90 12 34 56', service: 'Consultation' },
     { id: 10, login: 's.bouchekif', username: 'SBouchekif', mat: 'INF-2023-055', nom: 'Bouchekif', prenom: 'Samira',  email: 's.bouchekif@dialysys.ma', role: 'infirmier',        mdp: '********', dateCreation: '12/09/2023', actif: false, statut: 'inactif',  derniereConnexion: 'il y a 5 jours', telephone: '06 01 23 45 67', service: 'Hémodialyse'  },
   ];
+
+  // ── Adapter : charge une liste de DTO backend et remplace les données locales ──
+  chargerDepuisApi(dtos: UtilisateurResponseDto[]): void {
+    this.users = dtos.map(mapUtilisateurToAppUser);
+  }
 
   get filteredUsers(): AppUser[] {
     return this.users.filter(u =>
