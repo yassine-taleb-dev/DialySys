@@ -1,71 +1,102 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
+import { LoginRequestDto } from '../models/login-request-dto';
+import { LoginResponseDto } from '../models/login-response-dto';
+import { RefreshTokenResponseDto } from '../models/refresh-token-response-dto';
+import { Utilisateur } from '../models/utilisateur';
+import { VerifyTokenResponseDto } from '../models/verify-token-response-dto';
+import { Router } from '@angular/router';
 
-export interface LoginRequestDto {
-  login: string;
-  motDePasse: string;
-}
-
-export interface UtilisateurDto {
-  id: number;
-  login: string;
-  role: string;
-  nom: string;
-  prenom: string;
-  dateCreation: string;
-  actif: boolean;
-}
-
-export interface LoginResponseDto {
-  token: string;
-  utilisateur: UtilisateurDto;
-}
-
-const TOKEN_KEY = 'dialysys_token';
-const USER_KEY  = 'dialysys_user';
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-  login(payload: LoginRequestDto) {
-    return this.http.post<LoginResponseDto>(`${this.apiUrl}/auth/login`, payload);
+  login(login: string, motDePasse: string, rememberMe = false): Observable<LoginResponseDto> {
+    const body: LoginRequestDto = { login, motDePasse };
+
+    return this.http.post<LoginResponseDto>(`${this.apiUrl}/auth/login`, body).pipe(
+      tap(response => {
+        if (response?.token) {
+          this.clearSession();
+          const storage = rememberMe ? localStorage : sessionStorage;
+          storage.setItem('token', response.token);
+          storage.setItem('utilisateur', JSON.stringify(response.utilisateur));
+        }
+      })
+    );
   }
 
-  saveSession(response: LoginResponseDto, remember: boolean): void {
-    const storage = remember ? localStorage : sessionStorage;
-    storage.setItem(TOKEN_KEY, response.token);
-    storage.setItem(USER_KEY, JSON.stringify({
-      role:   response.utilisateur.role,
-      nom:    response.utilisateur.nom,
-      prenom: response.utilisateur.prenom,
-      login:  response.utilisateur.login,
-    }));
+  logout(): void {
+    const token = this.getToken();
+
+    if (!token) {
+      this.clearSession();
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    this.http.post<{ message: string }>(`${this.apiUrl}/auth/logout`, {}, { headers }).subscribe({
+      next: () => {
+        this.clearSession();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        this.clearSession();
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  verifyToken(): Observable<VerifyTokenResponseDto> {
+    return this.http.get<VerifyTokenResponseDto>(`${this.apiUrl}/auth/verify`);
+  }
+
+  refreshToken(): Observable<RefreshTokenResponseDto> {
+    return this.http.post<RefreshTokenResponseDto>(`${this.apiUrl}/auth/refresh`, {});
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem('token') ?? sessionStorage.getItem('token');
   }
 
-  getUser(): { role: string; nom: string; prenom: string; login: string } | null {
-    const raw = localStorage.getItem(USER_KEY) ?? sessionStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+  getUtilisateur(): Utilisateur | null {
+    const raw = localStorage.getItem('utilisateur') ?? sessionStorage.getItem('utilisateur');
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as Utilisateur;
+    } catch {
+      this.clearSession();
+      return null;
+    }
+  }
+
+  getRole(): string {
+    const role = this.getUtilisateur()?.role ?? '';
+    return String(role).toUpperCase().replace(/^ROLE_/, '');
+  }
+
+  get utilisateurId(): number {
+    return this.getUtilisateur()?.id ?? 0;
+  }
+
+  getCurrentUserId(): number {
+    return this.utilisateurId;
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
+  clearSession(): void {
+    ['token', 'utilisateur'].forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
   }
 }
-
