@@ -536,7 +536,7 @@ export class MedecinComponent implements OnInit {
   openSearch():   void { this.showToast('Recherche globale — bientôt disponible', 'info'); }
   openSettings(): void { this.showToast('Paramètres — bientôt disponible', 'info'); }
 
-  logout(): void { this.router.navigate(['/login']); }
+  logout(): void {this.authSvc.logout() }
 
   // ── Toasts ─────────────────────────────────────────────────────────────────
   private toastIdCounter = 0;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpHeaders  } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
 import { LoginRequestDto } from '../models/login-request-dto';
@@ -7,11 +7,12 @@ import { LoginResponseDto } from '../models/login-response-dto';
 import { RefreshTokenResponseDto } from '../models/refresh-token-response-dto';
 import { Utilisateur } from '../models/utilisateur';
 import { VerifyTokenResponseDto } from '../models/verify-token-response-dto'; 
+import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private router: Router) {}
 
   login(login: string, motDePasse: string, rememberMe = false): Observable<LoginResponseDto> {
     const body: LoginRequestDto = { login, motDePasse };
@@ -28,13 +29,35 @@ export class AuthService {
     );
   }
 
-  logout(): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/logout`, {}).pipe(
-      tap({
-        next: () => this.clearSession(),
-        error: () => this.clearSession(),
-      })
-    );
+logout(): void {
+    const token = this.getToken();
+
+    if (!token) {
+      // Pas de token en local → nettoyage direct
+      this.clearSession();
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    // 1. Appel backend pour blacklister le token
+    this.http.post<{ message: string }>(
+      `${this.apiUrl}/auth/logout`,
+      {},
+      { headers }
+    ).subscribe({
+      next: () => {
+        // 2. Nettoyage local après confirmation backend
+        this.clearSession();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        // 3. Même en cas d'erreur réseau → on vide quand même la session locale
+        this.clearSession();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   verifyToken(): Observable<VerifyTokenResponseDto> {
