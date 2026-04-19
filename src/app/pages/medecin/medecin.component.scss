@@ -3,7 +3,8 @@
 /* ─── Main scroll area ─── */
 .main-scroll {
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
 }
@@ -1191,6 +1192,12 @@ textarea {
 
   span { font-size: 10.5px; color: var(--c-text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
   b { font-size: 13px; color: var(--c-text-1); font-weight: 600; }
+}
+
+/* ─── Alertes list scrollable ─── */
+.alerts-list--full {
+  overflow-y: scroll;
+  max-height: calc(100vh - 180px);
 }
 
 /* ─── Empty state ─── */
