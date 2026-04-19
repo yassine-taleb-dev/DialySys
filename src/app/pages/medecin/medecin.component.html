@@ -19,6 +19,159 @@
 <div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
 
 <!-- ══════════════════════════════════════════════
+     MODAL — Recherche Globale
+═══════════════════════════════════════════════ -->
+<div class="modal-overlay search-overlay" *ngIf="showSearchModal" (click)="closeSearch()">
+  <div class="search-modal" (click)="$event.stopPropagation()">
+
+    <div class="search-modal__input-row">
+      <span class="material-icons search-modal__icon">search</span>
+      <input
+        #searchInput
+        class="search-modal__input"
+        type="text"
+        placeholder="Rechercher un patient, ordonnance, alerte…"
+        [(ngModel)]="globalSearchQuery"
+        (keydown.escape)="closeSearch()"
+        autofocus />
+      <button class="search-modal__close" (click)="closeSearch()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Résultats -->
+    <div class="search-results" *ngIf="globalSearchQuery.trim()">
+
+      <!-- Patients -->
+      <div class="search-group" *ngIf="globalResults.patients.length > 0">
+        <div class="search-group__label">
+          <span class="material-icons">person</span> Patients
+        </div>
+        <div class="search-result-item"
+          *ngFor="let p of globalResults.patients"
+          (click)="searchGoToPatient(p)">
+          <div class="sri__avatar">{{ p.initials }}</div>
+          <div class="sri__info">
+            <span class="sri__name">{{ p.nomComplet }}</span>
+            <span class="sri__sub">{{ p.pathologie }} · {{ p.statut }}</span>
+          </div>
+          <span class="material-icons sri__arrow">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- Ordonnances -->
+      <div class="search-group" *ngIf="globalResults.ordonnances.length > 0">
+        <div class="search-group__label">
+          <span class="material-icons">edit_note</span> Ordonnances
+        </div>
+        <div class="search-result-item"
+          *ngFor="let o of globalResults.ordonnances"
+          (click)="searchGoToOrdonnance(o)">
+          <div class="sri__avatar sri__avatar--ord">
+            <span class="material-icons">description</span>
+          </div>
+          <div class="sri__info">
+            <span class="sri__name">{{ ordPatientNomComplet(o) }}</span>
+            <span class="sri__sub">{{ o.medicaments | slice:0:50 }}{{ o.medicaments.length > 50 ? '…' : '' }}</span>
+          </div>
+          <span class="badge badge--{{ ordStatutClass(o.statut) }}">{{ ordStatutLabel(o.statut) }}</span>
+        </div>
+      </div>
+
+      <!-- Alertes -->
+      <div class="search-group" *ngIf="globalResults.alertes.length > 0">
+        <div class="search-group__label">
+          <span class="material-icons">warning_amber</span> Alertes
+        </div>
+        <div class="search-result-item"
+          *ngFor="let a of globalResults.alertes"
+          (click)="searchGoToAlerte(a)">
+          <div class="sri__avatar sri__avatar--alerte">
+            <span class="material-icons">emergency</span>
+          </div>
+          <div class="sri__info">
+            <span class="sri__name">{{ a.patient?.nom }} {{ a.patient?.prenom }}</span>
+            <span class="sri__sub">{{ a.message }}</span>
+          </div>
+          <span class="badge badge--{{ a.lue ? 'ok' : 'danger' }}">{{ a.lue ? 'Lue' : 'Non lue' }}</span>
+        </div>
+      </div>
+
+      <!-- Aucun résultat -->
+      <div class="search-empty" *ngIf="globalResultsCount === 0">
+        <span class="material-icons">search_off</span>
+        <span>Aucun résultat pour « {{ globalSearchQuery }} »</span>
+      </div>
+    </div>
+
+    <!-- Hint quand vide -->
+    <div class="search-hint" *ngIf="!globalSearchQuery.trim()">
+      <span class="material-icons">tips_and_updates</span>
+      Tapez le nom d'un patient, un médicament ou un message d'alerte
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PANEL — Paramètres
+═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showSettingsPanel" (click)="closeSettings()">
+  <div class="settings-panel" (click)="$event.stopPropagation()">
+
+    <div class="settings-panel__head">
+      <span class="material-icons" style="color:var(--c-teal)">settings</span>
+      <h2>Paramètres</h2>
+      <button class="modal-close-btn" (click)="closeSettings()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Profil -->
+    <div class="settings-section">
+      <div class="settings-section__title">Mon Profil</div>
+      <div class="settings-profile-card">
+        <div class="settings-avatar">
+          {{ (currentUser?.nom?.[0] ?? '') + (currentUser?.prenom?.[0] ?? '') | uppercase }}
+        </div>
+        <div class="settings-profile-info">
+          <span class="settings-profile-name">{{ currentUser?.prenom }} {{ currentUser?.nom }}</span>
+          <span class="settings-profile-role">{{ currentUser?.role }}</span>
+          <span class="settings-profile-login">{{ currentUser?.login }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation rapide -->
+    <div class="settings-section">
+      <div class="settings-section__title">Navigation rapide</div>
+      <div class="settings-nav-list">
+        <button class="settings-nav-item" (click)="setSection('dashboard'); closeSettings()">
+          <span class="material-icons">dashboard</span> Tableau de bord
+        </button>
+        <button class="settings-nav-item" (click)="setSection('patients'); closeSettings()">
+          <span class="material-icons">people</span> Mes patients
+        </button>
+        <button class="settings-nav-item" (click)="setSection('ordonnances'); closeSettings()">
+          <span class="material-icons">edit_note</span> Ordonnances
+        </button>
+        <button class="settings-nav-item" (click)="setSection('alertes'); closeSettings()">
+          <span class="material-icons">warning_amber</span> Alertes
+        </button>
+      </div>
+    </div>
+
+    <!-- Déconnexion -->
+    <div class="settings-section">
+      <button class="settings-logout-btn" (click)="logout()">
+        <span class="material-icons">logout</span> Se déconnecter
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
      MODAL — Nouvelle Ordonnance
 ═══════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showNouvelleOrdonnanceModal" (click)="showNouvelleOrdonnanceModal = false">

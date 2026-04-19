@@ -532,9 +532,67 @@ export class MedecinComponent implements OnInit {
     return map[type] ?? type;
   }
 
-  // ── Actions topbar ─────────────────────────────────────────────────────────
-  openSearch():   void { this.showToast('Recherche globale — bientôt disponible', 'info'); }
-  openSettings(): void { this.showToast('Paramètres — bientôt disponible', 'info'); }
+  // ── Recherche globale ──────────────────────────────────────────────────────
+  showSearchModal   = false;
+  globalSearchQuery = '';
+
+  openSearch(): void {
+    this.showSearchModal   = true;
+    this.globalSearchQuery = '';
+  }
+
+  closeSearch(): void { this.showSearchModal = false; }
+
+  get globalResults(): { patients: PatientVM[]; ordonnances: OrdonnanceDto[]; alertes: AlerteDto[] } {
+    const q = this.globalSearchQuery.trim().toLowerCase();
+    if (!q) return { patients: [], ordonnances: [], alertes: [] };
+    return {
+      patients: this.allPatients.filter(p =>
+        p.nomComplet.toLowerCase().includes(q) ||
+        (p.cin ?? '').toLowerCase().includes(q) ||
+        p.pathologie.toLowerCase().includes(q)
+      ).slice(0, 5),
+      ordonnances: this.ordonnances.filter(o =>
+        this.ordPatientNomComplet(o).toLowerCase().includes(q) ||
+        o.medicaments.toLowerCase().includes(q)
+      ).slice(0, 5),
+      alertes: this.rawAlertes.filter(a =>
+        a.message.toLowerCase().includes(q) ||
+        `${a.patient?.nom ?? ''} ${a.patient?.prenom ?? ''}`.toLowerCase().includes(q)
+      ).slice(0, 5),
+    };
+  }
+
+  get globalResultsCount(): number {
+    const r = this.globalResults;
+    return r.patients.length + r.ordonnances.length + r.alertes.length;
+  }
+
+  searchGoToPatient(p: PatientVM): void {
+    this.closeSearch();
+    this.openDossier(p);
+  }
+
+  searchGoToOrdonnance(o: OrdonnanceDto): void {
+    this.closeSearch();
+    this.setSection('ordonnances');
+    setTimeout(() => this.openOrdonnanceDetail(o), 50);
+  }
+
+  searchGoToAlerte(a: AlerteDto): void {
+    this.closeSearch();
+    this.setSection('alertes');
+  }
+
+  // ── Paramètres ─────────────────────────────────────────────────────────────
+  showSettingsPanel = false;
+
+  openSettings(): void { this.showSettingsPanel = true; }
+  closeSettings(): void { this.showSettingsPanel = false; }
+
+  get currentUser(): ReturnType<AuthService['getUtilisateur']> {
+    return this.authSvc.getUtilisateur();
+  }
 
   logout(): void {this.authSvc.logout() }
 
