@@ -10,7 +10,7 @@
       <div class="forgot-modal__body">
         <div class="input-wrap" style="margin-bottom:16px">
           <span class="material-icons prefix-icon">badge</span>
-          <input type="text" placeholder="Matricule / Identifiant" [(ngModel)]="forgotId" />
+          <input type="text" placeholder="Login ou adresse e-mail" [(ngModel)]="forgotId" />
         </div>
 
         <button
@@ -22,6 +22,11 @@
             <span class="material-icons">send</span> Envoyer le lien
           </span>
         </button>
+
+        <div class="forgot-error" *ngIf="forgotError">
+          <span class="material-icons">error_outline</span>
+          {{ forgotError }}
+        </div>
 
         <button class="forgot-cancel" (click)="closeForgot()">Annuler</button>
       </div>

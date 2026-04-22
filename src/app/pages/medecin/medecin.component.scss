@@ -1416,3 +1416,136 @@ textarea {
   .material-icons { font-size: 18px; }
   &:hover { background: rgba(239,68,68,.2); }
 }
+
+/* ─── Graphiques ─────────────────────────────────────────── */
+
+.charts-section {
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    h3 { font-size: 14px; font-weight: 600; color: var(--c-text-1); margin: 0; }
+    .material-icons { font-size: 20px; color: var(--c-teal); }
+  }
+
+  &__val {
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--c-text-2);
+  }
+}
+
+.gauges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.gauge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--c-surface, rgba(255,255,255,.03));
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 12px 8px 14px;
+}
+
+.gauge-svg {
+  width: 110px;
+  height: 90px;
+}
+
+.gauge-val-text {
+  font-size: 16px;
+  font-weight: 700;
+  fill: var(--c-text-1);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.gauge-unit-text {
+  font-size: 9px;
+  fill: var(--c-text-3);
+}
+
+.gauge-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-2);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.gauge-ref {
+  font-size: 10px;
+  color: var(--c-text-3);
+  margin-top: 2px;
+}
+
+/* ─── Bar chart ─── */
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-2);
+}
+
+.bar-track {
+  position: relative;
+  height: 10px;
+  background: var(--c-surface-2, rgba(255,255,255,.06));
+  border-radius: 5px;
+  overflow: visible;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width .5s ease;
+  min-width: 4px;
+}
+
+.bar-marker {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 18px;
+  background: rgba(255,255,255,.25);
+  border-radius: 1px;
+  transform: translateX(-50%);
+}
+
+.bar-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.bar-ref-inline {
+  color: var(--c-text-3);
+}
+
+.bar-ref-note {
+  font-size: 11px;
+  color: var(--c-text-3);
+  margin-top: 4px;
+}

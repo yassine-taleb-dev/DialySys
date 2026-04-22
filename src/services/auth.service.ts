@@ -61,6 +61,10 @@ export class AuthService {
     return this.http.post<RefreshTokenResponseDto>(`${this.apiUrl}/auth/refresh`, {});
   }
 
+  resetPassword(loginOuEmail: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/reset-password`, { email: loginOuEmail });
+  }
+
   getToken(): string | null {
     return localStorage.getItem('token') ?? sessionStorage.getItem('token');
   }

@@ -6,7 +6,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  if (!token) {
+  if (!token || req.url.includes('/api/auth/')) {
     return next(req);
   }
 

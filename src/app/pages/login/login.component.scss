@@ -516,6 +516,20 @@
   button { margin-top: 8px; width: 100%; }
 }
 
+.forgot-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--c-red, #f87171);
+  background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  .material-icons { font-size: 16px; flex-shrink: 0; }
+}
+
 .forgot-cancel {
   display: block;
   width: 100%;

@@ -6,7 +6,7 @@ import { mapUtilisateurToAppUser, UtilisateurResponseDto } from '../../../models
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type RoleId = 'medecin' | 'infirmier-majeur' | 'infirmier' | 'aide-soignant';
+export type RoleId = 'medecin' | 'infirmier-majeur' | 'infirmier' | 'aide-soignant' | 'patient';
 export type UserStatus = 'actif' | 'inactif' | 'suspendu';
 
 export interface AppUser {
@@ -25,6 +25,8 @@ export interface AppUser {
   derniereConnexion: string;
   telephone?: string;
   service?: string;
+  dateNaissance?: string;
+  groupeSanguin?: string;
 }
 
 export interface Permission {
@@ -59,7 +61,8 @@ export class AdminComponent {
   constructor(private router: Router) {}
 
   // ── Tabs ──
-  activeTab: 'users' | 'roles' | 'activity' = 'users';
+  activeTab: 'profils' | 'horaires' | 'seances' | 'affectations' = 'profils';
+  activeProfilRole: RoleId = 'medecin';
 
   // ── Permissions catalogue ──
   readonly permissions: Permission[] = [
@@ -153,6 +156,19 @@ export class AdminComponent {
         a_users: false, a_roles: false,
       },
     },
+    {
+      id: 'patient', label: 'Patient', icon: 'person',
+      color: '#22c55e', colorVar: 'var(--c-green)', description: 'Patient suivi pour des séances de dialyse chronique',
+      permissions: {
+        p_view: false, p_edit: false, p_create: false,
+        m_rx: false,   m_rx_val: false, m_bilan: false, m_proto: false,
+        pl_view: false, pl_edit: false, pl_delete: false,
+        mo_view: false, mo_saisie: false,
+        eq_view: false, eq_stock: false, eq_maint: false,
+        r_gen: false,  r_export: false,
+        a_users: false, a_roles: false,
+      },
+    },
   ];
 
   getRoleConfig(id: RoleId): RoleConfig | undefined {
@@ -203,6 +219,11 @@ export class AdminComponent {
     { id: 8,  login: 's.oulmane',   username: 'SOulmane',   mat: 'AS-2024-015',  nom: 'Oulmane',   prenom: 'Sara',    email: 's.oulmane@dialysys.ma',   role: 'aide-soignant',    mdp: '********', dateCreation: '18/01/2024', actif: false, statut: 'inactif',  derniereConnexion: 'il y a 3 jours', telephone: '06 89 01 23 45', service: 'Hémodialyse'  },
     { id: 9,  login: 'h.lachgar',   username: 'HLachgar',   mat: 'MED-2023-004', nom: 'Lachgar',   prenom: 'Hassan',  email: 'h.lachgar@dialysys.ma',   role: 'medecin',          mdp: '********', dateCreation: '03/06/2023', actif: false, statut: 'suspendu', derniereConnexion: 'il y a 8 jours', telephone: '06 90 12 34 56', service: 'Consultation' },
     { id: 10, login: 's.bouchekif', username: 'SBouchekif', mat: 'INF-2023-055', nom: 'Bouchekif', prenom: 'Samira',  email: 's.bouchekif@dialysys.ma', role: 'infirmier',        mdp: '********', dateCreation: '12/09/2023', actif: false, statut: 'inactif',  derniereConnexion: 'il y a 5 jours', telephone: '06 01 23 45 67', service: 'Hémodialyse'  },
+    { id: 11, login: 'a.mansouri',  username: 'AMansouri',  mat: 'PAT-2024-001', nom: 'Mansouri',  prenom: 'Ahmed',   email: 'a.mansouri@patient.ma',   role: 'patient',          mdp: '********', dateCreation: '05/03/2024', actif: true,  statut: 'actif',    derniereConnexion: '—',              telephone: '06 11 22 33 44', service: 'Hémodialyse'  },
+    { id: 12, login: 'f.kbiri',     username: 'FKbiri',     mat: 'PAT-2024-002', nom: 'Kbiri',     prenom: 'Fatima',  email: 'f.kbiri@patient.ma',      role: 'patient',          mdp: '********', dateCreation: '12/03/2024', actif: true,  statut: 'actif',    derniereConnexion: '—',              telephone: '06 22 33 44 55', service: 'Hémodialyse'  },
+    { id: 13, login: 'm.alami',     username: 'MAlami',     mat: 'PAT-2024-003', nom: 'El Alami',  prenom: 'Mohamed', email: 'm.alami@patient.ma',      role: 'patient',          mdp: '********', dateCreation: '18/03/2024', actif: true,  statut: 'actif',    derniereConnexion: '—',              telephone: '06 33 44 55 66', service: 'Hémodialyse'  },
+    { id: 14, login: 'k.tahiri',    username: 'KTahiri',    mat: 'PAT-2024-004', nom: 'Tahiri',    prenom: 'Khadija', email: 'k.tahiri@patient.ma',     role: 'patient',          mdp: '********', dateCreation: '20/03/2024', actif: true,  statut: 'actif',    derniereConnexion: '—',              telephone: '06 44 55 66 77', service: 'Hémodialyse'  },
+    { id: 15, login: 'y.bennis',    username: 'YBennis',    mat: 'PAT-2024-005', nom: 'Bennis',    prenom: 'Youssef', email: 'y.bennis@patient.ma',     role: 'patient',          mdp: '********', dateCreation: '25/03/2024', actif: true,  statut: 'actif',    derniereConnexion: '—',              telephone: '06 55 66 77 88', service: 'Hémodialyse'  },
   ];
 
   // ── Adapter : charge une liste de DTO backend et remplace les données locales ──
@@ -271,6 +292,44 @@ export class AdminComponent {
     this.showToast(`Lien de réinitialisation envoyé à ${u.email}`, 'info');
   }
 
+  // ── New patient modal ──
+  showNewPatientModal = false;
+  newPatient = { nom: '', prenom: '', dateNaissance: '', groupeSanguin: '' };
+  readonly groupesSanguins = ['A+','A−','B+','B−','AB+','AB−','O+','O−'];
+
+  openNewPatient(): void {
+    this.newPatient = { nom: '', prenom: '', dateNaissance: '', groupeSanguin: '' };
+    this.showNewPatientModal = true;
+  }
+
+  saveNewPatient(): void {
+    if (!this.newPatient.nom.trim() || !this.newPatient.prenom.trim() ||
+        !this.newPatient.dateNaissance || !this.newPatient.groupeSanguin) {
+      this.showToast('Veuillez remplir tous les champs obligatoires (*)', 'warning');
+      return;
+    }
+    const today = new Date().toLocaleDateString('fr-FR');
+    const id    = ++this.nextUserId;
+    const mat   = `PAT-${new Date().getFullYear()}-${String(id).padStart(3,'0')}`;
+    this.users.unshift({
+      id, login: '', username: '', mat,
+      nom: this.newPatient.nom, prenom: this.newPatient.prenom,
+      email: '', mdp: '', role: 'patient',
+      actif: true, statut: 'actif',
+      dateCreation: today, derniereConnexion: '—',
+      telephone: '', service: 'Hémodialyse',
+      dateNaissance: this.newPatient.dateNaissance,
+      groupeSanguin: this.newPatient.groupeSanguin,
+    });
+    this.showNewPatientModal = false;
+    this.showToast(`Patient ${this.newPatient.prenom} ${this.newPatient.nom} créé`, 'success');
+  }
+
+  openNewProfil(): void {
+    if (this.activeProfilRole === 'patient') { this.openNewPatient(); }
+    else { this.openNewUser(); }
+  }
+
   // ── New user modal ──
   showNewUserModal = false;
   newUser = {
@@ -333,14 +392,212 @@ export class AdminComponent {
     { icon: 'login',           text: 'Connexion administrateur',                        user: 'Admin',         time: 'Aujourd\'hui 08:05', type: 'ok'  },
   ];
 
+  // ── Horaires de travail ──
+  private nextHoraireId = 10;
+  horaires: { id: number; staffNom: string; staffRole: string; date: string; heureDebut: string; heureFin: string; }[] = [
+    { id: 1, staffNom: 'Tazi Nadia',      staffRole: 'Infirmier(e)',   date: '22/04/2026', heureDebut: '07:00', heureFin: '15:00' },
+    { id: 2, staffNom: 'Haddad Amine',    staffRole: 'Infirmier(e)',   date: '22/04/2026', heureDebut: '15:00', heureFin: '23:00' },
+    { id: 3, staffNom: 'Kettani Youssef', staffRole: 'Aide-Soignant', date: '22/04/2026', heureDebut: '07:00', heureFin: '15:00' },
+    { id: 4, staffNom: 'Mansouri Leila',  staffRole: 'Infirmier(e)',   date: '23/04/2026', heureDebut: '07:00', heureFin: '15:00' },
+    { id: 5, staffNom: 'Oulmane Sara',    staffRole: 'Aide-Soignant', date: '23/04/2026', heureDebut: '15:00', heureFin: '23:00' },
+  ];
+  newHoraire  = { staffType: '', staffNom: '', date: '', heureDebut: '07:00', heureFin: '15:00' };
+  searchHoraire = '';
+
+  get filteredHoraires() {
+    const q = this.searchHoraire.toLowerCase();
+    if (!q) return this.horaires;
+    return this.horaires.filter(h =>
+      h.staffNom.toLowerCase().includes(q) ||
+      h.staffRole.toLowerCase().includes(q) ||
+      h.date.includes(q)
+    );
+  }
+
+  get staffSoignants(): AppUser[] {
+    return this.users.filter(u => u.role === 'infirmier' || u.role === 'aide-soignant' || u.role === 'infirmier-majeur');
+  }
+
+  staffParType(type: string): AppUser[] {
+    if (!type) return [];
+    return this.users.filter(u => u.role === type as RoleId);
+  }
+
+  ajouterHoraire(): void {
+    if (!this.newHoraire.staffNom || !this.newHoraire.date || !this.newHoraire.heureDebut || !this.newHoraire.heureFin) {
+      this.showToast('Veuillez remplir tous les champs de l\'horaire', 'warning'); return;
+    }
+    const staff = this.users.find(u => u.id === +this.newHoraire.staffNom);
+    const nom   = staff ? `${staff.nom} ${staff.prenom}` : '—';
+    const role  = staff ? this.roleLabel(staff.role) : '—';
+    this.horaires.unshift({ id: ++this.nextHoraireId, staffNom: nom, staffRole: role,
+      date: this.newHoraire.date, heureDebut: this.newHoraire.heureDebut, heureFin: this.newHoraire.heureFin });
+    this.newHoraire = { staffType: '', staffNom: '', date: '', heureDebut: '07:00', heureFin: '15:00' };
+    this.showToast('Horaire ajouté avec succès', 'success');
+  }
+
+  supprimerHoraire(id: number): void {
+    this.horaires = this.horaires.filter(h => h.id !== id);
+    this.showToast('Horaire supprimé', 'warning');
+  }
+
+  showEditHoraireModal = false;
+  editHoraire: { id: number; staffNom: string; staffRole: string; date: string; heureDebut: string; heureFin: string; } | null = null;
+
+  openEditHoraire(h: typeof this.horaires[0]): void {
+    this.editHoraire = { ...h };
+    this.showEditHoraireModal = true;
+  }
+
+  saveEditHoraire(): void {
+    if (!this.editHoraire) return;
+    const idx = this.horaires.findIndex(h => h.id === this.editHoraire!.id);
+    if (idx !== -1) this.horaires[idx] = { ...this.editHoraire };
+    this.showEditHoraireModal = false;
+    this.editHoraire = null;
+    this.showToast('Horaire modifié avec succès', 'success');
+  }
+
+  // ── Séances admin ──
+  private nextSeanceId = 10;
+  seancesAdmin: { id: number; patientNom: string; infirmierNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; }[] = [
+    { id: 1, patientNom: 'Mansouri Ahmed',   infirmierNom: 'Tazi Nadia',     date: '22/04/2026', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01', statut: 'planifiee' },
+    { id: 2, patientNom: 'Kbiri Fatima',     infirmierNom: 'Haddad Amine',   date: '22/04/2026', heureDebut: '08:00', heureFin: '12:00', machine: 'M-02', statut: 'planifiee' },
+    { id: 3, patientNom: 'El Alami Mohamed', infirmierNom: 'Mansouri Leila', date: '22/04/2026', heureDebut: '15:00', heureFin: '19:00', machine: 'M-03', statut: 'planifiee' },
+    { id: 4, patientNom: 'Tahiri Khadija',   infirmierNom: 'Berrada Rachid', date: '23/04/2026', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01', statut: 'planifiee' },
+    { id: 5, patientNom: 'Bennis Youssef',   infirmierNom: 'Tazi Nadia',     date: '23/04/2026', heureDebut: '08:00', heureFin: '12:00', machine: 'M-04', statut: 'planifiee' },
+  ];
+  newSeance    = { patientId: '', infirmierId: '', date: '', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01' };
+  searchSeance = '';
+
+  get filteredSeances() {
+    const q = this.searchSeance.toLowerCase();
+    if (!q) return this.seancesAdmin;
+    return this.seancesAdmin.filter(s =>
+      s.patientNom.toLowerCase().includes(q) ||
+      s.infirmierNom.toLowerCase().includes(q) ||
+      s.date.includes(q) ||
+      s.machine.toLowerCase().includes(q)
+    );
+  }
+
+  get infirmiers(): AppUser[] { return this.users.filter(u => u.role === 'infirmier'); }
+  get patientsUsers(): AppUser[] { return this.users.filter(u => u.role === 'patient'); }
+  readonly machines = ['M-01','M-02','M-03','M-04','M-05','M-06'];
+
+  ajouterSeance(): void {
+    if (!this.newSeance.patientId || !this.newSeance.infirmierId || !this.newSeance.date) {
+      this.showToast('Veuillez remplir tous les champs de la séance', 'warning'); return;
+    }
+    const patient  = this.users.find(u => u.id === +this.newSeance.patientId);
+    const infirmier = this.users.find(u => u.id === +this.newSeance.infirmierId);
+    this.seancesAdmin.unshift({
+      id: ++this.nextSeanceId,
+      patientNom:   patient  ? `${patient.nom} ${patient.prenom}`   : '—',
+      infirmierNom: infirmier ? `${infirmier.nom} ${infirmier.prenom}` : '—',
+      date: this.newSeance.date, heureDebut: this.newSeance.heureDebut,
+      heureFin: this.newSeance.heureFin, machine: this.newSeance.machine, statut: 'planifiee',
+    });
+    this.newSeance = { patientId: '', infirmierId: '', date: '', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01' };
+    this.showToast('Séance planifiée avec succès', 'success');
+  }
+
+  supprimerSeance(id: number): void {
+    this.seancesAdmin = this.seancesAdmin.filter(s => s.id !== id);
+    this.showToast('Séance supprimée', 'warning');
+  }
+
+  showEditSeanceModal = false;
+  editSeance: { id: number; patientNom: string; infirmierNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; } | null = null;
+
+  openEditSeance(s: typeof this.seancesAdmin[0]): void {
+    this.editSeance = { ...s };
+    this.showEditSeanceModal = true;
+  }
+
+  saveEditSeance(): void {
+    if (!this.editSeance) return;
+    const idx = this.seancesAdmin.findIndex(s => s.id === this.editSeance!.id);
+    if (idx !== -1) this.seancesAdmin[idx] = { ...this.editSeance };
+    this.showEditSeanceModal = false;
+    this.editSeance = null;
+    this.showToast('Séance modifiée avec succès', 'success');
+  }
+
+  seanceStatutClass(s: string): string { return s === 'terminee' ? 'ok' : s === 'en-cours' ? 'info' : 'neutral'; }
+  seanceStatutLabel(s: string): string { return s === 'terminee' ? 'Terminée' : s === 'en-cours' ? 'En cours' : 'Planifiée'; }
+
+  // ── Affectations ──
+  private nextAffId = 10;
+  affectations: { id: number; patientNom: string; aideSoignantNom: string; dateAffectation: string; }[] = [
+    { id: 1, patientNom: 'Mansouri Ahmed',   aideSoignantNom: 'Kettani Youssef', dateAffectation: '01/04/2026' },
+    { id: 2, patientNom: 'Kbiri Fatima',     aideSoignantNom: 'Kettani Youssef', dateAffectation: '01/04/2026' },
+    { id: 3, patientNom: 'El Alami Mohamed', aideSoignantNom: 'Oulmane Sara',    dateAffectation: '05/04/2026' },
+    { id: 4, patientNom: 'Tahiri Khadija',   aideSoignantNom: 'Oulmane Sara',    dateAffectation: '05/04/2026' },
+  ];
+  newAffectation    = { patientId: '', aideSoignantId: '' };
+  searchAffectation = '';
+
+  get filteredAffectations() {
+    const q = this.searchAffectation.toLowerCase();
+    if (!q) return this.affectations;
+    return this.affectations.filter(a =>
+      a.patientNom.toLowerCase().includes(q) ||
+      a.aideSoignantNom.toLowerCase().includes(q) ||
+      a.dateAffectation.includes(q)
+    );
+  }
+
+  get aidesSoignants(): AppUser[] { return this.users.filter(u => u.role === 'aide-soignant'); }
+
+  ajouterAffectation(): void {
+    if (!this.newAffectation.patientId || !this.newAffectation.aideSoignantId) {
+      this.showToast('Veuillez sélectionner un patient et un aide-soignant', 'warning'); return;
+    }
+    const patient = this.users.find(u => u.id === +this.newAffectation.patientId);
+    const as_     = this.users.find(u => u.id === +this.newAffectation.aideSoignantId);
+    const today   = new Date().toLocaleDateString('fr-FR');
+    this.affectations.unshift({
+      id: ++this.nextAffId,
+      patientNom:       patient ? `${patient.nom} ${patient.prenom}` : '—',
+      aideSoignantNom:  as_     ? `${as_.nom} ${as_.prenom}`         : '—',
+      dateAffectation:  today,
+    });
+    this.newAffectation = { patientId: '', aideSoignantId: '' };
+    this.showToast('Affectation enregistrée', 'success');
+  }
+
+  supprimerAffectation(id: number): void {
+    this.affectations = this.affectations.filter(a => a.id !== id);
+    this.showToast('Affectation supprimée', 'warning');
+  }
+
+  showEditAffectationModal = false;
+  editAffectation: { id: number; patientNom: string; aideSoignantNom: string; dateAffectation: string; } | null = null;
+
+  openEditAffectation(a: typeof this.affectations[0]): void {
+    this.editAffectation = { ...a };
+    this.showEditAffectationModal = true;
+  }
+
+  saveEditAffectation(): void {
+    if (!this.editAffectation) return;
+    const idx = this.affectations.findIndex(a => a.id === this.editAffectation!.id);
+    if (idx !== -1) this.affectations[idx] = { ...this.editAffectation };
+    this.showEditAffectationModal = false;
+    this.editAffectation = null;
+    this.showToast('Affectation modifiée avec succès', 'success');
+  }
+
   // ── KPIs ──
-  get totalUsers()      { return this.users.length; }
-  get activeUsers()     { return this.users.filter(u => u.statut === 'actif').length; }
-  get medecinCount()    { return this.users.filter(u => u.role === 'medecin').length; }
-  get infMajeurCount()  { return this.users.filter(u => u.role === 'infirmier-majeur').length; }
-  get infirmierCount()  { return this.users.filter(u => u.role === 'infirmier').length; }
+  get totalUsers()       { return this.users.length; }
+  get activeUsers()      { return this.users.filter(u => u.statut === 'actif').length; }
+  get medecinCount()     { return this.users.filter(u => u.role === 'medecin').length; }
+  get infMajeurCount()   { return this.users.filter(u => u.role === 'infirmier-majeur').length; }
+  get infirmierCount()   { return this.users.filter(u => u.role === 'infirmier').length; }
   get aideSoignantCount(){ return this.users.filter(u => u.role === 'aide-soignant').length; }
-  get suspendedCount()  { return this.users.filter(u => u.statut === 'suspendu').length; }
+  get patientCount()     { return this.users.filter(u => u.role === 'patient').length; }
+  get suspendedCount()   { return this.users.filter(u => u.statut === 'suspendu').length; }
 
   // ── Helpers ──
   roleLabel(id: RoleId): string {
@@ -363,7 +620,23 @@ export class AdminComponent {
     return (u.prenom[0] + u.nom[0]).toUpperCase();
   }
 
-  roleIds: RoleId[] = ['medecin', 'infirmier-majeur', 'infirmier', 'aide-soignant'];
+  roleIds: RoleId[] = ['medecin', 'infirmier-majeur', 'infirmier', 'aide-soignant', 'patient'];
+
+  profilTabLabel(r: RoleId): string {
+    const map: Record<RoleId, string> = {
+      'medecin': 'Médecins', 'infirmier-majeur': 'Inf. Majeurs',
+      'infirmier': 'Infirmiers', 'aide-soignant': 'Aides-Soignants', 'patient': 'Patients',
+    };
+    return map[r] ?? r;
+  }
+
+  get activeTabTitle(): string {
+    const map: Record<string, string> = {
+      profils: 'Gestion des Profils', horaires: 'Planification des Horaires',
+      seances: 'Planification des Séances', affectations: 'Affectations Patients',
+    };
+    return map[this.activeTab] ?? '';
+  }
 
   // ── Toast ──
   private tid = 0;
@@ -376,6 +649,24 @@ export class AdminComponent {
   removeToast(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }
   toastIcon(type: string): string {
     return ({ success:'check_circle', warning:'warning', error:'error', info:'info', ok:'check_circle' } as Record<string,string>)[type] ?? 'info';
+  }
+
+  // ── Settings modal ──
+  showSettingsModal = false;
+  settings = {
+    notificationsEmail:   true,
+    notificationsSystem:  true,
+    sessionTimeout:       30,
+    langue:               'fr',
+    theme:                'dark',
+    exportFormat:         'csv',
+    auditLog:             true,
+    doubleAuth:           false,
+  };
+
+  saveSettings(): void {
+    this.showSettingsModal = false;
+    this.showToast('Paramètres système enregistrés', 'success');
   }
 
   logout(): void { this.router.navigate(['/login']); }

@@ -118,7 +118,7 @@ export class MedecinComponent implements OnInit {
 
   // ── Navigation ─────────────────────────────────────────────────────────────
   activeSection: string = 'dashboard';
-  dossierTab: 'info' | 'historique' | 'ordonnances' = 'info';
+  dossierTab: 'info' | 'historique' | 'ordonnances' | 'graphiques' = 'info';
 
   get sectionTitle(): string {
     const map: Record<string, string> = {
@@ -637,5 +637,155 @@ export class MedecinComponent implements OnInit {
     if (h < 1)  return 'il y a < 1h';
     if (h < 24) return `il y a ${h}h`;
     return `il y a ${Math.floor(h / 24)}j`;
+  }
+
+  // ── Graphiques ─────────────────────────────────────────────────────────────
+
+  private parseNum(s: string | number | null | undefined): number | null {
+    if (s === null || s === undefined || s === '—') return null;
+    if (typeof s === 'number') return s;
+    const n = parseFloat(s.replace(',', '.'));
+    return isNaN(n) ? null : n;
+  }
+
+  private numStr(v: number | null | undefined): string {
+    return v !== null && v !== undefined ? String(v) : '—';
+  }
+
+  private norm(v: number | null, min: number, max: number): number {
+    if (v === null) return 0;
+    return Math.min(1, Math.max(0, (v - min) / (max - min)));
+  }
+
+  private metricColor(
+    v: number | null,
+    okRange: [number, number],
+    warnRange: [number, number]
+  ): string {
+    if (v === null) return 'var(--c-text-3)';
+    if (v >= okRange[0] && v <= okRange[1]) return 'var(--c-teal)';
+    if (v >= warnRange[0] && v <= warnRange[1]) return 'var(--c-amber)';
+    return 'var(--c-red)';
+  }
+
+  // SVG gauge arc (270° sweep, r=38, cx=50, cy=54)
+  gaugeArc(pct: number): string {
+    const r = 38, C = 2 * Math.PI * r, gaugeC = C * 0.75;
+    return `${Math.min(1, Math.max(0, pct)) * gaugeC} ${C}`;
+  }
+
+  get gaugeTrack(): string {
+    const r = 38, C = 2 * Math.PI * r, gaugeC = C * 0.75;
+    return `${gaugeC} ${C - gaugeC}`;
+  }
+
+  get vitalGauges(): { label: string; valueStr: string; unit: string; refLabel: string; pct: number; color: string }[] {
+    const d = this.selectedPatient?.dossierPatient;
+    const sat  = this.parseNum(d?.saturation);
+    const temp = this.parseNum(d?.temperature);
+    const fc   = this.parseNum(d?.frequenceCardiaque);
+    const fr   = this.parseNum(d?.frequenceRespiratoire);
+    const glyc = this.parseNum(d?.glycemieCapillaire);
+
+    return [
+      {
+        label: 'Saturation SpO₂',
+        valueStr: this.numStr(d?.saturation),
+        unit: '%',
+        refLabel: '≥ 95%',
+        pct: this.norm(sat, 85, 100),
+        color: this.metricColor(sat, [95, 100], [90, 94]),
+      },
+      {
+        label: 'Température',
+        valueStr: this.numStr(d?.temperature),
+        unit: '°C',
+        refLabel: '36.1–37.2°C',
+        pct: this.norm(temp, 35, 40),
+        color: this.metricColor(temp, [36.1, 37.2], [35.5, 38]),
+      },
+      {
+        label: 'Fréq. cardiaque',
+        valueStr: this.numStr(d?.frequenceCardiaque),
+        unit: 'bpm',
+        refLabel: '60–100 bpm',
+        pct: this.norm(fc, 40, 140),
+        color: this.metricColor(fc, [60, 100], [50, 120]),
+      },
+      {
+        label: 'Fréq. respiratoire',
+        valueStr: this.numStr(d?.frequenceRespiratoire),
+        unit: '/min',
+        refLabel: '12–20 /min',
+        pct: this.norm(fr, 8, 30),
+        color: this.metricColor(fr, [12, 20], [10, 25]),
+      },
+      {
+        label: 'Glycémie',
+        valueStr: this.numStr(d?.glycemieCapillaire),
+        unit: 'mmol/L',
+        refLabel: '3.9–5.5',
+        pct: this.norm(glyc, 2, 12),
+        color: this.metricColor(glyc, [3.9, 5.5], [2, 7]),
+      },
+    ];
+  }
+
+  get tensionBars(): { label: string; value: number; max: number; color: string }[] {
+    const ta = this.selectedPatient?.dossierPatient?.tensionArterielle;
+    if (!ta || ta === '—') return [];
+    const parts = ta.split('/');
+    const sys = parseFloat(parts[0]);
+    const dia = parseFloat(parts[1] ?? '0');
+    if (isNaN(sys)) return [];
+    return [
+      {
+        label: `Systolique — ${sys} mmHg`,
+        value: sys,
+        max: 200,
+        color: sys < 140 ? 'var(--c-teal)' : sys < 160 ? 'var(--c-amber)' : 'var(--c-red)',
+      },
+      {
+        label: `Diastolique — ${dia} mmHg`,
+        value: dia,
+        max: 120,
+        color: dia < 90 ? 'var(--c-teal)' : dia < 100 ? 'var(--c-amber)' : 'var(--c-red)',
+      },
+    ];
+  }
+
+  get bioBarData(): { label: string; valueStr: string; unit: string; refLabel: string; pct: number; color: string }[] {
+    const p = this.selectedPatient;
+    if (!p) return [];
+    const cr = this.parseNum(p.creatinine);
+    const ur = this.parseNum(p.uree);
+    const hb = this.parseNum(p.hemoglobine);
+
+    return [
+      {
+        label: 'Créatinine',
+        valueStr: p.creatinine,
+        unit: 'mg/dL',
+        refLabel: '0.7–1.2',
+        pct: Math.min(1, (cr ?? 0) / 20),
+        color: cr === null ? 'var(--c-text-3)' : cr <= 1.2 ? 'var(--c-teal)' : cr <= 5 ? 'var(--c-amber)' : 'var(--c-red)',
+      },
+      {
+        label: 'Urée',
+        valueStr: p.uree,
+        unit: 'mmol/L',
+        refLabel: '2.5–7.5',
+        pct: Math.min(1, (ur ?? 0) / 30),
+        color: ur === null ? 'var(--c-text-3)' : ur <= 7.5 ? 'var(--c-teal)' : ur <= 15 ? 'var(--c-amber)' : 'var(--c-red)',
+      },
+      {
+        label: 'Hémoglobine',
+        valueStr: p.hemoglobine,
+        unit: 'g/dL',
+        refLabel: '12–16',
+        pct: Math.min(1, (hb ?? 0) / 20),
+        color: hb === null ? 'var(--c-text-3)' : (hb >= 12 && hb <= 16) ? 'var(--c-teal)' : hb >= 9 ? 'var(--c-amber)' : 'var(--c-red)',
+      },
+    ];
   }
 }

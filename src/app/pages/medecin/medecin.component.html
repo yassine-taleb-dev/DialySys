@@ -764,6 +764,10 @@
             <span class="material-icons">edit_note</span> Ordonnances
             <span class="tab-count">{{ ordonnancesForSelectedPatient.length }}</span>
           </button>
+          <button class="dossier-tab" [class.active]="dossierTab === 'graphiques'"
+            (click)="dossierTab = 'graphiques'">
+            <span class="material-icons">bar_chart</span> Graphiques
+          </button>
         </div>
 
         <!-- ── Onglet : Informations ── -->
@@ -980,6 +984,81 @@
           <div class="empty-row panel panel--full" *ngIf="ordonnancesForSelectedPatient.length === 0">
             <span class="material-icons">edit_note</span> Aucune ordonnance
           </div>
+        </div>
+
+        <!-- ── Onglet : Graphiques ── -->
+        <div *ngIf="dossierTab === 'graphiques'" class="dossier-tab-pane">
+
+          <!-- Constantes vitales — jauges SVG -->
+          <div class="charts-section">
+            <div class="charts-section__head">
+              <span class="material-icons">monitor_heart</span>
+              <h3>Constantes Vitales</h3>
+            </div>
+            <div class="gauges-grid">
+              <div class="gauge-card" *ngFor="let g of vitalGauges">
+                <svg viewBox="0 0 100 90" class="gauge-svg">
+                  <circle cx="50" cy="54" r="38" fill="none"
+                    stroke="var(--c-surface-2)" stroke-width="9"
+                    [attr.stroke-dasharray]="gaugeTrack"
+                    stroke-linecap="round"
+                    transform="rotate(135, 50, 54)"/>
+                  <circle cx="50" cy="54" r="38" fill="none"
+                    [attr.stroke]="g.color"
+                    stroke-width="9"
+                    [attr.stroke-dasharray]="gaugeArc(g.pct)"
+                    stroke-linecap="round"
+                    transform="rotate(135, 50, 54)"/>
+                  <text x="50" y="51" text-anchor="middle" class="gauge-val-text">{{ g.valueStr }}</text>
+                  <text x="50" y="64" text-anchor="middle" class="gauge-unit-text">{{ g.unit }}</text>
+                </svg>
+                <div class="gauge-label">{{ g.label }}</div>
+                <div class="gauge-ref">{{ g.refLabel }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tension artérielle -->
+          <div class="charts-section" *ngIf="selectedPatient && selectedPatient.dossierPatient?.tensionArterielle">
+            <div class="charts-section__head">
+              <span class="material-icons">favorite</span>
+              <h3>Tension Artérielle</h3>
+              <span class="charts-section__val mono">
+                {{ selectedPatient!.dossierPatient?.tensionArterielle ?? '—' }} mmHg
+              </span>
+            </div>
+            <div class="bar-chart">
+              <div class="bar-row" *ngFor="let b of tensionBars">
+                <span class="bar-label">{{ b.label }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="(b.value / b.max) * 100" [style.background]="b.color"></div>
+                  <span class="bar-marker" [style.left.%]="(b.label.startsWith('Sys') ? 140 : 90) / b.max * 100"></span>
+                </div>
+              </div>
+              <div class="bar-ref-note">Cible : &lt; 140 / 90 mmHg</div>
+            </div>
+          </div>
+
+          <!-- Résultats biologiques -->
+          <div class="charts-section">
+            <div class="charts-section__head">
+              <span class="material-icons">science</span>
+              <h3>Résultats Biologiques</h3>
+            </div>
+            <div class="bar-chart">
+              <div class="bar-row" *ngFor="let b of bioBarData">
+                <span class="bar-label">{{ b.label }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="b.pct * 100" [style.background]="b.color"></div>
+                </div>
+                <div class="bar-meta">
+                  <span [style.color]="b.color" class="mono">{{ b.valueStr }} {{ b.unit }}</span>
+                  <span class="bar-ref-inline">Réf : {{ b.refLabel }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </ng-container>

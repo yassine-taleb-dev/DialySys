@@ -115,6 +115,47 @@
   </div>
 </div>
 
+<!-- ── New patient modal ── -->
+<div class="modal-overlay" *ngIf="showNewPatientModal" (click)="showNewPatientModal = false">
+  <div class="modal-panel modal-panel--new-patient" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-green);font-size:22px">person_add</span>
+      <h2>Créer un Patient</h2>
+      <button class="modal-close-btn" (click)="showNewPatientModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section-label"><span class="material-icons">badge</span> Identité du patient</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newPatient.nom" placeholder="Nom de famille" />
+        </div>
+        <div class="form-field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newPatient.prenom" placeholder="Prénom" />
+        </div>
+        <div class="form-field">
+          <label>Date de naissance <span class="req">*</span></label>
+          <input type="date" [(ngModel)]="newPatient.dateNaissance" />
+        </div>
+        <div class="form-field">
+          <label>Groupe sanguin <span class="req">*</span></label>
+          <select [(ngModel)]="newPatient.groupeSanguin">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveNewPatient()">
+          <span class="material-icons">person_add</span> Créer le patient
+        </button>
+        <button class="btn-outline-sm" (click)="showNewPatientModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── New user modal ── -->
 <div class="modal-overlay" *ngIf="showNewUserModal" (click)="showNewUserModal = false">
   <div class="modal-panel modal-panel--new-user" (click)="$event.stopPropagation()">
@@ -201,6 +242,255 @@
   </div>
 </div>
 
+<!-- ── Settings modal ── -->
+<div class="modal-overlay" *ngIf="showSettingsModal" (click)="showSettingsModal = false">
+  <div class="modal-panel modal-panel--settings" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-teal);font-size:22px">settings</span>
+      <h2>Paramètres système</h2>
+      <button class="modal-close-btn" (click)="showSettingsModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Notifications -->
+      <div class="settings-group">
+        <div class="settings-group-title"><span class="material-icons">notifications</span> Notifications</div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Notifications par email</b>
+            <span>Recevoir les alertes critiques par email</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="settings.notificationsEmail" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Notifications système</b>
+            <span>Alertes en temps réel dans l'interface</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="settings.notificationsSystem" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sécurité -->
+      <div class="settings-group">
+        <div class="settings-group-title"><span class="material-icons">security</span> Sécurité</div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Double authentification</b>
+            <span>Vérification en deux étapes à la connexion</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="settings.doubleAuth" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Journal d'audit</b>
+            <span>Enregistrer toutes les actions administratives</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="settings.auditLog" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Expiration de session</b>
+            <span>Déconnexion automatique après inactivité</span>
+          </div>
+          <div class="form-field" style="margin:0;min-width:120px">
+            <select [(ngModel)]="settings.sessionTimeout">
+              <option [value]="15">15 min</option>
+              <option [value]="30">30 min</option>
+              <option [value]="60">1 heure</option>
+              <option [value]="120">2 heures</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Préférences -->
+      <div class="settings-group">
+        <div class="settings-group-title"><span class="material-icons">tune</span> Préférences</div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Langue</b>
+            <span>Langue de l'interface</span>
+          </div>
+          <div class="form-field" style="margin:0;min-width:130px">
+            <select [(ngModel)]="settings.langue">
+              <option value="fr">Français</option>
+              <option value="ar">العربية</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row__label">
+            <b>Format d'export</b>
+            <span>Format par défaut pour les exports</span>
+          </div>
+          <div class="form-field" style="margin:0;min-width:130px">
+            <select [(ngModel)]="settings.exportFormat">
+              <option value="csv">CSV</option>
+              <option value="xlsx">Excel (XLSX)</option>
+              <option value="pdf">PDF</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveSettings()">
+          <span class="material-icons">save</span> Enregistrer
+        </button>
+        <button class="btn-outline-sm" (click)="showSettingsModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit horaire modal ── -->
+<div class="modal-overlay" *ngIf="showEditHoraireModal" (click)="showEditHoraireModal = false">
+  <div class="modal-panel modal-panel--edit-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit_calendar</span>
+      <h2>Modifier l'horaire</h2>
+      <button class="modal-close-btn" (click)="showEditHoraireModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body" *ngIf="editHoraire">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label>Personnel</label>
+          <input type="text" [(ngModel)]="editHoraire.staffNom" />
+        </div>
+        <div class="form-field form-field--full">
+          <label>Rôle</label>
+          <select [(ngModel)]="editHoraire.staffRole">
+            <option value="Infirmier(e)">Infirmier(e)</option>
+            <option value="Aide-Soignant">Aide-Soignant</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="editHoraire.date" />
+        </div>
+        <div class="form-field">
+          <label>Heure début</label>
+          <input type="time" [(ngModel)]="editHoraire.heureDebut" />
+        </div>
+        <div class="form-field">
+          <label>Heure fin</label>
+          <input type="time" [(ngModel)]="editHoraire.heureFin" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditHoraire()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showEditHoraireModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit séance modal ── -->
+<div class="modal-overlay" *ngIf="showEditSeanceModal" (click)="showEditSeanceModal = false">
+  <div class="modal-panel modal-panel--edit-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit</span>
+      <h2>Modifier la séance</h2>
+      <button class="modal-close-btn" (click)="showEditSeanceModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body" *ngIf="editSeance">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Patient</label>
+          <select [(ngModel)]="editSeance.patientNom">
+            <option *ngFor="let p of patientsUsers" [value]="p.nom + ' ' + p.prenom">{{ p.prenom }} {{ p.nom }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Infirmier(e)</label>
+          <select [(ngModel)]="editSeance.infirmierNom">
+            <option *ngFor="let i of infirmiers" [value]="i.nom + ' ' + i.prenom">{{ i.prenom }} {{ i.nom }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="editSeance.date" />
+        </div>
+        <div class="form-field">
+          <label>Heure début</label>
+          <input type="time" [(ngModel)]="editSeance.heureDebut" />
+        </div>
+        <div class="form-field">
+          <label>Heure fin</label>
+          <input type="time" [(ngModel)]="editSeance.heureFin" />
+        </div>
+        <div class="form-field">
+          <label>Machine</label>
+          <select [(ngModel)]="editSeance.machine">
+            <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Statut</label>
+          <select [(ngModel)]="editSeance.statut">
+            <option value="planifiee">Planifiée</option>
+            <option value="en-cours">En cours</option>
+            <option value="terminee">Terminée</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditSeance()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showEditSeanceModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit affectation modal ── -->
+<div class="modal-overlay" *ngIf="showEditAffectationModal" (click)="showEditAffectationModal = false">
+  <div class="modal-panel modal-panel--edit-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit</span>
+      <h2>Modifier l'affectation</h2>
+      <button class="modal-close-btn" (click)="showEditAffectationModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body" *ngIf="editAffectation">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Patient</label>
+          <select [(ngModel)]="editAffectation.patientNom">
+            <option *ngFor="let p of patientsUsers" [value]="p.nom + ' ' + p.prenom">{{ p.prenom }} {{ p.nom }}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Aide-Soignant</label>
+          <select [(ngModel)]="editAffectation.aideSoignantNom">
+            <option *ngFor="let a of aidesSoignants" [value]="a.nom + ' ' + a.prenom">{{ a.prenom }} {{ a.nom }}</option>
+          </select>
+        </div>
+        <div class="form-field form-field--full">
+          <label>Date d'affectation</label>
+          <input type="date" [(ngModel)]="editAffectation.dateAffectation" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditAffectation()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showEditAffectationModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Shell ── -->
 <div class="admin-shell">
 
@@ -217,35 +507,22 @@
 
     <nav class="sidebar__nav">
       <div class="nav-section-label">Administration</div>
-      <a class="nav-item" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
-        <span class="material-icons">manage_accounts</span><span>Utilisateurs</span>
+      <a class="nav-item" [class.active]="activeTab === 'profils'" (click)="activeTab = 'profils'">
+        <span class="material-icons">manage_accounts</span><span>Gestion des Profils</span>
         <span class="nav-badge">{{ totalUsers }}</span>
       </a>
-      <a class="nav-item" [class.active]="activeTab === 'roles'" (click)="activeTab = 'roles'">
-        <span class="material-icons">admin_panel_settings</span><span>Rôles & Permissions</span>
+      <a class="nav-item" [class.active]="activeTab === 'horaires'" (click)="activeTab = 'horaires'">
+        <span class="material-icons">schedule</span><span>Horaires de Travail</span>
+        <span class="nav-badge">{{ horaires.length }}</span>
       </a>
-      <a class="nav-item" [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">
-        <span class="material-icons">history</span><span>Journal d'activité</span>
+      <a class="nav-item" [class.active]="activeTab === 'seances'" (click)="activeTab = 'seances'">
+        <span class="material-icons">medical_services</span><span>Séances Patients</span>
+        <span class="nav-badge">{{ seancesAdmin.length }}</span>
       </a>
-
-      <div class="nav-section-label" style="margin-top:8px">Répartition</div>
-      <div class="role-summary" *ngFor="let r of roles">
-        <span class="role-dot" [style.background]="r.colorVar"></span>
-        <span class="role-summary__name">{{ r.label }}</span>
-        <span class="role-summary__count">{{ usersForRole(r.id).length }}</span>
-      </div>
-
-      <div class="nav-section-label" style="margin-top:8px">Statuts</div>
-      <div class="role-summary">
-        <span class="role-dot" style="background:var(--c-green)"></span>
-        <span class="role-summary__name">Actifs</span>
-        <span class="role-summary__count">{{ activeUsers }}</span>
-      </div>
-      <div class="role-summary" *ngIf="suspendedCount > 0">
-        <span class="role-dot" style="background:var(--c-red)"></span>
-        <span class="role-summary__name">Suspendus</span>
-        <span class="role-summary__count">{{ suspendedCount }}</span>
-      </div>
+      <a class="nav-item" [class.active]="activeTab === 'affectations'" (click)="activeTab = 'affectations'">
+        <span class="material-icons">assignment_ind</span><span>Affectations</span>
+        <span class="nav-badge">{{ affectations.length }}</span>
+      </a>
     </nav>
 
     <div class="sidebar__user">
@@ -264,238 +541,418 @@
     <!-- Topbar -->
     <header class="topbar">
       <div class="topbar__left">
-        <h1>{{ activeTab === 'users' ? 'Gestion des Utilisateurs' : activeTab === 'roles' ? 'Rôles & Permissions' : 'Journal d\'activité' }}</h1>
-        <span class="topbar__date">Panneau d'administration · DialySys</span>
+        <h1>{{ activeTabTitle }}</h1>
       </div>
       <div class="topbar__right">
-        <button class="btn-sm-primary" *ngIf="activeTab === 'users'" (click)="openNewUser()">
-          <span class="material-icons">person_add</span> Nouvel utilisateur
+        <button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()">
+          <span class="material-icons">person_add</span>
+          {{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}
         </button>
-        <button class="icon-btn" (click)="showToast('Paramètres système — bientôt disponible', 'info')">
+        <button class="icon-btn" (click)="showSettingsModal = true">
           <span class="material-icons">settings</span>
         </button>
       </div>
     </header>
 
     <!-- KPI row -->
-    <div class="kpi-row">
-      <div class="kpi-card" (click)="activeTab='users'; filterRole=''" style="cursor:pointer">
-        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">group</span></div>
-        <div class="kpi-body"><span class="kpi-val">{{ totalUsers }}</span><span class="kpi-lbl">Utilisateurs au total</span></div>
-        <span class="kpi-trend up">{{ activeUsers }} actifs</span>
-      </div>
-      <div class="kpi-card" (click)="activeTab='users'; filterRole='medecin'" style="cursor:pointer">
+    <div class="kpi-row" *ngIf="activeTab === 'profils'">
+      <div class="kpi-card" (click)="activeTab='profils'; activeProfilRole='medecin'" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">medical_services</span></div>
         <div class="kpi-body"><span class="kpi-val">{{ medecinCount }}</span><span class="kpi-lbl">Médecins</span></div>
       </div>
-      <div class="kpi-card" (click)="activeTab='users'; filterRole='infirmier-majeur'" style="cursor:pointer">
+      <div class="kpi-card" (click)="activeTab='profils'; activeProfilRole='infirmier-majeur'" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-purple-soft)"><span class="material-icons" style="color:var(--c-purple)">supervisor_account</span></div>
         <div class="kpi-body"><span class="kpi-val">{{ infMajeurCount }}</span><span class="kpi-lbl">Inf. Majeurs</span></div>
       </div>
-      <div class="kpi-card" (click)="activeTab='users'; filterRole='infirmier'" style="cursor:pointer">
+      <div class="kpi-card" (click)="activeTab='profils'; activeProfilRole='infirmier'" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">local_hospital</span></div>
         <div class="kpi-body"><span class="kpi-val">{{ infirmierCount }}</span><span class="kpi-lbl">Infirmiers</span></div>
       </div>
-      <div class="kpi-card" (click)="activeTab='users'; filterRole='aide-soignant'" style="cursor:pointer">
+      <div class="kpi-card" (click)="activeTab='profils'; activeProfilRole='aide-soignant'" style="cursor:pointer">
         <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">volunteer_activism</span></div>
         <div class="kpi-body"><span class="kpi-val">{{ aideSoignantCount }}</span><span class="kpi-lbl">Aides-Soignants</span></div>
       </div>
+      <div class="kpi-card" (click)="activeTab='profils'; activeProfilRole='patient'" style="cursor:pointer">
+        <div class="kpi-icon" style="background:rgba(34,197,94,.1)"><span class="material-icons" style="color:var(--c-green)">person</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ patientCount }}</span><span class="kpi-lbl">Patients</span></div>
+      </div>
+      <div class="kpi-card" style="cursor:pointer" (click)="activeTab='seances'">
+        <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
+        <div class="kpi-body"><span class="kpi-val">{{ seancesAdmin.length }}</span><span class="kpi-lbl">Séances planifiées</span></div>
+      </div>
     </div>
 
-    <!-- ═══ TAB: USERS ═══ -->
-    <div class="tab-content" *ngIf="activeTab === 'users'">
+    <!-- ═══ TAB: PROFILS ═══ -->
+    <ng-container *ngIf="activeTab === 'profils'">
+      <!-- Role sub-tabs -->
+      <div class="profil-tabs">
+        <button *ngFor="let rid of roleIds" class="profil-tab"
+          [class.active]="activeProfilRole === rid"
+          (click)="activeProfilRole = rid">
+          <span class="material-icons">{{ getRoleConfig(rid)?.icon }}</span>
+          {{ profilTabLabel(rid) }}
+          <span class="profil-tab-count">{{ usersForRole(rid).length }}</span>
+        </button>
+      </div>
+
       <div class="panel panel--full">
         <div class="panel__head">
-          <h2>Liste des Utilisateurs</h2>
+          <h2>{{ profilTabLabel(activeProfilRole) }}</h2>
           <div class="panel__actions">
             <div class="search-mini">
               <span class="material-icons">search</span>
               <input type="text" placeholder="Nom, matricule, email…" [(ngModel)]="searchQuery" />
             </div>
-            <select class="filter-select" [(ngModel)]="filterRole">
-              <option value="">Tous les rôles</option>
-              <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
-            </select>
-            <select class="filter-select" [(ngModel)]="filterStatus">
-              <option value="">Tous les statuts</option>
-              <option value="actif">Actif</option>
-              <option value="inactif">Inactif</option>
-              <option value="suspendu">Suspendu</option>
-            </select>
           </div>
         </div>
 
-        <table class="data-table">
+        <!-- Table personnel (non-patient) -->
+        <div class="table-scroll"><table class="data-table" *ngIf="activeProfilRole !== 'patient'">
+
           <thead>
             <tr>
               <th>Utilisateur</th>
               <th>Matricule</th>
-              <th>Rôle</th>
-              <th>Service</th>
+              <th>Email</th>
               <th>Statut</th>
-              <th>Dernière connexion</th>
+              <th>Date création</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let u of filteredUsers">
-              <td>
-                <div class="user-cell">
-                  <div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 15%, transparent)'">
-                    <span [style.color]="roleColorVar(u.role)">{{ initials(u) }}</span>
+            <ng-container *ngFor="let u of usersForRole(activeProfilRole)">
+              <tr *ngIf="!searchQuery || u.nom.toLowerCase().includes(searchQuery.toLowerCase()) || u.prenom.toLowerCase().includes(searchQuery.toLowerCase()) || u.mat.toLowerCase().includes(searchQuery.toLowerCase())">
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 15%, transparent)'">
+                      <span [style.color]="roleColorVar(u.role)">{{ initials(u) }}</span>
+                    </div>
+                    <div>
+                      <b>{{ u.prenom }} {{ u.nom }}</b>
+                      <span>{{ u.login }}</span>
+                    </div>
                   </div>
-                  <div>
-                    <b>{{ u.prenom }} {{ u.nom }}</b>
-                    <span>{{ u.email }}</span>
+                </td>
+                <td><span class="mono">{{ u.mat }}</span></td>
+                <td>{{ u.email }}</td>
+                <td><span class="badge {{ statusClass(u.statut) }}">{{ statusLabel(u.statut) }}</span></td>
+                <td>{{ u.dateCreation }}</td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-btn" (click)="openUser(u)" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                    <button class="row-btn" [ngClass]="u.statut === 'actif' ? 'row-btn--warn' : 'row-btn--ok'" (click)="toggleUserStatus(u)"
+                      [title]="u.statut === 'actif' ? 'Désactiver' : 'Activer'">
+                      <span class="material-icons">{{ u.statut === 'actif' ? 'person_off' : 'person' }}</span>
+                    </button>
                   </div>
-                </div>
-              </td>
-              <td><span class="mono">{{ u.mat }}</span></td>
-              <td>
-                <span class="role-chip" [style.color]="roleColorVar(u.role)" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 12%, transparent)'">
-                  <span class="material-icons">{{ getRoleConfig(u.role)?.icon }}</span>
-                  {{ roleLabel(u.role) }}
-                </span>
-              </td>
-              <td>{{ u.service }}</td>
-              <td>
-                <span class="badge {{ statusClass(u.statut) }}">{{ statusLabel(u.statut) }}</span>
-              </td>
-              <td class="last-seen">{{ u.derniereConnexion }}</td>
-              <td>
-                <div class="row-actions">
-                  <button class="row-btn" (click)="openUser(u)" title="Modifier"><span class="material-icons">edit</span></button>
-                  <button class="row-btn" (click)="resetPassword(u)" title="Réinitialiser MDP"><span class="material-icons">lock_reset</span></button>
-                  <button class="row-btn" [ngClass]="u.statut === 'actif' ? 'row-btn--warn' : 'row-btn--ok'" (click)="toggleUserStatus(u)"
-                    [title]="u.statut === 'actif' ? 'Désactiver' : 'Activer'">
-                    <span class="material-icons">{{ u.statut === 'actif' ? 'person_off' : 'person' }}</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="filteredUsers.length === 0">
-              <td colspan="7" class="empty-row">
-                <span class="material-icons">search_off</span>
-                Aucun utilisateur trouvé
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="usersForRole(activeProfilRole).length === 0">
+              <td colspan="6" class="empty-row">
+                <span class="material-icons">person_off</span> Aucun profil pour ce rôle
               </td>
             </tr>
           </tbody>
-        </table>
+        </table></div>
+
+        <!-- Table patients -->
+        <div class="table-scroll"><table class="data-table" *ngIf="activeProfilRole === 'patient'">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Date de naissance</th>
+              <th>Groupe sanguin</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let u of usersForRole('patient')">
+              <tr *ngIf="!searchQuery || u.nom.toLowerCase().includes(searchQuery.toLowerCase()) || u.prenom.toLowerCase().includes(searchQuery.toLowerCase())">
+                <td><span class="mono">{{ u.id }}</span></td>
+                <td><b>{{ u.nom }}</b></td>
+                <td>{{ u.prenom }}</td>
+                <td>{{ u.dateNaissance || '—' }}</td>
+                <td>
+                  <span class="badge info" *ngIf="u.groupeSanguin">{{ u.groupeSanguin }}</span>
+                  <span class="badge neutral" *ngIf="!u.groupeSanguin">—</span>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="usersForRole('patient').length === 0">
+              <td colspan="6" class="empty-row">
+                <span class="material-icons">person_off</span> Aucun patient enregistré
+              </td>
+            </tr>
+          </tbody>
+        </table></div>
 
         <div class="panel__footer">
-          {{ filteredUsers.length }} sur {{ totalUsers }} utilisateurs ·
-          <a style="cursor:pointer" (click)="showToast('Export CSV généré', 'info')">Exporter CSV</a>
+          {{ usersForRole(activeProfilRole).length }} profil(s) enregistré(s)
         </div>
       </div>
-    </div>
+    </ng-container>
 
-    <!-- ═══ TAB: ROLES ═══ -->
-    <div class="tab-content" *ngIf="activeTab === 'roles'">
-      <div class="roles-layout">
-
-        <!-- Role selector (left) -->
-        <div class="role-selector-col">
-          <div
-            *ngFor="let r of roles"
-            class="role-card"
-            [class.active]="selectedRoleId === r.id"
-            (click)="selectedRoleId = r.id"
-          >
-            <div class="role-card__icon" [style.background]="'color-mix(in srgb,' + r.colorVar + ' 15%, transparent)'">
-              <span class="material-icons" [style.color]="r.colorVar">{{ r.icon }}</span>
-            </div>
-            <div class="role-card__body">
-              <b>{{ r.label }}</b>
-              <span>{{ usersForRole(r.id).length }} utilisateur(s)</span>
-            </div>
-            <div class="role-card__perm-count">
-              <span>{{ permCount(r) }}</span>
-              <em>permissions</em>
-            </div>
-            <span class="unsaved-dot" *ngIf="unsavedChanges[r.id]" title="Modifications non enregistrées"></span>
+    <!-- ═══ TAB: HORAIRES ═══ -->
+    <ng-container *ngIf="activeTab === 'horaires'">
+      <!-- Form -->
+      <div class="action-form-card">
+        <div class="action-form-title">
+          <span class="material-icons">add_circle</span> Planifier un horaire de travail
+        </div>
+        <div class="action-form-grid">
+          <div class="form-field">
+            <label>Type de personnel <span class="req">*</span></label>
+            <select [(ngModel)]="newHoraire.staffType" (ngModelChange)="newHoraire.staffNom = ''">
+              <option value="">— Choisir le type —</option>
+              <option value="infirmier">Infirmier(e)</option>
+              <option value="aide-soignant">Aide-Soignant</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Nom du personnel <span class="req">*</span></label>
+            <select [(ngModel)]="newHoraire.staffNom" [disabled]="!newHoraire.staffType">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let s of staffParType(newHoraire.staffType)" [value]="s.id">{{ s.prenom }} {{ s.nom }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" [(ngModel)]="newHoraire.date" />
+          </div>
+          <div class="form-field">
+            <label>Heure début <span class="req">*</span></label>
+            <input type="time" [(ngModel)]="newHoraire.heureDebut" />
+          </div>
+          <div class="form-field">
+            <label>Heure fin <span class="req">*</span></label>
+            <input type="time" [(ngModel)]="newHoraire.heureFin" />
           </div>
         </div>
-
-        <!-- Permissions matrix (right) -->
-        <div class="perm-matrix-col">
-          <div class="perm-matrix-header">
-            <div>
-              <h2>{{ selectedRole.label }}</h2>
-              <p>{{ selectedRole.description }}</p>
-            </div>
-            <div class="perm-matrix-header__actions">
-              <span class="unsaved-label" *ngIf="unsavedChanges[selectedRoleId]">
-                <span class="material-icons">edit</span> Modifications non enregistrées
-              </span>
-              <button class="btn-outline-sm" (click)="resetRole(selectedRole)">
-                <span class="material-icons">restart_alt</span> Réinitialiser
-              </button>
-              <button class="btn-sm-primary" (click)="saveRolePermissions(selectedRole)" [disabled]="!unsavedChanges[selectedRoleId]">
-                <span class="material-icons">save</span> Enregistrer
-              </button>
-            </div>
-          </div>
-
-          <div class="perm-categories">
-            <div class="perm-category" *ngFor="let cat of permCategories">
-              <div class="perm-category__label">
-                <span class="material-icons perm-cat-icon">
-                  {{ cat === 'Patients' ? 'people' : cat === 'Médical' ? 'medical_services' : cat === 'Planning' ? 'calendar_month' : cat === 'Monitoring' ? 'monitor_heart' : cat === 'Équipement' ? 'precision_manufacturing' : cat === 'Rapports' ? 'assessment' : 'admin_panel_settings' }}
-                </span>
-                {{ cat }}
-              </div>
-              <div class="perm-items">
-                <div class="perm-item" *ngFor="let perm of permsByCategory(cat)"
-                     [class.perm-item--on]="selectedRole.permissions[perm.id]"
-                     (click)="togglePermission(selectedRole, perm.id)">
-                  <div class="perm-toggle" [class.on]="selectedRole.permissions[perm.id]">
-                    <div class="perm-toggle__thumb"></div>
-                  </div>
-                  <div class="perm-item__text">
-                    <span class="perm-item__label">{{ perm.label }}</span>
-                    <span class="perm-item__desc">{{ perm.description }}</span>
-                  </div>
-                  <span class="material-icons perm-item__status"
-                    [style.color]="selectedRole.permissions[perm.id] ? 'var(--c-green)' : 'var(--c-text-3)'">
-                    {{ selectedRole.permissions[perm.id] ? 'check_circle' : 'radio_button_unchecked' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ TAB: ACTIVITY ═══ -->
-    <div class="tab-content" *ngIf="activeTab === 'activity'">
-      <div class="panel panel--full">
-        <div class="panel__head">
-          <h2>Journal d'activité</h2>
-          <button class="btn-outline-sm" (click)="showToast('Export du journal en cours…', 'info')">
-            <span class="material-icons">download</span> Exporter
+        <div class="action-form-footer">
+          <button class="btn-sm-primary" (click)="ajouterHoraire()">
+            <span class="material-icons">save</span> Enregistrer l'horaire
           </button>
         </div>
-        <div class="activity-timeline">
-          <div class="activity-item" *ngFor="let a of activityLog">
-            <div class="activity-icon activity-icon--{{ a.type }}">
-              <span class="material-icons">{{ a.icon }}</span>
-            </div>
-            <div class="activity-body">
-              <span class="activity-text">{{ a.text }}</span>
-              <div class="activity-meta">
-                <span class="material-icons">person</span>{{ a.user }} ·
-                <span class="material-icons">schedule</span>{{ a.time }}
-              </div>
-            </div>
+      </div>
+
+      <!-- Table -->
+      <div class="panel panel--full">
+        <div class="panel__head">
+          <h2>Horaires planifiés</h2>
+        </div>
+        <div class="table-search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par nom, rôle ou date…" [(ngModel)]="searchHoraire" />
+          <button class="table-search-clear" *ngIf="searchHoraire" (click)="searchHoraire = ''">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="table-scroll"><table class="data-table">
+          <thead>
+            <tr>
+              <th>Personnel</th>
+              <th>Rôle</th>
+              <th>Date</th>
+              <th>Heure début</th>
+              <th>Heure fin</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of filteredHoraires">
+              <td><b>{{ h.staffNom }}</b></td>
+              <td>{{ h.staffRole }}</td>
+              <td>{{ h.date }}</td>
+              <td>{{ h.heureDebut }}</td>
+              <td>{{ h.heureFin }}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
+                  <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="horaires.length === 0">
+              <td colspan="6" class="empty-row"><span class="material-icons">event_busy</span> Aucun horaire planifié</td>
+            </tr>
+          </tbody>
+        </table></div>
+        <div class="panel__footer">{{ horaires.length }} horaire(s) enregistré(s)</div>
+      </div>
+    </ng-container>
+
+    <!-- ═══ TAB: SÉANCES ═══ -->
+    <ng-container *ngIf="activeTab === 'seances'">
+      <!-- Form -->
+      <div class="action-form-card">
+        <div class="action-form-title">
+          <span class="material-icons">add_circle</span> Planifier une séance de dialyse
+        </div>
+        <div class="action-form-grid">
+          <div class="form-field">
+            <label>Patient <span class="req">*</span></label>
+            <select [(ngModel)]="newSeance.patientId">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }} ({{ p.mat }})</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Infirmier(e) responsable <span class="req">*</span></label>
+            <select [(ngModel)]="newSeance.infirmierId">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let i of infirmiers" [value]="i.id">{{ i.prenom }} {{ i.nom }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" [(ngModel)]="newSeance.date" />
+          </div>
+          <div class="form-field">
+            <label>Heure début</label>
+            <input type="time" [(ngModel)]="newSeance.heureDebut" />
+          </div>
+          <div class="form-field">
+            <label>Heure fin</label>
+            <input type="time" [(ngModel)]="newSeance.heureFin" />
+          </div>
+          <div class="form-field">
+            <label>Machine</label>
+            <select [(ngModel)]="newSeance.machine">
+              <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
+            </select>
           </div>
         </div>
-        <div class="panel__footer">
-          {{ activityLog.length }} entrées récentes ·
-          <a style="cursor:pointer" (click)="showToast('Historique complet chargé', 'info')">Voir tout l'historique</a>
+        <div class="action-form-footer">
+          <button class="btn-sm-primary" (click)="ajouterSeance()">
+            <span class="material-icons">event_available</span> Planifier la séance
+          </button>
         </div>
       </div>
-    </div>
+
+      <!-- Table -->
+      <div class="panel panel--full">
+        <div class="panel__head"><h2>Séances planifiées</h2></div>
+        <div class="table-search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par patient, infirmier, date ou machine…" [(ngModel)]="searchSeance" />
+          <button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="table-scroll"><table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Infirmier(e)</th>
+              <th>Date</th>
+              <th>Horaire</th>
+              <th>Machine</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of filteredSeances">
+              <td><b>{{ s.patientNom }}</b></td>
+              <td>{{ s.infirmierNom }}</td>
+              <td>{{ s.date }}</td>
+              <td>{{ s.heureDebut }} – {{ s.heureFin }}</td>
+              <td><span class="mono">{{ s.machine }}</span></td>
+              <td><span class="badge {{ seanceStatutClass(s.statut) }}">{{ seanceStatutLabel(s.statut) }}</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="row-btn" (click)="openEditSeance(s)" title="Modifier"><span class="material-icons">edit</span></button>
+                  <button class="row-btn row-btn--warn" (click)="supprimerSeance(s.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="seancesAdmin.length === 0">
+              <td colspan="7" class="empty-row"><span class="material-icons">event_busy</span> Aucune séance planifiée</td>
+            </tr>
+          </tbody>
+        </table></div>
+        <div class="panel__footer">{{ seancesAdmin.length }} séance(s) planifiée(s)</div>
+      </div>
+    </ng-container>
+
+    <!-- ═══ TAB: AFFECTATIONS ═══ -->
+    <ng-container *ngIf="activeTab === 'affectations'">
+      <!-- Form -->
+      <div class="action-form-card">
+        <div class="action-form-title">
+          <span class="material-icons">add_circle</span> Affecter un patient à un aide-soignant
+        </div>
+        <div class="action-form-grid">
+          <div class="form-field">
+            <label>Patient <span class="req">*</span></label>
+            <select [(ngModel)]="newAffectation.patientId">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }} ({{ p.mat }})</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Aide-Soignant <span class="req">*</span></label>
+            <select [(ngModel)]="newAffectation.aideSoignantId">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let a of aidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="action-form-footer">
+          <button class="btn-sm-primary" (click)="ajouterAffectation()">
+            <span class="material-icons">assignment_ind</span> Enregistrer l'affectation
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="panel panel--full">
+        <div class="panel__head"><h2>Affectations en cours</h2></div>
+        <div class="table-search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par patient, aide-soignant ou date…" [(ngModel)]="searchAffectation" />
+          <button class="table-search-clear" *ngIf="searchAffectation" (click)="searchAffectation = ''">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="table-scroll"><table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Aide-Soignant responsable</th>
+              <th>Date d'affectation</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of filteredAffectations">
+              <td><b>{{ a.patientNom }}</b></td>
+              <td>{{ a.aideSoignantNom }}</td>
+              <td>{{ a.dateAffectation }}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="row-btn" (click)="openEditAffectation(a)" title="Modifier"><span class="material-icons">edit</span></button>
+                  <button class="row-btn row-btn--warn" (click)="supprimerAffectation(a.id)" title="Supprimer"><span class="material-icons">link_off</span></button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredAffectations.length === 0">
+              <td colspan="4" class="empty-row"><span class="material-icons">person_off</span> Aucune affectation</td>
+            </tr>
+          </tbody>
+        </table></div>
+        <div class="panel__footer">{{ affectations.length }} affectation(s) active(s)</div>
+      </div>
+    </ng-container>
 
   </div>
 </div>
