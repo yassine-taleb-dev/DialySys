@@ -61,7 +61,7 @@ export class AdminComponent {
   constructor(private router: Router) {}
 
   // ── Tabs ──
-  activeTab: 'profils' | 'horaires' | 'seances' | 'affectations' = 'profils';
+  activeTab: 'profils' | 'horaires' | 'seances' = 'profils';
   activeProfilRole: RoleId = 'medecin';
 
   // ── Permissions catalogue ──
@@ -180,7 +180,8 @@ export class AdminComponent {
     return this.roles.find(r => r.id === this.selectedRoleId)!;
   }
 
-  unsavedChanges: Partial<Record<RoleId, boolean>> = {};
+  unsavedChanges: Partial<Record<RoleId, boolean>> = {
+  };
 
   togglePermission(role: RoleConfig, permId: string): void {
     role.permissions[permId] = !role.permissions[permId];
@@ -325,6 +326,34 @@ export class AdminComponent {
     this.showToast(`Patient ${this.newPatient.prenom} ${this.newPatient.nom} créé`, 'success');
   }
 
+  showEditPatientModal = false;
+  editPatient: { id: number; nom: string; prenom: string; dateNaissance: string; groupeSanguin: string; } | null = null;
+
+  openEditPatient(u: AppUser): void {
+    this.editPatient = {
+      id: u.id,
+      nom: u.nom,
+      prenom: u.prenom,
+      dateNaissance: u.dateNaissance || '',
+      groupeSanguin: u.groupeSanguin || '',
+    };
+    this.showEditPatientModal = true;
+  }
+
+  saveEditPatient(): void {
+    if (!this.editPatient) return;
+    const idx = this.users.findIndex(u => u.id === this.editPatient!.id);
+    if (idx !== -1) {
+      this.users[idx].nom           = this.editPatient.nom;
+      this.users[idx].prenom        = this.editPatient.prenom;
+      this.users[idx].dateNaissance = this.editPatient.dateNaissance;
+      this.users[idx].groupeSanguin = this.editPatient.groupeSanguin;
+    }
+    this.showEditPatientModal = false;
+    this.editPatient = null;
+    this.showToast('Patient modifié avec succès', 'success');
+  }
+
   openNewProfil(): void {
     if (this.activeProfilRole === 'patient') { this.openNewPatient(); }
     else { this.openNewUser(); }
@@ -394,23 +423,75 @@ export class AdminComponent {
 
   // ── Horaires de travail ──
   private nextHoraireId = 10;
-  horaires: { id: number; staffNom: string; staffRole: string; date: string; heureDebut: string; heureFin: string; }[] = [
-    { id: 1, staffNom: 'Tazi Nadia',      staffRole: 'Infirmier(e)',   date: '22/04/2026', heureDebut: '07:00', heureFin: '15:00' },
-    { id: 2, staffNom: 'Haddad Amine',    staffRole: 'Infirmier(e)',   date: '22/04/2026', heureDebut: '15:00', heureFin: '23:00' },
-    { id: 3, staffNom: 'Kettani Youssef', staffRole: 'Aide-Soignant', date: '22/04/2026', heureDebut: '07:00', heureFin: '15:00' },
-    { id: 4, staffNom: 'Mansouri Leila',  staffRole: 'Infirmier(e)',   date: '23/04/2026', heureDebut: '07:00', heureFin: '15:00' },
-    { id: 5, staffNom: 'Oulmane Sara',    staffRole: 'Aide-Soignant', date: '23/04/2026', heureDebut: '15:00', heureFin: '23:00' },
+  horaires: { id: number; staffNom: string; staffRole: string; jours: string[]; heureDebut: string; heureFin: string; }[] = [
+    { id: 1, staffNom: 'Tazi Nadia',      staffRole: 'Infirmier(e)',  jours: ['2026-04-22','2026-04-24','2026-04-27'], heureDebut: '07:00', heureFin: '15:00' },
+    { id: 2, staffNom: 'Haddad Amine',    staffRole: 'Infirmier(e)',  jours: ['2026-04-23','2026-04-25'],              heureDebut: '15:00', heureFin: '23:00' },
+    { id: 3, staffNom: 'Kettani Youssef', staffRole: 'Aide-Soignant', jours: ['2026-04-22','2026-04-23','2026-04-24'], heureDebut: '07:00', heureFin: '15:00' },
   ];
-  newHoraire  = { staffType: '', staffNom: '', date: '', heureDebut: '07:00', heureFin: '15:00' };
+
+  newHoraire    = { staffType: '', staffNom: '', heureDebut: '07:00', heureFin: '15:00', jours: [] as string[] };
   searchHoraire = '';
 
+  // ── Calendrier multi-sélection ──
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+
+  readonly joursTitles = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  readonly moisLabels  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  get calTitle(): string { return `${this.moisLabels[this.calMonth]} ${this.calYear}`; }
+
+  calPrevMonth(): void {
+    if (this.calMonth === 0) { this.calMonth = 11; this.calYear--; }
+    else this.calMonth--;
+  }
+
+  calNextMonth(): void {
+    if (this.calMonth === 11) { this.calMonth = 0; this.calYear++; }
+    else this.calMonth++;
+  }
+
+  get calDays(): ({ date: string; day: number; today: boolean; } | null)[] {
+    const first   = new Date(this.calYear, this.calMonth, 1);
+    const total   = new Date(this.calYear, this.calMonth + 1, 0).getDate();
+    const startDay = (first.getDay() + 6) % 7; // lundi = 0
+    const cells: ({ date: string; day: number; today: boolean; } | null)[] = [];
+    for (let i = 0; i < startDay; i++) cells.push(null);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    for (let d = 1; d <= total; d++) {
+      const date = `${this.calYear}-${String(this.calMonth + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      cells.push({ date, day: d, today: date === todayStr });
+    }
+    return cells;
+  }
+
+  toggleCalDay(date: string): void {
+    const idx = this.newHoraire.jours.indexOf(date);
+    if (idx === -1) this.newHoraire.jours.push(date);
+    else this.newHoraire.jours.splice(idx, 1);
+  }
+
+  isDaySelected(date: string): boolean {
+    return this.newHoraire.jours.includes(date);
+  }
+
+  formatJours(jours: string[]): string {
+    if (!jours.length) return '—';
+    return jours.map(d => {
+      const [,m,day] = d.split('-');
+      return `${day}/${m}`;
+    }).join(', ');
+  }
+
   get filteredHoraires() {
-    const q = this.searchHoraire.toLowerCase();
+    const q = this.searchHoraire.toLowerCase().trim();
     if (!q) return this.horaires;
     return this.horaires.filter(h =>
       h.staffNom.toLowerCase().includes(q) ||
       h.staffRole.toLowerCase().includes(q) ||
-      h.date.includes(q)
+      this.formatJours(h.jours).toLowerCase().includes(q) ||
+      h.heureDebut.includes(q) ||
+      h.heureFin.includes(q)
     );
   }
 
@@ -420,19 +501,19 @@ export class AdminComponent {
 
   staffParType(type: string): AppUser[] {
     if (!type) return [];
-    return this.users.filter(u => u.role === type as RoleId);
+    return this.users.filter(u => u.role === (type as RoleId));
   }
 
   ajouterHoraire(): void {
-    if (!this.newHoraire.staffNom || !this.newHoraire.date || !this.newHoraire.heureDebut || !this.newHoraire.heureFin) {
-      this.showToast('Veuillez remplir tous les champs de l\'horaire', 'warning'); return;
+    if (!this.newHoraire.staffNom || !this.newHoraire.jours.length) {
+      this.showToast('Veuillez sélectionner un personnel et au moins un jour', 'warning'); return;
     }
     const staff = this.users.find(u => u.id === +this.newHoraire.staffNom);
-    const nom   = staff ? `${staff.nom} ${staff.prenom}` : '—';
-    const role  = staff ? this.roleLabel(staff.role) : '—';
+    const nom  = staff ? `${staff.nom} ${staff.prenom}` : '—';
+    const role = staff ? this.roleLabel(staff.role) : '—';
     this.horaires.unshift({ id: ++this.nextHoraireId, staffNom: nom, staffRole: role,
-      date: this.newHoraire.date, heureDebut: this.newHoraire.heureDebut, heureFin: this.newHoraire.heureFin });
-    this.newHoraire = { staffType: '', staffNom: '', date: '', heureDebut: '07:00', heureFin: '15:00' };
+      jours: [...this.newHoraire.jours], heureDebut: this.newHoraire.heureDebut, heureFin: this.newHoraire.heureFin });
+    this.newHoraire = { staffType: '', staffNom: '', heureDebut: '07:00', heureFin: '15:00', jours: [] };
     this.showToast('Horaire ajouté avec succès', 'success');
   }
 
@@ -442,17 +523,63 @@ export class AdminComponent {
   }
 
   showEditHoraireModal = false;
-  editHoraire: { id: number; staffNom: string; staffRole: string; date: string; heureDebut: string; heureFin: string; } | null = null;
+  editHoraire: { id: number; staffNom: string; staffRole: string; jours: string[]; heureDebut: string; heureFin: string; } | null = null;
+  editCalYear  = new Date().getFullYear();
+  editCalMonth = new Date().getMonth();
+
+  get editCalTitle(): string {
+    return `${this.moisLabels[this.editCalMonth]} ${this.editCalYear}`;
+  }
+
+  editCalPrevMonth(): void {
+    if (this.editCalMonth === 0) { this.editCalMonth = 11; this.editCalYear--; }
+    else { this.editCalMonth--; }
+  }
+
+  editCalNextMonth(): void {
+    if (this.editCalMonth === 11) { this.editCalMonth = 0; this.editCalYear++; }
+    else { this.editCalMonth++; }
+  }
+
+  get editCalDays(): ({ date: string; day: number; today: boolean } | null)[] {
+    const today = new Date();
+    const firstDay = new Date(this.editCalYear, this.editCalMonth, 1).getDay();
+    const offset = (firstDay + 6) % 7;
+    const daysInMonth = new Date(this.editCalYear, this.editCalMonth + 1, 0).getDate();
+    const cells: ({ date: string; day: number; today: boolean } | null)[] = [];
+    for (let i = 0; i < offset; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(this.editCalMonth + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      const date = `${this.editCalYear}-${mm}-${dd}`;
+      const isToday = today.getFullYear() === this.editCalYear && today.getMonth() === this.editCalMonth && today.getDate() === d;
+      cells.push({ date, day: d, today: isToday });
+    }
+    return cells;
+  }
+
+  toggleEditCalDay(date: string): void {
+    if (!this.editHoraire) return;
+    const idx = this.editHoraire.jours.indexOf(date);
+    if (idx === -1) this.editHoraire.jours.push(date);
+    else this.editHoraire.jours.splice(idx, 1);
+  }
+
+  isEditDaySelected(date: string): boolean {
+    return !!this.editHoraire && this.editHoraire.jours.includes(date);
+  }
 
   openEditHoraire(h: typeof this.horaires[0]): void {
-    this.editHoraire = { ...h };
+    this.editHoraire = { ...h, jours: [...h.jours] };
+    this.editCalYear  = new Date().getFullYear();
+    this.editCalMonth = new Date().getMonth();
     this.showEditHoraireModal = true;
   }
 
   saveEditHoraire(): void {
     if (!this.editHoraire) return;
     const idx = this.horaires.findIndex(h => h.id === this.editHoraire!.id);
-    if (idx !== -1) this.horaires[idx] = { ...this.editHoraire };
+    if (idx !== -1) this.horaires[idx] = { ...this.editHoraire, jours: [...this.editHoraire.jours] };
     this.showEditHoraireModal = false;
     this.editHoraire = null;
     this.showToast('Horaire modifié avec succès', 'success');
@@ -460,46 +587,96 @@ export class AdminComponent {
 
   // ── Séances admin ──
   private nextSeanceId = 10;
-  seancesAdmin: { id: number; patientNom: string; infirmierNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; }[] = [
-    { id: 1, patientNom: 'Mansouri Ahmed',   infirmierNom: 'Tazi Nadia',     date: '22/04/2026', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01', statut: 'planifiee' },
-    { id: 2, patientNom: 'Kbiri Fatima',     infirmierNom: 'Haddad Amine',   date: '22/04/2026', heureDebut: '08:00', heureFin: '12:00', machine: 'M-02', statut: 'planifiee' },
-    { id: 3, patientNom: 'El Alami Mohamed', infirmierNom: 'Mansouri Leila', date: '22/04/2026', heureDebut: '15:00', heureFin: '19:00', machine: 'M-03', statut: 'planifiee' },
-    { id: 4, patientNom: 'Tahiri Khadija',   infirmierNom: 'Berrada Rachid', date: '23/04/2026', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01', statut: 'planifiee' },
-    { id: 5, patientNom: 'Bennis Youssef',   infirmierNom: 'Tazi Nadia',     date: '23/04/2026', heureDebut: '08:00', heureFin: '12:00', machine: 'M-04', statut: 'planifiee' },
+  seancesAdmin: { id: number; patientNom: string; aideSoignantNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; }[] = [
+    { id: 1, patientNom: 'Mansouri Ahmed',   aideSoignantNom: 'Bennani Sara',   date: '22/04/2026', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01', statut: 'planifiee' },
+    { id: 2, patientNom: 'Kbiri Fatima',     aideSoignantNom: 'Chraibi Youssef',date: '22/04/2026', heureDebut: '08:00', heureFin: '12:00', machine: 'M-02', statut: 'planifiee' },
+    { id: 3, patientNom: 'El Alami Mohamed', aideSoignantNom: '—',              date: '22/04/2026', heureDebut: '15:00', heureFin: '19:00', machine: 'M-03', statut: 'planifiee' },
+    { id: 4, patientNom: 'Tahiri Khadija',   aideSoignantNom: 'Bennani Sara',   date: '23/04/2026', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01', statut: 'planifiee' },
+    { id: 5, patientNom: 'Bennis Youssef',   aideSoignantNom: '—',              date: '23/04/2026', heureDebut: '08:00', heureFin: '12:00', machine: 'M-04', statut: 'planifiee' },
   ];
-  newSeance    = { patientId: '', infirmierId: '', date: '', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01' };
+  newSeance = { patientId: '', aideSoignantId: '', dates: [] as string[], heureDebut: '07:30', heureFin: '11:30', machine: 'M-01' };
   searchSeance = '';
 
+  // ── Séance calendar ──
+  seanceCalYear  = new Date().getFullYear();
+  seanceCalMonth = new Date().getMonth();
+
+  get seanceCalTitle(): string { return `${this.moisLabels[this.seanceCalMonth]} ${this.seanceCalYear}`; }
+
+  seanceCalPrevMonth(): void {
+    if (this.seanceCalMonth === 0) { this.seanceCalMonth = 11; this.seanceCalYear--; }
+    else { this.seanceCalMonth--; }
+  }
+
+  seanceCalNextMonth(): void {
+    if (this.seanceCalMonth === 11) { this.seanceCalMonth = 0; this.seanceCalYear++; }
+    else { this.seanceCalMonth++; }
+  }
+
+  get seanceCalDays(): ({ date: string; day: number; today: boolean } | null)[] {
+    const today = new Date();
+    const firstDay = new Date(this.seanceCalYear, this.seanceCalMonth, 1).getDay();
+    const offset = (firstDay + 6) % 7;
+    const daysInMonth = new Date(this.seanceCalYear, this.seanceCalMonth + 1, 0).getDate();
+    const cells: ({ date: string; day: number; today: boolean } | null)[] = [];
+    for (let i = 0; i < offset; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(this.seanceCalMonth + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      const date = `${this.seanceCalYear}-${mm}-${dd}`;
+      const isToday = today.getFullYear() === this.seanceCalYear && today.getMonth() === this.seanceCalMonth && today.getDate() === d;
+      cells.push({ date, day: d, today: isToday });
+    }
+    return cells;
+  }
+
+  toggleSeanceCalDay(date: string): void {
+    const idx = this.newSeance.dates.indexOf(date);
+    if (idx === -1) this.newSeance.dates.push(date);
+    else this.newSeance.dates.splice(idx, 1);
+  }
+
+  isSeanceDaySelected(date: string): boolean { return this.newSeance.dates.includes(date); }
+
   get filteredSeances() {
-    const q = this.searchSeance.toLowerCase();
+    const q = this.searchSeance.toLowerCase().trim();
     if (!q) return this.seancesAdmin;
     return this.seancesAdmin.filter(s =>
       s.patientNom.toLowerCase().includes(q) ||
-      s.infirmierNom.toLowerCase().includes(q) ||
+      s.aideSoignantNom.toLowerCase().includes(q) ||
       s.date.includes(q) ||
-      s.machine.toLowerCase().includes(q)
+      s.heureDebut.includes(q) ||
+      s.heureFin.includes(q) ||
+      s.machine.toLowerCase().includes(q) ||
+      s.statut.toLowerCase().includes(q)
     );
   }
 
   get infirmiers(): AppUser[] { return this.users.filter(u => u.role === 'infirmier'); }
+  get aidesSoignants(): AppUser[] { return this.users.filter(u => u.role === 'aide-soignant'); }
   get patientsUsers(): AppUser[] { return this.users.filter(u => u.role === 'patient'); }
   readonly machines = ['M-01','M-02','M-03','M-04','M-05','M-06'];
 
   ajouterSeance(): void {
-    if (!this.newSeance.patientId || !this.newSeance.infirmierId || !this.newSeance.date) {
-      this.showToast('Veuillez remplir tous les champs de la séance', 'warning'); return;
+    if (!this.newSeance.patientId || !this.newSeance.dates.length) {
+      this.showToast('Veuillez remplir tous les champs et sélectionner au moins une date', 'warning'); return;
     }
-    const patient  = this.users.find(u => u.id === +this.newSeance.patientId);
-    const infirmier = this.users.find(u => u.id === +this.newSeance.infirmierId);
-    this.seancesAdmin.unshift({
-      id: ++this.nextSeanceId,
-      patientNom:   patient  ? `${patient.nom} ${patient.prenom}`   : '—',
-      infirmierNom: infirmier ? `${infirmier.nom} ${infirmier.prenom}` : '—',
-      date: this.newSeance.date, heureDebut: this.newSeance.heureDebut,
-      heureFin: this.newSeance.heureFin, machine: this.newSeance.machine, statut: 'planifiee',
-    });
-    this.newSeance = { patientId: '', infirmierId: '', date: '', heureDebut: '07:30', heureFin: '11:30', machine: 'M-01' };
-    this.showToast('Séance planifiée avec succès', 'success');
+    const patient      = this.users.find(u => u.id === +this.newSeance.patientId);
+    const aideSoignant = this.users.find(u => u.id === +this.newSeance.aideSoignantId);
+    const aideSoignantNom = aideSoignant ? `${aideSoignant.nom} ${aideSoignant.prenom}` : '—';
+    for (const d of this.newSeance.dates) {
+      const [,mm,dd] = d.split('-');
+      const dateLabel = `${dd}/${mm}/${this.seanceCalYear}`;
+      this.seancesAdmin.unshift({
+        id: ++this.nextSeanceId,
+        patientNom: patient ? `${patient.nom} ${patient.prenom}` : '—',
+        aideSoignantNom,
+        date: dateLabel, heureDebut: this.newSeance.heureDebut,
+        heureFin: this.newSeance.heureFin, machine: this.newSeance.machine, statut: 'planifiee',
+      });
+    }
+    this.newSeance = { patientId: '', aideSoignantId: '', dates: [], heureDebut: '07:30', heureFin: '11:30', machine: 'M-01' };
+    this.showToast('Séance(s) planifiée(s) avec succès', 'success');
   }
 
   supprimerSeance(id: number): void {
@@ -508,17 +685,67 @@ export class AdminComponent {
   }
 
   showEditSeanceModal = false;
-  editSeance: { id: number; patientNom: string; infirmierNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; } | null = null;
+  editSeance: { id: number; patientNom: string; aideSoignantNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; } | null = null;
+  editSeanceCalYear  = new Date().getFullYear();
+  editSeanceCalMonth = new Date().getMonth();
+  editSeanceDates: string[] = [];
+
+  get editSeanceCalTitle(): string { return `${this.moisLabels[this.editSeanceCalMonth]} ${this.editSeanceCalYear}`; }
+
+  editSeanceCalPrevMonth(): void {
+    if (this.editSeanceCalMonth === 0) { this.editSeanceCalMonth = 11; this.editSeanceCalYear--; }
+    else { this.editSeanceCalMonth--; }
+  }
+
+  editSeanceCalNextMonth(): void {
+    if (this.editSeanceCalMonth === 11) { this.editSeanceCalMonth = 0; this.editSeanceCalYear++; }
+    else { this.editSeanceCalMonth++; }
+  }
+
+  get editSeanceCalDays(): ({ date: string; day: number; today: boolean } | null)[] {
+    const today = new Date();
+    const firstDay = new Date(this.editSeanceCalYear, this.editSeanceCalMonth, 1).getDay();
+    const offset = (firstDay + 6) % 7;
+    const daysInMonth = new Date(this.editSeanceCalYear, this.editSeanceCalMonth + 1, 0).getDate();
+    const cells: ({ date: string; day: number; today: boolean } | null)[] = [];
+    for (let i = 0; i < offset; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(this.editSeanceCalMonth + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      const date = `${this.editSeanceCalYear}-${mm}-${dd}`;
+      const isToday = today.getFullYear() === this.editSeanceCalYear && today.getMonth() === this.editSeanceCalMonth && today.getDate() === d;
+      cells.push({ date, day: d, today: isToday });
+    }
+    return cells;
+  }
+
+  toggleEditSeanceCalDay(date: string): void {
+    const idx = this.editSeanceDates.indexOf(date);
+    if (idx === -1) this.editSeanceDates.push(date);
+    else this.editSeanceDates.splice(idx, 1);
+  }
+
+  isEditSeanceDaySelected(date: string): boolean { return this.editSeanceDates.includes(date); }
 
   openEditSeance(s: typeof this.seancesAdmin[0]): void {
     this.editSeance = { ...s };
+    this.editSeanceDates = [];
+    this.editSeanceCalYear  = new Date().getFullYear();
+    this.editSeanceCalMonth = new Date().getMonth();
     this.showEditSeanceModal = true;
   }
 
   saveEditSeance(): void {
     if (!this.editSeance) return;
     const idx = this.seancesAdmin.findIndex(s => s.id === this.editSeance!.id);
-    if (idx !== -1) this.seancesAdmin[idx] = { ...this.editSeance };
+    if (idx !== -1) {
+      const updated = { ...this.editSeance };
+      if (this.editSeanceDates.length) {
+        const [,mm,dd] = this.editSeanceDates[0].split('-');
+        updated.date = `${dd}/${mm}/${this.editSeanceCalYear}`;
+      }
+      this.seancesAdmin[idx] = updated;
+    }
     this.showEditSeanceModal = false;
     this.editSeance = null;
     this.showToast('Séance modifiée avec succès', 'success');
@@ -527,67 +754,6 @@ export class AdminComponent {
   seanceStatutClass(s: string): string { return s === 'terminee' ? 'ok' : s === 'en-cours' ? 'info' : 'neutral'; }
   seanceStatutLabel(s: string): string { return s === 'terminee' ? 'Terminée' : s === 'en-cours' ? 'En cours' : 'Planifiée'; }
 
-  // ── Affectations ──
-  private nextAffId = 10;
-  affectations: { id: number; patientNom: string; aideSoignantNom: string; dateAffectation: string; }[] = [
-    { id: 1, patientNom: 'Mansouri Ahmed',   aideSoignantNom: 'Kettani Youssef', dateAffectation: '01/04/2026' },
-    { id: 2, patientNom: 'Kbiri Fatima',     aideSoignantNom: 'Kettani Youssef', dateAffectation: '01/04/2026' },
-    { id: 3, patientNom: 'El Alami Mohamed', aideSoignantNom: 'Oulmane Sara',    dateAffectation: '05/04/2026' },
-    { id: 4, patientNom: 'Tahiri Khadija',   aideSoignantNom: 'Oulmane Sara',    dateAffectation: '05/04/2026' },
-  ];
-  newAffectation    = { patientId: '', aideSoignantId: '' };
-  searchAffectation = '';
-
-  get filteredAffectations() {
-    const q = this.searchAffectation.toLowerCase();
-    if (!q) return this.affectations;
-    return this.affectations.filter(a =>
-      a.patientNom.toLowerCase().includes(q) ||
-      a.aideSoignantNom.toLowerCase().includes(q) ||
-      a.dateAffectation.includes(q)
-    );
-  }
-
-  get aidesSoignants(): AppUser[] { return this.users.filter(u => u.role === 'aide-soignant'); }
-
-  ajouterAffectation(): void {
-    if (!this.newAffectation.patientId || !this.newAffectation.aideSoignantId) {
-      this.showToast('Veuillez sélectionner un patient et un aide-soignant', 'warning'); return;
-    }
-    const patient = this.users.find(u => u.id === +this.newAffectation.patientId);
-    const as_     = this.users.find(u => u.id === +this.newAffectation.aideSoignantId);
-    const today   = new Date().toLocaleDateString('fr-FR');
-    this.affectations.unshift({
-      id: ++this.nextAffId,
-      patientNom:       patient ? `${patient.nom} ${patient.prenom}` : '—',
-      aideSoignantNom:  as_     ? `${as_.nom} ${as_.prenom}`         : '—',
-      dateAffectation:  today,
-    });
-    this.newAffectation = { patientId: '', aideSoignantId: '' };
-    this.showToast('Affectation enregistrée', 'success');
-  }
-
-  supprimerAffectation(id: number): void {
-    this.affectations = this.affectations.filter(a => a.id !== id);
-    this.showToast('Affectation supprimée', 'warning');
-  }
-
-  showEditAffectationModal = false;
-  editAffectation: { id: number; patientNom: string; aideSoignantNom: string; dateAffectation: string; } | null = null;
-
-  openEditAffectation(a: typeof this.affectations[0]): void {
-    this.editAffectation = { ...a };
-    this.showEditAffectationModal = true;
-  }
-
-  saveEditAffectation(): void {
-    if (!this.editAffectation) return;
-    const idx = this.affectations.findIndex(a => a.id === this.editAffectation!.id);
-    if (idx !== -1) this.affectations[idx] = { ...this.editAffectation };
-    this.showEditAffectationModal = false;
-    this.editAffectation = null;
-    this.showToast('Affectation modifiée avec succès', 'success');
-  }
 
   // ── KPIs ──
   get totalUsers()       { return this.users.length; }
@@ -633,7 +799,7 @@ export class AdminComponent {
   get activeTabTitle(): string {
     const map: Record<string, string> = {
       profils: 'Gestion des Profils', horaires: 'Planification des Horaires',
-      seances: 'Planification des Séances', affectations: 'Affectations Patients',
+      seances: 'Planification des Séances',
     };
     return map[this.activeTab] ?? '';
   }
@@ -668,6 +834,10 @@ export class AdminComponent {
     this.showSettingsModal = false;
     this.showToast('Paramètres système enregistrés', 'success');
   }
+
+  // ── Theme ──
+  isLight = false;
+  toggleTheme(): void { this.isLight = !this.isLight; }
 
   logout(): void { this.router.navigate(['/login']); }
 }

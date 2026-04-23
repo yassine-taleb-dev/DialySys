@@ -357,39 +357,123 @@
   </div>
 </div>
 
+<!-- ── Edit patient modal ── -->
+<div class="modal-overlay" *ngIf="showEditPatientModal" (click)="showEditPatientModal = false">
+  <div class="modal-panel modal-panel--new-patient" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--simple">
+      <span class="material-icons" style="color:var(--c-green);font-size:22px">edit</span>
+      <h2>Modifier le Patient</h2>
+      <button class="modal-close-btn" (click)="showEditPatientModal = false"><span class="material-icons">close</span></button>
+    </div>
+    <div class="modal-body" *ngIf="editPatient">
+      <div class="form-section-label"><span class="material-icons">badge</span> Identité du patient</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>ID</label>
+          <input type="text" [value]="editPatient.id" disabled style="opacity:.6" />
+        </div>
+        <div class="form-field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="editPatient.nom" placeholder="Nom de famille" />
+        </div>
+        <div class="form-field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="editPatient.prenom" placeholder="Prénom" />
+        </div>
+        <div class="form-field">
+          <label>Date de naissance</label>
+          <input type="date" [(ngModel)]="editPatient.dateNaissance" />
+        </div>
+        <div class="form-field">
+          <label>Groupe sanguin</label>
+          <select [(ngModel)]="editPatient.groupeSanguin">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditPatient()">
+          <span class="material-icons">save</span> Enregistrer
+        </button>
+        <button class="btn-outline-sm" (click)="showEditPatientModal = false">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Edit horaire modal ── -->
 <div class="modal-overlay" *ngIf="showEditHoraireModal" (click)="showEditHoraireModal = false">
-  <div class="modal-panel modal-panel--edit-sm" (click)="$event.stopPropagation()">
+  <div class="modal-panel modal-panel--edit-horaire" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit_calendar</span>
       <h2>Modifier l'horaire</h2>
       <button class="modal-close-btn" (click)="showEditHoraireModal = false"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body" *ngIf="editHoraire">
-      <div class="form-grid">
-        <div class="form-field form-field--full">
-          <label>Personnel</label>
-          <input type="text" [(ngModel)]="editHoraire.staffNom" />
+      <div class="horaire-form-layout">
+
+        <!-- Colonne gauche : poste + nom + heures -->
+        <div class="horaire-form-left">
+          <div class="form-field">
+            <label>Sélection poste</label>
+            <select [(ngModel)]="editHoraire.staffRole" (ngModelChange)="editHoraire!.staffNom = ''">
+              <option value="">— Choisir le poste —</option>
+              <option value="Infirmier(e)">Infirmier(e)</option>
+              <option value="Aide-Soignant">Aide-Soignant</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Sélection nom</label>
+            <select [(ngModel)]="editHoraire.staffNom" [disabled]="!editHoraire.staffRole">
+              <option value="">— Choisir le nom —</option>
+              <option *ngFor="let s of staffParType(editHoraire.staffRole === 'Infirmier(e)' ? 'infirmier' : 'aide-soignant')" [value]="s.prenom + ' ' + s.nom">{{ s.prenom }} {{ s.nom }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Heure début</label>
+            <input type="time" [(ngModel)]="editHoraire.heureDebut" />
+          </div>
+          <div class="form-field">
+            <label>Heure fin</label>
+            <input type="time" [(ngModel)]="editHoraire.heureFin" />
+          </div>
+          <div class="cal-selected-summary" *ngIf="editHoraire.jours.length">
+            <span class="material-icons">event_available</span>
+            {{ editHoraire.jours.length }} jour(s) sélectionné(s)
+            <button class="cal-clear-btn" (click)="editHoraire!.jours = []">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
         </div>
-        <div class="form-field form-field--full">
-          <label>Rôle</label>
-          <select [(ngModel)]="editHoraire.staffRole">
-            <option value="Infirmier(e)">Infirmier(e)</option>
-            <option value="Aide-Soignant">Aide-Soignant</option>
-          </select>
+
+        <!-- Colonne droite : calendrier inline -->
+        <div class="horaire-form-right">
+          <div class="cal-inline">
+            <div class="cal-header">
+              <button class="cal-nav-btn" (click)="editCalPrevMonth()">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              <span class="cal-title">{{ editCalTitle }}</span>
+              <button class="cal-nav-btn" (click)="editCalNextMonth()">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+              <ng-container *ngFor="let cell of editCalDays">
+                <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                <div *ngIf="cell !== null" class="cal-cell"
+                  [class.cal-cell--today]="cell.today"
+                  [class.cal-cell--selected]="isEditDaySelected(cell.date)"
+                  (click)="toggleEditCalDay(cell.date)">
+                  {{ cell.day }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
         </div>
-        <div class="form-field">
-          <label>Date</label>
-          <input type="date" [(ngModel)]="editHoraire.date" />
-        </div>
-        <div class="form-field">
-          <label>Heure début</label>
-          <input type="time" [(ngModel)]="editHoraire.heureDebut" />
-        </div>
-        <div class="form-field">
-          <label>Heure fin</label>
-          <input type="time" [(ngModel)]="editHoraire.heureFin" />
-        </div>
+
       </div>
       <div class="modal-actions">
         <button class="btn-sm-primary" (click)="saveEditHoraire()"><span class="material-icons">save</span> Enregistrer</button>
@@ -401,52 +485,89 @@
 
 <!-- ── Edit séance modal ── -->
 <div class="modal-overlay" *ngIf="showEditSeanceModal" (click)="showEditSeanceModal = false">
-  <div class="modal-panel modal-panel--edit-sm" (click)="$event.stopPropagation()">
+  <div class="modal-panel modal-panel--edit-horaire" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit</span>
       <h2>Modifier la séance</h2>
       <button class="modal-close-btn" (click)="showEditSeanceModal = false"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body" *ngIf="editSeance">
-      <div class="form-grid">
-        <div class="form-field">
-          <label>Patient</label>
-          <select [(ngModel)]="editSeance.patientNom">
-            <option *ngFor="let p of patientsUsers" [value]="p.nom + ' ' + p.prenom">{{ p.prenom }} {{ p.nom }}</option>
-          </select>
+      <div class="horaire-form-layout">
+
+        <!-- Colonne gauche : champs -->
+        <div class="horaire-form-left">
+          <div class="form-field">
+            <label>Patient</label>
+            <select [(ngModel)]="editSeance.patientNom">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let p of patientsUsers" [value]="p.nom + ' ' + p.prenom">{{ p.prenom }} {{ p.nom }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Aide-Soignant</label>
+            <select [(ngModel)]="editSeance.aideSoignantNom">
+              <option value="—">— Aucun —</option>
+              <option *ngFor="let a of aidesSoignants" [value]="a.nom + ' ' + a.prenom">{{ a.prenom }} {{ a.nom }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Heure début</label>
+            <input type="time" [(ngModel)]="editSeance.heureDebut" />
+          </div>
+          <div class="form-field">
+            <label>Heure fin</label>
+            <input type="time" [(ngModel)]="editSeance.heureFin" />
+          </div>
+          <div class="form-field">
+            <label>Machine</label>
+            <select [(ngModel)]="editSeance.machine">
+              <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Statut</label>
+            <select [(ngModel)]="editSeance.statut">
+              <option value="planifiee">Planifiée</option>
+              <option value="en-cours">En cours</option>
+              <option value="terminee">Terminée</option>
+            </select>
+          </div>
+          <div class="cal-selected-summary" *ngIf="editSeanceDates.length">
+            <span class="material-icons">event_available</span>
+            {{ editSeanceDates.length }} date(s) sélectionnée(s)
+            <button class="cal-clear-btn" (click)="editSeanceDates = []">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
         </div>
-        <div class="form-field">
-          <label>Infirmier(e)</label>
-          <select [(ngModel)]="editSeance.infirmierNom">
-            <option *ngFor="let i of infirmiers" [value]="i.nom + ' ' + i.prenom">{{ i.prenom }} {{ i.nom }}</option>
-          </select>
+
+        <!-- Colonne droite : calendrier inline -->
+        <div class="horaire-form-right">
+          <div class="cal-inline">
+            <div class="cal-header">
+              <button class="cal-nav-btn" (click)="editSeanceCalPrevMonth()">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              <span class="cal-title">{{ editSeanceCalTitle }}</span>
+              <button class="cal-nav-btn" (click)="editSeanceCalNextMonth()">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+              <ng-container *ngFor="let cell of editSeanceCalDays">
+                <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                <div *ngIf="cell !== null" class="cal-cell"
+                  [class.cal-cell--today]="cell.today"
+                  [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)"
+                  (click)="toggleEditSeanceCalDay(cell.date)">
+                  {{ cell.day }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
         </div>
-        <div class="form-field">
-          <label>Date</label>
-          <input type="date" [(ngModel)]="editSeance.date" />
-        </div>
-        <div class="form-field">
-          <label>Heure début</label>
-          <input type="time" [(ngModel)]="editSeance.heureDebut" />
-        </div>
-        <div class="form-field">
-          <label>Heure fin</label>
-          <input type="time" [(ngModel)]="editSeance.heureFin" />
-        </div>
-        <div class="form-field">
-          <label>Machine</label>
-          <select [(ngModel)]="editSeance.machine">
-            <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Statut</label>
-          <select [(ngModel)]="editSeance.statut">
-            <option value="planifiee">Planifiée</option>
-            <option value="en-cours">En cours</option>
-            <option value="terminee">Terminée</option>
-          </select>
-        </div>
+
       </div>
       <div class="modal-actions">
         <button class="btn-sm-primary" (click)="saveEditSeance()"><span class="material-icons">save</span> Enregistrer</button>
@@ -456,43 +577,9 @@
   </div>
 </div>
 
-<!-- ── Edit affectation modal ── -->
-<div class="modal-overlay" *ngIf="showEditAffectationModal" (click)="showEditAffectationModal = false">
-  <div class="modal-panel modal-panel--edit-sm" (click)="$event.stopPropagation()">
-    <div class="modal-header modal-header--simple">
-      <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit</span>
-      <h2>Modifier l'affectation</h2>
-      <button class="modal-close-btn" (click)="showEditAffectationModal = false"><span class="material-icons">close</span></button>
-    </div>
-    <div class="modal-body" *ngIf="editAffectation">
-      <div class="form-grid">
-        <div class="form-field">
-          <label>Patient</label>
-          <select [(ngModel)]="editAffectation.patientNom">
-            <option *ngFor="let p of patientsUsers" [value]="p.nom + ' ' + p.prenom">{{ p.prenom }} {{ p.nom }}</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Aide-Soignant</label>
-          <select [(ngModel)]="editAffectation.aideSoignantNom">
-            <option *ngFor="let a of aidesSoignants" [value]="a.nom + ' ' + a.prenom">{{ a.prenom }} {{ a.nom }}</option>
-          </select>
-        </div>
-        <div class="form-field form-field--full">
-          <label>Date d'affectation</label>
-          <input type="date" [(ngModel)]="editAffectation.dateAffectation" />
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="saveEditAffectation()"><span class="material-icons">save</span> Enregistrer</button>
-        <button class="btn-outline-sm" (click)="showEditAffectationModal = false">Annuler</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ── Shell ── -->
-<div class="admin-shell">
+<div class="admin-shell" [class.light]="isLight">
 
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -519,10 +606,6 @@
         <span class="material-icons">medical_services</span><span>Séances Patients</span>
         <span class="nav-badge">{{ seancesAdmin.length }}</span>
       </a>
-      <a class="nav-item" [class.active]="activeTab === 'affectations'" (click)="activeTab = 'affectations'">
-        <span class="material-icons">assignment_ind</span><span>Affectations</span>
-        <span class="nav-badge">{{ affectations.length }}</span>
-      </a>
     </nav>
 
     <div class="sidebar__user">
@@ -547,6 +630,9 @@
         <button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()">
           <span class="material-icons">person_add</span>
           {{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}
+        </button>
+        <button class="icon-btn" (click)="toggleTheme()" [title]="isLight ? 'Passer en mode sombre' : 'Passer en mode clair'">
+          <span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span>
         </button>
         <button class="icon-btn" (click)="showSettingsModal = true">
           <span class="material-icons">settings</span>
@@ -584,30 +670,32 @@
 
     <!-- ═══ TAB: PROFILS ═══ -->
     <ng-container *ngIf="activeTab === 'profils'">
-      <!-- Role sub-tabs -->
-      <div class="profil-tabs">
-        <button *ngFor="let rid of roleIds" class="profil-tab"
-          [class.active]="activeProfilRole === rid"
-          (click)="activeProfilRole = rid">
-          <span class="material-icons">{{ getRoleConfig(rid)?.icon }}</span>
-          {{ profilTabLabel(rid) }}
-          <span class="profil-tab-count">{{ usersForRole(rid).length }}</span>
-        </button>
-      </div>
-
       <div class="panel panel--full">
         <div class="panel__head">
-          <h2>{{ profilTabLabel(activeProfilRole) }}</h2>
+          <h2>Liste des Profils</h2>
           <div class="panel__actions">
-            <div class="search-mini">
-              <span class="material-icons">search</span>
-              <input type="text" placeholder="Nom, matricule, email…" [(ngModel)]="searchQuery" />
-            </div>
+            <select class="filter-select" [(ngModel)]="filterRole">
+              <option value="">Tous les rôles</option>
+              <option *ngFor="let r of roles" [value]="r.id">{{ r.label }}</option>
+            </select>
+            <select class="filter-select" [(ngModel)]="filterStatus">
+              <option value="">Tous les statuts</option>
+              <option value="actif">Actif</option>
+              <option value="inactif">Inactif</option>
+              <option value="suspendu">Suspendu</option>
+            </select>
           </div>
+        </div>
+        <div class="table-search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par nom, prénom, matricule, email…" [(ngModel)]="searchQuery" />
+          <button class="table-search-clear" *ngIf="searchQuery" (click)="searchQuery = ''">
+            <span class="material-icons">close</span>
+          </button>
         </div>
 
         <!-- Table personnel (non-patient) -->
-        <div class="table-scroll"><table class="data-table" *ngIf="activeProfilRole !== 'patient'">
+        <div class="table-scroll"><table class="data-table">
 
           <thead>
             <tr>
@@ -620,8 +708,8 @@
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let u of usersForRole(activeProfilRole)">
-              <tr *ngIf="!searchQuery || u.nom.toLowerCase().includes(searchQuery.toLowerCase()) || u.prenom.toLowerCase().includes(searchQuery.toLowerCase()) || u.mat.toLowerCase().includes(searchQuery.toLowerCase())">
+            <ng-container *ngFor="let u of filteredUsers">
+              <tr *ngIf="u.role !== 'patient'">
                 <td>
                   <div class="user-cell">
                     <div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 15%, transparent)'">
@@ -649,16 +737,16 @@
                 </td>
               </tr>
             </ng-container>
-            <tr *ngIf="usersForRole(activeProfilRole).length === 0">
+            <tr *ngIf="filteredUsers.length === 0">
               <td colspan="6" class="empty-row">
-                <span class="material-icons">person_off</span> Aucun profil pour ce rôle
+                <span class="material-icons">person_off</span> Aucun profil trouvé
               </td>
             </tr>
           </tbody>
         </table></div>
 
         <!-- Table patients -->
-        <div class="table-scroll"><table class="data-table" *ngIf="activeProfilRole === 'patient'">
+        <div class="table-scroll"><table class="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -671,7 +759,7 @@
           </thead>
           <tbody>
             <ng-container *ngFor="let u of usersForRole('patient')">
-              <tr *ngIf="!searchQuery || u.nom.toLowerCase().includes(searchQuery.toLowerCase()) || u.prenom.toLowerCase().includes(searchQuery.toLowerCase())">
+              <tr>
                 <td><span class="mono">{{ u.id }}</span></td>
                 <td><b>{{ u.nom }}</b></td>
                 <td>{{ u.prenom }}</td>
@@ -682,6 +770,7 @@
                 </td>
                 <td>
                   <div class="row-actions">
+                    <button class="row-btn" (click)="openEditPatient(u)" title="Modifier"><span class="material-icons">edit</span></button>
                     <button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
                   </div>
                 </td>
@@ -696,7 +785,7 @@
         </table></div>
 
         <div class="panel__footer">
-          {{ usersForRole(activeProfilRole).length }} profil(s) enregistré(s)
+          {{ totalUsers }} profil(s) enregistré(s)
         </div>
       </div>
     </ng-container>
@@ -708,35 +797,70 @@
         <div class="action-form-title">
           <span class="material-icons">add_circle</span> Planifier un horaire de travail
         </div>
-        <div class="action-form-grid">
-          <div class="form-field">
-            <label>Type de personnel <span class="req">*</span></label>
-            <select [(ngModel)]="newHoraire.staffType" (ngModelChange)="newHoraire.staffNom = ''">
-              <option value="">— Choisir le type —</option>
-              <option value="infirmier">Infirmier(e)</option>
-              <option value="aide-soignant">Aide-Soignant</option>
-            </select>
+        <div class="horaire-form-layout">
+
+          <!-- Colonne gauche : poste + nom + heures -->
+          <div class="horaire-form-left">
+            <div class="form-field">
+              <label>Sélection poste <span class="req">*</span></label>
+              <select [(ngModel)]="newHoraire.staffType" (ngModelChange)="newHoraire.staffNom = ''">
+                <option value="">— Choisir le poste —</option>
+                <option value="infirmier">Infirmier(e)</option>
+                <option value="aide-soignant">Aide-Soignant</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Sélection nom <span class="req">*</span></label>
+              <select [(ngModel)]="newHoraire.staffNom" [disabled]="!newHoraire.staffType">
+                <option value="">— Choisir le nom —</option>
+                <option *ngFor="let s of staffParType(newHoraire.staffType)" [value]="s.id">{{ s.prenom }} {{ s.nom }}</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Heure début <span class="req">*</span></label>
+              <input type="time" [(ngModel)]="newHoraire.heureDebut" />
+            </div>
+            <div class="form-field">
+              <label>Heure fin <span class="req">*</span></label>
+              <input type="time" [(ngModel)]="newHoraire.heureFin" />
+            </div>
+            <div class="cal-selected-summary" *ngIf="newHoraire.jours.length">
+              <span class="material-icons">event_available</span>
+              {{ newHoraire.jours.length }} jour(s) sélectionné(s)
+              <button class="cal-clear-btn" (click)="newHoraire.jours = []">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
           </div>
-          <div class="form-field">
-            <label>Nom du personnel <span class="req">*</span></label>
-            <select [(ngModel)]="newHoraire.staffNom" [disabled]="!newHoraire.staffType">
-              <option value="">— Sélectionner —</option>
-              <option *ngFor="let s of staffParType(newHoraire.staffType)" [value]="s.id">{{ s.prenom }} {{ s.nom }}</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label>Date <span class="req">*</span></label>
-            <input type="date" [(ngModel)]="newHoraire.date" />
-          </div>
-          <div class="form-field">
-            <label>Heure début <span class="req">*</span></label>
-            <input type="time" [(ngModel)]="newHoraire.heureDebut" />
-          </div>
-          <div class="form-field">
-            <label>Heure fin <span class="req">*</span></label>
-            <input type="time" [(ngModel)]="newHoraire.heureFin" />
+
+          <!-- Colonne droite : calendrier inline -->
+          <div class="horaire-form-right">
+            <div class="cal-inline">
+              <div class="cal-header">
+                <button class="cal-nav-btn" (click)="calPrevMonth()">
+                  <span class="material-icons">chevron_left</span>
+                </button>
+                <span class="cal-title">{{ calTitle }}</span>
+                <button class="cal-nav-btn" (click)="calNextMonth()">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+                <ng-container *ngFor="let cell of calDays">
+                  <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                  <div *ngIf="cell !== null" class="cal-cell"
+                    [class.cal-cell--today]="cell.today"
+                    [class.cal-cell--selected]="isDaySelected(cell.date)"
+                    (click)="toggleCalDay(cell.date)">
+                    {{ cell.day }}
+                  </div>
+                </ng-container>
+              </div>
+            </div>
           </div>
         </div>
+
         <div class="action-form-footer">
           <button class="btn-sm-primary" (click)="ajouterHoraire()">
             <span class="material-icons">save</span> Enregistrer l'horaire
@@ -761,7 +885,7 @@
             <tr>
               <th>Personnel</th>
               <th>Rôle</th>
-              <th>Date</th>
+              <th>Jours planifiés</th>
               <th>Heure début</th>
               <th>Heure fin</th>
               <th>Actions</th>
@@ -771,7 +895,7 @@
             <tr *ngFor="let h of filteredHoraires">
               <td><b>{{ h.staffNom }}</b></td>
               <td>{{ h.staffRole }}</td>
-              <td>{{ h.date }}</td>
+              <td><span class="mono" style="font-size:12px">{{ formatJours(h.jours) }}</span></td>
               <td>{{ h.heureDebut }}</td>
               <td>{{ h.heureFin }}</td>
               <td>
@@ -797,39 +921,74 @@
         <div class="action-form-title">
           <span class="material-icons">add_circle</span> Planifier une séance de dialyse
         </div>
-        <div class="action-form-grid">
-          <div class="form-field">
-            <label>Patient <span class="req">*</span></label>
-            <select [(ngModel)]="newSeance.patientId">
-              <option value="">— Sélectionner —</option>
-              <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }} ({{ p.mat }})</option>
-            </select>
+        <div class="horaire-form-layout">
+
+          <!-- Colonne gauche : champs -->
+          <div class="horaire-form-left">
+            <div class="form-field">
+              <label>Patient <span class="req">*</span></label>
+              <select [(ngModel)]="newSeance.patientId">
+                <option value="">— Sélectionner —</option>
+                <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Aide-Soignant disponible</label>
+              <select [(ngModel)]="newSeance.aideSoignantId">
+                <option value="">— Sélectionner —</option>
+                <option *ngFor="let a of aidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }}</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Heure début</label>
+              <input type="time" [(ngModel)]="newSeance.heureDebut" />
+            </div>
+            <div class="form-field">
+              <label>Heure fin</label>
+              <input type="time" [(ngModel)]="newSeance.heureFin" />
+            </div>
+            <div class="form-field">
+              <label>Machine</label>
+              <select [(ngModel)]="newSeance.machine">
+                <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
+              </select>
+            </div>
+            <div class="cal-selected-summary" *ngIf="newSeance.dates.length">
+              <span class="material-icons">event_available</span>
+              {{ newSeance.dates.length }} date(s) sélectionnée(s)
+              <button class="cal-clear-btn" (click)="newSeance.dates = []">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
           </div>
-          <div class="form-field">
-            <label>Infirmier(e) responsable <span class="req">*</span></label>
-            <select [(ngModel)]="newSeance.infirmierId">
-              <option value="">— Sélectionner —</option>
-              <option *ngFor="let i of infirmiers" [value]="i.id">{{ i.prenom }} {{ i.nom }}</option>
-            </select>
+
+          <!-- Colonne droite : calendrier inline -->
+          <div class="horaire-form-right">
+            <div class="cal-inline">
+              <div class="cal-header">
+                <button class="cal-nav-btn" (click)="seanceCalPrevMonth()">
+                  <span class="material-icons">chevron_left</span>
+                </button>
+                <span class="cal-title">{{ seanceCalTitle }}</span>
+                <button class="cal-nav-btn" (click)="seanceCalNextMonth()">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+                <ng-container *ngFor="let cell of seanceCalDays">
+                  <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                  <div *ngIf="cell !== null" class="cal-cell"
+                    [class.cal-cell--today]="cell.today"
+                    [class.cal-cell--selected]="isSeanceDaySelected(cell.date)"
+                    (click)="toggleSeanceCalDay(cell.date)">
+                    {{ cell.day }}
+                  </div>
+                </ng-container>
+              </div>
+            </div>
           </div>
-          <div class="form-field">
-            <label>Date <span class="req">*</span></label>
-            <input type="date" [(ngModel)]="newSeance.date" />
-          </div>
-          <div class="form-field">
-            <label>Heure début</label>
-            <input type="time" [(ngModel)]="newSeance.heureDebut" />
-          </div>
-          <div class="form-field">
-            <label>Heure fin</label>
-            <input type="time" [(ngModel)]="newSeance.heureFin" />
-          </div>
-          <div class="form-field">
-            <label>Machine</label>
-            <select [(ngModel)]="newSeance.machine">
-              <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
-            </select>
-          </div>
+
         </div>
         <div class="action-form-footer">
           <button class="btn-sm-primary" (click)="ajouterSeance()">
@@ -852,7 +1011,7 @@
           <thead>
             <tr>
               <th>Patient</th>
-              <th>Infirmier(e)</th>
+              <th>Aide-Soignant</th>
               <th>Date</th>
               <th>Horaire</th>
               <th>Machine</th>
@@ -863,7 +1022,7 @@
           <tbody>
             <tr *ngFor="let s of filteredSeances">
               <td><b>{{ s.patientNom }}</b></td>
-              <td>{{ s.infirmierNom }}</td>
+              <td>{{ s.aideSoignantNom }}</td>
               <td>{{ s.date }}</td>
               <td>{{ s.heureDebut }} – {{ s.heureFin }}</td>
               <td><span class="mono">{{ s.machine }}</span></td>
@@ -884,75 +1043,6 @@
       </div>
     </ng-container>
 
-    <!-- ═══ TAB: AFFECTATIONS ═══ -->
-    <ng-container *ngIf="activeTab === 'affectations'">
-      <!-- Form -->
-      <div class="action-form-card">
-        <div class="action-form-title">
-          <span class="material-icons">add_circle</span> Affecter un patient à un aide-soignant
-        </div>
-        <div class="action-form-grid">
-          <div class="form-field">
-            <label>Patient <span class="req">*</span></label>
-            <select [(ngModel)]="newAffectation.patientId">
-              <option value="">— Sélectionner —</option>
-              <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }} ({{ p.mat }})</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label>Aide-Soignant <span class="req">*</span></label>
-            <select [(ngModel)]="newAffectation.aideSoignantId">
-              <option value="">— Sélectionner —</option>
-              <option *ngFor="let a of aidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="action-form-footer">
-          <button class="btn-sm-primary" (click)="ajouterAffectation()">
-            <span class="material-icons">assignment_ind</span> Enregistrer l'affectation
-          </button>
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="panel panel--full">
-        <div class="panel__head"><h2>Affectations en cours</h2></div>
-        <div class="table-search-bar">
-          <span class="material-icons">search</span>
-          <input type="text" placeholder="Rechercher par patient, aide-soignant ou date…" [(ngModel)]="searchAffectation" />
-          <button class="table-search-clear" *ngIf="searchAffectation" (click)="searchAffectation = ''">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        <div class="table-scroll"><table class="data-table">
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Aide-Soignant responsable</th>
-              <th>Date d'affectation</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let a of filteredAffectations">
-              <td><b>{{ a.patientNom }}</b></td>
-              <td>{{ a.aideSoignantNom }}</td>
-              <td>{{ a.dateAffectation }}</td>
-              <td>
-                <div class="row-actions">
-                  <button class="row-btn" (click)="openEditAffectation(a)" title="Modifier"><span class="material-icons">edit</span></button>
-                  <button class="row-btn row-btn--warn" (click)="supprimerAffectation(a.id)" title="Supprimer"><span class="material-icons">link_off</span></button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="filteredAffectations.length === 0">
-              <td colspan="4" class="empty-row"><span class="material-icons">person_off</span> Aucune affectation</td>
-            </tr>
-          </tbody>
-        </table></div>
-        <div class="panel__footer">{{ affectations.length }} affectation(s) active(s)</div>
-      </div>
-    </ng-container>
 
   </div>
 </div>
