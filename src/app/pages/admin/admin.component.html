@@ -7,60 +7,341 @@
   </div>
 </div>
 
-<!-- ── Wizard création profil ── -->
-<div class="modal-overlay" *ngIf="showWizardModal" (click)="wizardCancel()">
-  <div class="modal-panel wizard-panel" (click)="$event.stopPropagation()">
+<!-- ══════════════════════════════════════════════════════════════
+     WIZARD — Création de profil (multi-étapes)
+     ══════════════════════════════════════════════════════════════ -->
+<div class="wz-overlay" *ngIf="showWizardModal" (click)="wizardCancel()">
+  <div class="wz-panel" (click)="$event.stopPropagation()">
 
-    <!-- En-tête -->
-    <div class="wizard-header">
-      <div class="wizard-header__icon">
-        <span class="material-icons">person_add</span>
+    <!-- ── En-tête avec progression ── -->
+    <div class="wz-head">
+      <!-- Icône rôle sélectionné -->
+      <div class="wz-head__icon"
+           [style.background]="(wizardSelectedConfig?.color ?? 'var(--c-teal)') + '1a'"
+           [style.border-color]="(wizardSelectedConfig?.color ?? 'var(--c-teal)') + '50'">
+        <span class="material-icons"
+              [style.color]="wizardSelectedConfig?.color ?? 'var(--c-teal)'">
+          {{ wizardSelectedConfig?.icon ?? 'person_add' }}
+        </span>
       </div>
-      <div class="wizard-header__text">
-        <h2>Nouveau profil</h2>
-        <p>Choisissez le type de compte à créer</p>
+
+      <!-- Titre dynamique -->
+      <div class="wz-head__text">
+        <h2 class="wz-head__title">
+          <ng-container *ngIf="wizardStep === 1">Nouveau profil</ng-container>
+          <ng-container *ngIf="wizardStep === 2">Informations personnelles</ng-container>
+          <ng-container *ngIf="wizardStep === 3">Accès &amp; sécurité</ng-container>
+        </h2>
+        <p class="wz-head__sub">
+          <ng-container *ngIf="wizardStep === 1">Choisissez le type de compte à créer</ng-container>
+          <ng-container *ngIf="wizardStep === 2 && wizardIsPatient">Patient · coordonnées &amp; données médicales</ng-container>
+          <ng-container *ngIf="wizardStep === 2 && !wizardIsPatient">{{ wizardSelectedConfig?.label }} · identité &amp; contact</ng-container>
+          <ng-container *ngIf="wizardStep === 3">Identifiants de connexion au système</ng-container>
+        </p>
       </div>
-      <button class="modal-close-btn" (click)="wizardCancel()">
+
+      <button class="wz-close-btn" (click)="wizardCancel()">
         <span class="material-icons">close</span>
       </button>
     </div>
 
-    <!-- Grille des rôles -->
-    <div class="wizard-body">
-      <div class="wizard-role-grid">
-        <div class="wizard-role-card"
-             *ngFor="let role of wizardRoleOptions"
-             [class.selected]="wizardRole === role.id"
-             (click)="wizardSelectRole(role.id)">
-
-          <div class="wizard-role-card__icon" [style.background]="role.color + '18'" [style.border-color]="role.color + '40'">
-            <span class="material-icons" [style.color]="role.color">{{ role.icon }}</span>
-          </div>
-
-          <div class="wizard-role-card__content">
-            <span class="wizard-role-card__name">{{ role.label }}</span>
-            <span class="wizard-role-card__desc">{{ role.desc }}</span>
-          </div>
-
-          <div class="wizard-role-card__check" *ngIf="wizardRole === role.id">
-            <span class="material-icons">check_circle</span>
-          </div>
-
-          <div class="wizard-role-card__border" [style.background]="role.color" *ngIf="wizardRole === role.id"></div>
+    <!-- ── Barre de progression (stepper) ── -->
+    <div class="wz-stepper">
+      <!-- Étape 1 -->
+      <div class="wz-step" [class.wz-step--active]="wizardStep === 1" [class.wz-step--done]="wizardStep > 1">
+        <div class="wz-step__dot">
+          <span class="material-icons" *ngIf="wizardStep > 1">check</span>
+          <span *ngIf="wizardStep <= 1">1</span>
         </div>
+        <span class="wz-step__label">Rôle</span>
       </div>
+
+      <div class="wz-step__line" [class.wz-step__line--done]="wizardStep > 1"></div>
+
+      <!-- Étape 2 -->
+      <div class="wz-step" [class.wz-step--active]="wizardStep === 2" [class.wz-step--done]="wizardStep > 2">
+        <div class="wz-step__dot">
+          <span class="material-icons" *ngIf="wizardStep > 2">check</span>
+          <span *ngIf="wizardStep <= 2">2</span>
+        </div>
+        <span class="wz-step__label">Informations</span>
+      </div>
+
+      <ng-container *ngIf="!wizardIsPatient">
+        <div class="wz-step__line" [class.wz-step__line--done]="wizardStep > 2"></div>
+
+        <!-- Étape 3 (personnel uniquement) -->
+        <div class="wz-step" [class.wz-step--active]="wizardStep === 3">
+          <div class="wz-step__dot">
+            <span>3</span>
+          </div>
+          <span class="wz-step__label">Accès</span>
+        </div>
+      </ng-container>
     </div>
 
-    <!-- Footer -->
-    <div class="wizard-footer">
-      <div class="wizard-footer__selected" *ngIf="wizardSelectedConfig">
-        <span class="material-icons" [style.color]="wizardSelectedConfig.color">{{ wizardSelectedConfig.icon }}</span>
-        <span>{{ wizardSelectedConfig.label }} sélectionné(e)</span>
+    <!-- ══ CORPS ══════════════════════════════════════════════════ -->
+    <div class="wz-body">
+
+      <!-- ────────────────────────────────────────────────────────
+           ÉTAPE 1 · Sélection du rôle
+           ──────────────────────────────────────────────────────── -->
+      <ng-container *ngIf="wizardStep === 1">
+        <p class="wz-hint">
+          <span class="material-icons">info</span>
+          Sélectionnez le type de profil à créer. Ce choix définira les permissions et les informations demandées.
+        </p>
+        <div class="wz-role-grid">
+          <div class="wz-role-card"
+               *ngFor="let role of wizardRoleOptions"
+               [class.wz-role-card--selected]="wizardRole === role.id"
+               (click)="wizardRole = role.id">
+
+            <!-- Accent couleur gauche -->
+            <div class="wz-role-card__accent" [style.background]="role.color"></div>
+
+            <!-- Icône -->
+            <div class="wz-role-card__ico"
+                 [style.background]="role.color + '18'"
+                 [style.border-color]="role.color + '40'">
+              <span class="material-icons" [style.color]="role.color">{{ role.icon }}</span>
+            </div>
+
+            <!-- Texte -->
+            <div class="wz-role-card__body">
+              <span class="wz-role-card__name">{{ role.label }}</span>
+              <span class="wz-role-card__desc">{{ role.desc }}</span>
+            </div>
+
+            <!-- Check sélection -->
+            <div class="wz-role-card__check" *ngIf="wizardRole === role.id"
+                 [style.color]="role.color">
+              <span class="material-icons">check_circle</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ────────────────────────────────────────────────────────
+           ÉTAPE 2 · Informations personnelles
+           ──────────────────────────────────────────────────────── -->
+      <ng-container *ngIf="wizardStep === 2">
+
+        <!-- Badge rôle -->
+        <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
+             [style.background]="wizardSelectedConfig.color + '18'"
+             [style.border-color]="wizardSelectedConfig.color + '40'"
+             [style.color]="wizardSelectedConfig.color">
+          <span class="material-icons">{{ wizardSelectedConfig.icon }}</span>
+          {{ wizardSelectedConfig.label }}
+        </div>
+
+        <!-- ── Champs Patient ── -->
+        <ng-container *ngIf="wizardIsPatient">
+          <div class="wz-section-title">
+            <span class="material-icons">badge</span> Identité
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field">
+              <label>Nom <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" />
+            </div>
+            <div class="wz-field">
+              <label>Prénom <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" />
+            </div>
+          </div>
+
+          <div class="wz-section-title" style="margin-top:14px">
+            <span class="material-icons">favorite</span> Données médicales
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field">
+              <label>Date de naissance <span class="req">*</span></label>
+              <input type="date" [(ngModel)]="wizardData.dateNaissance" />
+            </div>
+            <div class="wz-field">
+              <label>Groupe sanguin <span class="req">*</span></label>
+              <select [(ngModel)]="wizardData.groupeSanguin">
+                <option value="">-- Sélectionner --</option>
+                <option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field">
+              <label>Genre</label>
+              <select [(ngModel)]="wizardData.genre">
+                <option value="">-- Sélectionner --</option>
+                <option value="Homme">Homme</option>
+                <option value="Femme">Femme</option>
+              </select>
+            </div>
+            <div class="wz-field">
+              <label>Téléphone</label>
+              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" />
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ── Champs Personnel ── -->
+        <ng-container *ngIf="!wizardIsPatient">
+          <div class="wz-section-title">
+            <span class="material-icons">badge</span> Identité
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field">
+              <label>Nom <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" />
+            </div>
+            <div class="wz-field">
+              <label>Prénom <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" />
+            </div>
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field">
+              <label>Matricule <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="wizardData.mat" placeholder="MAT-001" />
+            </div>
+            <div class="wz-field">
+              <label>Email professionnel <span class="req">*</span></label>
+              <input type="email" [(ngModel)]="wizardData.email" placeholder="prenom.nom@dialysys.dz" />
+            </div>
+          </div>
+
+          <div class="wz-section-title" style="margin-top:14px">
+            <span class="material-icons">work</span> Poste &amp; Service
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field">
+              <label>Téléphone</label>
+              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" />
+            </div>
+            <div class="wz-field">
+              <label>Service</label>
+              <input type="text" [(ngModel)]="wizardData.service" />
+            </div>
+          </div>
+          <div class="wz-form-row" *ngIf="wizardRole === 'medecin'">
+            <div class="wz-field">
+              <label>Spécialité</label>
+              <input type="text" [(ngModel)]="wizardData.specialite" />
+            </div>
+          </div>
+        </ng-container>
+
+      </ng-container>
+
+      <!-- ────────────────────────────────────────────────────────
+           ÉTAPE 3 · Accès & Sécurité (personnel uniquement)
+           ──────────────────────────────────────────────────────── -->
+      <ng-container *ngIf="wizardStep === 3">
+
+        <!-- Badge rôle -->
+        <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
+             [style.background]="wizardSelectedConfig.color + '18'"
+             [style.border-color]="wizardSelectedConfig.color + '40'"
+             [style.color]="wizardSelectedConfig.color">
+          <span class="material-icons">{{ wizardSelectedConfig.icon }}</span>
+          {{ wizardSelectedConfig.label }} — {{ wizardData.prenom }} {{ wizardData.nom }}
+        </div>
+
+        <div class="wz-section-title">
+          <span class="material-icons">lock</span> Identifiants de connexion
+        </div>
+        <div class="wz-form-row">
+          <div class="wz-field">
+            <label>Login <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="wizardData.login" placeholder="login.utilisateur" autocomplete="off" />
+          </div>
+          <div class="wz-field">
+            <label>Nom d'affichage</label>
+            <input type="text" [(ngModel)]="wizardData.username" placeholder="Prénom Nom" />
+          </div>
+        </div>
+        <div class="wz-form-row">
+          <div class="wz-field">
+            <label>Mot de passe</label>
+            <input type="password" [(ngModel)]="wizardData.mdp" placeholder="••••••••" autocomplete="new-password" />
+          </div>
+          <div class="wz-field wz-field--center">
+            <label>Statut du compte</label>
+            <div class="wz-toggle-row">
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="wizardData.actif" />
+                <span class="toggle-track"></span>
+              </label>
+              <span class="wz-toggle-label"
+                    [style.color]="wizardData.actif ? 'var(--c-teal)' : 'var(--c-text-3)'">
+                {{ wizardData.actif ? 'Compte actif' : 'Compte inactif' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Résumé récapitulatif -->
+        <div class="wz-recap">
+          <div class="wz-recap__title">
+            <span class="material-icons">summarize</span> Récapitulatif
+          </div>
+          <div class="wz-recap__grid">
+            <div class="wz-recap__item">
+              <span class="wz-recap__key">Rôle</span>
+              <span class="wz-recap__val">{{ wizardSelectedConfig?.label }}</span>
+            </div>
+            <div class="wz-recap__item">
+              <span class="wz-recap__key">Nom complet</span>
+              <span class="wz-recap__val">{{ wizardData.prenom }} {{ wizardData.nom }}</span>
+            </div>
+            <div class="wz-recap__item">
+              <span class="wz-recap__key">Matricule</span>
+              <span class="wz-recap__val">{{ wizardData.mat }}</span>
+            </div>
+            <div class="wz-recap__item">
+              <span class="wz-recap__key">Email</span>
+              <span class="wz-recap__val">{{ wizardData.email }}</span>
+            </div>
+            <div class="wz-recap__item">
+              <span class="wz-recap__key">Service</span>
+              <span class="wz-recap__val">{{ wizardData.service }}</span>
+            </div>
+            <div class="wz-recap__item">
+              <span class="wz-recap__key">Login</span>
+              <span class="wz-recap__val mono">{{ wizardData.login }}</span>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+
+    </div><!-- /wz-body -->
+
+    <!-- ── Footer navigation ── -->
+    <div class="wz-footer">
+      <div class="wz-footer__left">
+        <button class="btn-outline-sm" *ngIf="wizardStep === 1" (click)="wizardCancel()">
+          Annuler
+        </button>
+        <button class="btn-outline-sm" *ngIf="wizardStep > 1" (click)="wizardPrev()">
+          <span class="material-icons">arrow_back</span> Précédent
+        </button>
       </div>
-      <div class="wizard-footer__actions">
-        <button class="btn-outline-sm" (click)="wizardCancel()">Annuler</button>
-        <button class="btn-sm-primary" (click)="wizardNext()">
-          <span class="material-icons">arrow_forward</span> Continuer
+
+      <div class="wz-footer__center">
+        <span class="wz-step-counter">Étape {{ wizardStep }} / {{ wizardStepCount }}</span>
+      </div>
+
+      <div class="wz-footer__right">
+        <button class="btn-sm-primary" (click)="wizardNext()"
+                [disabled]="wizardStep === 1 && !wizardRole">
+          <ng-container *ngIf="wizardStep < wizardStepCount">
+            Suivant <span class="material-icons">arrow_forward</span>
+          </ng-container>
+          <ng-container *ngIf="wizardStep === wizardStepCount">
+            <span class="material-icons">check</span>
+            {{ wizardIsPatient ? 'Créer le patient' : 'Créer le profil' }}
+          </ng-container>
         </button>
       </div>
     </div>

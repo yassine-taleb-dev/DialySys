@@ -2,7 +2,8 @@
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { UtilisateurCreateDto, UtilisateurService, UtilisateurUpdateDto } from '../../../services/utilisateur.service';
 import { PatientRequestDto, PatientService } from '../../../services/patient.service';
@@ -208,30 +209,26 @@ export class AdminComponent implements OnInit {
     }
 
     forkJoin({
-      users: this.utilisateurService.getAll(),
-      patients: this.patientService.getAll(),
-      horaires: this.horaireTravailService.getAll(),
-      seances: this.seanceService.getAll()
+      users:    this.utilisateurService.getAll().pipe(catchError(() => of([] as any[]))),
+      patients: this.patientService.getAll().pipe(catchError(() => of([] as any[]))),
+      horaires: this.horaireTravailService.getAll().pipe(catchError(() => of([] as any[]))),
+      seances:  this.seanceService.getAll().pipe(catchError(() => of([] as any[])))
     }).subscribe({
       next: ({ users, patients, horaires, seances }) => {
-        this.staffUsers = users.map(u => this.mapUtilisateurToAppUser(u));
-        this.patientUsersData = patients.map(p => this.mapPatientToAppUser(p));
+        this.staffUsers = users.map((u: any) => this.mapUtilisateurToAppUser(u));
+        this.patientUsersData = patients.map((p: any) => this.mapPatientToAppUser(p));
         this.users = [...this.staffUsers, ...this.patientUsersData];
-        this.horaires = horaires.map(h => this.mapHoraireToRow(h));
-        this.seancesAdmin = seances.map(s => this.mapSeanceToRow(s));
+        this.horaires = horaires.map((h: any) => this.mapHoraireToRow(h));
+        this.seancesAdmin = seances.map((s: any) => this.mapSeanceToRow(s));
         this.profilsLoaded = true;
         this.horairesLoaded = true;
         this.seancesLoaded = true;
         this.syncSelectedAideSoignant();
-        if (showLoader) {
-          this.loading = false;
-        }
+        if (showLoader) this.loading = false;
       },
-      error: (err) => {
-        if (showLoader) {
-          this.loading = false;
-        }
-        this.showToast(err?.error?.message ?? 'Erreur lors du chargement des donnees d administration', 'error');
+      error: () => {
+        if (showLoader) this.loading = false;
+        this.showToast('Serveur inaccessible — vérifiez que le backend est démarré', 'error');
       }
     });
   }
@@ -305,43 +302,90 @@ export class AdminComponent implements OnInit {
   }
 
   // ══════════════════════════════════════════════════
-  //  WIZARD
+  //  WIZARD — création profil multi-étapes
   // ══════════════════════════════════════════════════
 
-  openNewProfil(): void {
-    this.wizardStep = 1;
-    this.wizardRole = this.activeProfilRole === 'admin' ? 'medecin' : this.activeProfilRole;
-    this.showWizardModal = true;
-  }
+  wizardData = {
+    nom: '', prenom: '', mat: '', email: '', telephone: '', service: '',
+    login: '', username: '', mdp: '', actif: true,
+    dateNaissance: '', groupeSanguin: '', genre: '', adresse: '', cin: '',
+    specialite: '', superviseurId: '',
+  };
 
-  wizardSelectRole(role: RoleId): void {
-    this.wizardRole = role;
-  }
-
-  wizardNext(): void {
-    if (this.wizardRole === 'patient') {
-      this.showWizardModal = false;
-      this.newPatient = { nom: '', prenom: '', dateNaissance: '', groupeSanguin: '', cin: '', telephone: '', adresse: '', genre: '', statut: 'STABLE' };
-      this.showNewPatientModal = true;
-    } else {
-      const autoService = this.serviceParRole[this.wizardRole] ?? '';
-      const autoSpecialite = this.specialiteParRole[this.wizardRole] ?? '';
-      this.newUser = {
-        login: '', username: '', mat: '', nom: '', prenom: '', email: '',
-        mdp: '', role: this.wizardRole, actif: true,
-        telephone: '', service: autoService, specialite: autoSpecialite, superviseurId: ''
-      };
-      this.showWizardModal = false;
-      this.showNewUserModal = true;
-    }
-  }
-
-  wizardCancel(): void {
-    this.showWizardModal = false;
-  }
+  get wizardIsPatient(): boolean { return this.wizardRole === 'patient'; }
+  get wizardStepCount(): number  { return this.wizardIsPatient ? 2 : 3; }
 
   get wizardSelectedConfig(): { id: RoleId; label: string; icon: string; color: string; desc: string } | undefined {
     return this.wizardRoleOptions.find(r => r.id === this.wizardRole);
+  }
+
+  openNewProfil(): void {
+    this.wizardStep = 1;
+    this.wizardRole = this.activeProfilRole === 'admin' ? 'medecin' : (this.activeProfilRole as RoleId);
+    this.wizardData = {
+      nom: '', prenom: '', mat: '', email: '', telephone: '',
+      service: this.serviceParRole[this.wizardRole] ?? '',
+      login: '', username: '', mdp: '', actif: true,
+      dateNaissance: '', groupeSanguin: '', genre: '', adresse: '', cin: '',
+      specialite: this.specialiteParRole[this.wizardRole] ?? '', superviseurId: '',
+    };
+    this.showWizardModal = true;
+  }
+
+  wizardNext(): void {
+    if (this.wizardStep === 1) {
+      this.wizardData.service    = this.serviceParRole[this.wizardRole]    ?? '';
+      this.wizardData.specialite = this.specialiteParRole[this.wizardRole] ?? '';
+      this.wizardStep = 2;
+    } else if (this.wizardStep === 2) {
+      if (!this.wizardData.nom.trim() || !this.wizardData.prenom.trim()) {
+        this.showToast('Nom et prénom sont obligatoires', 'warning'); return;
+      }
+      if (this.wizardIsPatient) {
+        if (!this.wizardData.dateNaissance || !this.wizardData.groupeSanguin) {
+          this.showToast('Date de naissance et groupe sanguin sont obligatoires', 'warning'); return;
+        }
+        this.wizardSave();
+      } else {
+        if (!this.wizardData.mat.trim() || !this.wizardData.email.trim()) {
+          this.showToast('Matricule et email sont obligatoires', 'warning'); return;
+        }
+        this.wizardStep = 3;
+      }
+    } else if (this.wizardStep === 3) {
+      if (!this.wizardData.login.trim()) {
+        this.showToast('Le login est obligatoire', 'warning'); return;
+      }
+      this.wizardSave();
+    }
+  }
+
+  wizardPrev(): void { if (this.wizardStep > 1) this.wizardStep--; }
+
+  wizardCancel(): void { this.showWizardModal = false; }
+
+  wizardSave(): void {
+    if (this.wizardIsPatient) {
+      this.newPatient = {
+        nom: this.wizardData.nom, prenom: this.wizardData.prenom,
+        dateNaissance: this.wizardData.dateNaissance, groupeSanguin: this.wizardData.groupeSanguin,
+        cin: this.wizardData.cin, telephone: this.wizardData.telephone,
+        adresse: this.wizardData.adresse, genre: this.wizardData.genre, statut: 'STABLE',
+      };
+      this.showWizardModal = false;
+      this.saveNewPatient();
+    } else {
+      this.newUser = {
+        login: this.wizardData.login, username: this.wizardData.username,
+        mat: this.wizardData.mat, nom: this.wizardData.nom, prenom: this.wizardData.prenom,
+        email: this.wizardData.email, mdp: this.wizardData.mdp,
+        role: this.wizardRole, actif: this.wizardData.actif,
+        telephone: this.wizardData.telephone, service: this.wizardData.service,
+        specialite: this.wizardData.specialite, superviseurId: this.wizardData.superviseurId,
+      };
+      this.showWizardModal = false;
+      this.saveNewUser();
+    }
   }
 
   get staffRoleOptions(): RoleConfig[] {
