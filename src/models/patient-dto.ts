@@ -1,4 +1,5 @@
-import { DossierPatientDto } from "./dossier-patient-dto";
+﻿import { DossierPatientDto } from './dossier-patient-dto';
+import { UtilisateurSummaryDto } from './utilisateur-summary-dto';
 
 export interface PatientDto {
   id: number;
@@ -11,5 +12,6 @@ export interface PatientDto {
   telephone: string | null;
   adresse: string | null;
   genre: string | null;
+  medecinReferent: UtilisateurSummaryDto | null;
   dossierPatient: DossierPatientDto | null;
 }

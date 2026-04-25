@@ -4,7 +4,7 @@
       <div class="forgot-modal__head">
         <span class="material-icons forgot-icon">lock_reset</span>
         <h3>Réinitialisation du mot de passe</h3>
-        <p>Saisissez votre matricule. Un lien vous sera envoyé.</p>
+        <p>Saisissez votre login ou votre e-mail. Un mot de passe temporaire sera envoyé si le compte existe.</p>
       </div>
 
       <div class="forgot-modal__body">
@@ -35,8 +35,8 @@
     <ng-container *ngIf="forgotSent">
       <div class="forgot-success">
         <span class="material-icons forgot-check">check_circle</span>
-        <h3>Lien envoyé !</h3>
-        <p>Un e-mail a été envoyé au compte <b>{{ forgotId }}</b>.</p>
+        <h3>Demande envoyée</h3>
+        <p>Si un compte existe pour <b>{{ forgotId }}</b>, un e-mail de réinitialisation a été envoyé.</p>
         <button class="btn-submit btn-submit--sm" (click)="closeForgot()">
           <span class="material-icons">done</span> Fermer
         </button>

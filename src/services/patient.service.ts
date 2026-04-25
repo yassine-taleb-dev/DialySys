@@ -1,22 +1,25 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 import { PatientDto } from '../models/patient-dto';
-import { PatientSummaryDto } from '../models/patient-summary-dto';
 import { UtilisateurSummaryDto } from '../models/utilisateur-summary-dto';
-import { SeanceDto } from '../models/seance-dto';
 import { environment } from '../environments/environment';
 
-export interface PatientAujourdhuiDto {
-  patient: PatientSummaryDto;
-  equipe: UtilisateurSummaryDto[];
-  seances: SeanceDto[];
+export interface PatientRequestDto {
+  nom: string;
+  prenom: string;
+  dateNaissance: string;
+  groupeSanguin: string;
+  statut: string;
+  cin?: string | null;
+  telephone?: string | null;
+  adresse?: string | null;
+  genre?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class PatientService {
-    private readonly apiUrl = `${environment.apiUrl}/patients`;
-
+  private readonly apiUrl = `${environment.apiUrl}/patients`;
   private cacheAll$: Observable<PatientDto[]> | null = null;
 
   constructor(private http: HttpClient) {}
@@ -36,11 +39,11 @@ export class PatientService {
     return this.http.get<PatientDto>(`${this.apiUrl}/${id}`);
   }
 
-  create(payload: any): Observable<PatientDto> {
+  create(payload: PatientRequestDto): Observable<PatientDto> {
     return this.http.post<PatientDto>(this.apiUrl, payload);
   }
 
-  update(id: number, payload: any): Observable<PatientDto> {
+  update(id: number, payload: PatientRequestDto): Observable<PatientDto> {
     return this.http.put<PatientDto>(`${this.apiUrl}/${id}`, payload);
   }
 
@@ -58,9 +61,5 @@ export class PatientService {
 
   removeFromEquipe(patientId: number, utilisateurId: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${patientId}/equipe/${utilisateurId}`);
-  }
-
-  getAujourdHui(): Observable<PatientAujourdhuiDto[]> {
-    return this.http.get<PatientAujourdhuiDto[]>(`${this.apiUrl}/aujourd-hui`);
   }
 }
