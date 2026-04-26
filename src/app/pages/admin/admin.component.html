@@ -7,15 +7,14 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
+<!-- --------------------------------------------------------------
      WIZARD — Création de profil (multi-étapes)
-     ══════════════════════════════════════════════════════════════ -->
+     -------------------------------------------------------------- -->
 <div class="wz-overlay" *ngIf="showWizardModal" (click)="wizardCancel()">
   <div class="wz-panel" (click)="$event.stopPropagation()">
 
-    <!-- ── En-tête avec progression ── -->
+    <!-- En-tête avec progression -->
     <div class="wz-head">
-      <!-- Icône rôle sélectionné -->
       <div class="wz-head__icon"
            [style.background]="(wizardSelectedConfig?.color ?? 'var(--c-teal)') + '1a'"
            [style.border-color]="(wizardSelectedConfig?.color ?? 'var(--c-teal)') + '50'">
@@ -25,7 +24,6 @@
         </span>
       </div>
 
-      <!-- Titre dynamique -->
       <div class="wz-head__text">
         <h2 class="wz-head__title">
           <ng-container *ngIf="wizardStep === 1">Nouveau profil</ng-container>
@@ -45,7 +43,7 @@
       </button>
     </div>
 
-    <!-- ── Barre de progression (stepper) ── -->
+    <!-- Barre de progression (stepper) -->
     <div class="wz-stepper">
       <!-- Étape 1 -->
       <div class="wz-step" [class.wz-step--active]="wizardStep === 1" [class.wz-step--done]="wizardStep > 1">
@@ -80,13 +78,11 @@
       </ng-container>
     </div>
 
-    <!-- ══ CORPS ══════════════════════════════════════════════════ -->
+    <!-- CORPS -->
     <div class="wz-body">
 
-      <!-- ────────────────────────────────────────────────────────
-           ÉTAPE 1 · Sélection du rôle
-           ──────────────────────────────────────────────────────── -->
-      <ng-container *ngIf="wizardStep === 1">
+      <!-- ÉTAPE 1 · Sélection du rôle -->
+      <section class="wz-stage" *ngIf="wizardStep === 1">
         <p class="wz-hint">
           <span class="material-icons">info</span>
           Sélectionnez le type de profil à créer. Ce choix définira les permissions et les informations demandées.
@@ -96,38 +92,26 @@
                *ngFor="let role of wizardRoleOptions"
                [class.wz-role-card--selected]="wizardRole === role.id"
                (click)="wizardRole = role.id">
-
-            <!-- Accent couleur gauche -->
             <div class="wz-role-card__accent" [style.background]="role.color"></div>
-
-            <!-- Icône -->
             <div class="wz-role-card__ico"
                  [style.background]="role.color + '18'"
                  [style.border-color]="role.color + '40'">
               <span class="material-icons" [style.color]="role.color">{{ role.icon }}</span>
             </div>
-
-            <!-- Texte -->
             <div class="wz-role-card__body">
               <span class="wz-role-card__name">{{ role.label }}</span>
               <span class="wz-role-card__desc">{{ role.desc }}</span>
             </div>
-
-            <!-- Check sélection -->
-            <div class="wz-role-card__check" *ngIf="wizardRole === role.id"
-                 [style.color]="role.color">
+            <div class="wz-role-card__check" *ngIf="wizardRole === role.id" [style.color]="role.color">
               <span class="material-icons">check_circle</span>
             </div>
           </div>
         </div>
-      </ng-container>
+      </section>
 
-      <!-- ────────────────────────────────────────────────────────
-           ÉTAPE 2 · Informations personnelles
-           ──────────────────────────────────────────────────────── -->
-      <ng-container *ngIf="wizardStep === 2">
+      <!-- ÉTAPE 2 · Informations personnelles -->
+      <section class="wz-stage" *ngIf="wizardStep === 2">
 
-        <!-- Badge rôle -->
         <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
              [style.background]="wizardSelectedConfig.color + '18'"
              [style.border-color]="wizardSelectedConfig.color + '40'"
@@ -136,7 +120,7 @@
           {{ wizardSelectedConfig.label }}
         </div>
 
-        <!-- ── Champs Patient ── -->
+        <!-- Champs Patient -->
         <ng-container *ngIf="wizardIsPatient">
           <div class="wz-section-title">
             <span class="material-icons">badge</span> Identité
@@ -170,7 +154,7 @@
           </div>
           <div class="wz-form-row">
             <div class="wz-field">
-              <label>Genre</label>
+              <label>Genre <span class="req">*</span></label>
               <select [(ngModel)]="wizardData.genre">
                 <option value="">-- Sélectionner --</option>
                 <option value="Homme">Homme</option>
@@ -179,12 +163,12 @@
             </div>
             <div class="wz-field">
               <label>Téléphone</label>
-              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" />
+              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" />
             </div>
           </div>
         </ng-container>
 
-        <!-- ── Champs Personnel ── -->
+        <!-- Champs Personnel -->
         <ng-container *ngIf="!wizardIsPatient">
           <div class="wz-section-title">
             <span class="material-icons">badge</span> Identité
@@ -216,7 +200,7 @@
           <div class="wz-form-row">
             <div class="wz-field">
               <label>Téléphone</label>
-              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" />
+              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" />
             </div>
             <div class="wz-field">
               <label>Service</label>
@@ -231,14 +215,11 @@
           </div>
         </ng-container>
 
-      </ng-container>
+      </section>
 
-      <!-- ────────────────────────────────────────────────────────
-           ÉTAPE 3 · Accès & Sécurité (personnel uniquement)
-           ──────────────────────────────────────────────────────── -->
-      <ng-container *ngIf="wizardStep === 3">
+      <!-- ÉTAPE 3 · Accès & Sécurité (personnel uniquement) -->
+      <section class="wz-stage" *ngIf="wizardStep === 3">
 
-        <!-- Badge rôle -->
         <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
              [style.background]="wizardSelectedConfig.color + '18'"
              [style.border-color]="wizardSelectedConfig.color + '40'"
@@ -264,6 +245,7 @@
           <div class="wz-field">
             <label>Mot de passe</label>
             <input type="password" [(ngModel)]="wizardData.mdp" placeholder="••••••••" autocomplete="new-password" />
+            <small>8 caractères minimum avec majuscule, minuscule, chiffre et symbole.</small>
           </div>
           <div class="wz-field wz-field--center">
             <label>Statut du compte</label>
@@ -313,11 +295,11 @@
           </div>
         </div>
 
-      </ng-container>
+      </section>
 
     </div><!-- /wz-body -->
 
-    <!-- ── Footer navigation ── -->
+    <!-- Footer navigation -->
     <div class="wz-footer">
       <div class="wz-footer__left">
         <button class="btn-outline-sm" *ngIf="wizardStep === 1" (click)="wizardCancel()">
@@ -349,11 +331,10 @@
   </div>
 </div>
 
-<!-- ── User detail modal (Edition) ── -->
+<!-- User detail modal (Édition) -->
 <div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
   <div class="modal-panel wizard-panel wizard-panel--lg" (click)="$event.stopPropagation()">
 
-    <!-- En-tête -->
     <div class="wizard-header">
       <div class="wizard-header__icon" [style.background]="'color-mix(in srgb,' + roleColorVar(selectedUser!.role) + ' 15%, transparent)'">
         <span style="font-size:17px;font-weight:700;" [style.color]="roleColorVar(selectedUser!.role)">
@@ -372,10 +353,8 @@
       </button>
     </div>
 
-    <!-- Corps -->
     <div class="wizard-body wizard-body--form">
 
-      <!-- Section Identité -->
       <div class="wizard-section-label">
         <span class="material-icons">badge</span> Identité
       </div>
@@ -406,7 +385,6 @@
         </div>
       </div>
 
-      <!-- Section Accès -->
       <div class="wizard-section-label" style="margin-top:16px">
         <span class="material-icons">lock</span> Accès &amp; Connexion
       </div>
@@ -452,7 +430,6 @@
       </div>
     </div>
 
-    <!-- Footer actions -->
     <div class="wizard-footer">
       <div class="wizard-footer__danger">
         <button class="btn-delete" (click)="deleteUser(selectedUser!)">
@@ -477,11 +454,11 @@
 
   </div>
 </div>
-<!-- ── New patient modal ── -->
+
+<!-- New patient modal -->
 <div class="modal-overlay" *ngIf="showNewPatientModal" (click)="showNewPatientModal = false">
   <div class="modal-panel wizard-panel" (click)="$event.stopPropagation()">
 
-    <!-- En-tête -->
     <div class="wizard-header">
       <div class="wizard-header__icon" style="background:rgba(48,209,88,.12)">
         <span class="material-icons" style="color:var(--c-green);font-size:20px">person_add</span>
@@ -495,7 +472,6 @@
       </button>
     </div>
 
-    <!-- Corps -->
     <div class="wizard-body wizard-body--form">
       <div class="wizard-section-label">
         <span class="material-icons">badge</span> Identité du patient
@@ -523,7 +499,6 @@
       </div>
     </div>
 
-    <!-- Footer -->
     <div class="wizard-footer">
       <div class="wizard-footer__selected">
         <span class="material-icons" style="color:var(--c-green)">person</span>
@@ -540,7 +515,7 @@
   </div>
 </div>
 
-<!-- â”€â”€ New user modal (Staff) â”€â”€ -->
+<!-- New user modal (Staff) -->
 <div class="modal-overlay" *ngIf="showNewUserModal" (click)="showNewUserModal = false">
   <div class="modal-panel modal-panel--new-user" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
@@ -555,23 +530,26 @@
         <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="newUser.prenom" placeholder="Prénom" /></div>
         <div class="form-field"><label>Matricule (Mat) <span class="req">*</span></label><input type="text" [(ngModel)]="newUser.mat" placeholder="Ex : INF-2025-060" /></div>
         <div class="form-field"><label>Email <span class="req">*</span></label><input type="email" [(ngModel)]="newUser.email" placeholder="prenom.nom@dialysys.ma" /></div>
-        <div class="form-field"><label>Téléphone</label><input type="text" [(ngModel)]="newUser.telephone" placeholder="06 XX XX XX XX" /></div>
+        <div class="form-field"><label>Téléphone</label><input type="tel" [(ngModel)]="newUser.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
         <div class="form-field"><label>Service</label><input type="text" [(ngModel)]="newUser.service" placeholder="Hémodialyse" /></div>
       </div>
       <div class="form-section-label" style="margin-top:8px"><span class="material-icons">lock</span> Accès &amp; Connexion</div>
       <div class="form-grid">
         <div class="form-field"><label>Login <span class="req">*</span></label><input type="text" [(ngModel)]="newUser.login" placeholder="Ex : p.nom" /></div>
         <div class="form-field"><label>Username</label><input type="text" [(ngModel)]="newUser.username" placeholder="Auto-généré si vide" /></div>
-        <div class="form-field"><label>Mot de passe (MdP)</label><input type="password" [(ngModel)]="newUser.mdp" placeholder="Généré automatiquement si vide" /></div>
+        <div class="form-field"><label>Mot de passe (MdP)</label><input type="password" [(ngModel)]="newUser.mdp" placeholder="Généré automatiquement si vide" minlength="8" /></div>
         <div class="form-field"><label>Rôle <span class="req">*</span></label><select [(ngModel)]="newUser.role"><option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option></select></div>
         <div class="form-field form-field--full"><label>Compte actif</label><div class="toggle-row"><label class="toggle-switch"><input type="checkbox" [(ngModel)]="newUser.actif" /><span class="toggle-track"></span></label><span class="toggle-label">{{ newUser.actif ? 'Compte actif dès la création' : 'Compte inactif (activation manuelle requise)' }}</span></div></div>
       </div>
-      <div class="modal-actions"><button class="btn-sm-primary" (click)="saveNewUser()"><span class="material-icons">person_add</span> Créer le compte</button><button class="btn-outline-sm" (click)="showNewUserModal = false">Annuler</button></div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveNewUser()"><span class="material-icons">person_add</span> Créer le compte</button>
+        <button class="btn-outline-sm" (click)="showNewUserModal = false">Annuler</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- â”€â”€ Settings modal â”€â”€ -->
+<!-- Settings modal -->
 <div class="modal-overlay" *ngIf="showSettingsModal" (click)="showSettingsModal = false">
   <div class="modal-panel modal-panel--settings" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
@@ -580,25 +558,31 @@
       <button class="modal-close-btn" (click)="showSettingsModal = false"><span class="material-icons">close</span></button>
     </div>
     <div class="modal-body">
-      <div class="settings-group"><div class="settings-group-title"><span class="material-icons">notifications</span> Notifications</div>
+      <div class="settings-group">
+        <div class="settings-group-title"><span class="material-icons">notifications</span> Notifications</div>
         <div class="settings-row"><div class="settings-row__label"><b>Notifications par email</b><span>Recevoir les alertes critiques par email</span></div><label class="toggle-switch"><input type="checkbox" [(ngModel)]="settings.notificationsEmail" /><span class="toggle-track"></span></label></div>
         <div class="settings-row"><div class="settings-row__label"><b>Notifications système</b><span>Alertes en temps réel dans l'interface</span></div><label class="toggle-switch"><input type="checkbox" [(ngModel)]="settings.notificationsSystem" /><span class="toggle-track"></span></label></div>
       </div>
-      <div class="settings-group"><div class="settings-group-title"><span class="material-icons">security</span> Sécurité</div>
+      <div class="settings-group">
+        <div class="settings-group-title"><span class="material-icons">security</span> Sécurité</div>
         <div class="settings-row"><div class="settings-row__label"><b>Double authentification</b><span>Vérification en deux étapes à la connexion</span></div><label class="toggle-switch"><input type="checkbox" [(ngModel)]="settings.doubleAuth" /><span class="toggle-track"></span></label></div>
         <div class="settings-row"><div class="settings-row__label"><b>Journal d'audit</b><span>Enregistrer toutes les actions administratives</span></div><label class="toggle-switch"><input type="checkbox" [(ngModel)]="settings.auditLog" /><span class="toggle-track"></span></label></div>
         <div class="settings-row"><div class="settings-row__label"><b>Expiration de session</b><span>Déconnexion automatique après inactivité</span></div><div class="form-field" style="margin:0;min-width:120px"><select [(ngModel)]="settings.sessionTimeout"><option [value]="15">15 min</option><option [value]="30">30 min</option><option [value]="60">1 heure</option><option [value]="120">2 heures</option></select></div></div>
       </div>
-      <div class="settings-group"><div class="settings-group-title"><span class="material-icons">tune</span> Préférences</div>
+      <div class="settings-group">
+        <div class="settings-group-title"><span class="material-icons">tune</span> Préférences</div>
         <div class="settings-row"><div class="settings-row__label"><b>Langue</b><span>Langue de l'interface</span></div><div class="form-field" style="margin:0;min-width:130px"><select [(ngModel)]="settings.langue"><option value="fr">Français</option><option value="ar">العربية</option><option value="en">English</option></select></div></div>
         <div class="settings-row"><div class="settings-row__label"><b>Format d'export</b><span>Format par défaut pour les exports</span></div><div class="form-field" style="margin:0;min-width:130px"><select [(ngModel)]="settings.exportFormat"><option value="csv">CSV</option><option value="xlsx">Excel (XLSX)</option><option value="pdf">PDF</option></select></div></div>
       </div>
-      <div class="modal-actions"><button class="btn-sm-primary" (click)="saveSettings()"><span class="material-icons">save</span> Enregistrer</button><button class="btn-outline-sm" (click)="showSettingsModal = false">Annuler</button></div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveSettings()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showSettingsModal = false">Annuler</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- â”€â”€ Edit patient modal â”€â”€ -->
+<!-- Edit patient modal -->
 <div class="modal-overlay" *ngIf="showEditPatientModal" (click)="showEditPatientModal = false">
   <div class="modal-panel modal-panel--new-patient" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
@@ -615,12 +599,15 @@
         <div class="form-field"><label>Date de naissance</label><input type="date" [(ngModel)]="editPatient.dateNaissance" /></div>
         <div class="form-field"><label>Groupe sanguin</label><select [(ngModel)]="editPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
       </div>
-      <div class="modal-actions"><button class="btn-sm-primary" (click)="saveEditPatient()"><span class="material-icons">save</span> Enregistrer</button><button class="btn-outline-sm" (click)="showEditPatientModal = false">Annuler</button></div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditPatient()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showEditPatientModal = false">Annuler</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- â”€â”€ Edit horaire modal â”€â”€ -->
+<!-- Edit horaire modal -->
 <div class="modal-overlay" *ngIf="showEditHoraireModal" (click)="showEditHoraireModal = false">
   <div class="modal-panel modal-panel--edit-horaire" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
@@ -639,12 +626,15 @@
         </div>
         <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="editCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editCalTitle }}</span><button class="cal-nav-btn" (click)="editCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of editCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div>
       </div>
-      <div class="modal-actions"><button class="btn-sm-primary" (click)="saveEditHoraire()"><span class="material-icons">save</span> Enregistrer</button><button class="btn-outline-sm" (click)="showEditHoraireModal = false">Annuler</button></div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditHoraire()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showEditHoraireModal = false">Annuler</button>
+      </div>
     </div>
   </div>
 </div>
 
-
+<!-- Edit séance modal -->
 <div class="modal-overlay" *ngIf="showEditSeanceModal" (click)="showEditSeanceModal = false">
   <div class="modal-panel modal-panel--edit-horaire" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
@@ -657,24 +647,28 @@
         <div class="horaire-form-left">
           <div class="form-field"><label>Patient</label><select [(ngModel)]="editSeance.patientId"><option [value]="p.id" *ngFor="let p of patientsUsers">{{ p.prenom }} {{ p.nom }}</option></select></div>
           <div class="form-field"><label>Aide-Soignant</label><select [(ngModel)]="editSeance.responsableId"><option [value]="null">— Aucun —</option><option [value]="a.id" *ngFor="let a of aidesSoignants">{{ a.prenom }} {{ a.nom }}</option></select></div>
-          <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="editSeance.heureDebut" /></div>
-          <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="editSeance.heureFin" /></div>
-          <div class="form-field"><label>Machine</label><select [(ngModel)]="editSeance.machine"><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select></div>
+          <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="editSeance.heureDebut" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
+          <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="editSeance.heureFin" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
+          <div class="form-field"><label>Machine</label><select [(ngModel)]="editSeance.machine"><option value="">— Sélectionner —</option><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select></div>
           <div class="form-field"><label>Statut</label><select [(ngModel)]="editSeance.statut"><option value="PLANIFIEE">Planifiée</option><option value="EN_COURS">En cours</option><option value="TERMINEE">Terminée</option><option value="ANNULEE">Annulée</option></select></div>
           <div class="cal-selected-summary" *ngIf="editSeanceDates.length"><span class="material-icons">event_available</span>{{ editSeanceDates.length }} date(s) sélectionnée(s)<button class="cal-clear-btn" (click)="editSeanceDates = []"><span class="material-icons">close</span></button></div>
         </div>
         <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="editSeanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editSeanceCalTitle }}</span><button class="cal-nav-btn" (click)="editSeanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of editSeanceCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div>
       </div>
-      <div class="modal-actions"><button class="btn-sm-primary" (click)="saveEditSeance()"><span class="material-icons">save</span> Enregistrer</button><button class="btn-outline-sm" (click)="showEditSeanceModal = false">Annuler</button></div>
+      <div class="modal-actions">
+        <button class="btn-sm-primary" (click)="saveEditSeance()"><span class="material-icons">save</span> Enregistrer</button>
+        <button class="btn-outline-sm" (click)="showEditSeanceModal = false">Annuler</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- â”€â”€ Shell principal â”€â”€ -->
+<!-- Shell principal -->
 <div class="admin-shell" [class.light]="isLight">
   <aside class="sidebar">
     <div class="sidebar__logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/><path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/><path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>DialySys</span></div>
-    <nav class="sidebar__nav"><div class="nav-section-label">Administration</div>
+    <nav class="sidebar__nav">
+      <div class="nav-section-label">Administration</div>
       <a class="nav-item" [class.active]="activeTab === 'profils'" (click)="setActiveTab('profils')"><span class="material-icons">manage_accounts</span><span>Gestion des Profils</span><span class="nav-badge">{{ totalUsers }}</span></a>
       <a class="nav-item" [class.active]="activeTab === 'horaires'" (click)="setActiveTab('horaires')"><span class="material-icons">schedule</span><span>Horaires de Travail</span><span class="nav-badge">{{ horaires.length }}</span></a>
       <a class="nav-item" [class.active]="activeTab === 'seances'" (click)="setActiveTab('seances')"><span class="material-icons">medical_services</span><span>Séances Patients</span><span class="nav-badge">{{ seancesAdmin.length }}</span></a>
@@ -682,8 +676,19 @@
     <div class="sidebar__user"><div class="user-avatar" style="background:rgba(255,87,87,.12);border-color:rgba(255,87,87,.3);color:var(--c-red)">AD</div><div class="user-info"><span class="user-name">Administrateur</span><span class="user-role">Accès total</span></div><button class="logout-btn" (click)="logout()"><span class="material-icons">logout</span></button></div>
   </aside>
 
-  <div class="admin-main">
-    <header class="topbar"><div class="topbar__left"><h1>{{ activeTabTitle }}</h1></div><div class="topbar__right"><button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()"><span class="material-icons">person_add</span>{{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}</button><button class="icon-btn" (click)="toggleTheme()" [title]="isLight ? 'Passer en mode sombre' : 'Passer en mode clair'"><span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span></button><button class="icon-btn" (click)="showSettingsModal = true"><span class="material-icons">settings</span></button></div></header>
+  <div class="admin-main" #adminMain>
+    <header class="topbar">
+      <div class="topbar__left"><h1>{{ activeTabTitle }}</h1></div>
+      <div class="topbar__right">
+        <button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()">
+          <span class="material-icons">person_add</span>{{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}
+        </button>
+        <button class="icon-btn" (click)="toggleTheme()" [title]="isLight ? 'Passer en mode sombre' : 'Passer en mode clair'">
+          <span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span>
+        </button>
+        <button class="icon-btn" (click)="showSettingsModal = true"><span class="material-icons">settings</span></button>
+      </div>
+    </header>
 
     <div class="kpi-row" *ngIf="activeTab === 'profils'">
       <div class="kpi-card" (click)="setActiveTab('profils'); activeProfilRole='medecin'" style="cursor:pointer"><div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">medical_services</span></div><div class="kpi-body"><span class="kpi-val">{{ medecinCount }}</span><span class="kpi-lbl">Médecins</span></div></div>
@@ -697,18 +702,78 @@
     <!-- TAB PROFILS -->
     <ng-container *ngIf="activeTab === 'profils'">
       <div class="panel panel--full">
-        <div class="panel__head"><h2>Liste des Profils</h2><div class="panel__actions"><select class="filter-select" [(ngModel)]="filterRole"><option value="">Tous les rôles</option><option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option></select><select class="filter-select" [(ngModel)]="filterStatus"><option value="">Tous les statuts</option><option value="actif">Actif</option><option value="inactif">Inactif</option><option value="suspendu">Suspendu</option></select></div></div>
+        <div class="panel__head">
+          <h2>Liste des Profils</h2>
+          <div class="panel__actions">
+            <select class="filter-select" [(ngModel)]="filterRole"><option value="">Tous les rôles</option><option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option></select>
+            <select class="filter-select" [(ngModel)]="filterStatus"><option value="">Tous les statuts</option><option value="actif">Actif</option><option value="inactif">Inactif</option><option value="suspendu">Suspendu</option></select>
+          </div>
+        </div>
         <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par nom, prénom, matricule, email" [(ngModel)]="searchQuery" /><button class="table-search-clear" *ngIf="searchQuery" (click)="searchQuery = ''"><span class="material-icons">close</span></button></div>
-        <div class="table-scroll"><table class="data-table"><thead><tr><th>Utilisateur</th><th>Matricule</th><th>Email</th><th>Statut</th><th>Date création</th><th>Actions</th></tr></thead><tbody><ng-container *ngFor="let u of filteredUsers"><tr *ngIf="u.role !== 'patient'"><td><div class="user-cell"><div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 15%, transparent)'"><span [style.color]="roleColorVar(u.role)">{{ initials(u) }}</span></div><div><b>{{ u.prenom }} {{ u.nom }}</b><span>{{ u.login }}</span></div></div></td><td><span class="mono">{{ u.mat }}</span></td><td>{{ u.email }}</td><td><span class="badge {{ statusClass(u.statut) }}">{{ statusLabel(u.statut) }}</span></td><td>{{ u.dateCreation }}</td><td><div class="row-actions"><button class="row-btn" (click)="openUser(u)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button><button class="row-btn" [ngClass]="u.statut === 'actif' ? 'row-btn--warn' : 'row-btn--ok'" (click)="toggleUserStatus(u)" [title]="u.statut === 'actif' ? 'Désactiver' : 'Activer'"><span class="material-icons">{{ u.statut === 'actif' ? 'person_off' : 'person' }}</span></button></div></td></tr></ng-container><tr *ngIf="filteredUsers.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">person_off</span> Aucun profil trouvé</td></tr></tbody></table></div>
-        <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher un patient par nom, prénom, ID ou groupe sanguin¦" [(ngModel)]="searchPatient" /><button class="table-search-clear" *ngIf="searchPatient" (click)="searchPatient = ''"><span class="material-icons">close</span></button></div>
-        <div class="table-scroll"><table class="data-table"><thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Date de naissance</th><th>Groupe sanguin</th><th>Actions</th></tr></thead><tbody><ng-container *ngFor="let u of filteredPatients"><tr><td><span class="mono">{{ u.id }}</span></td><td><b>{{ u.nom }}</b></td><td>{{ u.prenom }}</td><td>{{ u.dateNaissance || '—' }}</td><td><span class="badge info" *ngIf="u.groupeSanguin">{{ u.groupeSanguin }}</span><span class="badge neutral" *ngIf="!u.groupeSanguin">—</span></td><td><div class="row-actions"><button class="row-btn" (click)="openEditPatient(u)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button></div></td></tr></ng-container><tr *ngIf="filteredPatients.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">person_off</span> Aucun patient enregistré</td></tr></tbody></table></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Utilisateur</th><th>Matricule</th><th>Email</th><th>Statut</th><th>Date création</th><th>Actions</th></tr></thead>
+            <tbody>
+              <ng-container *ngFor="let u of paginatedUsers">
+                <tr *ngIf="u.role !== 'patient'">
+                  <td><div class="user-cell"><div class="avatar-role" [style.background]="'color-mix(in srgb,' + roleColorVar(u.role) + ' 15%, transparent)'"><span [style.color]="roleColorVar(u.role)">{{ initials(u) }}</span></div><div><b>{{ u.prenom }} {{ u.nom }}</b><span>{{ u.login }}</span></div></div></td>
+                  <td><span class="mono">{{ u.mat }}</span></td>
+                  <td>{{ u.email }}</td>
+                  <td><span class="badge {{ statusClass(u.statut) }}">{{ statusLabel(u.statut) }}</span></td>
+                  <td>{{ u.dateCreation }}</td>
+                  <td><div class="row-actions"><button class="row-btn" (click)="openUser(u)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button><button class="row-btn" [ngClass]="u.statut === 'actif' ? 'row-btn--warn' : 'row-btn--ok'" (click)="toggleUserStatus(u)" [title]="u.statut === 'actif' ? 'Désactiver' : 'Activer'"><span class="material-icons">{{ u.statut === 'actif' ? 'person_off' : 'person' }}</span></button></div></td>
+                </tr>
+              </ng-container>
+              <tr *ngIf="filteredUsers.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">person_off</span> Aucun profil trouvé</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="filteredUsers.length > 0">
+          <span class="pg-rows-info">{{ (staffPage - 1) * pageSize + 1 }}–{{ pageEnd(staffPage, filteredUsers.length) }} sur {{ filteredUsers.length }}</span>
+          <div class="pg-nav">
+            <button class="pg-arrow" [disabled]="staffPage === 1" (click)="goToPage('staffPage', 1, totalStaffPages)" title="Première page"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="staffPage === 1" (click)="goToPage('staffPage', staffPage - 1, totalStaffPages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ staffPage }} / {{ totalStaffPages }}</span>
+            <button class="pg-arrow" [disabled]="staffPage === totalStaffPages" (click)="goToPage('staffPage', staffPage + 1, totalStaffPages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="staffPage === totalStaffPages" (click)="goToPage('staffPage', totalStaffPages, totalStaffPages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+          </div>
+        </div>
+
+        <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher un patient par nom, prénom, ID ou groupe sanguin" [(ngModel)]="searchPatient" /><button class="table-search-clear" *ngIf="searchPatient" (click)="searchPatient = ''"><span class="material-icons">close</span></button></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Date de naissance</th><th>Groupe sanguin</th><th>Actions</th></tr></thead>
+            <tbody>
+              <ng-container *ngFor="let u of paginatedPatients">
+                <tr>
+                  <td><span class="mono">{{ u.id }}</span></td>
+                  <td><b>{{ u.nom }}</b></td>
+                  <td>{{ u.prenom }}</td>
+                  <td>{{ u.dateNaissance || '—' }}</td>
+                  <td><span class="badge info" *ngIf="u.groupeSanguin">{{ u.groupeSanguin }}</span><span class="badge neutral" *ngIf="!u.groupeSanguin">—</span></td>
+                  <td><div class="row-actions"><button class="row-btn" (click)="openEditPatient(u)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button></div></td>
+                </tr>
+              </ng-container>
+              <tr *ngIf="filteredPatients.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">person_off</span> Aucun patient enregistré</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="filteredPatients.length > 0">
+          <span class="pg-rows-info">{{ (patientPage - 1) * pageSize + 1 }}–{{ pageEnd(patientPage, filteredPatients.length) }} sur {{ filteredPatients.length }}</span>
+          <div class="pg-nav">
+            <button class="pg-arrow" [disabled]="patientPage === 1" (click)="goToPage('patientPage', 1, totalPatientPages)" title="Première page"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="patientPage === 1" (click)="goToPage('patientPage', patientPage - 1, totalPatientPages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ patientPage }} / {{ totalPatientPages }}</span>
+            <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="goToPage('patientPage', patientPage + 1, totalPatientPages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="goToPage('patientPage', totalPatientPages, totalPatientPages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+          </div>
+        </div>
         <div class="panel__footer">{{ totalUsers }} profil(s) enregistré(s)</div>
       </div>
     </ng-container>
 
     <!-- TAB HORAIRES -->
     <ng-container *ngIf="activeTab === 'horaires'">
-      <!-- Formulaire de création -->
       <div class="action-form-card">
         <div class="action-form-title">
           <span class="material-icons">add_circle</span> Planifier un horaire de travail
@@ -741,110 +806,135 @@
             <div class="cal-selected-summary" *ngIf="newHoraire.jours.length">
               <span class="material-icons">event_available</span>
               {{ newHoraire.jours.length }} jour(s) sélectionné(s)
-              <button class="cal-clear-btn" (click)="newHoraire.jours = []">
-                <span class="material-icons">close</span>
-              </button>
+              <button class="cal-clear-btn" (click)="newHoraire.jours = []"><span class="material-icons">close</span></button>
             </div>
           </div>
           <div class="horaire-form-right">
             <div class="cal-inline">
               <div class="cal-header">
-                <button class="cal-nav-btn" (click)="calPrevMonth()">
-                  <span class="material-icons">chevron_left</span>
-                </button>
+                <button class="cal-nav-btn" (click)="calPrevMonth()"><span class="material-icons">chevron_left</span></button>
                 <span class="cal-title">{{ calTitle }}</span>
-                <button class="cal-nav-btn" (click)="calNextMonth()">
-                  <span class="material-icons">chevron_right</span>
-                </button>
+                <button class="cal-nav-btn" (click)="calNextMonth()"><span class="material-icons">chevron_right</span></button>
               </div>
               <div class="cal-grid">
                 <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
                 <ng-container *ngFor="let cell of calDays">
                   <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                  <div *ngIf="cell !== null" class="cal-cell"
-                    [class.cal-cell--today]="cell.today"
-                    [class.cal-cell--selected]="isDaySelected(cell.date)"
-                    (click)="toggleCalDay(cell.date)">
-                    {{ cell.day }}
-                  </div>
+                  <div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isDaySelected(cell.date)" (click)="toggleCalDay(cell.date)">{{ cell.day }}</div>
                 </ng-container>
               </div>
             </div>
           </div>
         </div>
         <div class="action-form-footer">
-          <button class="btn-sm-primary" (click)="ajouterHoraire()">
-            <span class="material-icons">save</span> Enregistrer l'horaire
-          </button>
+          <button class="btn-sm-primary" (click)="ajouterHoraire()"><span class="material-icons">save</span> Enregistrer l'horaire</button>
         </div>
       </div>
 
-      <!-- Tableau des horaires avec affichage par ligne séparée -->
       <div class="panel panel--full">
-        <div class="panel__head">
-          <h2>Horaires planifiés</h2>
-        </div>
+        <div class="panel__head"><h2>Horaires planifiés</h2></div>
         <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par personnel, rôle, date ou horaire…" [(ngModel)]="searchHoraire" /><button class="table-search-clear" *ngIf="searchHoraire" (click)="searchHoraire = ''"><span class="material-icons">close</span></button></div>
         <div class="table-scroll">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Personnel</th>
-                <th>Rôle</th>
-                <th>Jours planifiés</th>
-                <th>Heure début</th>
-                <th>Heure fin</th>
-                <th>Actions</th>
-              </tr>
+              <tr><th>Personnel</th><th>Rôle</th><th>Jours planifiés</th><th>Heure début</th><th>Heure fin</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              <ng-container *ngFor="let h of filteredHoraires">
+              <ng-container *ngFor="let h of paginatedHoraires">
                 <tr *ngFor="let jour of h.jours; let i = index">
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">
-                    <b>{{ h.staffNom }}</b>
-                  </td>
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">
-                    {{ h.staffRole }}
-                  </td>
-                  <td>
-                    <span class="mono" style="font-size:12px">{{ formatJours([jour]) }}</span>
-                  </td>
+                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length"><b>{{ h.staffNom }}</b></td>
+                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">{{ h.staffRole }}</td>
+                  <td><span class="mono" style="font-size:12px">{{ formatJours([jour]) }}</span></td>
                   <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">{{ h.heureDebut }}</td>
                   <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">{{ h.heureFin }}</td>
                   <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">
                     <div class="row-actions">
-                      <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier">
-                        <span class="material-icons">edit</span>
-                      </button>
-                      <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer">
-                        <span class="material-icons">delete_outline</span>
-                      </button>
+                      <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
+                      <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
                     </div>
                   </td>
                 </tr>
               </ng-container>
-              <tr *ngIf="horaires.length === 0">
-                <td colspan="6" class="empty-row">
-                  <span class="material-icons">event_busy</span> Aucun horaire planifié
-                </td>
-              </tr>
+              <tr *ngIf="horaires.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">event_busy</span> Aucun horaire planifié</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="pagination-bar" *ngIf="filteredHoraires.length > 0">
+          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredHoraires.length) }} sur {{ filteredHoraires.length }}</span>
+          <div class="pg-nav">
+            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', 1, totalHorairePages)" title="Première page"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', horairePage - 1, totalHorairePages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ horairePage }} / {{ totalHorairePages }}</span>
+            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', horairePage + 1, totalHorairePages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', totalHorairePages, totalHorairePages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+          </div>
         </div>
         <div class="panel__footer">{{ horaires.length }} horaire(s) enregistré(s)</div>
       </div>
     </ng-container>
 
-    <!-- TAB SEANCES -->
+    <!-- TAB SÉANCES -->
     <ng-container *ngIf="activeTab === 'seances'">
-      <div class="action-form-card"><div class="action-form-title"><span class="material-icons">add_circle</span> Planifier une séance de dialyse</div>
-        <div class="horaire-form-layout"><div class="horaire-form-left"><div class="form-field"><label>Patient <span class="req">*</span></label><select [(ngModel)]="newSeance.patientId"><option value="">— Sélectionner —</option><option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option></select></div><div class="form-field"><label>Aide-soignant disponible</label><select [(ngModel)]="newSeance.aideSoignantId"><option value="">— Sélection automatique —</option><option *ngFor="let a of availableAidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForSelection(a.id) }} patient(s)</option></select><small *ngIf="newSeance.dates.length">Liste triée par disponibilité et charge minimale sur les dates choisies.</small><small *ngIf="newSeance.dates.length && availableAidesSoignants.length === 0">Aucun aide-soignant disponible sur cette plage horaire.</small></div><div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="newSeance.heureDebut" /></div><div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="newSeance.heureFin" /></div><div class="form-field"><label>Machine</label><select [(ngModel)]="newSeance.machine"><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select></div><div class="cal-selected-summary" *ngIf="newSeance.dates.length"><span class="material-icons">event_available</span>{{ newSeance.dates.length }} date(s) sélectionnée(s)<button class="cal-clear-btn" (click)="newSeance.dates = []"><span class="material-icons">close</span></button></div></div>
-        <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="seanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ seanceCalTitle }}</span><button class="cal-nav-btn" (click)="seanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of seanceCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isSeanceDaySelected(cell.date)" (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div></div>
+      <div class="action-form-card">
+        <div class="action-form-title"><span class="material-icons">add_circle</span> Planifier une séance de dialyse</div>
+        <div class="horaire-form-layout">
+          <div class="horaire-form-left">
+            <div class="form-field"><label>Patient <span class="req">*</span></label><select [(ngModel)]="newSeance.patientId"><option value="">— Sélectionner —</option><option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option></select></div>
+            <div class="form-field">
+              <label>Aide-soignant disponible</label>
+              <select [(ngModel)]="newSeance.aideSoignantId"><option value="">— Sélection automatique —</option><option *ngFor="let a of availableAidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForSelection(a.id) }} patient(s)</option></select>
+              <small *ngIf="newSeance.dates.length">Liste triée par disponibilité et charge minimale sur les dates choisies.</small>
+              <small *ngIf="newSeance.dates.length && availableAidesSoignants.length === 0">Aucun aide-soignant disponible sur cette plage horaire.</small>
+            </div>
+            <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="newSeance.heureDebut" (ngModelChange)="onNewSeanceScheduleChange()" /></div>
+            <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="newSeance.heureFin" (ngModelChange)="onNewSeanceScheduleChange()" /></div>
+            <div class="form-field">
+              <label>Machine</label>
+              <select [(ngModel)]="newSeance.machine"><option value="">— Sélectionner —</option><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select>
+              <small *ngIf="newSeance.dates.length && machines.length === 0">Aucune machine disponible sur ce créneau.</small>
+            </div>
+            <div class="cal-selected-summary" *ngIf="newSeance.dates.length">
+              <span class="material-icons">event_available</span>{{ newSeance.dates.length }} date(s) sélectionnée(s)
+              <button class="cal-clear-btn" (click)="newSeance.dates = []; onNewSeanceScheduleChange()"><span class="material-icons">close</span></button>
+            </div>
+          </div>
+          <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="seanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ seanceCalTitle }}</span><button class="cal-nav-btn" (click)="seanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of seanceCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isSeanceDaySelected(cell.date)" (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div>
+        </div>
         <div class="action-form-footer"><button class="btn-sm-primary" (click)="ajouterSeance()"><span class="material-icons">event_available</span> Planifier la séance</button></div>
       </div>
-      <div class="panel panel--full"><div class="panel__head"><h2>Séances planifiées</h2></div><div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par patient, infirmier, date ou machine…" [(ngModel)]="searchSeance" /><button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''"><span class="material-icons">close</span></button></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Date</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead><tbody><tr *ngFor="let s of filteredSeances"><td><b>{{ s.patientNom }}</b></td><td>{{ s.aideSoignantNom }}</td><td>{{ s.date }}</td><td>{{ s.heureDebut }} – {{ s.heureFin }}</td><td><span class="mono">{{ s.machine }}</span></td><td><span class="badge {{ seanceStatutClass(s.statut) }}">{{ seanceStatutLabel(s.statut) }}</span></td><td><div class="row-actions"><button class="row-btn" (click)="openEditSeance(s)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="supprimerSeance(s.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button></div></td></tr><tr *ngIf="seancesAdmin.length === 0"><td colspan="7" class="empty-row"><span class="material-icons">event_busy</span> Aucune séance planifiée</td></tr></tbody></table></div><div class="panel__footer">{{ seancesAdmin.length }} séance(s) planifiée(s)</div></div>
+
+      <div class="panel panel--full">
+        <div class="panel__head"><h2>Séances planifiées</h2></div>
+        <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par patient, aide-soignant, date ou machine…" [(ngModel)]="searchSeance" /><button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''"><span class="material-icons">close</span></button></div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Date</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let s of paginatedSeances">
+                <td><b>{{ s.patientNom }}</b></td>
+                <td>{{ s.aideSoignantNom }}</td>
+                <td>{{ s.date }}</td>
+                <td>{{ s.heureDebut }} – {{ s.heureFin }}</td>
+                <td><span class="mono">{{ s.machine }}</span></td>
+                <td><span class="badge {{ seanceStatutClass(s.statut) }}">{{ seanceStatutLabel(s.statut) }}</span></td>
+                <td><div class="row-actions"><button class="row-btn" (click)="openEditSeance(s)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="supprimerSeance(s.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button></div></td>
+              </tr>
+              <tr *ngIf="filteredSeances.length === 0"><td colspan="7" class="empty-row"><span class="material-icons">event_busy</span> Aucune séance planifiée</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="filteredSeances.length > 0">
+          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredSeances.length) }} sur {{ filteredSeances.length }}</span>
+          <div class="pg-nav">
+            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', 1, totalSeancePages)" title="Première page"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', seancePage - 1, totalSeancePages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ seancePage }} / {{ totalSeancePages }}</span>
+            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', seancePage + 1, totalSeancePages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', totalSeancePages, totalSeancePages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+          </div>
+        </div>
+        <div class="panel__footer">{{ seancesAdmin.length }} séance(s) planifiée(s)</div>
+      </div>
     </ng-container>
   </div>
 </div>
-
-

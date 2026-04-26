@@ -29,29 +29,18 @@ export class AuthService {
       })
     );
   }
+logout(): void {
+  const token = this.getToken();
 
-  logout(): void {
-    const token = this.getToken();
+  this.clearSession();
+  this.router.navigate(['/login']);
 
-    if (!token) {
-      this.clearSession();
-      this.router.navigate(['/login']);
-      return;
-    }
-
+  if (token) {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-    this.http.post<{ message: string }>(`${this.apiUrl}/auth/logout`, {}, { headers }).subscribe({
-      next: () => {
-        this.clearSession();
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        this.clearSession();
-        this.router.navigate(['/login']);
-      }
-    });
+    this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers })
+      .subscribe({ error: () => {} });
   }
+}
 
   verifyToken(): Observable<VerifyTokenResponseDto> {
     return this.http.get<VerifyTokenResponseDto>(`${this.apiUrl}/auth/verify`);

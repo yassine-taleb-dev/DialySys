@@ -1,6 +1,6 @@
 ﻿import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, shareReplay } from 'rxjs';
+import { Observable, shareReplay, tap } from 'rxjs';
 import { PatientDto } from '../models/patient-dto';
 import { UtilisateurSummaryDto } from '../models/utilisateur-summary-dto';
 import { environment } from '../environments/environment';
@@ -40,15 +40,21 @@ export class PatientService {
   }
 
   create(payload: PatientRequestDto): Observable<PatientDto> {
-    return this.http.post<PatientDto>(this.apiUrl, payload);
+    return this.http.post<PatientDto>(this.apiUrl, payload).pipe(
+      tap(() => this.invalidateCache())
+    );
   }
 
   update(id: number, payload: PatientRequestDto): Observable<PatientDto> {
-    return this.http.put<PatientDto>(`${this.apiUrl}/${id}`, payload);
+    return this.http.put<PatientDto>(`${this.apiUrl}/${id}`, payload).pipe(
+      tap(() => this.invalidateCache())
+    );
   }
 
   delete(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.invalidateCache())
+    );
   }
 
   getEquipe(patientId: number): Observable<UtilisateurSummaryDto[]> {
