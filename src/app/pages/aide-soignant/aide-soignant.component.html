@@ -1,4 +1,4 @@
-<!-- Toast -->
+<!-- ══ Toasts ══════════════════════════════════════════════════════════════ -->
 <div class="toast-container">
   <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
     <span class="material-icons">{{ toastIcon(t.type) }}</span>
@@ -6,318 +6,368 @@
     <button class="toast-close"><span class="material-icons">close</span></button>
   </div>
 </div>
-<div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
 
-<div class="dashboard">
+<!-- ══ Modal Détail Patient ═══════════════════════════════════════════════ -->
+<div class="pd-overlay" *ngIf="selectedPatient" (click)="closePatient()">
+  <div class="pd-panel" (click)="$event.stopPropagation()">
 
-  <!-- ── Sidebar ── -->
-  <aside class="sidebar">
-    <div class="sidebar__logo">
-      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
-        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
-        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-      <span>DialySys</span>
-    </div>
-
-    <nav class="sidebar__nav">
-      <div class="nav-section-label">Mon Espace</div>
-      <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
-        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='taches'" (click)="setSection('taches')">
-        <span class="material-icons">assignment</span><span>Mes Tâches</span>
-        <span class="nav-badge warn">{{ urgentTasks.length + pendingTasks.length }}</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
-        <span class="material-icons">people</span><span>Patients Assignés</span>
-      </a>
-
-      <div class="nav-section-label">Équipements</div>
-      <a class="nav-item" (click)="setSection('machines')">
-        <span class="material-icons">precision_manufacturing</span><span>Machines</span>
-      </a>
-      <a class="nav-item" (click)="setSection('consommables')">
-        <span class="material-icons">inventory_2</span><span>Consommables</span>
-      </a>
-      <a class="nav-item" (click)="setSection('nettoyage')">
-        <span class="material-icons">cleaning_services</span><span>Nettoyage</span>
-      </a>
-    </nav>
-
-    <!-- Daily progress in sidebar -->
-    <div class="sidebar__progress">
-      <div class="sp-label">
-        <span>Progression du jour</span>
-        <span class="sp-pct">{{ progressPct }}%</span>
+    <!-- Header -->
+    <div class="pd-head">
+      <div class="pd-head__avatar">{{ selectedPatient.initials }}</div>
+      <div class="pd-head__info">
+        <h2>{{ selectedPatient.name }}</h2>
+        <span>Machine {{ selectedPatient.machine }} · {{ selectedPatient.heureDebut }} – {{ selectedPatient.heureFin }}</span>
       </div>
-      <div class="sp-bar">
-        <div class="sp-fill" [style.width.%]="progressPct"></div>
-      </div>
-      <span class="sp-sub">{{ doneCount }} / {{ totalTasks }} tâches terminées</span>
-    </div>
-
-    <div class="sidebar__user">
-      <div class="user-avatar">AS</div>
-      <div class="user-info">
-        <span class="user-name">A.S. Y. Kettani</span>
-        <span class="user-role">Aide-Soignant</span>
-      </div>
-      <button class="logout-btn" (click)="logout()">
-        <span class="material-icons">logout</span>
+      <span class="badge pd-head__badge" [ngClass]="patientBadgeClass(selectedPatient.status)">
+        {{ patientBadgeLabel(selectedPatient.status) }}
+      </span>
+      <button class="pd-close" (click)="closePatient()">
+        <span class="material-icons">close</span>
       </button>
     </div>
-  </aside>
 
-  <!-- ── Main ── -->
-  <div class="main">
+    <!-- Tabs -->
+    <div class="pd-tabs">
+      <button class="pd-tab" [class.pd-tab--active]="activeTab === 'ordonnances'" (click)="setTab('ordonnances')">
+        <span class="material-icons">receipt_long</span> Ordonnances
+      </button>
+      <button class="pd-tab" [class.pd-tab--active]="activeTab === 'constantes'" (click)="setTab('constantes')">
+        <span class="material-icons">monitor_heart</span> Constantes Vitales
+      </button>
+    </div>
 
-    <header class="topbar">
-      <div class="topbar__left">
-        <h1>Mon Espace</h1>
-        <span class="topbar__date">Mercredi, 2 Avril 2026</span>
+    <!-- Tab: Ordonnances -->
+    <div class="pd-body" *ngIf="activeTab === 'ordonnances'">
+      <div *ngIf="selectedPatient.ordonnances.length === 0" class="pd-empty">
+        <span class="material-icons">description_off</span>
+        <p>Aucune ordonnance enregistrée</p>
       </div>
-      <div class="topbar__right">
-        <div class="notif-wrapper">
-          <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
-            <span class="material-icons">notifications</span>
-            <span class="notif-dot" *ngIf="unreadCount > 0 || urgentTasks.length > 0"></span>
-          </button>
-          <div class="notif-panel" *ngIf="showNotifPanel">
-            <div class="notif-panel__head">
-              <span>Notifications</span>
-              <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
-            </div>
-            <div class="notif-list">
-              <div *ngFor="let n of notifications" class="notif-item" [class.notif-item--unread]="!n.read" (click)="markRead(n)">
-                <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
-                <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
-                <span class="notif-unread-dot" *ngIf="!n.read"></span>
-              </div>
+      <div class="ord-list" *ngIf="selectedPatient.ordonnances.length > 0">
+        <div class="ord-card" *ngFor="let o of selectedPatient.ordonnances">
+          <div class="ord-card__icon">
+            <span class="material-icons">medication</span>
+          </div>
+          <div class="ord-card__body">
+            <div class="ord-card__name">{{ o.medicament }}</div>
+            <div class="ord-card__posologie">{{ o.posologie }}</div>
+            <div class="ord-card__meta">
+              <span class="material-icons">person</span> {{ o.medecin }}
+              <span class="ord-sep">·</span>
+              <span class="material-icons">calendar_today</span> {{ formatDate(o.date) }}
             </div>
           </div>
         </div>
-        <button class="icon-btn" (click)="openSettings()">
-          <span class="material-icons">settings</span>
+      </div>
+      <!-- CTA to constantes -->
+      <div class="pd-cta">
+        <button class="pd-cta-btn" (click)="setTab('constantes')">
+          <span class="material-icons">monitor_heart</span> Saisir les constantes vitales
         </button>
-      </div>
-    </header>
-
-    <!-- KPI Row -->
-    <div class="kpi-row">
-      <div class="kpi-card" [class.kpi-card--alert]="urgentTasks.length > 0">
-        <div class="kpi-icon" style="background:var(--c-red-soft)">
-          <span class="material-icons" style="color:var(--c-red)">priority_high</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ urgentTasks.length }}</span>
-          <span class="kpi-lbl">Tâches urgentes</span>
-        </div>
-        <span class="kpi-trend crit" *ngIf="urgentTasks.length > 0">À traiter</span>
-        <span class="kpi-trend up" *ngIf="urgentTasks.length === 0">Aucune</span>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-amber-soft)">
-          <span class="material-icons" style="color:var(--c-amber)">assignment</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ pendingTasks.length }}</span>
-          <span class="kpi-lbl">Tâches en attente</span>
-        </div>
-        <span class="kpi-trend warn">Standard</span>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-green-soft)">
-          <span class="material-icons" style="color:var(--c-green)">check_circle</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ doneCount }}</span>
-          <span class="kpi-lbl">Terminées</span>
-        </div>
-        <span class="kpi-trend up">Aujourd'hui</span>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--c-teal-soft)">
-          <span class="material-icons" style="color:var(--c-teal)">people</span>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-val">{{ patients.length }}</span>
-          <span class="kpi-lbl">Patients assignés</span>
-        </div>
       </div>
     </div>
 
-    <!-- Content Grid -->
-    <div class="content-grid">
+    <!-- Tab: Constantes vitales -->
+    <div class="pd-body" *ngIf="activeTab === 'constantes'">
 
-      <!-- ── Tasks Panel ── -->
-      <div class="panel as-tasks-panel">
-        <div class="panel__head">
-          <h2>Tâches du Jour</h2>
-          <div class="panel__actions">
-            <div class="progress-pill">
-              <div class="progress-pill__fill" [style.width.%]="progressPct"></div>
-              <span>{{ progressPct }}%</span>
+      <!-- Tension -->
+      <div class="cv-section">
+        <div class="cv-section__title">
+          <span class="material-icons" style="color:var(--c-red)">bloodtype</span>
+          Tension artérielle
+        </div>
+        <div class="cv-row">
+          <div class="cv-field">
+            <label>Systolique <span class="req">*</span></label>
+            <div class="cv-input-box">
+              <input type="number" [(ngModel)]="constantesForm.tensionSys" placeholder="120" min="60" max="250" />
+              <span class="cv-unit">mmHg</span>
             </div>
-            <span class="topbar__date">{{ doneCount }}/{{ totalTasks }} faites</span>
+            <small>Normale : 100 – 140</small>
+          </div>
+          <div class="cv-field__sep"><span>/</span></div>
+          <div class="cv-field">
+            <label>Diastolique <span class="req">*</span></label>
+            <div class="cv-input-box">
+              <input type="number" [(ngModel)]="constantesForm.tensionDia" placeholder="80" min="30" max="150" />
+              <span class="cv-unit">mmHg</span>
+            </div>
+            <small>Normale : 60 – 90</small>
           </div>
         </div>
-
-        <!-- Urgent -->
-        <div class="task-group" *ngIf="urgentTasks.length > 0">
-          <div class="task-group__label urgent">
-            <span class="material-icons">error</span>
-            Urgentes — {{ urgentTasks.length }} en attente
-          </div>
-          <div class="task-row" *ngFor="let task of urgentTasks">
-            <div class="task-row__icon urgent">
-              <span class="material-icons">priority_high</span>
-            </div>
-            <div class="task-row__body">
-              <span class="task-row__title">{{ task.title }}</span>
-              <span class="task-row__meta">
-                <span class="material-icons">schedule</span>{{ task.time }}
-                <ng-container *ngIf="task.person">
-                  <span class="material-icons">person</span>{{ task.person }}
-                </ng-container>
-              </span>
-            </div>
-            <button class="btn-done" (click)="toggleTask(task)">
-              <span class="material-icons">check</span> Fait
-            </button>
-          </div>
-        </div>
-
-        <!-- All done urgent notice -->
-        <div class="task-group" *ngIf="urgentTasks.length === 0">
-          <div class="task-group__label done">
-            <span class="material-icons">check_circle</span>
-            Toutes les tâches urgentes sont traitées
-          </div>
-        </div>
-
-        <!-- Standard -->
-        <div class="task-group" *ngIf="pendingTasks.length > 0">
-          <div class="task-group__label standard">
-            <span class="material-icons">assignment</span>
-            Standard — {{ pendingTasks.length }} restante(s)
-          </div>
-          <div class="task-row" *ngFor="let task of pendingTasks">
-            <div class="task-row__icon">
-              <span class="material-icons">radio_button_unchecked</span>
-            </div>
-            <div class="task-row__body">
-              <span class="task-row__title">{{ task.title }}</span>
-              <span class="task-row__meta">
-                <span class="material-icons">schedule</span>{{ task.time }}
-                <ng-container *ngIf="task.person">
-                  <span class="material-icons">person</span>{{ task.person }}
-                </ng-container>
-              </span>
-            </div>
-            <button class="btn-done" (click)="toggleTask(task)">
-              <span class="material-icons">check</span> Fait
-            </button>
-          </div>
-        </div>
-
-        <!-- Done -->
-        <div class="task-group task-group--done" *ngIf="doneTasks.length > 0">
-          <div class="task-group__label done">
-            <span class="material-icons">check_circle</span>
-            Terminées — {{ doneTasks.length }}
-          </div>
-          <div class="task-row task-row--done" *ngFor="let task of doneTasks">
-            <div class="task-row__icon done">
-              <span class="material-icons">check_circle</span>
-            </div>
-            <div class="task-row__body">
-              <span class="task-row__title">{{ task.title }}</span>
-              <span class="task-row__meta">
-                <span class="material-icons">schedule</span>{{ task.time }}
-              </span>
-            </div>
-            <button class="btn-undo" (click)="toggleTask(task)" title="Annuler">
-              <span class="material-icons">undo</span>
-            </button>
-          </div>
+        <div class="cv-tension-result" *ngIf="constantesForm.tensionSys && constantesForm.tensionDia">
+          <span class="material-icons" [style.color]="tensionColor">favorite</span>
+          <span class="cv-tension-val" [style.color]="tensionColor">
+            {{ constantesForm.tensionSys }}/{{ constantesForm.tensionDia }} mmHg
+          </span>
+          <span class="badge" [ngClass]="tensionBadge">{{ tensionLabel }}</span>
         </div>
       </div>
 
-      <!-- ── Right Column ── -->
-      <div class="right-col">
-
-        <!-- Patients assignés -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Patients Assignés</h2>
-            <span class="badge info">{{ patients.length }}</span>
-          </div>
-          <div class="assigned-list">
-            <div class="assigned-patient" *ngFor="let p of patients">
-              <div class="patient-cell">
-                <div class="avatar-sm">{{ p.initials }}</div>
-                <div>
-                  <b>{{ p.name }}</b>
-                  <span>{{ p.info }}</span>
-                </div>
-              </div>
-              <span class="badge" [ngClass]="patientBadgeClass(p.status)">
-                {{ patientBadgeLabel(p.status) }}
-              </span>
+      <!-- Poids + BPM -->
+      <div class="cv-section">
+        <div class="cv-section__title">
+          <span class="material-icons" style="color:var(--c-teal)">vital_signs</span>
+          Mesures physiques
+        </div>
+        <div class="cv-row">
+          <div class="cv-field cv-field--big">
+            <label><span class="material-icons" style="color:var(--c-amber);font-size:15px">monitor_weight</span> Poids <span class="req">*</span></label>
+            <div class="cv-input-box">
+              <input type="number" [(ngModel)]="constantesForm.poids" placeholder="70.0" min="20" max="300" step="0.1" />
+              <span class="cv-unit">kg</span>
             </div>
+            <small>Avant séance</small>
+          </div>
+          <div class="cv-field cv-field--big">
+            <label><span class="material-icons" style="color:var(--c-green);font-size:15px">favorite</span> Fréquence cardiaque <span class="req">*</span></label>
+            <div class="cv-input-box">
+              <input type="number" [(ngModel)]="constantesForm.bpm" placeholder="75" min="30" max="220" />
+              <span class="cv-unit">bpm</span>
+            </div>
+            <small>Normale : 60 – 100 bpm</small>
           </div>
         </div>
-
-        <!-- Checklist équipement -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Checklist Équipement</h2>
-            <span class="badge" [ngClass]="pendingChecks > 0 ? 'warn' : 'ok'">
-              {{ pendingChecks > 0 ? pendingChecks + ' restants' : 'Complet' }}
+        <div class="cv-vitals-chips" *ngIf="constantesForm.poids || constantesForm.bpm">
+          <div class="cv-chip" *ngIf="constantesForm.poids">
+            <span class="material-icons" style="color:var(--c-amber)">monitor_weight</span>
+            {{ constantesForm.poids }} kg
+          </div>
+          <div class="cv-chip" *ngIf="constantesForm.bpm"
+               [style.border-color]="constantesForm.bpm! > 100 ? 'var(--c-red)' : constantesForm.bpm! < 60 ? 'var(--c-amber)' : 'var(--c-green)'">
+            <span class="material-icons"
+                  [style.color]="constantesForm.bpm! > 100 ? 'var(--c-red)' : constantesForm.bpm! < 60 ? 'var(--c-amber)' : 'var(--c-green)'">
+              favorite
             </span>
-          </div>
-          <div class="checklist">
-            <div class="check-item"
-                 *ngFor="let item of checkItems"
-                 [class.done]="item.done"
-                 (click)="toggleCheck(item)">
-              <span class="material-icons check-icon">
-                {{ item.done ? 'check_box' : 'check_box_outline_blank' }}
-              </span>
-              <span class="check-label">{{ item.label }}</span>
-              <span class="badge info check-machine" *ngIf="item.machine">{{ item.machine }}</span>
-            </div>
+            {{ constantesForm.bpm }} bpm
           </div>
         </div>
-
-        <!-- Nettoyage machines -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Nettoyage Machines</h2>
-            <span class="badge warn">3 à nettoyer</span>
-          </div>
-          <div class="machine-clean-list">
-            <div class="machine-clean-row" *ngFor="let m of machines">
-              <div class="machine-clean-row__left">
-                <span class="machine-id">{{ m.id }}</span>
-                <div>
-                  <b>{{ m.model }}</b>
-                  <span>Dernier: {{ m.lastClean }}</span>
-                </div>
-              </div>
-              <span class="badge" [ngClass]="machineStatusClass(m.status)">
-                {{ machineStatusLabel(m.status) }}
-              </span>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Notes -->
+      <div class="cv-section">
+        <div class="cv-section__title">
+          <span class="material-icons" style="color:var(--c-text-3)">notes</span> Observations
+        </div>
+        <textarea class="cv-textarea" [(ngModel)]="constantesForm.notes" rows="3"
+                  placeholder="Observations, comportement, alertes…"></textarea>
+      </div>
+
+      <!-- Footer -->
+      <div class="cv-footer">
+        <button class="cv-btn-cancel" (click)="closePatient()">Annuler</button>
+        <button class="cv-btn-save" (click)="saveConstantes()">
+          <span class="material-icons">save</span> Enregistrer
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
+
+<!-- ══ Page Shell ════════════════════════════════════════════════════════ -->
+<div class="as-page">
+
+  <!-- ── Topbar ──────────────────────────────────────────────────────── -->
+  <header class="as-topbar">
+    <div class="as-topbar__brand">
+      <svg width="24" height="24" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z"
+              fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
+        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6"
+              stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="as-topbar__name">DialySys</span>
+      <span class="as-topbar__sep">|</span>
+      <span class="as-topbar__role">Aide-Soignant</span>
+    </div>
+    <div class="as-topbar__center">
+      <span class="material-icons">calendar_today</span>
+      {{ todayDisplay }}
+    </div>
+    <div class="as-topbar__right">
+      <div class="as-user-chip">
+        <div class="as-user-chip__avatar">AS</div>
+        <span>Y. Kettani</span>
+      </div>
+      <button class="as-logout" (click)="logout()" title="Déconnexion">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Content ────────────────────────────────────────────────────── -->
+  <div class="as-content">
+
+    <!-- ════ Stats Cards ═════════════════════════════════════════════ -->
+    <div class="as-stats-row">
+
+      <div class="as-stat-card as-stat-card--teal">
+        <div class="as-stat-card__icon">
+          <span class="material-icons">event_available</span>
+        </div>
+        <div class="as-stat-card__body">
+          <div class="as-stat-card__val">{{ totalJoursMois }}</div>
+          <div class="as-stat-card__lbl">Jours programmés ce mois</div>
+        </div>
+      </div>
+
+      <div class="as-stat-card as-stat-card--blue">
+        <div class="as-stat-card__icon">
+          <span class="material-icons">people</span>
+        </div>
+        <div class="as-stat-card__body">
+          <div class="as-stat-card__val">{{ totalPatientsMois }}</div>
+          <div class="as-stat-card__lbl">Patients suivis ce mois</div>
+        </div>
+      </div>
+
+      <div class="as-stat-card as-stat-card--purple">
+        <div class="as-stat-card__icon">
+          <span class="material-icons">upcoming</span>
+        </div>
+        <div class="as-stat-card__body">
+          <div class="as-stat-card__val">{{ seancesAVenir }}</div>
+          <div class="as-stat-card__lbl">Séances à venir</div>
+        </div>
+      </div>
+
+      <div class="as-stat-card as-stat-card--amber">
+        <div class="as-stat-card__icon">
+          <span class="material-icons">monitor_heart</span>
+        </div>
+        <div class="as-stat-card__body">
+          <div class="as-stat-card__val">{{ selectedDayPatients.length }}</div>
+          <div class="as-stat-card__lbl">Patients jour sélectionné</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════ Calendrier + Patients ══════════════════════════════════ -->
+    <div class="as-main-grid">
+
+      <!-- ── Calendrier ─────────────────────────────────────────── -->
+      <div class="as-cal-card">
+
+        <div class="as-cal-header">
+          <button class="as-cal-nav" (click)="calPrev()">
+            <span class="material-icons">chevron_left</span>
+          </button>
+          <div class="as-cal-title">
+            <span class="as-cal-month">{{ moisLabels[calMonth] }}</span>
+            <span class="as-cal-year">{{ calYear }}</span>
+          </div>
+          <button class="as-cal-nav" (click)="calNext()">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+
+        <div class="as-cal-grid">
+          <div class="as-cal-dayname" *ngFor="let d of dayNames">{{ d }}</div>
+
+          <ng-container *ngFor="let cell of calDays">
+            <div *ngIf="cell === null" class="as-cal-cell as-cal-cell--empty"></div>
+            <div *ngIf="cell !== null"
+                 class="as-cal-cell"
+                 [class.as-cal-cell--today]="cell.today"
+                 [class.as-cal-cell--scheduled]="cell.scheduled"
+                 [class.as-cal-cell--selected]="cell.date === selectedCalDate"
+                 [class.as-cal-cell--disabled]="!cell.scheduled"
+                 (click)="selectDay(cell)">
+              <span class="as-cal-cell__num">{{ cell.day }}</span>
+              <div class="as-cal-cell__dots" *ngIf="cell.scheduled">
+                <span *ngFor="let i of [].constructor(cell.patientCount > 3 ? 3 : cell.patientCount)"
+                      class="as-cal-cell__dot"></span>
+              </div>
+              <span class="as-cal-cell__count" *ngIf="cell.scheduled && cell.patientCount > 0">
+                {{ cell.patientCount }}
+              </span>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="as-cal-legend">
+          <div class="as-cal-legend-item"><span class="as-cal-ld as-cal-ld--today"></span> Aujourd'hui</div>
+          <div class="as-cal-legend-item"><span class="as-cal-ld as-cal-ld--scheduled"></span> Programmé</div>
+          <div class="as-cal-legend-item"><span class="as-cal-ld as-cal-ld--selected"></span> Sélectionné</div>
+        </div>
+      </div>
+
+      <!-- ── Panneau Patients ───────────────────────────────────── -->
+      <div class="as-patients-panel">
+
+        <!-- Pas de jour sélectionné -->
+        <div class="as-panel-empty" *ngIf="!selectedCalDate">
+          <span class="material-icons">touch_app</span>
+          <h3>Sélectionnez un jour</h3>
+          <p>Cliquez sur un jour programmé (en vert) dans le calendrier pour voir les patients qui vous sont assignés.</p>
+          <div class="as-panel-hint">
+            <span class="material-icons">event_note</span>
+            {{ totalJoursMois }} jour(s) programmé(s) ce mois
+          </div>
+        </div>
+
+        <!-- Jour sans patients -->
+        <div class="as-panel-empty" *ngIf="selectedCalDate && selectedDayPatients.length === 0">
+          <span class="material-icons">person_off</span>
+          <h3>Aucun patient</h3>
+          <p>Aucun patient assigné le {{ formatDate(selectedCalDate) }}.</p>
+        </div>
+
+        <!-- Liste patients -->
+        <ng-container *ngIf="selectedCalDate && selectedDayPatients.length > 0">
+
+          <div class="as-panel-head">
+            <div class="as-panel-head__left">
+              <span class="material-icons">event</span>
+              <span>{{ formatDate(selectedCalDate) }}</span>
+            </div>
+            <span class="badge info">{{ selectedDayPatients.length }} patient(s)</span>
+          </div>
+
+          <div class="as-patient-list">
+            <div class="as-patient-card" *ngFor="let p of selectedDayPatients; let i = index"
+                 (click)="openPatient(p)">
+
+              <div class="as-patient-card__index">{{ i + 1 }}</div>
+
+              <div class="as-patient-card__avatar">{{ p.initials }}</div>
+
+              <div class="as-patient-card__body">
+                <div class="as-patient-card__name">{{ p.name }}</div>
+                <div class="as-patient-card__sub">
+                  <span class="material-icons">medical_services</span> Machine {{ p.machine }}
+                  <span class="ord-sep">·</span>
+                  <span class="material-icons">receipt_long</span> {{ p.ordonnances.length }} ordonnance(s)
+                </div>
+                <div class="as-patient-card__time">
+                  <span class="material-icons">schedule</span>
+                  {{ p.heureDebut }} – {{ p.heureFin }}
+                </div>
+              </div>
+
+              <div class="as-patient-card__right">
+                <span class="badge" [ngClass]="patientBadgeClass(p.status)">
+                  {{ patientBadgeLabel(p.status) }}
+                </span>
+                <div class="as-patient-card__action">
+                  <span class="material-icons">open_in_new</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="as-panel-hint-bottom">
+            <span class="material-icons">touch_app</span>
+            Cliquez sur un patient pour voir ses ordonnances et saisir ses constantes vitales
+          </div>
+
+        </ng-container>
+      </div>
+
+    </div><!-- /as-main-grid -->
+
+  </div><!-- /as-content -->
+</div><!-- /as-page -->

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+﻿import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,20 @@ import { Subject } from 'rxjs';
 import { MachineService } from '../../../services/machine.service';
 import { takeUntil } from 'rxjs/operators';
 import { AdminTab, AppUser, HoraireRow, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
+
+/** Regroupement de séances identiques (même patient, aide-soignant, horaire, machine, statut) avec dates multiples */
+export interface GroupedSeance {
+  patientId: number;
+  patientNom: string;
+  responsableId: number | null;
+  aideSoignantNom: string;
+  dates: string[];           // dates affichées dd/MM/yyyy
+  heureDebut: string;
+  heureFin: string;
+  machine: string;
+  statut: string;
+  seances: SeanceAdminRow[];  // séances individuelles du groupe
+}
 
 @Component({
   selector: 'app-admin',
@@ -56,9 +70,9 @@ private destroy$ = new Subject<void>();
     this.destroy$.complete();
   }
   private startPolling(): void {
-  this.stopPolling(); // éviter les doublons
+  this.stopPolling();
   this.pollingInterval = setInterval(() => {
-    this.refreshAdminCollections(false, true); // false = pas de spinner
+    this.refreshAdminCollections(false, true);
   }, this.POLLING_INTERVAL_MS);
 }
 
@@ -153,7 +167,9 @@ private stopPolling(): void {
 
   searchQuery = ''; filterRole: RoleId | '' = ''; filterStatus: UserStatus | '' = '';
   searchPatient = '';
-  searchHoraire = ''; searchSeance = '';
+  searchHoraire = '';
+  searchSeance = '';
+  filterSeanceDate = '';   // ← NOUVEAU : filtre par date (input type="date" → format ISO yyyy-MM-dd)
   readonly pageSize = 4;
   staffPage = 1;
   patientPage = 1;
@@ -203,10 +219,10 @@ private stopPolling(): void {
 
   private tid = 0;
   toasts: Toast[] = [];
-// Ajouter ces propriétés après destroy$
 
-private pollingInterval: any = null;
-private readonly POLLING_INTERVAL_MS = 30000; // 30 secondes
+  private pollingInterval: any = null;
+  private readonly POLLING_INTERVAL_MS = 30000;
+
   // --------------------------------------------------
   //  LIFECYCLE
   // --------------------------------------------------
@@ -215,8 +231,7 @@ private readonly POLLING_INTERVAL_MS = 30000; // 30 secondes
     this.loadSharedAdminData();
     this.loadMachines();
     this.refreshAdminCollections();
-     this.startPolling();
-     
+    this.startPolling();
   }
 
   setActiveTab(tab: AdminTab): void {
@@ -224,55 +239,57 @@ private readonly POLLING_INTERVAL_MS = 30000; // 30 secondes
     this.scrollAdminToTop();
     this.refreshAdminCollections(false, false);
   }
-refreshAdminCollections(showLoader = true, restoreScroll = false): void {
-  if (showLoader) this.loading = true;
-  this.patientService.invalidateCache();
-  this.seanceService.invalidateCache();
 
-  const savedScrollTop = restoreScroll
-    ? (this.adminMainRef?.nativeElement.scrollTop ?? 0)
-    : null;
+  refreshAdminCollections(showLoader = true, restoreScroll = false): void {
+    if (showLoader) this.loading = true;
+    this.patientService.invalidateCache();
+    this.seanceService.invalidateCache();
 
-  forkJoin({
-    users:    this.utilisateurService.getAll().pipe(catchError(() => of([] as any[]))),
-    patients: this.patientService.getAll().pipe(catchError(() => of([] as any[]))),
-    horaires: this.horaireTravailService.getAll().pipe(catchError(() => of([] as any[]))),
-    seances:  this.seanceService.getAll().pipe(catchError(() => of([] as any[])))
-  }).pipe(takeUntil(this.destroy$)).subscribe({
-    next: ({ users, patients, horaires, seances }) => {
-      this.staffUsers = users.map((u: any) => this.mapUtilisateurToAppUser(u));
-      this.patientUsersData = patients.map((p: any) => this.mapPatientToAppUser(p));
-      this.users = [...this.staffUsers, ...this.patientUsersData];
-      this.horaires = horaires.map((h: any) => this.mapHoraireToRow(h));
-      this.seancesAdmin = seances.map((s: any) => this.mapSeanceToRow(s));
-      this.profilsLoaded = true;
-      this.horairesLoaded = true;
-      this.seancesLoaded = true;
-      this.normalizeAllPages();
-      this.syncSelectedAideSoignant();
+    const savedScrollTop = restoreScroll
+      ? (this.adminMainRef?.nativeElement.scrollTop ?? 0)
+      : null;
 
-      if (showLoader) {
-        this.loading = false;
-      } else if (savedScrollTop !== null) {
-        setTimeout(() => {
-          if (this.adminMainRef?.nativeElement) {
-            this.adminMainRef.nativeElement.scrollTop = savedScrollTop;
-          }
-        }, 0);
+    forkJoin({
+      users:    this.utilisateurService.getAll().pipe(catchError(() => of([] as any[]))),
+      patients: this.patientService.getAll().pipe(catchError(() => of([] as any[]))),
+      horaires: this.horaireTravailService.getAll().pipe(catchError(() => of([] as any[]))),
+      seances:  this.seanceService.getAll().pipe(catchError(() => of([] as any[])))
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: ({ users, patients, horaires, seances }) => {
+        this.staffUsers = users.map((u: any) => this.mapUtilisateurToAppUser(u));
+        this.patientUsersData = patients.map((p: any) => this.mapPatientToAppUser(p));
+        this.users = [...this.staffUsers, ...this.patientUsersData];
+        this.horaires = horaires.map((h: any) => this.mapHoraireToRow(h));
+        this.seancesAdmin = seances.map((s: any) => this.mapSeanceToRow(s));
+        this.profilsLoaded = true;
+        this.horairesLoaded = true;
+        this.seancesLoaded = true;
+        this.normalizeAllPages();
+        this.syncSelectedAideSoignant();
+
+        if (showLoader) {
+          this.loading = false;
+        } else if (savedScrollTop !== null) {
+          setTimeout(() => {
+            if (this.adminMainRef?.nativeElement) {
+              this.adminMainRef.nativeElement.scrollTop = savedScrollTop;
+            }
+          }, 0);
+        }
+      },
+      error: () => {
+        if (showLoader) this.loading = false;
+        this.showToast('Serveur inaccessible — vérifiez que le backend est démarré', 'error');
       }
-    },
-    error: () => {
-      if (showLoader) this.loading = false;
-      this.showToast('Serveur inaccessible — vérifiez que le backend est démarré', 'error');
-    }
-  });
-}
+    });
+  }
+
   loadSharedAdminData(): void {
     this.loading = true;
     forkJoin({
       settings: this.adminSettingsService.get(),
       rolePermissions: this.rolePermissionService.getAll()
-    }).pipe(takeUntil(this.destroy$)).subscribe({  // ?
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: ({ settings, rolePermissions }) => {
         this.settings = { ...settings };
         this.applyRolePermissions(rolePermissions);
@@ -284,7 +301,6 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
       }
     });
   }
-
 
   loadProfilesData(): void {
     this.loading = true;
@@ -476,7 +492,7 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
   permCount(role: RoleConfig): number { return Object.values(role.permissions ?? {}).filter(Boolean).length; }
 
   // --------------------------------------------------
-  //  FILTRES
+  //  FILTRES — Profils
   // --------------------------------------------------
 
   get filteredUsers(): AppUser[] {
@@ -742,9 +758,10 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
   toggleCalDay(date: string): void { this.toggleDateSelection(this.newHoraire.jours, date); }
   isDaySelected(date: string): boolean { return this.newHoraire.jours.includes(date); }
   formatJours(jours: string[]): string {
-  if (!jours.length) return '—';
-  return jours.map(j => this.isoToDisplayDate(j)).join(', ');
-}
+    if (!jours.length) return '—';
+    return jours.map(j => this.isoToDisplayDate(j)).join(', ');
+  }
+
   get filteredHoraires(): HoraireRow[] {
     const q = this.searchHoraire.toLowerCase().trim();
     return !q ? this.horaires : this.horaires.filter(h =>
@@ -834,13 +851,87 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
   toggleSeanceCalDay(date: string): void { this.toggleDateSelection(this.newSeance.dates, date); this.refreshAvailableMachinesForNewSeance(); }
   isSeanceDaySelected(date: string): boolean { return this.newSeance.dates.includes(date); }
 
+  // --------------------------------------------------
+  //  SÉANCES — filtre, recherche, regroupement par dates (badges)
+  // --------------------------------------------------
+
+  /**
+   * Regroupe les séances ayant le même patient, aide-soignant, horaire, machine et statut
+   * en une seule ligne avec plusieurs dates (badges).
+   */
+  private groupSeances(seances: SeanceAdminRow[]): GroupedSeance[] {
+    const map = new Map<string, GroupedSeance>();
+
+    for (const s of seances) {
+      const key = `${s.patientId}|${s.responsableId}|${s.heureDebut}|${s.heureFin}|${s.machine}|${s.statut}`;
+      const existing = map.get(key);
+      if (existing) {
+        if (!existing.dates.includes(s.date)) {
+          existing.dates.push(s.date);
+          existing.dates.sort((a, b) => this.displayToIsoDate(a).localeCompare(this.displayToIsoDate(b)));
+        }
+        existing.seances.push(s);
+      } else {
+        map.set(key, {
+          patientId: s.patientId,
+          patientNom: s.patientNom,
+          responsableId: s.responsableId,
+          aideSoignantNom: s.aideSoignantNom,
+          dates: [s.date],
+          heureDebut: s.heureDebut,
+          heureFin: s.heureFin,
+          machine: s.machine,
+          statut: s.statut,
+          seances: [s]
+        });
+      }
+    }
+
+    return Array.from(map.values());
+  }
+
+  /**
+   * Filtre les séances puis les regroupe.
+   * 1. filterSeanceDate → filtre par date exacte
+   * 2. searchSeance → filtre texte libre
+   * 3. Regroupement des résultats
+   */
   get filteredSeances(): SeanceAdminRow[] {
+    let result = this.seancesAdmin;
+
+    if (this.filterSeanceDate) {
+      const filterDisplay = this.isoToDisplayDate(this.filterSeanceDate);
+      result = result.filter(s => s.date === filterDisplay);
+    }
+
     const q = this.searchSeance.toLowerCase().trim();
-    return !q ? this.seancesAdmin : this.seancesAdmin.filter(s =>
-      s.patientNom.toLowerCase().includes(q) || s.aideSoignantNom.toLowerCase().includes(q) ||
-      s.date.toLowerCase().includes(q) || s.heureDebut.includes(q) || s.heureFin.includes(q) ||
-      s.machine.toLowerCase().includes(q) || s.statut.toLowerCase().includes(q)
-    );
+    if (q) {
+      result = result.filter(s =>
+        s.patientNom.toLowerCase().includes(q) ||
+        s.aideSoignantNom.toLowerCase().includes(q) ||
+        s.date.toLowerCase().includes(q) ||
+        s.heureDebut.includes(q) ||
+        s.heureFin.includes(q) ||
+        s.machine.toLowerCase().includes(q) ||
+        s.statut.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }
+
+  get filteredGroupedSeances(): GroupedSeance[] {
+    return this.groupSeances(this.filteredSeances);
+  }
+
+  get paginatedGroupedSeances(): GroupedSeance[] {
+    const items = this.filteredGroupedSeances;
+    const totalPages = this.getTotalPages(items.length);
+    if (this.seancePage > totalPages) {
+      this.seancePage = totalPages;
+    }
+    const start = (this.seancePage - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
   }
 
   get paginatedSeances(): SeanceAdminRow[] {
@@ -848,7 +939,36 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
   }
 
   get totalSeancePages(): number {
-    return this.getTotalPages(this.filteredSeances.length);
+    return this.getTotalPages(this.filteredGroupedSeances.length);
+  }
+
+  /**
+   * Vérifie si une date affichée correspond au filtre date actif (surbrillance du badge).
+   */
+  isSeanceDateMatchingFilter(displayDate: string): boolean {
+    if (!this.filterSeanceDate) return false;
+    return displayDate === this.isoToDisplayDate(this.filterSeanceDate);
+  }
+
+  /**
+   * Formate une date ISO (yyyy-MM-dd) en date lisible (dd/MM/yyyy).
+   */
+  formatFilterDate(isoDate: string): string {
+    return this.isoToDisplayDate(isoDate);
+  }
+
+  /**
+   * Supprime toutes les séances d'un groupe.
+   */
+  supprimerGroupedSeances(group: GroupedSeance): void {
+    const ids = group.seances.map(s => s.id);
+    forkJoin(ids.map(id => this.seanceService.delete(id))).subscribe({
+      next: () => {
+        this.showToast(`${ids.length} séance(s) supprimée(s)`, 'warning');
+        this.refreshAdminCollections(false, true);
+      },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les séances', 'error')
+    });
   }
 
   get infirmiers(): AppUser[] { return this.users.filter(u => u.role === 'infirmier'); }
@@ -890,13 +1010,14 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
     }));
     forkJoin(requests.map(r => this.seanceService.create(r))).subscribe({
       next: () => { this.resetNewSeanceForm(); this.showToast('Seance(s) planifiee(s) avec succes', 'success'); this.refreshAdminCollections(false, true); },
-    error: (err) => {
-  const msg = err?.error?.message 
-    || err?.error?.detail 
-    || err?.error?.error
-    || 'Impossible de planifier la séance';
-  this.showToast(msg, 'error');
-}});
+      error: (err) => {
+        const msg = err?.error?.message
+          || err?.error?.detail
+          || err?.error?.error
+          || 'Impossible de planifier la séance';
+        this.showToast(msg, 'error');
+      }
+    });
   }
 
   supprimerSeance(id: number): void {
@@ -980,11 +1101,11 @@ refreshAdminCollections(showLoader = true, restoreScroll = false): void {
   }
 
   toggleTheme(): void { this.isLight = !this.isLight; }
-logout(): void {
-   this.stopPolling();
-  this.destroy$.next();
-  this.destroy$.complete();
-  this.authService.logout();
+  logout(): void {
+    this.stopPolling();
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.authService.logout();
   }
 
   // --------------------------------------------------
@@ -1007,6 +1128,7 @@ logout(): void {
   private isStrongPassword(value: string): boolean {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,64}$/.test(value);
   }
+
   private applyRolePermissions(configs: RolePermissionsDto[]): void {
     this.roles.forEach(r => r.permissions = {});
     configs.forEach(c => {
@@ -1015,29 +1137,29 @@ logout(): void {
     });
   }
 
-private mapUtilisateurToAppUser(dto: UtilisateurResponseDto): AppUser {
-  const role = this.toRoleId(dto.role);
-  return {
-    id: dto.id, 
-    login: dto.login, 
-    username: dto.username, 
-    role,
-    backendRole: dto.role, 
-    mat: dto.mat, 
-    nom: dto.nom, 
-    prenom: dto.prenom,
-    email: dto.email, 
-    mdp: '********',
-    dateCreation: this.formatDateTime(dto.dateCreation),
-    actif: dto.actif, 
-    statut: dto.actif ? 'actif' : 'inactif',
-    derniereConnexion: '—', 
-    specialite: dto.specialite,
-    superviseurId: dto.superviseurId,
-    telephone: dto.telephone || '',  // OK - pas de mélange
-    service: (dto.service || this.serviceParRole[role]) ?? ''  // ? Corrigé avec parenthèses
-  };
-}
+  private mapUtilisateurToAppUser(dto: UtilisateurResponseDto): AppUser {
+    const role = this.toRoleId(dto.role);
+    return {
+      id: dto.id,
+      login: dto.login,
+      username: dto.username,
+      role,
+      backendRole: dto.role,
+      mat: dto.mat,
+      nom: dto.nom,
+      prenom: dto.prenom,
+      email: dto.email,
+      mdp: '********',
+      dateCreation: this.formatDateTime(dto.dateCreation),
+      actif: dto.actif,
+      statut: dto.actif ? 'actif' : 'inactif',
+      derniereConnexion: '—',
+      specialite: dto.specialite,
+      superviseurId: dto.superviseurId,
+      telephone: dto.telephone || '',
+      service: (dto.service || this.serviceParRole[role]) ?? ''
+    };
+  }
 
   private mapPatientToAppUser(dto: PatientDto): AppUser {
     return {
@@ -1345,6 +1467,7 @@ private mapUtilisateurToAppUser(dto: UtilisateurResponseDto): AppUser {
     };
     this.machines = [...this.allMachineCodes];
   }
+
   private todayLocalIso(): string {
     const now = new Date();
     const year = now.getFullYear();
@@ -1353,5 +1476,3 @@ private mapUtilisateurToAppUser(dto: UtilisateurResponseDto): AppUser {
     return `${year}-${month}-${day}`;
   }
 }
-
-

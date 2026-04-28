@@ -840,22 +840,28 @@
               <tr><th>Personnel</th><th>Rôle</th><th>Jours planifiés</th><th>Heure début</th><th>Heure fin</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              <ng-container *ngFor="let h of paginatedHoraires">
-                <tr *ngFor="let jour of h.jours; let i = index">
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length"><b>{{ h.staffNom }}</b></td>
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">{{ h.staffRole }}</td>
-                  <td><span class="mono" style="font-size:12px">{{ formatJours([jour]) }}</span></td>
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">{{ h.heureDebut }}</td>
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">{{ h.heureFin }}</td>
-                  <td *ngIf="i === 0" [attr.rowspan]="h.jours.length">
-                    <div class="row-actions">
-                      <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
-                      <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
-                    </div>
-                  </td>
-                </tr>
-              </ng-container>
-              <tr *ngIf="horaires.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">event_busy</span> Aucun horaire planifié</td></tr>
+              <tr *ngFor="let h of paginatedHoraires">
+                <td><b>{{ h.staffNom }}</b></td>
+                <td>{{ h.staffRole }}</td>
+                <td>
+                  <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    <span *ngFor="let jour of h.jours"
+                          class="badge info"
+                          style="font-size:11px;padding:2px 8px;font-family:monospace;">
+                      {{ formatJours([jour]) }}
+                    </span>
+                  </div>
+                </td>
+                <td>{{ h.heureDebut }}</td>
+                <td>{{ h.heureFin }}</td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredHoraires.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">event_busy</span> Aucun horaire planifié</td></tr>
             </tbody>
           </table>
         </div>
@@ -905,26 +911,54 @@
 
       <div class="panel panel--full">
         <div class="panel__head"><h2>Séances planifiées</h2></div>
-        <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par patient, aide-soignant, date ou machine…" [(ngModel)]="searchSeance" /><button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''"><span class="material-icons">close</span></button></div>
+
+        <!-- Barre de recherche texte -->
+        <div class="table-search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par patient, aide-soignant, date, machine…" [(ngModel)]="searchSeance" />
+          <button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''"><span class="material-icons">close</span></button>
+        </div>
+
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Date</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Dates planifiées</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody>
-              <tr *ngFor="let s of paginatedSeances">
-                <td><b>{{ s.patientNom }}</b></td>
-                <td>{{ s.aideSoignantNom }}</td>
-                <td>{{ s.date }}</td>
-                <td>{{ s.heureDebut }} – {{ s.heureFin }}</td>
-                <td><span class="mono">{{ s.machine }}</span></td>
-                <td><span class="badge {{ seanceStatutClass(s.statut) }}">{{ seanceStatutLabel(s.statut) }}</span></td>
-                <td><div class="row-actions"><button class="row-btn" (click)="openEditSeance(s)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="supprimerSeance(s.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button></div></td>
+              <tr *ngFor="let g of paginatedGroupedSeances">
+                <td><b>{{ g.patientNom }}</b></td>
+                <td>{{ g.aideSoignantNom }}</td>
+                <td>
+                  <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    <span *ngFor="let d of g.dates"
+                          class="badge info"
+                          [style.background]="isSeanceDateMatchingFilter(d) ? 'rgba(0,217,196,0.35)' : ''"
+                          [style.font-weight]="isSeanceDateMatchingFilter(d) ? '700' : '400'"
+                          style="font-size:11px;padding:2px 8px;font-family:monospace;">
+                      {{ d }}
+                    </span>
+                  </div>
+                </td>
+                <td>{{ g.heureDebut }} – {{ g.heureFin }}</td>
+                <td><span class="mono">{{ g.machine }}</span></td>
+                <td><span class="badge {{ seanceStatutClass(g.statut) }}">{{ seanceStatutLabel(g.statut) }}</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-btn" (click)="openEditSeance(g.seances[0])" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerGroupedSeances(g)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                  </div>
+                </td>
               </tr>
-              <tr *ngIf="filteredSeances.length === 0"><td colspan="7" class="empty-row"><span class="material-icons">event_busy</span> Aucune séance planifiée</td></tr>
+              <tr *ngIf="filteredGroupedSeances.length === 0">
+                <td colspan="7" class="empty-row">
+                  <span class="material-icons">event_busy</span>
+                  <ng-container *ngIf="filterSeanceDate">Aucune séance trouvée pour le {{ formatFilterDate(filterSeanceDate) }}</ng-container>
+                  <ng-container *ngIf="!filterSeanceDate">Aucune séance planifiée</ng-container>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" *ngIf="filteredSeances.length > 0">
-          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredSeances.length) }} sur {{ filteredSeances.length }}</span>
+        <div class="pagination-bar" *ngIf="filteredGroupedSeances.length > 0">
+          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredGroupedSeances.length) }} sur {{ filteredGroupedSeances.length }}</span>
           <div class="pg-nav">
             <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', 1, totalSeancePages)" title="Première page"><span class="material-icons">first_page</span></button>
             <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', seancePage - 1, totalSeancePages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
@@ -933,7 +967,7 @@
             <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', totalSeancePages, totalSeancePages)" title="Dernière page"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ seancesAdmin.length }} séance(s) planifiée(s)</div>
+        <div class="panel__footer">{{ filteredGroupedSeances.length }} groupe(s) · {{ seancesAdmin.length }} séance(s) au total</div>
       </div>
     </ng-container>
   </div>

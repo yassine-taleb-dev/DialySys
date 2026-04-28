@@ -1,71 +1,68 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgFor, NgClass, NgIf } from '@angular/common';
+import { NgFor, NgClass, NgIf, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-interface Task {
-  id: number;
-  title: string;
-  time: string;
-  person?: string;
-  priority: 'urgent' | 'standard';
-  done: boolean;
-}
-
-interface CheckItem {
-  id: number;
-  label: string;
-  machine?: string;
-  done: boolean;
-}
-
 interface AssignedPatient {
+  id: number;
   initials: string;
   name: string;
-  info: string;
+  machine: string;
   status: 'post' | 'active' | 'waiting';
+  heureDebut: string;
+  heureFin: string;
+  ordonnances: Ordonnance[];
 }
 
-interface MachineClean {
-  id: string;
-  model: string;
-  lastClean: string;
-  status: 'done' | 'pending' | 'inProgress';
+interface Ordonnance {
+  id: number;
+  date: string;
+  medicament: string;
+  posologie: string;
+  medecin: string;
+}
+
+interface ScheduledDay {
+  date: string;
+  patients: AssignedPatient[];
+}
+
+interface CalCell {
+  date: string;
+  day: number;
+  today: boolean;
+  scheduled: boolean;
+  patientCount: number;
+}
+
+interface ConstantesForm {
+  tensionSys: number | null;
+  tensionDia: number | null;
+  poids: number | null;
+  bpm: number | null;
+  notes: string;
 }
 
 interface Toast { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
-interface Notif  { icon: string; text: string; time: string; type: string; read: boolean; }
 
 @Component({
   selector: 'app-aide-soignant',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, FormsModule],
+  imports: [NgFor, NgClass, NgIf, FormsModule, SlicePipe],
   templateUrl: './aide-soignant.component.html',
   styleUrl: './aide-soignant.component.scss'
 })
 export class AideSoignantComponent {
 
-  // ── Navigation ──
-  activeSection = 'dashboard';
-  setSection(s: string): void {
-    const dev: Record<string,string> = { machines: 'État des Machines', consommables: 'Consommables', nettoyage: 'Nettoyage' };
-    if (dev[s]) { this.showToast(`${dev[s]} — section en développement`, 'info'); return; }
-    this.activeSection = s;
-    this.showNotifPanel = false;
-  }
+  // ── Date helpers ──
+  readonly moisLabels = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  readonly dayNames = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
-  // ── Notifications ──
-  showNotifPanel = false;
-  notifications: Notif[] = [
-    { icon: 'priority_high', text: 'Nettoyage machine M-02 — Urgent',           time: 'il y a 10min', type: 'warn', read: false },
-    { icon: 'inventory_2',   text: 'Dialyseur FX80 à préparer pour Filali Z.',  time: 'il y a 30min', type: 'info', read: false },
-    { icon: 'check_circle',  text: 'Nettoyage M-03 confirmé avec succès',        time: 'il y a 1h',    type: 'ok',   read: true  },
-  ];
-  get unreadCount() { return this.notifications.filter(n => !n.read).length; }
-  toggleNotifPanel(): void { this.showNotifPanel = !this.showNotifPanel; }
-  markAllRead(): void { this.notifications.forEach(n => n.read = true); this.showToast('Notifications marquées comme lues', 'info'); }
-  markRead(n: Notif): void { n.read = true; }
-  openSettings(): void { this.showToast('Paramètres — bientôt disponible', 'info'); }
+  get todayDisplay(): string {
+    const d = new Date();
+    const j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    return `${j[d.getDay()]}, ${d.getDate()} ${this.moisLabels[d.getMonth()]} ${d.getFullYear()}`;
+  }
 
   // ── Toast ──
   private tid = 0;
@@ -80,73 +77,167 @@ export class AideSoignantComponent {
     return ({ success: 'check_circle', warning: 'warning', error: 'error', info: 'info' } as Record<string,string>)[type] ?? 'info';
   }
 
-  tasks: Task[] = [
-    { id: 1, title: 'Nettoyage machine M-02',                          time: '11:10', person: 'Inf. Haddad',   priority: 'urgent',   done: false },
-    { id: 2, title: 'Préparer dialyseur FX80 — patient Filali Z.',     time: '14:00', person: 'Inf. Berrada',  priority: 'urgent',   done: false },
-    { id: 3, title: 'Installer tubulures machine M-09',                 time: '13:30', person: 'Inf. Mansouri', priority: 'standard', done: false },
-    { id: 4, title: "Restock salle de soins — antiseptiques",           time: '15:00',                          priority: 'standard', done: false },
-    { id: 5, title: "Transport patient Alaoui K. vers salle d'attente", time: '12:00',                          priority: 'standard', done: false },
-    { id: 6, title: 'Nettoyage machine M-03 post-séance',               time: '08:52',                          priority: 'standard', done: true  },
-    { id: 7, title: 'Préparation salle — séance 08:00',                 time: '07:45',                          priority: 'standard', done: true  },
-    { id: 8, title: 'Pesée et installation patient Alaoui K.',          time: '08:05',                          priority: 'standard', done: true  },
-  ];
+  // ── Calendar ──
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+  selectedCalDate = '';
 
-  checkItems: CheckItem[] = [
-    { id: 1, label: 'Machine M-03 — Nettoyée et désinfectée', machine: 'M-03', done: true  },
-    { id: 2, label: 'Stock lignes artérielles vérifié',                         done: true  },
-    { id: 3, label: 'Salle de soins nettoyée',                                  done: true  },
-    { id: 4, label: 'Machine M-09 — Préparer pour 14h',       machine: 'M-09', done: false },
-    { id: 5, label: 'Restock antiseptiques salle 2',                            done: false },
-    { id: 6, label: 'Vérifier filtre dialyseur M-07',          machine: 'M-07', done: false },
-  ];
+  scheduledDays: ScheduledDay[] = this.buildScheduledDays();
 
-  patients: AssignedPatient[] = [
-    { initials: 'AK', name: 'Alaoui Khalid',       info: 'Séance terminée — Salle d\'attente', status: 'post'    },
-    { initials: 'ME', name: 'Moussaoui El Hassan',  info: 'Machine M-02 — En cours',            status: 'active'  },
-    { initials: 'FZ', name: 'Filali Zineb',         info: 'Séance à 14:00 — À préparer',        status: 'waiting' },
-    { initials: 'OB', name: 'Ouali Badreddine',     info: 'Machine M-05 — En cours',            status: 'active'  },
-  ];
-
-  machines: MachineClean[] = [
-    { id: 'M-02', model: 'Fresenius 5008S', lastClean: 'Hier 17:00', status: 'pending'    },
-    { id: 'M-03', model: 'Fresenius 4008S', lastClean: 'Auj. 08:52', status: 'done'       },
-    { id: 'M-05', model: 'B.Braun Dialog+', lastClean: 'Hier 16:30', status: 'pending'    },
-    { id: 'M-07', model: 'Fresenius 5008S', lastClean: 'En cours…',  status: 'inProgress' },
-    { id: 'M-09', model: 'B.Braun Dialog+', lastClean: 'Hier 17:30', status: 'pending'    },
-  ];
-
-  /* ── Computed helpers ── */
-  get urgentTasks()   { return this.tasks.filter(t => t.priority === 'urgent' && !t.done); }
-  get pendingTasks()  { return this.tasks.filter(t => t.priority === 'standard' && !t.done); }
-  get doneTasks()     { return this.tasks.filter(t => t.done); }
-  get totalTasks()    { return this.tasks.length; }
-  get doneCount()     { return this.tasks.filter(t => t.done).length; }
-  get progressPct()   { return Math.round((this.doneCount / this.totalTasks) * 100); }
-  get pendingChecks() { return this.checkItems.filter(c => !c.done).length; }
-
-  /* ── Actions ── */
-  toggleTask(task: Task): void {
-    task.done = !task.done;
-    if (task.done) this.showToast(`"${task.title}" — marquée comme faite`, 'success');
-  }
-  toggleCheck(item: CheckItem): void {
-    item.done = !item.done;
-    if (item.done) this.showToast(`"${item.label}" — coché`, 'success');
+  private buildScheduledDays(): ScheduledDay[] {
+    const y = new Date().getFullYear();
+    const m = new Date().getMonth();
+    const mockOrd = (n: number): Ordonnance[] => [
+      { id: n*10+1, date: this.iso(y, m, 1), medicament: 'Érythropoïétine',    posologie: '4000 UI × 3/sem',   medecin: 'Dr. Alami' },
+      { id: n*10+2, date: this.iso(y, m, 1), medicament: 'Ferritinaemia IV',   posologie: '100 mg perf.',      medecin: 'Dr. Alami' },
+      { id: n*10+3, date: this.iso(y, m, 1), medicament: 'Cinacalcet 30 mg',   posologie: '1 cp/j',            medecin: 'Dr. Merini' },
+    ];
+    const p: AssignedPatient[] = [
+      { id: 1, initials: 'AK', name: 'Alaoui Khalid',       machine: 'M-03', status: 'post',    heureDebut: '08:00', heureFin: '12:00', ordonnances: mockOrd(1) },
+      { id: 2, initials: 'ME', name: 'Moussaoui El Hassan',  machine: 'M-02', status: 'active',  heureDebut: '08:30', heureFin: '12:30', ordonnances: mockOrd(2) },
+      { id: 3, initials: 'FZ', name: 'Filali Zineb',         machine: 'M-09', status: 'waiting', heureDebut: '14:00', heureFin: '18:00', ordonnances: mockOrd(3) },
+      { id: 4, initials: 'OB', name: 'Ouali Badreddine',     machine: 'M-05', status: 'active',  heureDebut: '08:00', heureFin: '12:00', ordonnances: mockOrd(4) },
+      { id: 5, initials: 'BN', name: 'Bennani Nadia',        machine: 'M-07', status: 'waiting', heureDebut: '14:00', heureFin: '18:00', ordonnances: mockOrd(5) },
+      { id: 6, initials: 'HS', name: 'Hamidi Samir',         machine: 'M-05', status: 'waiting', heureDebut: '08:00', heureFin: '12:00', ordonnances: mockOrd(6) },
+    ];
+    const days = [2,5,8,11,14,17,20,23,26,29];
+    const picks: number[][] = [[1,2,3,4],[1,5],[2,3,6],[4,5],[1,2,6],[3],[1,4,5],[2,6],[3,4],[1,5]];
+    return days.map((d, i) => ({
+      date: this.iso(y, m, d),
+      patients: picks[i].map(id => p.find(x => x.id === id)!),
+    }));
   }
 
-  patientBadgeClass(status: string): string {
-    return status === 'post' ? 'ok' : status === 'active' ? 'info' : 'purple';
-  }
-  patientBadgeLabel(status: string): string {
-    return status === 'post' ? 'Post-séance' : status === 'active' ? 'En dialyse' : 'En attente';
+  private iso(y: number, m: number, d: number): string {
+    return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   }
 
-  machineStatusClass(s: string): string {
-    return s === 'done' ? 'ok' : s === 'inProgress' ? 'info' : 'warn';
+  get calTitle(): string { return `${this.moisLabels[this.calMonth]} ${this.calYear}`; }
+
+  calPrev(): void {
+    if (this.calMonth === 0) { this.calMonth = 11; this.calYear--; }
+    else this.calMonth--;
+    this.selectedCalDate = '';
+    this.selectedPatient = null;
   }
-  machineStatusLabel(s: string): string {
-    return s === 'done' ? 'Nettoyée' : s === 'inProgress' ? 'En cours' : 'À nettoyer';
+
+  calNext(): void {
+    if (this.calMonth === 11) { this.calMonth = 0; this.calYear++; }
+    else this.calMonth++;
+    this.selectedCalDate = '';
+    this.selectedPatient = null;
   }
+
+  get calDays(): (CalCell | null)[] {
+    const first = new Date(this.calYear, this.calMonth, 1).getDay();
+    const offset = (first + 6) % 7;
+    const total  = new Date(this.calYear, this.calMonth + 1, 0).getDate();
+    const today  = new Date();
+    const cells: (CalCell | null)[] = [];
+    for (let i = 0; i < offset; i++) cells.push(null);
+    for (let d = 1; d <= total; d++) {
+      const date = this.iso(this.calYear, this.calMonth, d);
+      const sd = this.scheduledDays.find(s => s.date === date);
+      cells.push({
+        date, day: d,
+        today: today.getFullYear() === this.calYear && today.getMonth() === this.calMonth && today.getDate() === d,
+        scheduled: !!sd,
+        patientCount: sd ? sd.patients.length : 0,
+      });
+    }
+    return cells;
+  }
+
+  selectDay(cell: CalCell): void {
+    if (!cell.scheduled) return;
+    this.selectedCalDate = cell.date;
+    this.selectedPatient = null;
+  }
+
+  get selectedDayPatients(): AssignedPatient[] {
+    if (!this.selectedCalDate) return [];
+    return this.scheduledDays.find(s => s.date === this.selectedCalDate)?.patients ?? [];
+  }
+
+  formatDate(iso: string): string {
+    if (!iso || !iso.includes('-')) return iso;
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  // ── Stats ──
+  get totalJoursMois(): number {
+    const prefix = `${this.calYear}-${String(this.calMonth+1).padStart(2,'0')}`;
+    return this.scheduledDays.filter(s => s.date.startsWith(prefix)).length;
+  }
+
+  get totalPatientsMois(): number {
+    const prefix = `${this.calYear}-${String(this.calMonth+1).padStart(2,'0')}`;
+    const ids = new Set<number>();
+    this.scheduledDays.filter(s => s.date.startsWith(prefix)).forEach(s => s.patients.forEach(p => ids.add(p.id)));
+    return ids.size;
+  }
+
+  get seancesAVenir(): number {
+    const today = new Date().toISOString().slice(0,10);
+    return this.scheduledDays.filter(s => s.date >= today).reduce((acc, s) => acc + s.patients.length, 0);
+  }
+
+  // ── Patient detail modal ──
+  selectedPatient: AssignedPatient | null = null;
+  activeTab: 'ordonnances' | 'constantes' = 'ordonnances';
+  constantesForm: ConstantesForm = { tensionSys: null, tensionDia: null, poids: null, bpm: null, notes: '' };
+
+  openPatient(p: AssignedPatient): void {
+    this.selectedPatient = p;
+    this.activeTab = 'ordonnances';
+    this.constantesForm = { tensionSys: null, tensionDia: null, poids: null, bpm: null, notes: '' };
+  }
+
+  closePatient(): void { this.selectedPatient = null; }
+
+  setTab(t: 'ordonnances' | 'constantes'): void { this.activeTab = t; }
+
+  saveConstantes(): void {
+    const f = this.constantesForm;
+    if (!f.tensionSys || !f.tensionDia || !f.poids || !f.bpm) {
+      this.showToast('Veuillez remplir tous les champs obligatoires', 'warning');
+      return;
+    }
+    this.showToast(
+      `Constantes de ${this.selectedPatient?.name} enregistrées — TA: ${f.tensionSys}/${f.tensionDia}, Poids: ${f.poids}kg, FC: ${f.bpm}bpm`,
+      'success'
+    );
+    this.closePatient();
+  }
+
+  get tensionColor(): string {
+    const { tensionSys: s, tensionDia: d } = this.constantesForm;
+    if (!s || !d) return 'var(--c-text-3)';
+    if (s >= 140 || d >= 90) return 'var(--c-red)';
+    if (s < 90  || d < 60)  return 'var(--c-amber)';
+    return 'var(--c-green)';
+  }
+
+  get tensionBadge(): string {
+    const { tensionSys: s, tensionDia: d } = this.constantesForm;
+    if (!s || !d) return 'neutral';
+    if (s >= 140 || d >= 90) return 'crit';
+    if (s < 90  || d < 60)  return 'warn';
+    return 'ok';
+  }
+
+  get tensionLabel(): string {
+    const { tensionSys: s, tensionDia: d } = this.constantesForm;
+    if (!s || !d) return '—';
+    if (s >= 180 || d >= 120) return 'Crise hypertensive';
+    if (s >= 140 || d >= 90)  return 'Hypertension';
+    if (s < 90  || d < 60)   return 'Hypotension';
+    return 'Normale';
+  }
+
+  patientBadgeClass(s: string): string { return s === 'post' ? 'ok' : s === 'active' ? 'info' : 'purple'; }
+  patientBadgeLabel(s: string): string { return s === 'post' ? 'Post-séance' : s === 'active' ? 'En dialyse' : 'En attente'; }
 
   constructor(private router: Router) {}
   logout(): void { this.router.navigate(['/login']); }
