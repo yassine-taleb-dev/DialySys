@@ -840,12 +840,12 @@
               <tr><th>Personnel</th><th>Rôle</th><th>Jours planifiés</th><th>Heure début</th><th>Heure fin</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              <tr *ngFor="let h of paginatedHoraires">
+              <tr *ngFor="let h of paginatedGroupedHoraires">
                 <td><b>{{ h.staffNom }}</b></td>
                 <td>{{ h.staffRole }}</td>
                 <td>
                   <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                    <span *ngFor="let jour of h.jours"
+                    <span *ngFor="let jour of getVisibleHoraireDates(h.dates)"
                           class="badge info"
                           style="font-size:11px;padding:2px 8px;font-family:monospace;">
                       {{ formatJours([jour]) }}
@@ -856,17 +856,23 @@
                 <td>{{ h.heureFin }}</td>
                 <td>
                   <div class="row-actions">
-                    <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
-                    <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                    <button class="row-btn" (click)="openEditHoraire(h.horaires[0])" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerGroupedHoraires(h)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="filteredHoraires.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">event_busy</span> Aucun horaire planifié</td></tr>
+              <tr *ngIf="filteredGroupedHoraires.length === 0">
+                <td colspan="6" class="empty-row">
+                  <span class="material-icons">event_busy</span>
+                  <ng-container *ngIf="filterHoraireDate">Aucun horaire trouvé pour le {{ formatFilterDate(filterHoraireDate) }}</ng-container>
+                  <ng-container *ngIf="!filterHoraireDate">Aucun horaire planifié</ng-container>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" *ngIf="filteredHoraires.length > 0">
-          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredHoraires.length) }} sur {{ filteredHoraires.length }}</span>
+        <div class="pagination-bar" *ngIf="filteredGroupedHoraires.length > 0">
+          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredGroupedHoraires.length) }} sur {{ filteredGroupedHoraires.length }}</span>
           <div class="pg-nav">
             <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', 1, totalHorairePages)" title="Première page"><span class="material-icons">first_page</span></button>
             <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', horairePage - 1, totalHorairePages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
@@ -875,7 +881,7 @@
             <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', totalHorairePages, totalHorairePages)" title="Dernière page"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ horaires.length }} horaire(s) enregistré(s)</div>
+        <div class="panel__footer">{{ filteredGroupedHoraires.length }} groupe(s) · {{ horaires.length }} horaire(s) enregistré(s)</div>
       </div>
     </ng-container>
 

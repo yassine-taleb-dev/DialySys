@@ -41,6 +41,16 @@ export interface GroupedSeance {
   seances: SeanceAdminRow[];  // séances individuelles du groupe
 }
 
+export interface GroupedHoraire {
+  utilisateurId: number;
+  staffNom: string;
+  staffRole: string;
+  dates: string[];
+  heureDebut: string;
+  heureFin: string;
+  horaires: HoraireRow[];
+}
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -168,6 +178,7 @@ private stopPolling(): void {
   searchQuery = ''; filterRole: RoleId | '' = ''; filterStatus: UserStatus | '' = '';
   searchPatient = '';
   searchHoraire = '';
+  filterHoraireDate = '';
   searchSeance = '';
   filterSeanceDate = '';   // ← NOUVEAU : filtre par date (input type="date" → format ISO yyyy-MM-dd)
   readonly pageSize = 4;
@@ -556,7 +567,9 @@ private stopPolling(): void {
       role: this.toBackendRole(this.selectedUser.role),
       specialite: this.selectedUser.specialite ?? null,
       superviseurId: this.selectedUser.superviseurId ?? null,
-      actif: this.selectedUser.statut === 'actif'
+      actif: this.selectedUser.statut === 'actif',
+      telephone: this.normalizePhone(this.selectedUser.telephone) || null,
+      service: this.selectedUser.service?.trim() || null
     };
     this.utilisateurService.update(this.selectedUser.id, payload).subscribe({
       next: () => {
@@ -762,20 +775,97 @@ private stopPolling(): void {
     return jours.map(j => this.isoToDisplayDate(j)).join(', ');
   }
 
-  get filteredHoraires(): HoraireRow[] {
-    const q = this.searchHoraire.toLowerCase().trim();
-    return !q ? this.horaires : this.horaires.filter(h =>
-      h.staffNom.toLowerCase().includes(q) || h.staffRole.toLowerCase().includes(q) ||
-      this.formatJours(h.jours).toLowerCase().includes(q) || h.heureDebut.includes(q) || h.heureFin.includes(q)
-    );
+  private groupHoraires(horaires: HoraireRow[]): GroupedHoraire[] {
+    const map = new Map<string, GroupedHoraire>();
+
+    for (const horaire of horaires) {
+      const key = `${horaire.utilisateurId}|${horaire.staffRole}|${horaire.heureDebut}|${horaire.heureFin}`;
+      const existing = map.get(key);
+
+      if (existing) {
+        const combinedDates = [...existing.dates, ...horaire.jours];
+        existing.dates = [...new Set(combinedDates)].sort((a, b) => a.localeCompare(b));
+        existing.horaires.push(horaire);
+      } else {
+        map.set(key, {
+          utilisateurId: horaire.utilisateurId,
+          staffNom: horaire.staffNom,
+          staffRole: horaire.staffRole,
+          dates: [...horaire.jours].sort((a, b) => a.localeCompare(b)),
+          heureDebut: horaire.heureDebut,
+          heureFin: horaire.heureFin,
+          horaires: [horaire]
+        });
+      }
+    }
+
+    return Array.from(map.values());
   }
 
-  get paginatedHoraires(): HoraireRow[] {
-    return this.paginateArray(this.filteredHoraires, 'horairePage');
+  get filteredHorairesFlat(): HoraireRow[] {
+    const q = this.searchHoraire.toLowerCase().trim();
+    let result = this.horaires;
+
+    if (this.filterHoraireDate) {
+      result = result.filter(h => h.jours.includes(this.filterHoraireDate));
+    }
+
+    if (!q) return result;
+
+    return result.filter(h => {
+      const datesDisplay = this.formatJours(h.jours).toLowerCase();
+      const datesIso = h.jours.join(' ').toLowerCase();
+      return (
+        h.staffNom.toLowerCase().includes(q) ||
+        h.staffRole.toLowerCase().includes(q) ||
+        datesDisplay.includes(q) ||
+        datesIso.includes(q) ||
+        h.heureDebut.includes(q) ||
+        h.heureFin.includes(q)
+      );
+    });
+  }
+
+  get filteredGroupedHoraires(): GroupedHoraire[] {
+    return this.groupHoraires(this.filteredHorairesFlat);
+  }
+
+  get paginatedGroupedHoraires(): GroupedHoraire[] {
+    const items = this.filteredGroupedHoraires;
+    const totalPages = this.getTotalPages(items.length);
+    if (this.horairePage > totalPages) {
+      this.horairePage = totalPages;
+    }
+    const start = (this.horairePage - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
   }
 
   get totalHorairePages(): number {
-    return this.getTotalPages(this.filteredHoraires.length);
+    return this.getTotalPages(this.filteredGroupedHoraires.length);
+  }
+
+  supprimerGroupedHoraires(group: GroupedHoraire): void {
+    const ids = group.horaires.map(h => h.id);
+    forkJoin(ids.map(id => this.horaireTravailService.delete(id))).subscribe({
+      next: () => {
+        this.showToast(`${ids.length} horaire(s) supprimé(s)`, 'warning');
+        this.refreshAdminCollections(false, true);
+      },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les horaires', 'error')
+    });
+  }
+
+  getVisibleHoraireDates(dates: string[]): string[] {
+    const query = this.searchHoraire.trim().toLowerCase();
+    if (!query) {
+      return dates;
+    }
+    const matchedDates = dates.filter(date => {
+      const iso = date.toLowerCase();
+      const display = this.isoToDisplayDate(date).toLowerCase();
+      return iso.includes(query) || display.includes(query);
+    });
+    return matchedDates.length ? matchedDates : dates;
   }
 
   get staffSoignants(): AppUser[] { return this.users.filter(u => ['infirmier', 'aide-soignant', 'infirmier-majeur'].includes(u.role)); }
