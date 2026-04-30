@@ -646,7 +646,7 @@
       <div class="horaire-form-layout">
         <div class="horaire-form-left">
           <div class="form-field"><label>Patient</label><select [(ngModel)]="editSeance.patientId"><option [value]="p.id" *ngFor="let p of patientsUsers">{{ p.prenom }} {{ p.nom }}</option></select></div>
-          <div class="form-field"><label>Aide-Soignant</label><select [(ngModel)]="editSeance.responsableId"><option [value]="null">— Aucun —</option><option [value]="a.id" *ngFor="let a of aidesSoignants">{{ a.prenom }} {{ a.nom }}</option></select></div>
+          <div class="form-field"><label>Aide-Soignant</label><select [(ngModel)]="editSeance.responsableId"><option [ngValue]="null"> Sélection automatique </option><option [value]="a.id" *ngFor="let a of availableAidesSoignantsForEdit">{{ a.prenom }} {{ a.nom }} ? {{ getAideSoignantLoadForEdit(a.id) }} patient(s)</option></select><small *ngIf="editSeanceDates.length">Liste tri?e par disponibilit? et charge minimale sur les dates choisies.</small><small *ngIf="editSeanceDates.length && availableAidesSoignantsForEdit.length === 0">Aucun aide-soignant disponible sur cette plage horaire.</small></div>
           <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="editSeance.heureDebut" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
           <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="editSeance.heureFin" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
           <div class="form-field"><label>Machine</label><select [(ngModel)]="editSeance.machine"><option value="">— Sélectionner —</option><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select></div>

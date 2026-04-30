@@ -876,6 +876,29 @@
 .modal-panel--edit-horaire {
   max-width: 820px;
   width: 96vw;
+  max-height: 90vh;        // ← ajouter
+  display: flex;           // ← ajouter
+  flex-direction: column;  // ← ajouter
+  .modal-header {
+    flex-shrink: 0;        // ← ajouter
+  }
+
+  .modal-body {
+    flex: 1;               // ← ajouter
+    overflow-y: auto;      // ← ajouter
+}
+ &::-webkit-scrollbar { width: 5px; }
+    &::-webkit-scrollbar-track { background: var(--c-surface-1); }
+    &::-webkit-scrollbar-thumb {
+      background: var(--c-border);
+      border-radius: 3px;
+      &:hover { background: var(--c-teal); }
+    }
+    }
+
+  .modal-actions {
+    flex-shrink: 0;        // ← ajouter
+  
 }
 
 // â”€â”€ Form section label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

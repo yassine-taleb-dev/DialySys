@@ -1073,11 +1073,33 @@ private stopPolling(): void {
       return `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
     });
   }
+
+  get availableAidesSoignantsForEdit(): AppUser[] {
+    const candidates = this.aidesSoignants.filter(user => this.isAideSoignantAvailableForEdit(user.id));
+    return [...candidates].sort((left, right) => {
+      const loadDiff = this.getAideSoignantLoadForEdit(left.id) - this.getAideSoignantLoadForEdit(right.id);
+      if (loadDiff !== 0) {
+        return loadDiff;
+      }
+      return `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
+    });
+  }
   get patientsUsers(): AppUser[] { return this.users.filter(u => u.role === 'patient'); }
 
   getAideSoignantLoadForSelection(userId: number): number {
     const dates = this.newSeance.dates.length ? this.newSeance.dates : [this.todayLocalIso()];
     return this.seancesAdmin.filter(seance =>
+      seance.responsableId === userId &&
+      dates.includes(this.displayToIsoDate(seance.date))
+    ).length;
+  }
+
+  getAideSoignantLoadForEdit(userId: number): number {
+    const dates = this.editSeanceDates.length
+      ? this.editSeanceDates
+      : (this.editSeance ? [this.displayToIsoDate(this.editSeance.date)] : [this.todayLocalIso()]);
+    return this.seancesAdmin.filter(seance =>
+      seance.id !== this.editSeance?.id &&
       seance.responsableId === userId &&
       dates.includes(this.displayToIsoDate(seance.date))
     ).length;
@@ -1096,7 +1118,7 @@ private stopPolling(): void {
       date, heureDebut: this.newSeance.heureDebut, heureFin: this.newSeance.heureFin,
       machine: this.newSeance.machine, notes: 'Planifiee depuis l administration',
       dureeHeures: this.computeDuration(this.newSeance.heureDebut, this.newSeance.heureFin),
-      patientId: Number(this.newSeance.patientId), utilisateurId
+      patientId: Number(this.newSeance.patientId), utilisateurId, aideSoignantId: utilisateurId
     }));
     forkJoin(requests.map(r => this.seanceService.create(r))).subscribe({
       next: () => { this.resetNewSeanceForm(); this.showToast('Seance(s) planifiee(s) avec succes', 'success'); this.refreshAdminCollections(false, true); },
@@ -1121,7 +1143,7 @@ private stopPolling(): void {
   editSeanceCalPrevMonth(): void { this.editSeanceCalMonth === 0 ? (this.editSeanceCalMonth = 11, this.editSeanceCalYear--) : this.editSeanceCalMonth--; }
   editSeanceCalNextMonth(): void { this.editSeanceCalMonth === 11 ? (this.editSeanceCalMonth = 0, this.editSeanceCalYear++) : this.editSeanceCalMonth++; }
   get editSeanceCalDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.editSeanceCalYear, this.editSeanceCalMonth); }
-  toggleEditSeanceCalDay(date: string): void { this.toggleDateSelection(this.editSeanceDates, date); this.refreshAvailableMachinesForEditSeance(); }
+  toggleEditSeanceCalDay(date: string): void { this.toggleDateSelection(this.editSeanceDates, date); this.syncSelectedAideSoignantForEdit(); this.refreshAvailableMachinesForEditSeance(); }
   isEditSeanceDaySelected(date: string): boolean { return this.editSeanceDates.includes(date); }
 
   openEditSeance(s: SeanceAdminRow): void {
@@ -1130,16 +1152,23 @@ private stopPolling(): void {
     this.editSeanceCalYear = new Date().getFullYear();
     this.editSeanceCalMonth = new Date().getMonth();
     this.showEditSeanceModal = true;
+    this.syncSelectedAideSoignantForEdit();
     this.refreshAvailableMachinesForEditSeance();
   }
 
   saveEditSeance(): void {
     if (!this.editSeance) return;
+    const aideSoignantId = this.resolveAvailableAideSoignantIdForEdit();
+    if (!aideSoignantId) {
+      this.showToast('Aucun aide-soignant disponible pour cette plage horaire', 'warning');
+      return;
+    }
     const payload: SeanceUpdateRequestDto = {
       date: this.editSeanceDates[0] || this.displayToIsoDate(this.editSeance.date),
       heureDebut: this.editSeance.heureDebut, heureFin: this.editSeance.heureFin,
       machine: this.editSeance.machine, statut: this.normalizeSeanceStatut(this.editSeance.statut),
-      notes: 'Mise a jour depuis l administration'
+      notes: 'Mise a jour depuis l administration',
+      aideSoignantId
     };
     this.seanceService.update(this.editSeance.id, payload).subscribe({
       next: () => { this.showEditSeanceModal = false; this.editSeance = null; this.editSeanceDates = []; this.showToast('Seance modifiee avec succes', 'success'); this.refreshAdminCollections(false, true); },
@@ -1269,13 +1298,19 @@ private stopPolling(): void {
   }
 
   private mapSeanceToRow(dto: SeanceDto): SeanceAdminRow {
-    const responsable = dto.utilisateur ? `${dto.utilisateur.prenom} ${dto.utilisateur.nom}` : '—';
+    const aideSoignant = dto.aideSoignant;
+    const aideSoignantNom = aideSoignant ? `${aideSoignant.prenom} ${aideSoignant.nom}` : '—';
     return {
-      id: dto.id, patientId: dto.patient.id, patientNom: `${dto.patient.prenom} ${dto.patient.nom}`,
-      responsableId: dto.utilisateur?.id ?? null, aideSoignantNom: responsable,
+      id: dto.id,
+      patientId: dto.patient.id,
+      patientNom: `${dto.patient.prenom} ${dto.patient.nom}`,
+      responsableId: aideSoignant?.id ?? null,
+      aideSoignantNom,
       date: this.isoToDisplayDate(String(dto.date)),
-      heureDebut: this.timeOnly(String(dto.heureDebut)), heureFin: this.timeOnly(String(dto.heureFin)),
-      machine: dto.machine ?? '—', statut: this.normalizeSeanceStatut(dto.statut)
+      heureDebut: this.timeOnly(String(dto.heureDebut)),
+      heureFin: this.timeOnly(String(dto.heureFin)),
+      machine: dto.machine ?? '—',
+      statut: this.normalizeSeanceStatut(dto.statut)
     };
   }
 
@@ -1366,6 +1401,18 @@ private stopPolling(): void {
     }
   }
 
+  private syncSelectedAideSoignantForEdit(): void {
+    if (!this.editSeance?.responsableId) {
+      return;
+    }
+
+    const selectedId = Number(this.editSeance.responsableId);
+    const stillAvailable = this.availableAidesSoignantsForEdit.some(user => user.id === selectedId);
+    if (!stillAvailable) {
+      this.editSeance.responsableId = this.availableAidesSoignantsForEdit[0]?.id ?? null;
+    }
+  }
+
   private resolveAvailableAideSoignantId(): number | null {
     const selectedId = this.newSeance.aideSoignantId ? Number(this.newSeance.aideSoignantId) : null;
     if (selectedId && this.availableAidesSoignants.some(user => user.id === selectedId)) {
@@ -1373,6 +1420,15 @@ private stopPolling(): void {
     }
 
     return this.availableAidesSoignants[0]?.id ?? null;
+  }
+
+  private resolveAvailableAideSoignantIdForEdit(): number | null {
+    const selectedId = this.editSeance?.responsableId ? Number(this.editSeance.responsableId) : null;
+    if (selectedId && this.availableAidesSoignantsForEdit.some(user => user.id === selectedId)) {
+      return selectedId;
+    }
+
+    return this.availableAidesSoignantsForEdit[0]?.id ?? null;
   }
 
   private isAideSoignantAvailableForSelection(userId: number): boolean {
@@ -1386,6 +1442,18 @@ private stopPolling(): void {
     );
   }
 
+  private isAideSoignantAvailableForEdit(userId: number): boolean {
+    if (!this.editSeance) {
+      return false;
+    }
+
+    const dates = this.editSeanceDates.length ? this.editSeanceDates : [this.displayToIsoDate(this.editSeance.date)];
+    return dates.every(date =>
+      this.hasHoraireCoverage(userId, date, this.editSeance!.heureDebut, this.editSeance!.heureFin) &&
+      !this.hasSeanceConflict(userId, date, this.editSeance!.heureDebut, this.editSeance!.heureFin, this.editSeance!.id)
+    );
+  }
+
   private hasHoraireCoverage(userId: number, date: string, start: string, end: string): boolean {
     return this.horaires.some(horaire =>
       horaire.utilisateurId === userId &&
@@ -1395,8 +1463,9 @@ private stopPolling(): void {
     );
   }
 
-  private hasSeanceConflict(userId: number, date: string, start: string, end: string): boolean {
+  private hasSeanceConflict(userId: number, date: string, start: string, end: string, excludeSeanceId?: number): boolean {
     return this.seancesAdmin.some(seance =>
+      seance.id !== excludeSeanceId &&
       seance.responsableId === userId &&
       this.displayToIsoDate(seance.date) === date &&
       this.rangesOverlap(start, end, seance.heureDebut, seance.heureFin)
@@ -1460,6 +1529,7 @@ private stopPolling(): void {
   }
 
   onEditSeanceScheduleChange(): void {
+    this.syncSelectedAideSoignantForEdit();
     this.refreshAvailableMachinesForEditSeance();
   }
 

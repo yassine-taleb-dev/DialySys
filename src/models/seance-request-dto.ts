@@ -7,4 +7,5 @@ export interface SeanceRequestDto {
   dureeHeures: number;
   patientId: number;
   utilisateurId: number;
+  aideSoignantId?: number | null;
 }

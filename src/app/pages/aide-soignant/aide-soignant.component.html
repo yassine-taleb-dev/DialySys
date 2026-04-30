@@ -1,4 +1,4 @@
-<!-- ══ Toasts ══════════════════════════════════════════════════════════════ -->
+<!-- Toasts -->
 <div class="toast-container">
   <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
     <span class="material-icons">{{ toastIcon(t.type) }}</span>
@@ -7,16 +7,13 @@
   </div>
 </div>
 
-<!-- ══ Modal Détail Patient ═══════════════════════════════════════════════ -->
 <div class="pd-overlay" *ngIf="selectedPatient" (click)="closePatient()">
   <div class="pd-panel" (click)="$event.stopPropagation()">
-
-    <!-- Header -->
     <div class="pd-head">
       <div class="pd-head__avatar">{{ selectedPatient.initials }}</div>
       <div class="pd-head__info">
         <h2>{{ selectedPatient.name }}</h2>
-        <span>Machine {{ selectedPatient.machine }} · {{ selectedPatient.heureDebut }} – {{ selectedPatient.heureFin }}</span>
+        <span>Machine {{ selectedPatient.machine }} � {{ selectedPatient.heureDebut }} - {{ selectedPatient.heureFin }}</span>
       </div>
       <span class="badge pd-head__badge" [ngClass]="patientBadgeClass(selectedPatient.status)">
         {{ patientBadgeLabel(selectedPatient.status) }}
@@ -26,21 +23,19 @@
       </button>
     </div>
 
-    <!-- Tabs -->
     <div class="pd-tabs">
       <button class="pd-tab" [class.pd-tab--active]="activeTab === 'ordonnances'" (click)="setTab('ordonnances')">
         <span class="material-icons">receipt_long</span> Ordonnances
       </button>
       <button class="pd-tab" [class.pd-tab--active]="activeTab === 'constantes'" (click)="setTab('constantes')">
-        <span class="material-icons">monitor_heart</span> Constantes Vitales
+        <span class="material-icons">monitor_heart</span> Constantes vitales
       </button>
     </div>
 
-    <!-- Tab: Ordonnances -->
     <div class="pd-body" *ngIf="activeTab === 'ordonnances'">
       <div *ngIf="selectedPatient.ordonnances.length === 0" class="pd-empty">
         <span class="material-icons">description_off</span>
-        <p>Aucune ordonnance enregistrée</p>
+        <p>Aucune ordonnance enregistree</p>
       </div>
       <div class="ord-list" *ngIf="selectedPatient.ordonnances.length > 0">
         <div class="ord-card" *ngFor="let o of selectedPatient.ordonnances">
@@ -52,13 +47,12 @@
             <div class="ord-card__posologie">{{ o.posologie }}</div>
             <div class="ord-card__meta">
               <span class="material-icons">person</span> {{ o.medecin }}
-              <span class="ord-sep">·</span>
+              <span class="ord-sep">�</span>
               <span class="material-icons">calendar_today</span> {{ formatDate(o.date) }}
             </div>
           </div>
         </div>
       </div>
-      <!-- CTA to constantes -->
       <div class="pd-cta">
         <button class="pd-cta-btn" (click)="setTab('constantes')">
           <span class="material-icons">monitor_heart</span> Saisir les constantes vitales
@@ -66,14 +60,11 @@
       </div>
     </div>
 
-    <!-- Tab: Constantes vitales -->
     <div class="pd-body" *ngIf="activeTab === 'constantes'">
-
-      <!-- Tension -->
       <div class="cv-section">
         <div class="cv-section__title">
           <span class="material-icons" style="color:var(--c-red)">bloodtype</span>
-          Tension artérielle
+          Tension arterielle
         </div>
         <div class="cv-row">
           <div class="cv-field">
@@ -82,7 +73,7 @@
               <input type="number" [(ngModel)]="constantesForm.tensionSys" placeholder="120" min="60" max="250" />
               <span class="cv-unit">mmHg</span>
             </div>
-            <small>Normale : 100 – 140</small>
+            <small>Normale : 100 - 140</small>
           </div>
           <div class="cv-field__sep"><span>/</span></div>
           <div class="cv-field">
@@ -91,7 +82,7 @@
               <input type="number" [(ngModel)]="constantesForm.tensionDia" placeholder="80" min="30" max="150" />
               <span class="cv-unit">mmHg</span>
             </div>
-            <small>Normale : 60 – 90</small>
+            <small>Normale : 60 - 90</small>
           </div>
         </div>
         <div class="cv-tension-result" *ngIf="constantesForm.tensionSys && constantesForm.tensionDia">
@@ -103,7 +94,6 @@
         </div>
       </div>
 
-      <!-- Poids + BPM -->
       <div class="cv-section">
         <div class="cv-section__title">
           <span class="material-icons" style="color:var(--c-teal)">vital_signs</span>
@@ -116,15 +106,15 @@
               <input type="number" [(ngModel)]="constantesForm.poids" placeholder="70.0" min="20" max="300" step="0.1" />
               <span class="cv-unit">kg</span>
             </div>
-            <small>Avant séance</small>
+            <small>Avant seance</small>
           </div>
           <div class="cv-field cv-field--big">
-            <label><span class="material-icons" style="color:var(--c-green);font-size:15px">favorite</span> Fréquence cardiaque <span class="req">*</span></label>
+            <label><span class="material-icons" style="color:var(--c-green);font-size:15px">favorite</span> Frequence cardiaque <span class="req">*</span></label>
             <div class="cv-input-box">
               <input type="number" [(ngModel)]="constantesForm.bpm" placeholder="75" min="30" max="220" />
               <span class="cv-unit">bpm</span>
             </div>
-            <small>Normale : 60 – 100 bpm</small>
+            <small>Normale : 60 - 100 bpm</small>
           </div>
         </div>
         <div class="cv-vitals-chips" *ngIf="constantesForm.poids || constantesForm.bpm">
@@ -143,31 +133,26 @@
         </div>
       </div>
 
-      <!-- Notes -->
       <div class="cv-section">
         <div class="cv-section__title">
           <span class="material-icons" style="color:var(--c-text-3)">notes</span> Observations
         </div>
         <textarea class="cv-textarea" [(ngModel)]="constantesForm.notes" rows="3"
-                  placeholder="Observations, comportement, alertes…"></textarea>
+                  placeholder="Observations, comportement, alertes..."></textarea>
       </div>
 
-      <!-- Footer -->
       <div class="cv-footer">
         <button class="cv-btn-cancel" (click)="closePatient()">Annuler</button>
         <button class="cv-btn-save" (click)="saveConstantes()">
-          <span class="material-icons">save</span> Enregistrer
+          <span class="material-icons">save</span>
+          {{ selectedPatient.currentConstantesId ? 'Modifier' : 'Enregistrer' }}
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- ══ Page Shell ════════════════════════════════════════════════════════ -->
 <div class="as-page">
-
-  <!-- ── Topbar ──────────────────────────────────────────────────────── -->
   <header class="as-topbar">
     <div class="as-topbar__brand">
       <svg width="24" height="24" viewBox="0 0 44 44" fill="none">
@@ -179,7 +164,7 @@
       </svg>
       <span class="as-topbar__name">DialySys</span>
       <span class="as-topbar__sep">|</span>
-      <span class="as-topbar__role">Aide-Soignant</span>
+      <span class="as-topbar__role">Aide-soignant</span>
     </div>
     <div class="as-topbar__center">
       <span class="material-icons">calendar_today</span>
@@ -187,28 +172,24 @@
     </div>
     <div class="as-topbar__right">
       <div class="as-user-chip">
-        <div class="as-user-chip__avatar">AS</div>
-        <span>Y. Kettani</span>
+        <div class="as-user-chip__avatar">{{ currentUserInitials }}</div>
+        <span>{{ currentUserName }}</span>
       </div>
-      <button class="as-logout" (click)="logout()" title="Déconnexion">
+      <button class="as-logout" (click)="logout()" title="Deconnexion">
         <span class="material-icons">logout</span>
       </button>
     </div>
   </header>
 
-  <!-- ── Content ────────────────────────────────────────────────────── -->
   <div class="as-content">
-
-    <!-- ════ Stats Cards ═════════════════════════════════════════════ -->
     <div class="as-stats-row">
-
       <div class="as-stat-card as-stat-card--teal">
         <div class="as-stat-card__icon">
           <span class="material-icons">event_available</span>
         </div>
         <div class="as-stat-card__body">
           <div class="as-stat-card__val">{{ totalJoursMois }}</div>
-          <div class="as-stat-card__lbl">Jours programmés ce mois</div>
+          <div class="as-stat-card__lbl">Jours programmes ce mois</div>
         </div>
       </div>
 
@@ -228,7 +209,7 @@
         </div>
         <div class="as-stat-card__body">
           <div class="as-stat-card__val">{{ seancesAVenir }}</div>
-          <div class="as-stat-card__lbl">Séances à venir</div>
+          <div class="as-stat-card__lbl">Seances a venir</div>
         </div>
       </div>
 
@@ -238,86 +219,81 @@
         </div>
         <div class="as-stat-card__body">
           <div class="as-stat-card__val">{{ selectedDayPatients.length }}</div>
-          <div class="as-stat-card__lbl">Patients jour sélectionné</div>
+          <div class="as-stat-card__lbl">Patients jour selectionne</div>
         </div>
       </div>
-
     </div>
 
-    <!-- ════ Calendrier + Patients ══════════════════════════════════ -->
     <div class="as-main-grid">
+  <div class="as-cal-card">
+  <div class="as-cal-header">
+    <button class="as-cal-nav" (click)="calPrev()">
+      <span class="material-icons">chevron_left</span>
+    </button>
+    <div class="as-cal-title">
+      <span class="as-cal-month">{{ moisLabels[calMonth] }}</span>
+      <span class="as-cal-year">{{ calYear }}</span>
+    </div>
+    <button class="as-cal-nav" (click)="calNext()">
+      <span class="material-icons">chevron_right</span>
+    </button>
+  </div>
 
-      <!-- ── Calendrier ─────────────────────────────────────────── -->
-      <div class="as-cal-card">
+  <div class="as-cal-grid">
+    <div class="as-cal-dayname" *ngFor="let d of dayNames">{{ d }}</div>
 
-        <div class="as-cal-header">
-          <button class="as-cal-nav" (click)="calPrev()">
-            <span class="material-icons">chevron_left</span>
-          </button>
-          <div class="as-cal-title">
-            <span class="as-cal-month">{{ moisLabels[calMonth] }}</span>
-            <span class="as-cal-year">{{ calYear }}</span>
-          </div>
-          <button class="as-cal-nav" (click)="calNext()">
-            <span class="material-icons">chevron_right</span>
-          </button>
-        </div>
-
-        <div class="as-cal-grid">
-          <div class="as-cal-dayname" *ngFor="let d of dayNames">{{ d }}</div>
-
-          <ng-container *ngFor="let cell of calDays">
-            <div *ngIf="cell === null" class="as-cal-cell as-cal-cell--empty"></div>
-            <div *ngIf="cell !== null"
-                 class="as-cal-cell"
-                 [class.as-cal-cell--today]="cell.today"
-                 [class.as-cal-cell--scheduled]="cell.scheduled"
-                 [class.as-cal-cell--selected]="cell.date === selectedCalDate"
-                 [class.as-cal-cell--disabled]="!cell.scheduled"
-                 (click)="selectDay(cell)">
-              <span class="as-cal-cell__num">{{ cell.day }}</span>
-              <div class="as-cal-cell__dots" *ngIf="cell.scheduled">
-                <span *ngFor="let i of [].constructor(cell.patientCount > 3 ? 3 : cell.patientCount)"
-                      class="as-cal-cell__dot"></span>
-              </div>
-              <span class="as-cal-cell__count" *ngIf="cell.scheduled && cell.patientCount > 0">
-                {{ cell.patientCount }}
-              </span>
-            </div>
-          </ng-container>
-        </div>
-
-        <div class="as-cal-legend">
-          <div class="as-cal-legend-item"><span class="as-cal-ld as-cal-ld--today"></span> Aujourd'hui</div>
-          <div class="as-cal-legend-item"><span class="as-cal-ld as-cal-ld--scheduled"></span> Programmé</div>
-          <div class="as-cal-legend-item"><span class="as-cal-ld as-cal-ld--selected"></span> Sélectionné</div>
-        </div>
+    <ng-container *ngFor="let cell of calDays">
+      <div *ngIf="cell === null" class="as-cal-cell as-cal-cell--empty"></div>
+      <div *ngIf="cell !== null"
+           class="as-cal-cell"
+           [class.as-cal-cell--today]="cell.today"
+           [class.as-cal-cell--scheduled]="cell.scheduled"
+           [class.as-cal-cell--selected]="cell.date === selectedCalDate"
+           [class.as-cal-cell--disabled]="!cell.scheduled"
+           (click)="selectDay(cell)">
+        <span class="as-cal-cell__num">{{ cell.day }}</span>
+        <span class="as-cal-cell__dot" *ngIf="cell.scheduled && cell.date !== selectedCalDate"></span>
       </div>
+    </ng-container>
+  </div>
 
-      <!-- ── Panneau Patients ───────────────────────────────────── -->
+  <div class="as-cal-legend">
+    <div class="as-cal-legend-item">
+      <span class="as-cal-ld as-cal-ld--today"></span> Aujourd'hui
+    </div>
+    <div class="as-cal-legend-item">
+      <span class="as-cal-ld as-cal-ld--scheduled"></span> Programmé
+    </div>
+    <div class="as-cal-legend-item">
+      <span class="as-cal-ld as-cal-ld--selected"></span> Sélectionné
+    </div>
+  </div>
+</div>
+
       <div class="as-patients-panel">
+        <div class="as-panel-empty" *ngIf="loading">
+          <span class="material-icons">progress_activity</span>
+          <h3>Chargement</h3>
+          <p>Recuperation de vos seances et ordonnances depuis le backend.</p>
+        </div>
 
-        <!-- Pas de jour sélectionné -->
-        <div class="as-panel-empty" *ngIf="!selectedCalDate">
+        <div class="as-panel-empty" *ngIf="!loading && !selectedCalDate">
           <span class="material-icons">touch_app</span>
-          <h3>Sélectionnez un jour</h3>
-          <p>Cliquez sur un jour programmé (en vert) dans le calendrier pour voir les patients qui vous sont assignés.</p>
+          <h3>Selectionnez un jour</h3>
+          <p>Cliquez sur un jour programme dans le calendrier pour voir les patients qui vous sont assignes.</p>
           <div class="as-panel-hint">
             <span class="material-icons">event_note</span>
-            {{ totalJoursMois }} jour(s) programmé(s) ce mois
+            {{ totalJoursMois }} jour(s) programme(s) ce mois
           </div>
         </div>
 
-        <!-- Jour sans patients -->
-        <div class="as-panel-empty" *ngIf="selectedCalDate && selectedDayPatients.length === 0">
+        <div class="as-panel-empty" *ngIf="!loading && selectedCalDate && selectedDayPatients.length === 0">
           <span class="material-icons">person_off</span>
           <h3>Aucun patient</h3>
-          <p>Aucun patient assigné le {{ formatDate(selectedCalDate) }}.</p>
+          <p>Aucun patient assigne le {{ formatDate(selectedCalDate) }}.</p>
         </div>
 
-        <!-- Liste patients -->
-        <ng-container *ngIf="selectedCalDate && selectedDayPatients.length > 0">
-
+        <ng-container *ngIf="!loading && selectedCalDate && selectedDayPatients.length > 0">
           <div class="as-panel-head">
             <div class="as-panel-head__left">
               <span class="material-icons">event</span>
@@ -327,23 +303,20 @@
           </div>
 
           <div class="as-patient-list">
-            <div class="as-patient-card" *ngFor="let p of selectedDayPatients; let i = index"
-                 (click)="openPatient(p)">
-
+            <div class="as-patient-card" *ngFor="let p of selectedDayPatients; let i = index" (click)="openPatient(p)">
               <div class="as-patient-card__index">{{ i + 1 }}</div>
-
               <div class="as-patient-card__avatar">{{ p.initials }}</div>
 
               <div class="as-patient-card__body">
                 <div class="as-patient-card__name">{{ p.name }}</div>
                 <div class="as-patient-card__sub">
                   <span class="material-icons">medical_services</span> Machine {{ p.machine }}
-                  <span class="ord-sep">·</span>
+                  <span class="ord-sep">�</span>
                   <span class="material-icons">receipt_long</span> {{ p.ordonnances.length }} ordonnance(s)
                 </div>
                 <div class="as-patient-card__time">
                   <span class="material-icons">schedule</span>
-                  {{ p.heureDebut }} – {{ p.heureFin }}
+                  {{ p.heureDebut }} - {{ p.heureFin }}
                 </div>
               </div>
 
@@ -355,7 +328,6 @@
                   <span class="material-icons">open_in_new</span>
                 </div>
               </div>
-
             </div>
           </div>
 
@@ -363,11 +335,8 @@
             <span class="material-icons">touch_app</span>
             Cliquez sur un patient pour voir ses ordonnances et saisir ses constantes vitales
           </div>
-
         </ng-container>
       </div>
-
-    </div><!-- /as-main-grid -->
-
-  </div><!-- /as-content -->
-</div><!-- /as-page -->
+    </div>
+  </div>
+</div>

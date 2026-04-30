@@ -11,4 +11,5 @@ export interface SeanceDto {
   dureeHeures: number;
   patient: PatientSummaryDto;
   utilisateur: UtilisateurSummaryDto;
+  aideSoignant?: UtilisateurSummaryDto | null;
 }

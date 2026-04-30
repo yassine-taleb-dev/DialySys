@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -13,6 +13,10 @@ export class ConstantesVitalesService {
 
   create(payload: ConstantesVitalesRequestDto): Observable<ConstantesVitalesDto> {
     return this.http.post<ConstantesVitalesDto>(this.api, payload);
+  }
+
+  update(id: number, payload: ConstantesVitalesRequestDto): Observable<ConstantesVitalesDto> {
+    return this.http.put<ConstantesVitalesDto>(`${this.api}/${id}`, payload);
   }
 
   getMesSaisies(): Observable<ConstantesVitalesDto[]> {

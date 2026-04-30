@@ -5,4 +5,5 @@ export interface SeanceUpdateRequestDto {
   machine?: string;
   statut?: string;
   notes?: string;
+  aideSoignantId?: number | null;
 }

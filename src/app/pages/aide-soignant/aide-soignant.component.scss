@@ -384,115 +384,200 @@
 }
 
 // ── Calendar ─────────────────────────────────────────────────────────────────
+
+
+
+// ── Calendar ─────────────────────────────────────────────────────────────────
 .as-cal-card {
-  background: var(--c-card); border: 1px solid var(--c-border);
-  border-radius: 14px; padding: 18px;
-  display: flex; flex-direction: column; gap: 14px;
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   align-self: start;
 }
 
 .as-cal-header {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
 }
 
 .as-cal-nav {
-  background: rgba(255,255,255,.06); border: none; cursor: pointer;
-  width: 32px; height: 32px; border-radius: 8px;
-  color: var(--c-text-2); display: flex; align-items: center; justify-content: center;
-  transition: background .15s;
-  &:hover { background: rgba(255,255,255,.11); color: var(--c-text-1); }
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--c-text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255,255,255,.11);
+    color: var(--c-text-1);
+    border-color: rgba(255,255,255,.15);
+  }
+
   .material-icons { font-size: 20px; }
 }
 
 .as-cal-title {
-  display: flex; gap: 6px; align-items: baseline;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
 }
 
-.as-cal-month { font-size: 15px; font-weight: 700; color: var(--c-text-1); }
-.as-cal-year  { font-size: 13px; color: var(--c-text-3); }
+.as-cal-month {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-text-1);
+  letter-spacing: -.01em;
+}
+
+.as-cal-year {
+  font-size: 14px;
+  color: var(--c-text-3);
+  font-weight: 500;
+}
 
 .as-cal-grid {
-  display: grid; grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
 }
 
 .as-cal-dayname {
-  text-align: center; font-size: 10px; font-weight: 700;
-  color: var(--c-text-3); text-transform: uppercase; padding: 4px 0;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 6px 0 8px;
 }
 
 .as-cal-cell {
-  aspect-ratio: 1; border-radius: 8px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  position: relative; cursor: default;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  position: relative;
+  cursor: default;
   transition: all .15s;
 
   &--empty { pointer-events: none; }
 
-  &--disabled {
-    color: var(--c-text-3);
-    &:hover { background: none; }
+ &--disabled {
+  color: var(--c-text-3);
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255,255,255,.04);
+    color: var(--c-text-2);
   }
+  }
+  .as-cal-cell--clickable {
+  cursor: pointer;
+}
 
   &--scheduled {
-    cursor: pointer; color: var(--c-teal);
-    background: rgba(0,217,196,.08);
-    &:hover { background: rgba(0,217,196,.15); }
+    cursor: pointer;
+    color: var(--c-teal);
+    background: rgba(0,217,196,.07);
+    border: 1px solid rgba(0,217,196,.12);
+
+    &:hover {
+      background: rgba(0,217,196,.14);
+      border-color: rgba(0,217,196,.25);
+      transform: scale(1.05);
+    }
   }
 
-  &--today {
-    &:not(.as-cal-cell--scheduled) {
-      background: rgba(255,255,255,.06); color: var(--c-text-1);
-    }
-    &::after {
-      content: ''; position: absolute; bottom: 3px;
-      width: 4px; height: 4px; border-radius: 50%;
-      background: var(--c-teal);
-    }
+  &--today:not(&--scheduled) {
+    background: rgba(255,255,255,.06);
+    color: var(--c-text-1);
+    border: 1px solid rgba(255,255,255,.1);
+  }
+
+  &--today &__num::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--c-teal);
   }
 
   &--selected {
     background: var(--c-teal) !important;
-    color: #000 !important;
-    font-weight: 700;
-    .as-cal-cell__dot { background: rgba(0,0,0,.4) !important; }
-    .as-cal-cell__count { color: rgba(0,0,0,.6) !important; }
-    &::after { display: none; }
+    color: #0a1628 !important;
+    font-weight: 800;
+    border: none !important;
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(0,217,196,.3);
+
+    .as-cal-cell__dot { display: none; }
   }
 
-  &__num { font-size: 13px; font-weight: 600; }
-
-  &__dots {
-    display: flex; gap: 2px; margin-top: 2px;
+  &__num {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    position: relative;
   }
 
   &__dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--c-teal); opacity: .7;
-  }
-
-  &__count {
-    font-size: 9px; font-weight: 700; color: var(--c-teal); margin-top: 1px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--c-teal);
+    opacity: .8;
+    flex-shrink: 0;
   }
 }
 
 .as-cal-legend {
-  display: flex; gap: 14px; flex-wrap: wrap;
-  border-top: 1px solid var(--c-border); padding-top: 12px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--c-border);
+  padding-top: 14px;
+  margin-top: 2px;
 }
 
 .as-cal-legend-item {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 10px; color: var(--c-text-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--c-text-3);
+  font-weight: 500;
 }
 
 .as-cal-ld {
-  width: 10px; height: 10px; border-radius: 3px;
-  &--today    { background: rgba(255,255,255,.15); border: 1px solid var(--c-teal); }
-  &--scheduled { background: rgba(0,217,196,.2); }
+  width: 10px;
+  height: 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+
+  &--today    { background: rgba(255,255,255,.1); border: 1px solid rgba(0,217,196,.5); }
+  &--scheduled { background: rgba(0,217,196,.15); border: 1px solid rgba(0,217,196,.3); }
   &--selected  { background: var(--c-teal); }
 }
-
 // ── Patients Panel ────────────────────────────────────────────────────────────
 .as-patients-panel {
   background: var(--c-card); border: 1px solid var(--c-border);
