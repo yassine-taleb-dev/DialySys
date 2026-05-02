@@ -1789,7 +1789,55 @@
 
   @media (max-width: 500px) { grid-template-columns: 1fr; }
 }
+/* ── Horaire/Séance par jour ─────────────────────────────── */
+.jour-horaire-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
 
+.jour-horaire-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--c-surface-2, rgba(255,255,255,0.04));
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.jour-horaire-date {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--c-teal);
+  min-width: 76px;
+  font-weight: 600;
+}
+
+.jour-horaire-sep {
+  color: var(--c-text-3);
+  font-size: 12px;
+}
+
+.time-input-sm {
+  width: 90px;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+
+.form-row-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 .wz-field {
   display: flex;
   flex-direction: column;

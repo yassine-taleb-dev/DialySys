@@ -27,7 +27,22 @@ import { MachineService } from '../../../services/machine.service';
 import { takeUntil } from 'rxjs/operators';
 import { AdminTab, AppUser, HoraireRow, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
 
-/** Regroupement de séances identiques (même patient, aide-soignant, horaire, machine, statut) avec dates multiples */
+/** Horaire d'un jour spécifique */
+export interface JourHoraire {
+  date: string;       // ISO yyyy-MM-dd
+  heureDebut: string;
+  heureFin: string;
+}
+
+/** Horaire d'une séance pour un jour spécifique */
+export interface JourSeance {
+  date: string;       // ISO yyyy-MM-dd
+  heureDebut: string;
+  heureFin: string;
+  aideSoignantId?: number | null;
+}
+
+/** Regroupement de séances identiques (même patient, aide-soignant, machine, statut) avec dates multiples */
 export interface GroupedSeance {
   patientId: number;
   patientNom: string;
@@ -38,7 +53,7 @@ export interface GroupedSeance {
   heureFin: string;
   machine: string;
   statut: string;
-  seances: SeanceAdminRow[];  // séances individuelles du groupe
+  seances: SeanceAdminRow[];
 }
 
 export interface GroupedHoraire {
@@ -58,7 +73,7 @@ export interface GroupedHoraire {
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
-export class AdminComponent implements OnInit,OnDestroy {
+export class AdminComponent implements OnInit, OnDestroy {
   @ViewChild('adminMain') private adminMainRef?: ElementRef<HTMLDivElement>;
 
   constructor(
@@ -72,26 +87,29 @@ export class AdminComponent implements OnInit,OnDestroy {
     private adminSettingsService: AdminSettingsService,
     private rolePermissionService: RolePermissionService
   ) {}
-private destroy$ = new Subject<void>();
+
+  private destroy$ = new Subject<void>();
 
   ngOnDestroy(): void {
     this.destroy$.next();
-     this.stopPolling();
+    this.stopPolling();
     this.destroy$.complete();
   }
-  private startPolling(): void {
-  this.stopPolling();
-  this.pollingInterval = setInterval(() => {
-    this.refreshAdminCollections(false, true);
-  }, this.POLLING_INTERVAL_MS);
-}
 
-private stopPolling(): void {
-  if (this.pollingInterval) {
-    clearInterval(this.pollingInterval);
-    this.pollingInterval = null;
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollingInterval = setInterval(() => {
+      this.refreshAfterMutation();
+    }, this.POLLING_INTERVAL_MS);
   }
-}
+
+  private stopPolling(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+  }
+
   activeTab: AdminTab = 'profils';
   activeProfilRole: RoleId = 'medecin';
   loading = false;
@@ -154,12 +172,12 @@ private stopPolling(): void {
   ];
 
   roles: RoleConfig[] = [
-    { id: 'admin',          label: 'Administrateur',  icon: 'admin_panel_settings', color: '#ff5757', colorVar: 'var(--c-red)',    description: 'Administration du systeme',    permissions: {} },
-    { id: 'medecin',        label: 'Medecin',          icon: 'medical_services',    color: '#00D9C4', colorVar: 'var(--c-teal)',   description: 'Medecin nephrologue',          permissions: {} },
-    { id: 'infirmier-majeur', label: 'Infirmier Majeur', icon: 'supervisor_account', color: '#A78BFA', colorVar: 'var(--c-purple)', description: 'Coordinateur du service',      permissions: {} },
-    { id: 'infirmier',      label: 'Infirmier(e)',     icon: 'local_hospital',      color: '#4EA8F8', colorVar: 'var(--c-blue)',   description: 'Suivi des seances et soins',   permissions: {} },
-    { id: 'aide-soignant',  label: 'Aide-Soignant',   icon: 'volunteer_activism',  color: '#F5A623', colorVar: 'var(--c-amber)',  description: 'Support aux soins',            permissions: {} },
-    { id: 'patient',        label: 'Patient',          icon: 'person',              color: '#22c55e', colorVar: 'var(--c-green)',  description: 'Patient du centre',            permissions: {} },
+    { id: 'admin',            label: 'Administrateur',   icon: 'admin_panel_settings', color: '#ff5757', colorVar: 'var(--c-red)',    description: 'Administration du systeme',    permissions: {} },
+    { id: 'medecin',          label: 'Medecin',           icon: 'medical_services',    color: '#00D9C4', colorVar: 'var(--c-teal)',   description: 'Medecin nephrologue',          permissions: {} },
+    { id: 'infirmier-majeur', label: 'Infirmier Majeur',  icon: 'supervisor_account',  color: '#A78BFA', colorVar: 'var(--c-purple)', description: 'Coordinateur du service',      permissions: {} },
+    { id: 'infirmier',        label: 'Infirmier(e)',      icon: 'local_hospital',      color: '#4EA8F8', colorVar: 'var(--c-blue)',   description: 'Suivi des seances et soins',   permissions: {} },
+    { id: 'aide-soignant',    label: 'Aide-Soignant',    icon: 'volunteer_activism',  color: '#F5A623', colorVar: 'var(--c-amber)',  description: 'Support aux soins',            permissions: {} },
+    { id: 'patient',          label: 'Patient',           icon: 'person',              color: '#22c55e', colorVar: 'var(--c-green)',  description: 'Patient du centre',            permissions: {} },
   ];
 
   users: AppUser[] = [];
@@ -180,7 +198,7 @@ private stopPolling(): void {
   searchHoraire = '';
   filterHoraireDate = '';
   searchSeance = '';
-  filterSeanceDate = '';   // ← NOUVEAU : filtre par date (input type="date" → format ISO yyyy-MM-dd)
+  filterSeanceDate = '';
   readonly pageSize = 4;
   staffPage = 1;
   patientPage = 1;
@@ -214,13 +232,46 @@ private stopPolling(): void {
     auditLog: true, doubleAuth: false
   };
 
+  // ─── HORAIRES ────────────────────────────────────────────────────────────────
   horaires: HoraireRow[] = [];
-  newHoraire = { staffType: '', staffNom: '', heureDebut: '07:00', heureFin: '15:00', jours: [] as string[] };
-  editHoraire: { id: number; utilisateurId: number; staffNom: string; staffRole: string; jours: string[]; heureDebut: string; heureFin: string; } | null = null;
 
+  /** Formulaire de création d'horaire avec heures individuelles par jour */
+  newHoraire = {
+    staffType: '',
+    staffNom: '',
+    heureDebut: '07:00',   // valeur par défaut appliquée aux nouveaux jours sélectionnés
+    heureFin:   '15:00',
+    jours: [] as string[],
+    joursHoraires: [] as JourHoraire[]  // horaire spécifique par jour sélectionné
+  };
+
+  editHoraire: {
+    id: number; utilisateurId: number; staffNom: string; staffRole: string;
+    jours: string[]; heureDebut: string; heureFin: string;
+    joursHoraires: JourHoraire[]; sourceHoraires: HoraireRow[];
+  } | null = null;
+
+  // ─── SÉANCES ─────────────────────────────────────────────────────────────────
   seancesAdmin: SeanceAdminRow[] = [];
-  newSeance = { patientId: '', aideSoignantId: '', dates: [] as string[], heureDebut: '07:30', heureFin: '11:30', machine: '' };
-  editSeance: { id: number; patientId: number; patientNom: string; responsableId: number | null; aideSoignantNom: string; date: string; heureDebut: string; heureFin: string; machine: string; statut: string; } | null = null;
+
+  /** Formulaire de planification de séance avec heures individuelles par date */
+  newSeance = {
+    patientId: '',
+    aideSoignantId: '',
+    dates: [] as string[],
+    datesSeances: [] as JourSeance[],   // horaire spécifique par date sélectionnée
+    heureDebut: '07:30',   // valeur par défaut
+    heureFin:   '11:30',
+    machine: ''
+  };
+
+  editSeance: {
+    id: number; patientId: number; patientNom: string;
+    responsableId: number | null; aideSoignantNom: string;
+    date: string; heureDebut: string; heureFin: string;
+    machine: string; statut: string;
+    datesSeances: JourSeance[]; sourceSeances: SeanceAdminRow[];
+  } | null = null;
   editSeanceDates: string[] = [];
 
   calYear = new Date().getFullYear(); calMonth = new Date().getMonth();
@@ -234,9 +285,9 @@ private stopPolling(): void {
   private pollingInterval: any = null;
   private readonly POLLING_INTERVAL_MS = 30000;
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  LIFECYCLE
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.loadSharedAdminData();
@@ -363,9 +414,9 @@ private stopPolling(): void {
     });
   }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  WIZARD — création profil multi-étapes
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   wizardData = {
     nom: '', prenom: '', mat: '', email: '', telephone: '', service: '',
@@ -404,23 +455,19 @@ private stopPolling(): void {
         this.showToast('Nom et prenom sont obligatoires', 'warning');
         return;
       }
-
       if (!this.isValidOptionalPhone(this.wizardData.telephone)) {
         this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning');
         return;
       }
-
       if (this.wizardIsPatient) {
         const missingFields: string[] = [];
         if (!this.wizardData.dateNaissance) missingFields.push('date de naissance');
         if (!this.wizardData.groupeSanguin) missingFields.push('groupe sanguin');
         if (!this.wizardData.genre) missingFields.push('genre');
-
         if (missingFields.length) {
           this.showToast(`Les champs suivants sont obligatoires: ${missingFields.join(', ')}`, 'warning');
           return;
         }
-
         this.wizardSave();
       } else {
         if (!this.wizardData.mat.trim() || !this.wizardData.email.trim()) {
@@ -443,7 +490,6 @@ private stopPolling(): void {
   }
 
   wizardPrev(): void { if (this.wizardStep > 1) this.wizardStep--; }
-
   wizardCancel(): void { this.showWizardModal = false; }
 
   wizardSave(): void {
@@ -474,9 +520,9 @@ private stopPolling(): void {
     return this.roles.filter(role => role.id !== 'patient');
   }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  PERMISSIONS
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   get permCategories(): string[] { return [...new Set(this.permissions.map(p => p.category))]; }
   permsByCategory(category: string): Permission[] { return this.permissions.filter(p => p.category === category); }
@@ -502,9 +548,9 @@ private stopPolling(): void {
 
   permCount(role: RoleConfig): number { return Object.values(role.permissions ?? {}).filter(Boolean).length; }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  FILTRES — Profils
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   get filteredUsers(): AppUser[] {
     const q = this.searchQuery.toLowerCase();
@@ -514,17 +560,12 @@ private stopPolling(): void {
       (!this.filterStatus || u.statut === this.filterStatus) &&
       (!q || u.nom.toLowerCase().includes(q) || u.prenom.toLowerCase().includes(q) ||
         u.login.toLowerCase().includes(q) || u.username.toLowerCase().includes(q) ||
-      u.mat.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+        u.mat.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
     );
   }
 
-  get paginatedUsers(): AppUser[] {
-    return this.paginateArray(this.filteredUsers, 'staffPage');
-  }
-
-  get totalStaffPages(): number {
-    return this.getTotalPages(this.filteredUsers.length);
-  }
+  get paginatedUsers(): AppUser[] { return this.paginateArray(this.filteredUsers, 'staffPage'); }
+  get totalStaffPages(): number { return this.getTotalPages(this.filteredUsers.length); }
 
   usersForRole(roleId: RoleId): AppUser[] { return this.users.filter(u => u.role === roleId); }
 
@@ -532,25 +573,18 @@ private stopPolling(): void {
     const q = this.searchPatient.toLowerCase().trim();
     const patients = this.usersForRole('patient');
     return !q ? patients : patients.filter(u =>
-      u.nom.toLowerCase().includes(q) ||
-      u.prenom.toLowerCase().includes(q) ||
-      String(u.id).includes(q) ||
-      (u.dateNaissance || '').toLowerCase().includes(q) ||
+      u.nom.toLowerCase().includes(q) || u.prenom.toLowerCase().includes(q) ||
+      String(u.id).includes(q) || (u.dateNaissance || '').toLowerCase().includes(q) ||
       (u.groupeSanguin || '').toLowerCase().includes(q)
     );
   }
 
-  get paginatedPatients(): AppUser[] {
-    return this.paginateArray(this.filteredPatients, 'patientPage');
-  }
+  get paginatedPatients(): AppUser[] { return this.paginateArray(this.filteredPatients, 'patientPage'); }
+  get totalPatientPages(): number { return this.getTotalPages(this.filteredPatients.length); }
 
-  get totalPatientPages(): number {
-    return this.getTotalPages(this.filteredPatients.length);
-  }
-
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  MODAL UTILISATEUR (édition)
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   openUser(user: AppUser): void { this.selectedUser = { ...user }; this.showUserModal = true; }
   closeUserModal(): void { this.showUserModal = false; this.selectedUser = null; }
@@ -558,12 +592,9 @@ private stopPolling(): void {
   saveUser(): void {
     if (!this.selectedUser) return;
     const payload: UtilisateurUpdateDto = {
-      login: this.selectedUser.login,
-      username: this.selectedUser.username,
-      nom: this.selectedUser.nom,
-      prenom: this.selectedUser.prenom,
-      email: this.selectedUser.email,
-      mat: this.selectedUser.mat,
+      login: this.selectedUser.login, username: this.selectedUser.username,
+      nom: this.selectedUser.nom, prenom: this.selectedUser.prenom,
+      email: this.selectedUser.email, mat: this.selectedUser.mat,
       role: this.toBackendRole(this.selectedUser.role),
       specialite: this.selectedUser.specialite ?? null,
       superviseurId: this.selectedUser.superviseurId ?? null,
@@ -574,8 +605,7 @@ private stopPolling(): void {
     this.utilisateurService.update(this.selectedUser.id, payload).subscribe({
       next: () => {
         this.showToast(`Profil de ${this.selectedUser?.prenom} ${this.selectedUser?.nom} mis a jour`, 'success');
-        this.closeUserModal();
-        this.refreshAdminCollections(false, true);
+        this.closeUserModal(); this.refreshAfterMutation();
       },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de mettre a jour le profil', 'error')
     });
@@ -585,7 +615,7 @@ private stopPolling(): void {
     this.utilisateurService.toggleActif(user.id).subscribe({
       next: (updated) => {
         this.showToast(`Compte de ${updated.prenom} ${updated.nom} ${updated.actif ? 'active' : 'desactive'}`, updated.actif ? 'success' : 'warning');
-        this.refreshAdminCollections(false);
+        this.refreshAfterMutation();
       },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier le statut du compte', 'error')
     });
@@ -593,15 +623,16 @@ private stopPolling(): void {
 
   suspendUser(user: AppUser): void {
     this.utilisateurService.update(user.id, { actif: false }).subscribe({
-      next: () => { this.showToast(`Compte de ${user.prenom} ${user.nom} suspendu`, 'warning'); this.closeUserModal(); this.refreshAdminCollections(false,true); },
+      next: () => { this.showToast(`Compte de ${user.prenom} ${user.nom} suspendu`, 'warning'); this.closeUserModal(); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de suspendre le compte', 'error')
     });
   }
 
   deleteUser(user: AppUser): void {
+    if (!this.confirmDeletion(`Supprimer ${user.prenom} ${user.nom} ? Cette action est irreversible.`)) return;
     const request = user.role === 'patient' ? this.patientService.delete(user.id) : this.utilisateurService.delete(user.id);
     request.subscribe({
-      next: () => { this.showToast(`${user.role === 'patient' ? 'Patient' : 'Utilisateur'} ${user.prenom} ${user.nom} supprime`, 'warning'); this.closeUserModal(); this.refreshAdminCollections(false, true); },
+      next: () => { this.showToast(`${user.role === 'patient' ? 'Patient' : 'Utilisateur'} ${user.prenom} ${user.nom} supprime`, 'warning'); this.closeUserModal(); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Suppression impossible', 'error')
     });
   }
@@ -614,9 +645,9 @@ private stopPolling(): void {
     });
   }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  PATIENT — création & édition
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   saveNewPatient(): void {
     const missingFields: string[] = [];
@@ -625,110 +656,65 @@ private stopPolling(): void {
     if (!this.newPatient.dateNaissance) missingFields.push('date de naissance');
     if (!this.newPatient.groupeSanguin) missingFields.push('groupe sanguin');
     if (!this.newPatient.genre) missingFields.push('genre');
-
-    if (missingFields.length) {
-      this.showToast(`Veuillez renseigner: ${missingFields.join(', ')}`, 'warning');
-      return;
-    }
-
+    if (missingFields.length) { this.showToast(`Veuillez renseigner: ${missingFields.join(', ')}`, 'warning'); return; }
     const normalizedPhone = this.normalizePhone(this.newPatient.telephone);
-    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) {
-      this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning');
-      return;
-    }
-
+    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) { this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning'); return; }
     const payload: PatientRequestDto = {
-      nom: this.newPatient.nom.trim(),
-      prenom: this.newPatient.prenom.trim(),
-      dateNaissance: this.newPatient.dateNaissance,
-      groupeSanguin: this.newPatient.groupeSanguin,
-      statut: this.newPatient.statut || 'STABLE',
-      cin: this.newPatient.cin || null,
-      telephone: normalizedPhone || null,
-      adresse: this.newPatient.adresse || null,
-      genre: this.newPatient.genre || null
+      nom: this.newPatient.nom.trim(), prenom: this.newPatient.prenom.trim(),
+      dateNaissance: this.newPatient.dateNaissance, groupeSanguin: this.newPatient.groupeSanguin,
+      statut: this.newPatient.statut || 'STABLE', cin: this.newPatient.cin || null,
+      telephone: normalizedPhone || null, adresse: this.newPatient.adresse || null, genre: this.newPatient.genre || null
     };
     this.patientService.create(payload).subscribe({
-      next: () => { this.patientService.invalidateCache(); this.showNewPatientModal = false; this.showToast(`Patient ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAdminCollections(false, true); },
+      next: () => { this.patientService.invalidateCache(); this.showNewPatientModal = false; this.showToast(`Patient ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de creer le patient', 'error')
     });
   }
 
   openEditPatient(user: AppUser): void {
     this.editPatient = {
-      id: user.id,
-      nom: user.nom,
-      prenom: user.prenom,
-      dateNaissance: user.dateNaissance || '',
-      groupeSanguin: user.groupeSanguin || '',
-      patientStatut: user.patientStatut || 'STABLE',
-      cin: '',
-      telephone: user.telephone || '',
-      adresse: '',
-      genre: ''
+      id: user.id, nom: user.nom, prenom: user.prenom,
+      dateNaissance: user.dateNaissance || '', groupeSanguin: user.groupeSanguin || '',
+      patientStatut: user.patientStatut || 'STABLE', cin: '', telephone: user.telephone || '', adresse: '', genre: ''
     };
     this.showEditPatientModal = true;
   }
 
   saveEditPatient(): void {
     if (!this.editPatient) return;
-
     const normalizedPhone = this.normalizePhone(this.editPatient.telephone);
-    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) {
-      this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning');
-      return;
-    }
-
+    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) { this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning'); return; }
     const payload: PatientRequestDto = {
-      nom: this.editPatient.nom.trim(),
-      prenom: this.editPatient.prenom.trim(),
-      dateNaissance: this.editPatient.dateNaissance,
-      groupeSanguin: this.editPatient.groupeSanguin,
-      statut: this.editPatient.patientStatut,
-      cin: this.editPatient.cin || null,
-      telephone: normalizedPhone || null,
-      adresse: this.editPatient.adresse || null,
-      genre: this.editPatient.genre || null
+      nom: this.editPatient.nom.trim(), prenom: this.editPatient.prenom.trim(),
+      dateNaissance: this.editPatient.dateNaissance, groupeSanguin: this.editPatient.groupeSanguin,
+      statut: this.editPatient.patientStatut, cin: this.editPatient.cin || null,
+      telephone: normalizedPhone || null, adresse: this.editPatient.adresse || null, genre: this.editPatient.genre || null
     };
     this.patientService.update(this.editPatient.id, payload).subscribe({
-      next: () => { this.patientService.invalidateCache(); this.showEditPatientModal = false; this.editPatient = null; this.showToast('Patient modifie avec succes', 'success'); this.refreshAdminCollections(false, true); },
+      next: () => { this.patientService.invalidateCache(); this.showEditPatientModal = false; this.editPatient = null; this.showToast('Patient modifie avec succes', 'success'); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier le patient', 'error')
     });
   }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  UTILISATEUR — création
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   saveNewUser(): void {
     if (!this.newUser.nom.trim() || !this.newUser.prenom.trim() || !this.newUser.login.trim() || !this.newUser.email.trim() || !this.newUser.mat.trim()) {
-      this.showToast('Veuillez remplir tous les champs obligatoires du compte', 'warning');
-      return;
+      this.showToast('Veuillez remplir tous les champs obligatoires du compte', 'warning'); return;
     }
-
     const normalizedPhone = this.normalizePhone(this.newUser.telephone);
-    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) {
-      this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning');
-      return;
-    }
-
+    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) { this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning'); return; }
     const rawPassword = this.newUser.mdp.trim();
-    if (rawPassword && !this.isStrongPassword(rawPassword)) {
-      this.showToast('Le mot de passe doit contenir au moins 8 caracteres, avec majuscule, minuscule, chiffre et symbole', 'warning');
-      return;
-    }
-
+    if (rawPassword && !this.isStrongPassword(rawPassword)) { this.showToast('Le mot de passe doit contenir au moins 8 caracteres, avec majuscule, minuscule, chiffre et symbole', 'warning'); return; }
     const payload: UtilisateurCreateDto = {
-      login: this.newUser.login.trim(),
-      username: this.newUser.username.trim() || this.newUser.login.trim(),
+      login: this.newUser.login.trim(), username: this.newUser.username.trim() || this.newUser.login.trim(),
       motDePasse: rawPassword || `Temp@${Math.random().toString(36).slice(2, 8)}`,
-      nom: this.newUser.nom.trim(),
-      prenom: this.newUser.prenom.trim(),
-      email: this.newUser.email.trim(),
-      mat: this.newUser.mat.trim(),
+      nom: this.newUser.nom.trim(), prenom: this.newUser.prenom.trim(),
+      email: this.newUser.email.trim(), mat: this.newUser.mat.trim(),
       role: this.toBackendRole(this.newUser.role),
-      telephone: normalizedPhone || null,
-      service: this.newUser.service.trim() || null,
+      telephone: normalizedPhone || null, service: this.newUser.service.trim() || null,
       specialite: this.newUser.specialite.trim() || null,
       superviseurId: this.newUser.superviseurId ? Number(this.newUser.superviseurId) : null
     };
@@ -741,35 +727,59 @@ private stopPolling(): void {
               const created = users.find(u => u.login === payload.login);
               if (created) {
                 this.utilisateurService.toggleActif(created.id).subscribe({
-                  next: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAdminCollections(false, true); },
-                  error: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAdminCollections(false, true); }
+                  next: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); },
+                  error: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); }
                 });
                 return;
               }
-              this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success');
-              this.refreshAdminCollections(false, true);
+              this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation();
             },
-            error: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAdminCollections(false, true); }
+            error: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); }
           });
           return;
         }
-        this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success');
-        this.refreshAdminCollections(false, true);
+        this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation();
       },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de creer le compte', 'error')
     });
   }
 
-  // --------------------------------------------------
-  //  CALENDRIER — horaires
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
+  //  CALENDRIER — horaires  (avec heures individuelles par jour)
+  // ──────────────────────────────────────────────────────────────────────────────
 
   get calTitle(): string { return `${this.moisLabels[this.calMonth]} ${this.calYear}`; }
   calPrevMonth(): void { this.calMonth === 0 ? (this.calMonth = 11, this.calYear--) : this.calMonth--; }
   calNextMonth(): void { this.calMonth === 11 ? (this.calMonth = 0, this.calYear++) : this.calMonth++; }
   get calDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.calYear, this.calMonth); }
-  toggleCalDay(date: string): void { this.toggleDateSelection(this.newHoraire.jours, date); }
   isDaySelected(date: string): boolean { return this.newHoraire.jours.includes(date); }
+
+  /**
+   * Sélectionne / désélectionne un jour dans le formulaire horaire.
+   * À l'ajout, pré-remplit les heures avec les valeurs par défaut du formulaire.
+   */
+  toggleCalDay(date: string): void {
+    const idx = this.newHoraire.jours.indexOf(date);
+    if (idx === -1) {
+      this.newHoraire.jours.push(date);
+      this.newHoraire.jours.sort();
+      this.newHoraire.joursHoraires.push({
+        date,
+        heureDebut: this.newHoraire.heureDebut,
+        heureFin: this.newHoraire.heureFin
+      });
+      this.newHoraire.joursHoraires.sort((a, b) => a.date.localeCompare(b.date));
+    } else {
+      this.newHoraire.jours.splice(idx, 1);
+      this.newHoraire.joursHoraires = this.newHoraire.joursHoraires.filter(j => j.date !== date);
+    }
+  }
+
+  /** Retourne l'entrée JourHoraire pour un jour donné */
+  getJourHoraire(date: string): JourHoraire | undefined {
+    return this.newHoraire.joursHoraires.find(j => j.date === date);
+  }
+
   formatJours(jours: string[]): string {
     if (!jours.length) return '—';
     return jours.map(j => this.isoToDisplayDate(j)).join(', ');
@@ -777,89 +787,65 @@ private stopPolling(): void {
 
   private groupHoraires(horaires: HoraireRow[]): GroupedHoraire[] {
     const map = new Map<string, GroupedHoraire>();
-
     for (const horaire of horaires) {
       const key = `${horaire.utilisateurId}|${horaire.staffRole}|${horaire.heureDebut}|${horaire.heureFin}`;
       const existing = map.get(key);
-
       if (existing) {
         const combinedDates = [...existing.dates, ...horaire.jours];
         existing.dates = [...new Set(combinedDates)].sort((a, b) => a.localeCompare(b));
         existing.horaires.push(horaire);
       } else {
         map.set(key, {
-          utilisateurId: horaire.utilisateurId,
-          staffNom: horaire.staffNom,
+          utilisateurId: horaire.utilisateurId, staffNom: horaire.staffNom,
           staffRole: horaire.staffRole,
           dates: [...horaire.jours].sort((a, b) => a.localeCompare(b)),
-          heureDebut: horaire.heureDebut,
-          heureFin: horaire.heureFin,
+          heureDebut: horaire.heureDebut, heureFin: horaire.heureFin,
           horaires: [horaire]
         });
       }
     }
-
     return Array.from(map.values());
   }
 
   get filteredHorairesFlat(): HoraireRow[] {
     const q = this.searchHoraire.toLowerCase().trim();
     let result = this.horaires;
-
-    if (this.filterHoraireDate) {
-      result = result.filter(h => h.jours.includes(this.filterHoraireDate));
-    }
-
+    if (this.filterHoraireDate) result = result.filter(h => h.jours.includes(this.filterHoraireDate));
     if (!q) return result;
-
     return result.filter(h => {
       const datesDisplay = this.formatJours(h.jours).toLowerCase();
       const datesIso = h.jours.join(' ').toLowerCase();
-      return (
-        h.staffNom.toLowerCase().includes(q) ||
-        h.staffRole.toLowerCase().includes(q) ||
-        datesDisplay.includes(q) ||
-        datesIso.includes(q) ||
-        h.heureDebut.includes(q) ||
-        h.heureFin.includes(q)
-      );
+      return h.staffNom.toLowerCase().includes(q) || h.staffRole.toLowerCase().includes(q) ||
+        datesDisplay.includes(q) || datesIso.includes(q) ||
+        h.heureDebut.includes(q) || h.heureFin.includes(q);
     });
   }
 
-  get filteredGroupedHoraires(): GroupedHoraire[] {
-    return this.groupHoraires(this.filteredHorairesFlat);
-  }
+  get filteredGroupedHoraires(): GroupedHoraire[] { return this.groupHoraires(this.filteredHorairesFlat); }
+
+  get paginatedHoraires(): HoraireRow[] { return this.paginateArray(this.filteredHorairesFlat, 'horairePage'); }
 
   get paginatedGroupedHoraires(): GroupedHoraire[] {
     const items = this.filteredGroupedHoraires;
     const totalPages = this.getTotalPages(items.length);
-    if (this.horairePage > totalPages) {
-      this.horairePage = totalPages;
-    }
+    if (this.horairePage > totalPages) this.horairePage = totalPages;
     const start = (this.horairePage - 1) * this.pageSize;
     return items.slice(start, start + this.pageSize);
   }
 
-  get totalHorairePages(): number {
-    return this.getTotalPages(this.filteredGroupedHoraires.length);
-  }
+  get totalHorairePages(): number { return this.getTotalPages(this.filteredHorairesFlat.length); }
 
   supprimerGroupedHoraires(group: GroupedHoraire): void {
     const ids = group.horaires.map(h => h.id);
     forkJoin(ids.map(id => this.horaireTravailService.delete(id))).subscribe({
-      next: () => {
-        this.showToast(`${ids.length} horaire(s) supprimé(s)`, 'warning');
-        this.refreshAdminCollections(false, true);
-      },
+      next: () => { this.showToast(`${ids.length} horaire(s) supprimé(s)`, 'warning'); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les horaires', 'error')
     });
   }
 
   getVisibleHoraireDates(dates: string[]): string[] {
     const query = this.searchHoraire.trim().toLowerCase();
-    if (!query) {
-      return dates;
-    }
+    if (!query) return dates;
     const matchedDates = dates.filter(date => {
       const iso = date.toLowerCase();
       const display = this.isoToDisplayDate(date).toLowerCase();
@@ -880,25 +866,43 @@ private stopPolling(): void {
     return this.users.filter(u => u.role === this.toRoleId(type));
   }
 
+  /**
+   * Enregistre les horaires : UNE requête par jour avec ses heures propres.
+   * Valide que chaque jour a des heures cohérentes avant d'envoyer.
+   */
   ajouterHoraire(): void {
-    if (!this.newHoraire.staffNom || !this.newHoraire.jours.length) {
-      this.showToast('Veuillez selectionner un personnel et au moins un jour', 'warning'); return;
+    if (!this.newHoraire.staffNom || !this.newHoraire.joursHoraires.length) {
+      this.showToast('Veuillez sélectionner un personnel et au moins un jour', 'warning'); return;
     }
-    const payload: HoraireTravailRequestDto = {
+    const invalid = this.newHoraire.joursHoraires.find(j => !j.heureDebut || !j.heureFin || j.heureDebut >= j.heureFin);
+    if (invalid) {
+      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit être après l'heure de début`, 'warning');
+      return;
+    }
+    const requests = this.newHoraire.joursHoraires.map(j => ({
       utilisateurId: Number(this.newHoraire.staffNom),
-      jours: [...this.newHoraire.jours],
-      heureDebut: this.newHoraire.heureDebut,
-      heureFin: this.newHoraire.heureFin
-    };
-    this.horaireTravailService.create(payload).subscribe({
-      next: () => { this.newHoraire = { staffType: '', staffNom: '', heureDebut: '07:00', heureFin: '15:00', jours: [] }; this.showToast('Horaire ajoute avec succes', 'success'); this.refreshAdminCollections(false, true); },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible d enregistrer l horaire', 'error')
+      jours: [j.date],
+      heureDebut: j.heureDebut,
+      heureFin: j.heureFin
+    } as HoraireTravailRequestDto));
+
+    forkJoin(requests.map(r => this.horaireTravailService.create(r))).subscribe({
+      next: (createdHoraires) => {
+        this.newHoraire = { staffType: '', staffNom: '', heureDebut: '07:00', heureFin: '15:00', jours: [], joursHoraires: [] };
+        this.insertHoraires(createdHoraires);
+        this.showToast(`${requests.length} horaire(s) ajouté(s) avec succès`, 'success');
+      },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible d\'enregistrer les horaires', 'error')
     });
   }
 
   supprimerHoraire(id: number): void {
+    if (!this.confirmDeletion('Supprimer cet horaire ?')) return;
     this.horaireTravailService.delete(id).subscribe({
-      next: () => { this.showToast('Horaire supprime', 'warning'); this.refreshAdminCollections(false, true); },
+      next: () => {
+        this.removeHoraireRows([id]);
+        this.showToast('Horaire supprime', 'warning');
+      },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer l horaire', 'error')
     });
   }
@@ -907,11 +911,50 @@ private stopPolling(): void {
   editCalPrevMonth(): void { this.editCalMonth === 0 ? (this.editCalMonth = 11, this.editCalYear--) : this.editCalMonth--; }
   editCalNextMonth(): void { this.editCalMonth === 11 ? (this.editCalMonth = 0, this.editCalYear++) : this.editCalMonth++; }
   get editCalDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.editCalYear, this.editCalMonth); }
-  toggleEditCalDay(date: string): void { if (this.editHoraire) this.toggleDateSelection(this.editHoraire.jours, date); }
+  toggleEditCalDay(date: string): void {
+    if (!this.editHoraire) return;
+    const idx = this.editHoraire.jours.indexOf(date);
+    if (idx === -1) {
+      this.editHoraire.jours.push(date);
+      this.editHoraire.jours.sort();
+      this.editHoraire.joursHoraires.push({ date, heureDebut: this.editHoraire.heureDebut, heureFin: this.editHoraire.heureFin });
+      this.editHoraire.joursHoraires.sort((a, b) => a.date.localeCompare(b.date));
+    } else {
+      this.editHoraire.jours.splice(idx, 1);
+      this.editHoraire.joursHoraires = this.editHoraire.joursHoraires.filter(j => j.date !== date);
+    }
+  }
   isEditDaySelected(date: string): boolean { return !!this.editHoraire && this.editHoraire.jours.includes(date); }
 
-  openEditHoraire(h: HoraireRow): void {
-    this.editHoraire = { ...h, staffNom: h.staffNom, staffRole: h.staffRole, jours: [...h.jours] };
+  openEditHoraire(groupOrRow: GroupedHoraire | HoraireRow): void {
+    const group = 'horaires' in groupOrRow
+      ? groupOrRow
+      : {
+          utilisateurId: groupOrRow.utilisateurId,
+          staffNom: groupOrRow.staffNom,
+          staffRole: groupOrRow.staffRole,
+          dates: [...groupOrRow.jours],
+          heureDebut: groupOrRow.heureDebut,
+          heureFin: groupOrRow.heureFin,
+          horaires: [groupOrRow]
+        };
+
+    const sourceHoraires = [...group.horaires];
+    const joursHoraires = sourceHoraires
+      .flatMap(h => h.jours.map(date => ({ date, heureDebut: h.heureDebut, heureFin: h.heureFin })))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    this.editHoraire = {
+      id: sourceHoraires[0]?.id ?? 0,
+      utilisateurId: group.utilisateurId,
+      staffNom: group.staffNom,
+      staffRole: group.staffRole,
+      jours: joursHoraires.map(j => j.date),
+      heureDebut: joursHoraires[0]?.heureDebut ?? '07:00',
+      heureFin: joursHoraires[0]?.heureFin ?? '15:00',
+      joursHoraires,
+      sourceHoraires
+    };
     this.editCalYear = new Date().getFullYear();
     this.editCalMonth = new Date().getMonth();
     this.showEditHoraireModal = true;
@@ -923,35 +966,77 @@ private stopPolling(): void {
       `${u.prenom} ${u.nom}` === this.editHoraire?.staffNom || `${u.nom} ${u.prenom}` === this.editHoraire?.staffNom
     );
     if (!staff) { this.showToast('Impossible d identifier le personnel pour cet horaire', 'warning'); return; }
-    const payload: HoraireTravailRequestDto = { utilisateurId: staff.id, jours: [...this.editHoraire.jours], heureDebut: this.editHoraire.heureDebut, heureFin: this.editHoraire.heureFin };
-    this.horaireTravailService.update(this.editHoraire.id, payload).subscribe({
-      next: () => { this.showEditHoraireModal = false; this.editHoraire = null; this.showToast('Horaire modifie avec succes', 'success'); this.refreshAdminCollections(false, true); },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier l horaire', 'error')
+    const invalid = this.editHoraire.joursHoraires.find(j => !j.heureDebut || !j.heureFin || j.heureDebut >= j.heureFin);
+    if (invalid) {
+      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit ?tre apr?s l'heure de d?but`, 'warning');
+      return;
+    }
+
+    const requests = this.editHoraire.joursHoraires.map(j => ({
+      utilisateurId: staff.id,
+      jours: [j.date],
+      heureDebut: j.heureDebut,
+      heureFin: j.heureFin
+    } as HoraireTravailRequestDto));
+
+    const sourceIds = this.editHoraire.sourceHoraires.map(h => h.id);
+    const deletions = this.editHoraire.sourceHoraires.map(h => this.horaireTravailService.delete(h.id));
+    forkJoin([...deletions, ...requests.map(r => this.horaireTravailService.create(r))]).subscribe({
+      next: (results) => {
+        const createdHoraires = results.slice(deletions.length) as HoraireTravailDto[];
+        this.replaceHoraireRows(sourceIds, createdHoraires);
+        this.showEditHoraireModal = false;
+        this.editHoraire = null;
+        this.showToast('Horaires modifies avec succes', 'success');
+      },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier les horaires', 'error')
     });
   }
 
-  // --------------------------------------------------
-  //  CALENDRIER — séances
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
+  //  CALENDRIER — séances  (avec heures individuelles par date)
+  // ──────────────────────────────────────────────────────────────────────────────
 
   get seanceCalTitle(): string { return `${this.moisLabels[this.seanceCalMonth]} ${this.seanceCalYear}`; }
   seanceCalPrevMonth(): void { this.seanceCalMonth === 0 ? (this.seanceCalMonth = 11, this.seanceCalYear--) : this.seanceCalMonth--; }
   seanceCalNextMonth(): void { this.seanceCalMonth === 11 ? (this.seanceCalMonth = 0, this.seanceCalYear++) : this.seanceCalMonth++; }
   get seanceCalDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.seanceCalYear, this.seanceCalMonth); }
-  toggleSeanceCalDay(date: string): void { this.toggleDateSelection(this.newSeance.dates, date); this.refreshAvailableMachinesForNewSeance(); }
   isSeanceDaySelected(date: string): boolean { return this.newSeance.dates.includes(date); }
 
-  // --------------------------------------------------
-  //  SÉANCES — filtre, recherche, regroupement par dates (badges)
-  // --------------------------------------------------
-
   /**
-   * Regroupe les séances ayant le même patient, aide-soignant, horaire, machine et statut
-   * en une seule ligne avec plusieurs dates (badges).
+   * Sélectionne / désélectionne une date pour une nouvelle séance.
+   * À l'ajout, pré-remplit les heures avec les valeurs par défaut du formulaire.
    */
+  toggleSeanceCalDay(date: string): void {
+    const idx = this.newSeance.dates.indexOf(date);
+    if (idx === -1) {
+      this.newSeance.dates.push(date);
+      this.newSeance.dates.sort();
+      this.newSeance.datesSeances.push({
+        date,
+        heureDebut: this.newSeance.heureDebut,
+        heureFin: this.newSeance.heureFin,
+        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
+      });
+      this.newSeance.datesSeances.sort((a, b) => a.date.localeCompare(b.date));
+    } else {
+      this.newSeance.dates.splice(idx, 1);
+      this.newSeance.datesSeances = this.newSeance.datesSeances.filter(d => d.date !== date);
+    }
+    this.onNewSeanceScheduleChange();
+  }
+
+  /** Retourne l'entrée JourSeance pour une date donnée */
+  getJourSeance(date: string): JourSeance | undefined {
+    return this.newSeance.datesSeances.find(d => d.date === date);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────────
+  //  SÉANCES — filtre, recherche, regroupement
+  // ──────────────────────────────────────────────────────────────────────────────
+
   private groupSeances(seances: SeanceAdminRow[]): GroupedSeance[] {
     const map = new Map<string, GroupedSeance>();
-
     for (const s of seances) {
       const key = `${s.patientId}|${s.responsableId}|${s.heureDebut}|${s.heureFin}|${s.machine}|${s.statut}`;
       const existing = map.get(key);
@@ -963,114 +1048,69 @@ private stopPolling(): void {
         existing.seances.push(s);
       } else {
         map.set(key, {
-          patientId: s.patientId,
-          patientNom: s.patientNom,
-          responsableId: s.responsableId,
-          aideSoignantNom: s.aideSoignantNom,
-          dates: [s.date],
-          heureDebut: s.heureDebut,
-          heureFin: s.heureFin,
-          machine: s.machine,
-          statut: s.statut,
-          seances: [s]
+          patientId: s.patientId, patientNom: s.patientNom,
+          responsableId: s.responsableId, aideSoignantNom: s.aideSoignantNom,
+          dates: [s.date], heureDebut: s.heureDebut, heureFin: s.heureFin,
+          machine: s.machine, statut: s.statut, seances: [s]
         });
       }
     }
-
     return Array.from(map.values());
   }
 
-  /**
-   * Filtre les séances puis les regroupe.
-   * 1. filterSeanceDate → filtre par date exacte
-   * 2. searchSeance → filtre texte libre
-   * 3. Regroupement des résultats
-   */
   get filteredSeances(): SeanceAdminRow[] {
     let result = this.seancesAdmin;
-
     if (this.filterSeanceDate) {
       const filterDisplay = this.isoToDisplayDate(this.filterSeanceDate);
       result = result.filter(s => s.date === filterDisplay);
     }
-
     const q = this.searchSeance.toLowerCase().trim();
     if (q) {
       result = result.filter(s =>
-        s.patientNom.toLowerCase().includes(q) ||
-        s.aideSoignantNom.toLowerCase().includes(q) ||
-        s.date.toLowerCase().includes(q) ||
-        s.heureDebut.includes(q) ||
-        s.heureFin.includes(q) ||
-        s.machine.toLowerCase().includes(q) ||
-        s.statut.toLowerCase().includes(q)
+        s.patientNom.toLowerCase().includes(q) || s.aideSoignantNom.toLowerCase().includes(q) ||
+        s.date.toLowerCase().includes(q) || s.heureDebut.includes(q) ||
+        s.heureFin.includes(q) || s.machine.toLowerCase().includes(q) || s.statut.toLowerCase().includes(q)
       );
     }
-
     return result;
   }
 
-  get filteredGroupedSeances(): GroupedSeance[] {
-    return this.groupSeances(this.filteredSeances);
-  }
+  get filteredGroupedSeances(): GroupedSeance[] { return this.groupSeances(this.filteredSeances); }
 
   get paginatedGroupedSeances(): GroupedSeance[] {
     const items = this.filteredGroupedSeances;
     const totalPages = this.getTotalPages(items.length);
-    if (this.seancePage > totalPages) {
-      this.seancePage = totalPages;
-    }
+    if (this.seancePage > totalPages) this.seancePage = totalPages;
     const start = (this.seancePage - 1) * this.pageSize;
     return items.slice(start, start + this.pageSize);
   }
 
-  get paginatedSeances(): SeanceAdminRow[] {
-    return this.paginateArray(this.filteredSeances, 'seancePage');
-  }
+  get paginatedSeances(): SeanceAdminRow[] { return this.paginateArray(this.filteredSeances, 'seancePage'); }
+  get totalSeancePages(): number { return this.getTotalPages(this.filteredSeances.length); }
 
-  get totalSeancePages(): number {
-    return this.getTotalPages(this.filteredGroupedSeances.length);
-  }
-
-  /**
-   * Vérifie si une date affichée correspond au filtre date actif (surbrillance du badge).
-   */
   isSeanceDateMatchingFilter(displayDate: string): boolean {
     if (!this.filterSeanceDate) return false;
     return displayDate === this.isoToDisplayDate(this.filterSeanceDate);
   }
 
-  /**
-   * Formate une date ISO (yyyy-MM-dd) en date lisible (dd/MM/yyyy).
-   */
-  formatFilterDate(isoDate: string): string {
-    return this.isoToDisplayDate(isoDate);
-  }
+  formatFilterDate(isoDate: string): string { return this.isoToDisplayDate(isoDate); }
 
-  /**
-   * Supprime toutes les séances d'un groupe.
-   */
   supprimerGroupedSeances(group: GroupedSeance): void {
     const ids = group.seances.map(s => s.id);
     forkJoin(ids.map(id => this.seanceService.delete(id))).subscribe({
-      next: () => {
-        this.showToast(`${ids.length} séance(s) supprimée(s)`, 'warning');
-        this.refreshAdminCollections(false, true);
-      },
+      next: () => { this.showToast(`${ids.length} séance(s) supprimée(s)`, 'warning'); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les séances', 'error')
     });
   }
 
   get infirmiers(): AppUser[] { return this.users.filter(u => u.role === 'infirmier'); }
   get aidesSoignants(): AppUser[] { return this.users.filter(u => u.role === 'aide-soignant'); }
+
   get availableAidesSoignants(): AppUser[] {
     const candidates = this.aidesSoignants.filter(user => this.isAideSoignantAvailableForSelection(user.id));
     return [...candidates].sort((left, right) => {
       const loadDiff = this.getAideSoignantLoadForSelection(left.id) - this.getAideSoignantLoadForSelection(right.id);
-      if (loadDiff !== 0) {
-        return loadDiff;
-      }
-      return `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
+      return loadDiff !== 0 ? loadDiff : `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
     });
   }
 
@@ -1078,19 +1118,34 @@ private stopPolling(): void {
     const candidates = this.aidesSoignants.filter(user => this.isAideSoignantAvailableForEdit(user.id));
     return [...candidates].sort((left, right) => {
       const loadDiff = this.getAideSoignantLoadForEdit(left.id) - this.getAideSoignantLoadForEdit(right.id);
-      if (loadDiff !== 0) {
-        return loadDiff;
-      }
-      return `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
+      return loadDiff !== 0 ? loadDiff : `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
     });
   }
+
   get patientsUsers(): AppUser[] { return this.users.filter(u => u.role === 'patient'); }
 
   getAideSoignantLoadForSelection(userId: number): number {
     const dates = this.newSeance.dates.length ? this.newSeance.dates : [this.todayLocalIso()];
     return this.seancesAdmin.filter(seance =>
-      seance.responsableId === userId &&
-      dates.includes(this.displayToIsoDate(seance.date))
+      seance.responsableId === userId && dates.includes(this.displayToIsoDate(seance.date))
+    ).length;
+  }
+
+  getAvailableAidesSoignantsForDate(date: string, start: string, end: string): AppUser[] {
+    const candidates = this.aidesSoignants.filter(user =>
+      this.hasHoraireCoverage(user.id, date, start, end) &&
+      !this.hasSeanceConflict(user.id, date, start, end)
+    );
+
+    return [...candidates].sort((left, right) => {
+      const loadDiff = this.getAideSoignantLoadForDate(left.id, date) - this.getAideSoignantLoadForDate(right.id, date);
+      return loadDiff !== 0 ? loadDiff : `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
+    });
+  }
+
+  getAideSoignantLoadForDate(userId: number, date: string): number {
+    return this.seancesAdmin.filter(seance =>
+      seance.responsableId === userId && this.displayToIsoDate(seance.date) === date
     ).length;
   }
 
@@ -1099,42 +1154,63 @@ private stopPolling(): void {
       ? this.editSeanceDates
       : (this.editSeance ? [this.displayToIsoDate(this.editSeance.date)] : [this.todayLocalIso()]);
     return this.seancesAdmin.filter(seance =>
-      seance.id !== this.editSeance?.id &&
-      seance.responsableId === userId &&
+      seance.id !== this.editSeance?.id && seance.responsableId === userId &&
       dates.includes(this.displayToIsoDate(seance.date))
     ).length;
   }
 
+  /**
+   * Planifie les séances : UNE requête par date avec ses heures propres.
+   * Valide que chaque date a des heures cohérentes avant d'envoyer.
+   */
   ajouterSeance(): void {
-    if (!this.newSeance.patientId || !this.newSeance.dates.length) {
+    if (!this.newSeance.patientId || !this.newSeance.datesSeances.length) {
       this.showToast('Veuillez choisir un patient et au moins une date', 'warning'); return;
     }
-    const utilisateurId = this.resolveAvailableAideSoignantId();
-    if (!utilisateurId) {
-      this.showToast('Aucun aide-soignant disponible pour cette plage horaire', 'warning');
+    const invalid = this.newSeance.datesSeances.find(d => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
+    if (invalid) {
+      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit être après l'heure de début`, 'warning');
       return;
     }
-    const requests = this.newSeance.dates.map((date): SeanceRequestDto => ({
-      date, heureDebut: this.newSeance.heureDebut, heureFin: this.newSeance.heureFin,
-      machine: this.newSeance.machine, notes: 'Planifiee depuis l administration',
-      dureeHeures: this.computeDuration(this.newSeance.heureDebut, this.newSeance.heureFin),
-      patientId: Number(this.newSeance.patientId), utilisateurId, aideSoignantId: utilisateurId
-    }));
+    const invalidAide = this.newSeance.datesSeances.find(d => !this.resolveAvailableAideSoignantIdForDate(d));
+    if (invalidAide) {
+      this.showToast(`Aucun aide-soignant disponible pour le ${this.isoToDisplayDate(invalidAide.date)}`, 'warning');
+      return;
+    }
+    const requests = this.newSeance.datesSeances.map((d): SeanceRequestDto => {
+      const aideSoignantId = this.resolveAvailableAideSoignantIdForDate(d)!;
+      return {
+      date: d.date,
+      heureDebut: d.heureDebut,
+      heureFin: d.heureFin,
+      machine: this.newSeance.machine,
+      notes: 'Planifiee depuis l administration',
+      dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
+      patientId: Number(this.newSeance.patientId),
+      utilisateurId: aideSoignantId,
+      aideSoignantId
+      };
+    });
     forkJoin(requests.map(r => this.seanceService.create(r))).subscribe({
-      next: () => { this.resetNewSeanceForm(); this.showToast('Seance(s) planifiee(s) avec succes', 'success'); this.refreshAdminCollections(false, true); },
+      next: (createdSeances) => {
+        this.insertSeances(createdSeances);
+        this.resetNewSeanceForm();
+        this.showToast(`${requests.length} séance(s) planifiée(s) avec succès`, 'success');
+      },
       error: (err) => {
-        const msg = err?.error?.message
-          || err?.error?.detail
-          || err?.error?.error
-          || 'Impossible de planifier la séance';
+        const msg = err?.error?.message || err?.error?.detail || err?.error?.error || 'Impossible de planifier la séance';
         this.showToast(msg, 'error');
       }
     });
   }
 
   supprimerSeance(id: number): void {
+    if (!this.confirmDeletion('Supprimer cette seance ?')) return;
     this.seanceService.delete(id).subscribe({
-      next: () => { this.showToast('Seance supprimee', 'warning'); this.refreshAdminCollections(false, true); },
+      next: () => {
+        this.removeSeanceRows([id]);
+        this.showToast('Seance supprimee', 'warning');
+      },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer la seance', 'error')
     });
   }
@@ -1143,12 +1219,47 @@ private stopPolling(): void {
   editSeanceCalPrevMonth(): void { this.editSeanceCalMonth === 0 ? (this.editSeanceCalMonth = 11, this.editSeanceCalYear--) : this.editSeanceCalMonth--; }
   editSeanceCalNextMonth(): void { this.editSeanceCalMonth === 11 ? (this.editSeanceCalMonth = 0, this.editSeanceCalYear++) : this.editSeanceCalMonth++; }
   get editSeanceCalDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.editSeanceCalYear, this.editSeanceCalMonth); }
-  toggleEditSeanceCalDay(date: string): void { this.toggleDateSelection(this.editSeanceDates, date); this.syncSelectedAideSoignantForEdit(); this.refreshAvailableMachinesForEditSeance(); }
+  toggleEditSeanceCalDay(date: string): void {
+    if (!this.editSeance) return;
+    const idx = this.editSeanceDates.indexOf(date);
+    if (idx === -1) {
+      this.editSeanceDates.push(date);
+      this.editSeanceDates.sort();
+      this.editSeance.datesSeances.push({ date, heureDebut: this.editSeance.heureDebut, heureFin: this.editSeance.heureFin });
+      this.editSeance.datesSeances.sort((a, b) => a.date.localeCompare(b.date));
+    } else {
+      this.editSeanceDates.splice(idx, 1);
+      this.editSeance.datesSeances = this.editSeance.datesSeances.filter(d => d.date !== date);
+    }
+    this.syncSelectedAideSoignantForEdit();
+    this.refreshAvailableMachinesForEditSeance();
+  }
   isEditSeanceDaySelected(date: string): boolean { return this.editSeanceDates.includes(date); }
 
-  openEditSeance(s: SeanceAdminRow): void {
-    this.editSeance = { ...s };
-    this.editSeanceDates = [this.displayToIsoDate(s.date)];
+  openEditSeance(groupOrRow: GroupedSeance | SeanceAdminRow): void {
+    const group = 'seances' in groupOrRow
+      ? groupOrRow
+      : {
+          patientId: groupOrRow.patientId,
+          patientNom: groupOrRow.patientNom,
+          responsableId: groupOrRow.responsableId,
+          aideSoignantNom: groupOrRow.aideSoignantNom,
+          dates: [groupOrRow.date],
+          heureDebut: groupOrRow.heureDebut,
+          heureFin: groupOrRow.heureFin,
+          machine: groupOrRow.machine,
+          statut: groupOrRow.statut,
+          seances: [groupOrRow]
+        };
+
+    const sourceSeances = [...group.seances].sort((a, b) => this.displayToIsoDate(a.date).localeCompare(this.displayToIsoDate(b.date)));
+    const first = sourceSeances[0];
+    this.editSeance = {
+      ...first,
+      datesSeances: sourceSeances.map(s => ({ date: this.displayToIsoDate(s.date), heureDebut: s.heureDebut, heureFin: s.heureFin })),
+      sourceSeances
+    };
+    this.editSeanceDates = this.editSeance.datesSeances.map(d => d.date);
     this.editSeanceCalYear = new Date().getFullYear();
     this.editSeanceCalMonth = new Date().getMonth();
     this.showEditSeanceModal = true;
@@ -1159,29 +1270,74 @@ private stopPolling(): void {
   saveEditSeance(): void {
     if (!this.editSeance) return;
     const aideSoignantId = this.resolveAvailableAideSoignantIdForEdit();
-    if (!aideSoignantId) {
-      this.showToast('Aucun aide-soignant disponible pour cette plage horaire', 'warning');
+    if (!aideSoignantId) { this.showToast('Aucun aide-soignant disponible pour cette plage horaire', 'warning'); return; }
+    const invalid = this.editSeance.datesSeances.find(d => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
+    if (invalid) {
+      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit ?tre apr?s l'heure de d?but`, 'warning');
       return;
     }
-    const payload: SeanceUpdateRequestDto = {
-      date: this.editSeanceDates[0] || this.displayToIsoDate(this.editSeance.date),
-      heureDebut: this.editSeance.heureDebut, heureFin: this.editSeance.heureFin,
-      machine: this.editSeance.machine, statut: this.normalizeSeanceStatut(this.editSeance.statut),
-      notes: 'Mise a jour depuis l administration',
-      aideSoignantId
-    };
-    this.seanceService.update(this.editSeance.id, payload).subscribe({
-      next: () => { this.showEditSeanceModal = false; this.editSeance = null; this.editSeanceDates = []; this.showToast('Seance modifiee avec succes', 'success'); this.refreshAdminCollections(false, true); },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier la seance', 'error')
+
+    const sourceByDate = new Map(this.editSeance.sourceSeances.map(s => [this.displayToIsoDate(s.date), s]));
+    const currentDates = new Set(this.editSeance.datesSeances.map(d => d.date));
+
+    const updates = this.editSeance.datesSeances
+      .filter(d => sourceByDate.has(d.date))
+      .map(d => {
+        const source = sourceByDate.get(d.date)!;
+        const payload: SeanceUpdateRequestDto = {
+          date: d.date,
+          heureDebut: d.heureDebut,
+          heureFin: d.heureFin,
+          machine: this.editSeance!.machine,
+          statut: this.normalizeSeanceStatut(this.editSeance!.statut),
+          notes: 'Mise a jour depuis l administration',
+          aideSoignantId
+        };
+        return this.seanceService.update(source.id, payload);
+      });
+
+    const creations = this.editSeance.datesSeances
+      .filter(d => !sourceByDate.has(d.date))
+      .map(d => this.seanceService.create({
+        date: d.date,
+        heureDebut: d.heureDebut,
+        heureFin: d.heureFin,
+        machine: this.editSeance!.machine,
+        notes: 'Planifiee depuis l administration',
+        dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
+        patientId: this.editSeance!.patientId,
+        utilisateurId: aideSoignantId,
+        aideSoignantId
+      } as SeanceRequestDto));
+
+    const deletions = this.editSeance.sourceSeances
+      .filter(s => !currentDates.has(this.displayToIsoDate(s.date)))
+      .map(s => this.seanceService.delete(s.id));
+
+    forkJoin([...updates, ...creations, ...deletions]).subscribe({
+      next: (results) => {
+        const updatedSeances = results.slice(0, updates.length) as SeanceDto[];
+        const createdSeances = results.slice(updates.length, updates.length + creations.length) as SeanceDto[];
+        const deletedIds = this.editSeance?.sourceSeances
+          .filter(s => !currentDates.has(this.displayToIsoDate(s.date)))
+          .map(s => s.id) ?? [];
+
+        this.replaceSeanceRows(updatedSeances, createdSeances, deletedIds);
+        this.showEditSeanceModal = false;
+        this.editSeance = null;
+        this.editSeanceDates = [];
+        this.showToast('Seances modifiees avec succes', 'success');
+      },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier les seances', 'error')
     });
   }
 
   seanceStatutClass(statut: string): string { const v = this.normalizeSeanceStatut(statut); return v === 'TERMINEE' ? 'ok' : v === 'EN_COURS' ? 'info' : 'neutral'; }
   seanceStatutLabel(statut: string): string { const v = this.normalizeSeanceStatut(statut); return v === 'TERMINEE' ? 'Terminee' : v === 'EN_COURS' ? 'En cours' : v === 'ANNULEE' ? 'Annulee' : 'Planifiee'; }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  KPI
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   get totalUsers(): number { return this.users.length; }
   get activeUsers(): number { return this.users.filter(u => u.statut === 'actif').length; }
@@ -1192,9 +1348,9 @@ private stopPolling(): void {
   get patientCount(): number { return this.users.filter(u => u.role === 'patient').length; }
   get suspendedCount(): number { return this.users.filter(u => u.statut === 'suspendu').length; }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  HELPERS UI
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
   roleLabel(id: RoleId | string): string { return this.getRoleConfig(typeof id === 'string' ? this.toRoleId(id) : id)?.label ?? String(id); }
   roleColorVar(id: RoleId | string): string { return this.getRoleConfig(typeof id === 'string' ? this.toRoleId(id) : id)?.colorVar ?? 'var(--c-text-2)'; }
@@ -1203,6 +1359,13 @@ private stopPolling(): void {
   initials(user: AppUser): string { return `${user.prenom?.[0] ?? ''}${user.nom?.[0] ?? ''}`.toUpperCase(); }
   profilTabLabel(role: RoleId): string { return ({ admin: 'Admins', medecin: 'Medecins', 'infirmier-majeur': 'Inf. Majeurs', infirmier: 'Infirmiers', 'aide-soignant': 'Aides-Soignants', patient: 'Patients' } as Record<RoleId, string>)[role]; }
   get activeTabTitle(): string { return ({ profils: 'Gestion des Profils', horaires: 'Planification des Horaires', seances: 'Planification des Seances' } as Record<AdminTab, string>)[this.activeTab]; }
+
+  /** Expose isoToDisplayDate au template */
+  isoToDisplayDate(value: string): string {
+    if (!value || !value.includes('-')) return value;
+    const [y, m, d] = value.slice(0, 10).split('-');
+    return `${d}/${m}/${y}`;
+  }
 
   showToast(message: string, type: Toast['type'] = 'info'): void {
     const id = ++this.tid;
@@ -1220,6 +1383,7 @@ private stopPolling(): void {
   }
 
   toggleTheme(): void { this.isLight = !this.isLight; }
+
   logout(): void {
     this.stopPolling();
     this.destroy$.next();
@@ -1227,26 +1391,14 @@ private stopPolling(): void {
     this.authService.logout();
   }
 
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
   //  PRIVATE HELPERS
-  // --------------------------------------------------
+  // ──────────────────────────────────────────────────────────────────────────────
 
-  private normalizePhone(value: string | null | undefined): string {
-    return String(value ?? '').replace(/\D/g, '');
-  }
-
-  private isValidPhone(value: string): boolean {
-    return /^0\d{9}$/.test(value);
-  }
-
-  private isValidOptionalPhone(value: string | null | undefined): boolean {
-    const normalized = this.normalizePhone(value);
-    return !normalized || this.isValidPhone(normalized);
-  }
-
-  private isStrongPassword(value: string): boolean {
-    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,64}$/.test(value);
-  }
+  private normalizePhone(value: string | null | undefined): string { return String(value ?? '').replace(/\D/g, ''); }
+  private isValidPhone(value: string): boolean { return /^0\d{9}$/.test(value); }
+  private isValidOptionalPhone(value: string | null | undefined): boolean { const normalized = this.normalizePhone(value); return !normalized || this.isValidPhone(normalized); }
+  private isStrongPassword(value: string): boolean { return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,64}$/.test(value); }
 
   private applyRolePermissions(configs: RolePermissionsDto[]): void {
     this.roles.forEach(r => r.permissions = {});
@@ -1259,22 +1411,11 @@ private stopPolling(): void {
   private mapUtilisateurToAppUser(dto: UtilisateurResponseDto): AppUser {
     const role = this.toRoleId(dto.role);
     return {
-      id: dto.id,
-      login: dto.login,
-      username: dto.username,
-      role,
-      backendRole: dto.role,
-      mat: dto.mat,
-      nom: dto.nom,
-      prenom: dto.prenom,
-      email: dto.email,
-      mdp: '********',
-      dateCreation: this.formatDateTime(dto.dateCreation),
-      actif: dto.actif,
-      statut: dto.actif ? 'actif' : 'inactif',
-      derniereConnexion: '—',
-      specialite: dto.specialite,
-      superviseurId: dto.superviseurId,
+      id: dto.id, login: dto.login, username: dto.username, role, backendRole: dto.role,
+      mat: dto.mat, nom: dto.nom, prenom: dto.prenom, email: dto.email, mdp: '********',
+      dateCreation: this.formatDateTime(dto.dateCreation), actif: dto.actif,
+      statut: dto.actif ? 'actif' : 'inactif', derniereConnexion: '—',
+      specialite: dto.specialite, superviseurId: dto.superviseurId,
       telephone: dto.telephone || '',
       service: (dto.service || this.serviceParRole[role]) ?? ''
     };
@@ -1301,16 +1442,11 @@ private stopPolling(): void {
     const aideSoignant = dto.aideSoignant;
     const aideSoignantNom = aideSoignant ? `${aideSoignant.prenom} ${aideSoignant.nom}` : '—';
     return {
-      id: dto.id,
-      patientId: dto.patient.id,
-      patientNom: `${dto.patient.prenom} ${dto.patient.nom}`,
-      responsableId: aideSoignant?.id ?? null,
-      aideSoignantNom,
+      id: dto.id, patientId: dto.patient.id, patientNom: `${dto.patient.prenom} ${dto.patient.nom}`,
+      responsableId: aideSoignant?.id ?? null, aideSoignantNom,
       date: this.isoToDisplayDate(String(dto.date)),
-      heureDebut: this.timeOnly(String(dto.heureDebut)),
-      heureFin: this.timeOnly(String(dto.heureFin)),
-      machine: dto.machine ?? '—',
-      statut: this.normalizeSeanceStatut(dto.statut)
+      heureDebut: this.timeOnly(String(dto.heureDebut)), heureFin: this.timeOnly(String(dto.heureFin)),
+      machine: dto.machine ?? '—', statut: this.normalizeSeanceStatut(dto.statut)
     };
   }
 
@@ -1365,12 +1501,6 @@ private stopPolling(): void {
 
   private timeOnly(value: string): string { return value?.slice(0, 5) || '00:00'; }
 
-  private isoToDisplayDate(value: string): string {
-    if (!value || !value.includes('-')) return value;
-    const [y, m, d] = value.slice(0, 10).split('-');
-    return `${d}/${m}/${y}`;
-  }
-
   private displayToIsoDate(value: string): string {
     if (!value || !value.includes('/')) return value;
     const [d, m, y] = value.split('/');
@@ -1390,85 +1520,89 @@ private stopPolling(): void {
   }
 
   private syncSelectedAideSoignant(): void {
-    if (!this.newSeance.aideSoignantId) {
-      return;
-    }
-
+    if (!this.newSeance.aideSoignantId) return;
     const selectedId = Number(this.newSeance.aideSoignantId);
-    const stillAvailable = this.availableAidesSoignants.some(user => user.id === selectedId);
-    if (!stillAvailable) {
-      this.newSeance.aideSoignantId = '';
-    }
+    if (!this.availableAidesSoignants.some(user => user.id === selectedId)) this.newSeance.aideSoignantId = '';
+  }
+
+  private syncSelectedAideSoignantsByDate(): void {
+    this.newSeance.datesSeances = this.newSeance.datesSeances.map(dateSeance => {
+      const selectedId = dateSeance.aideSoignantId ? Number(dateSeance.aideSoignantId) : null;
+      const candidates = this.getAvailableAidesSoignantsForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
+
+      if (selectedId && candidates.some(user => user.id === selectedId)) {
+        return dateSeance;
+      }
+
+      return {
+        ...dateSeance,
+        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin)
+      };
+    });
   }
 
   private syncSelectedAideSoignantForEdit(): void {
-    if (!this.editSeance?.responsableId) {
-      return;
-    }
-
+    if (!this.editSeance?.responsableId) return;
     const selectedId = Number(this.editSeance.responsableId);
-    const stillAvailable = this.availableAidesSoignantsForEdit.some(user => user.id === selectedId);
-    if (!stillAvailable) {
+    if (!this.availableAidesSoignantsForEdit.some(user => user.id === selectedId))
       this.editSeance.responsableId = this.availableAidesSoignantsForEdit[0]?.id ?? null;
-    }
   }
 
   private resolveAvailableAideSoignantId(): number | null {
     const selectedId = this.newSeance.aideSoignantId ? Number(this.newSeance.aideSoignantId) : null;
-    if (selectedId && this.availableAidesSoignants.some(user => user.id === selectedId)) {
-      return selectedId;
-    }
-
+    if (selectedId && this.availableAidesSoignants.some(user => user.id === selectedId)) return selectedId;
     return this.availableAidesSoignants[0]?.id ?? null;
+  }
+
+  private resolveAvailableAideSoignantIdForDate(dateSeance: JourSeance): number | null {
+    const selectedId = dateSeance.aideSoignantId ? Number(dateSeance.aideSoignantId) : null;
+    const candidates = this.getAvailableAidesSoignantsForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
+    if (selectedId && candidates.some(user => user.id === selectedId)) return selectedId;
+    return candidates[0]?.id ?? null;
+  }
+
+  private resolveDefaultAideSoignantIdForDate(date: string, start: string, end: string): number | null {
+    const globalSelectedId = this.newSeance.aideSoignantId ? Number(this.newSeance.aideSoignantId) : null;
+    const candidates = this.getAvailableAidesSoignantsForDate(date, start, end);
+    if (globalSelectedId && candidates.some(user => user.id === globalSelectedId)) return globalSelectedId;
+    return candidates[0]?.id ?? null;
   }
 
   private resolveAvailableAideSoignantIdForEdit(): number | null {
     const selectedId = this.editSeance?.responsableId ? Number(this.editSeance.responsableId) : null;
-    if (selectedId && this.availableAidesSoignantsForEdit.some(user => user.id === selectedId)) {
-      return selectedId;
-    }
-
+    if (selectedId && this.availableAidesSoignantsForEdit.some(user => user.id === selectedId)) return selectedId;
     return this.availableAidesSoignantsForEdit[0]?.id ?? null;
   }
 
   private isAideSoignantAvailableForSelection(userId: number): boolean {
-    if (!this.newSeance.dates.length) {
-      return true;
-    }
-
-    return this.newSeance.dates.every(date =>
-      this.hasHoraireCoverage(userId, date, this.newSeance.heureDebut, this.newSeance.heureFin) &&
-      !this.hasSeanceConflict(userId, date, this.newSeance.heureDebut, this.newSeance.heureFin)
+    if (!this.newSeance.datesSeances.length) return true;
+    return this.newSeance.datesSeances.every(ds =>
+      this.hasHoraireCoverage(userId, ds.date, ds.heureDebut, ds.heureFin) &&
+      !this.hasSeanceConflict(userId, ds.date, ds.heureDebut, ds.heureFin)
     );
   }
 
   private isAideSoignantAvailableForEdit(userId: number): boolean {
-    if (!this.editSeance) {
-      return false;
-    }
-
-    const dates = this.editSeanceDates.length ? this.editSeanceDates : [this.displayToIsoDate(this.editSeance.date)];
-    return dates.every(date =>
-      this.hasHoraireCoverage(userId, date, this.editSeance!.heureDebut, this.editSeance!.heureFin) &&
-      !this.hasSeanceConflict(userId, date, this.editSeance!.heureDebut, this.editSeance!.heureFin, this.editSeance!.id)
-    );
+    if (!this.editSeance) return false;
+    if (!this.editSeance.datesSeances.length) return false;
+    return this.editSeance.datesSeances.every(ds => {
+      const source = this.editSeance!.sourceSeances.find(s => this.displayToIsoDate(s.date) === ds.date);
+      return this.hasHoraireCoverage(userId, ds.date, ds.heureDebut, ds.heureFin) &&
+        !this.hasSeanceConflict(userId, ds.date, ds.heureDebut, ds.heureFin, source?.id);
+    });
   }
 
   private hasHoraireCoverage(userId: number, date: string, start: string, end: string): boolean {
     return this.horaires.some(horaire =>
-      horaire.utilisateurId === userId &&
-      horaire.jours.includes(date) &&
-      horaire.heureDebut <= start &&
-      horaire.heureFin >= end
+      horaire.utilisateurId === userId && horaire.jours.includes(date) &&
+      horaire.heureDebut <= start && horaire.heureFin >= end
     );
   }
 
   private hasSeanceConflict(userId: number, date: string, start: string, end: string, excludeSeanceId?: number): boolean {
     return this.seancesAdmin.some(seance =>
-      seance.id !== excludeSeanceId &&
-      seance.responsableId === userId &&
-      this.displayToIsoDate(seance.date) === date &&
-      this.rangesOverlap(start, end, seance.heureDebut, seance.heureFin)
+      seance.id !== excludeSeanceId && seance.responsableId === userId &&
+      this.displayToIsoDate(seance.date) === date && this.rangesOverlap(start, end, seance.heureDebut, seance.heureFin)
     );
   }
 
@@ -1476,9 +1610,7 @@ private stopPolling(): void {
     return startA < endB && startB < endA;
   }
 
-  pageEnd(page: number, total: number): number {
-    return Math.min(page * this.pageSize, total);
-  }
+  pageEnd(page: number, total: number): number { return Math.min(page * this.pageSize, total); }
 
   goToPage(pageKey: 'staffPage' | 'patientPage' | 'horairePage' | 'seancePage', page: number, totalPages: number): void {
     const safeTotal = Math.max(1, totalPages);
@@ -1486,9 +1618,7 @@ private stopPolling(): void {
   }
 
   getPageNumbers(currentPage: number, totalPages: number): (number | '...')[] {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
     const pages: (number | '...')[] = [1];
     if (currentPage > 3) pages.push('...');
     const start = Math.max(2, currentPage - 1);
@@ -1501,30 +1631,91 @@ private stopPolling(): void {
 
   private paginateArray<T>(items: T[], pageKey: 'staffPage' | 'patientPage' | 'horairePage' | 'seancePage'): T[] {
     const totalPages = this.getTotalPages(items.length);
-    if (this[pageKey] > totalPages) {
-      this[pageKey] = totalPages;
-    }
+    if (this[pageKey] > totalPages) this[pageKey] = totalPages;
     const start = (this[pageKey] - 1) * this.pageSize;
     return items.slice(start, start + this.pageSize);
   }
 
-  private getTotalPages(totalItems: number): number {
-    return Math.max(1, Math.ceil(totalItems / this.pageSize));
-  }
+  private getTotalPages(totalItems: number): number { return Math.max(1, Math.ceil(totalItems / this.pageSize)); }
 
   private normalizeAllPages(): void {
-    this.staffPage = Math.min(this.staffPage, this.totalStaffPages);
+    this.staffPage   = Math.min(this.staffPage,   this.totalStaffPages);
     this.patientPage = Math.min(this.patientPage, this.totalPatientPages);
     this.horairePage = Math.min(this.horairePage, this.totalHorairePages);
-    this.seancePage = Math.min(this.seancePage, this.totalSeancePages);
+    this.seancePage  = Math.min(this.seancePage,  this.totalSeancePages);
   }
 
-  private scrollAdminToTop(): void {
-    this.adminMainRef?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
+  private scrollAdminToTop(): void { this.adminMainRef?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' }); }
+  private confirmDeletion(message: string): boolean { return window.confirm(message); }
+  private refreshAfterMutation(): void { this.refreshAdminCollections(false, true); }
+
+  private insertHoraires(createdHoraires: HoraireTravailDto[]): void {
+    this.horaires = this.sortHoraires([
+      ...createdHoraires.map(horaire => this.mapHoraireToRow(horaire)),
+      ...this.horaires
+    ]);
+    this.normalizeAllPages();
+  }
+
+  private replaceHoraireRows(sourceIds: number[], createdHoraires: HoraireTravailDto[]): void {
+    this.horaires = this.sortHoraires([
+      ...this.horaires.filter(horaire => !sourceIds.includes(horaire.id)),
+      ...createdHoraires.map(horaire => this.mapHoraireToRow(horaire))
+    ]);
+    this.normalizeAllPages();
+  }
+
+  private removeHoraireRows(ids: number[]): void {
+    this.horaires = this.horaires.filter(horaire => !ids.includes(horaire.id));
+    this.normalizeAllPages();
+  }
+
+  private insertSeances(createdSeances: SeanceDto[]): void {
+    this.seancesAdmin = this.sortSeances([
+      ...createdSeances.map(seance => this.mapSeanceToRow(seance)),
+      ...this.seancesAdmin
+    ]);
+    this.normalizeAllPages();
+  }
+
+  private replaceSeanceRows(updatedSeances: SeanceDto[], createdSeances: SeanceDto[], deletedIds: number[]): void {
+    const replacedIds = updatedSeances.map(seance => seance.id);
+    this.seancesAdmin = this.sortSeances([
+      ...this.seancesAdmin.filter(seance => !replacedIds.includes(seance.id) && !deletedIds.includes(seance.id)),
+      ...updatedSeances.map(seance => this.mapSeanceToRow(seance)),
+      ...createdSeances.map(seance => this.mapSeanceToRow(seance))
+    ]);
+    this.normalizeAllPages();
+  }
+
+  private removeSeanceRows(ids: number[]): void {
+    this.seancesAdmin = this.seancesAdmin.filter(seance => !ids.includes(seance.id));
+    this.normalizeAllPages();
+  }
+
+  private sortHoraires(horaires: HoraireRow[]): HoraireRow[] {
+    return [...horaires].sort((left, right) => {
+      const dateDiff = (right.jours[0] ?? '').localeCompare(left.jours[0] ?? '');
+      if (dateDiff !== 0) return dateDiff;
+      const startDiff = right.heureDebut.localeCompare(left.heureDebut);
+      if (startDiff !== 0) return startDiff;
+      return left.staffNom.localeCompare(right.staffNom, 'fr');
+    });
+  }
+
+  private sortSeances(seances: SeanceAdminRow[]): SeanceAdminRow[] {
+    return [...seances].sort((left, right) => {
+      const dateDiff = this.displayToIsoDate(right.date).localeCompare(this.displayToIsoDate(left.date));
+      if (dateDiff !== 0) return dateDiff;
+      const startDiff = right.heureDebut.localeCompare(left.heureDebut);
+      if (startDiff !== 0) return startDiff;
+      return left.patientNom.localeCompare(right.patientNom, 'fr');
+    });
   }
 
   onNewSeanceScheduleChange(): void {
     this.syncSelectedAideSoignant();
+    this.syncSelectedAideSoignantsByDate();
     this.refreshAvailableMachinesForNewSeance();
   }
 
@@ -1539,15 +1730,9 @@ private stopPolling(): void {
         const codes = machines.map(machine => machine.code).sort();
         this.allMachineCodes = codes;
         this.machines = [...codes];
-        if (!this.newSeance.machine) {
-          this.newSeance.machine = codes[0] ?? '';
-        }
+        if (!this.newSeance.machine) this.newSeance.machine = codes[0] ?? '';
       },
-      error: () => {
-        this.allMachineCodes = [];
-        this.machines = [];
-        this.showToast('Erreur lors du chargement des machines', 'error');
-      }
+      error: () => { this.allMachineCodes = []; this.machines = []; this.showToast('Erreur lors du chargement des machines', 'error'); }
     });
   }
 
@@ -1555,12 +1740,9 @@ private stopPolling(): void {
     const dates = this.newSeance.dates.length ? [...this.newSeance.dates] : [];
     if (!dates.length || !this.newSeance.heureDebut || !this.newSeance.heureFin) {
       this.machines = [...this.allMachineCodes];
-      if (!this.machines.includes(this.newSeance.machine)) {
-        this.newSeance.machine = this.machines[0] ?? '';
-      }
+      if (!this.machines.includes(this.newSeance.machine)) this.newSeance.machine = this.machines[0] ?? '';
       return;
     }
-
     forkJoin(
       dates.map(date => this.machineService.getAvailable(date, this.newSeance.heureDebut, this.newSeance.heureFin).pipe(
         catchError(() => of([] as MachineDto[]))
@@ -1568,71 +1750,46 @@ private stopPolling(): void {
     ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (machineGroups) => {
         this.machines = this.intersectMachineCodes(machineGroups);
-        if (!this.machines.includes(this.newSeance.machine)) {
-          this.newSeance.machine = this.machines[0] ?? '';
-        }
+        if (!this.machines.includes(this.newSeance.machine)) this.newSeance.machine = this.machines[0] ?? '';
       },
-      error: () => {
-        this.machines = [...this.allMachineCodes];
-      }
+      error: () => { this.machines = [...this.allMachineCodes]; }
     });
   }
 
   private refreshAvailableMachinesForEditSeance(): void {
-    if (!this.editSeance) {
-      return;
-    }
+    if (!this.editSeance) return;
+    const datesSeances = this.editSeance.datesSeances;
+    if (!datesSeances.length) { this.machines = [...this.allMachineCodes]; return; }
 
-    const date = this.editSeanceDates[0] || this.displayToIsoDate(this.editSeance.date);
-    if (!date || !this.editSeance.heureDebut || !this.editSeance.heureFin) {
-      this.machines = [...this.allMachineCodes];
-      return;
-    }
-
-    this.machineService.getAvailable(date, this.editSeance.heureDebut, this.editSeance.heureFin, this.editSeance.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (machines) => {
-          this.machines = machines.map(machine => machine.code).sort();
-          if (!this.machines.includes(this.editSeance!.machine)) {
-            this.editSeance!.machine = this.machines[0] ?? '';
-          }
-        },
-        error: () => {
-          this.machines = [...this.allMachineCodes];
-        }
-      });
+    forkJoin(
+      datesSeances.map(ds => {
+        const source = this.editSeance!.sourceSeances.find(s => this.displayToIsoDate(s.date) === ds.date);
+        return this.machineService.getAvailable(ds.date, ds.heureDebut, ds.heureFin, source?.id).pipe(catchError(() => of([] as MachineDto[])));
+      })
+    ).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (machineGroups) => {
+        this.machines = this.intersectMachineCodes(machineGroups);
+        if (!this.machines.includes(this.editSeance!.machine)) this.editSeance!.machine = this.machines[0] ?? '';
+      },
+      error: () => { this.machines = [...this.allMachineCodes]; }
+    });
   }
 
   private intersectMachineCodes(machineGroups: MachineDto[][]): string[] {
-    if (!machineGroups.length) {
-      return [...this.allMachineCodes];
-    }
-
+    if (!machineGroups.length) return [...this.allMachineCodes];
     const [firstGroup, ...restGroups] = machineGroups;
-    return firstGroup
-      .map(machine => machine.code)
+    return firstGroup.map(machine => machine.code)
       .filter(code => restGroups.every(group => group.some(machine => machine.code === code)))
       .sort();
   }
 
   private resetNewSeanceForm(): void {
-    this.newSeance = {
-      patientId: '',
-      aideSoignantId: '',
-      dates: [],
-      heureDebut: '07:30',
-      heureFin: '11:30',
-      machine: this.allMachineCodes[0] ?? ''
-    };
+    this.newSeance = { patientId: '', aideSoignantId: '', dates: [], datesSeances: [], heureDebut: '07:30', heureFin: '11:30', machine: this.allMachineCodes[0] ?? '' };
     this.machines = [...this.allMachineCodes];
   }
 
   private todayLocalIso(): string {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
 }

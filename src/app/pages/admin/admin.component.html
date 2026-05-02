@@ -7,9 +7,9 @@
   </div>
 </div>
 
-<!-- --------------------------------------------------------------
+<!-- ─────────────────────────────────────────────────────────────────────────────
      WIZARD — Création de profil (multi-étapes)
-     -------------------------------------------------------------- -->
+     ───────────────────────────────────────────────────────────────────────────── -->
 <div class="wz-overlay" *ngIf="showWizardModal" (click)="wizardCancel()">
   <div class="wz-panel" (click)="$event.stopPropagation()">
 
@@ -23,7 +23,6 @@
           {{ wizardSelectedConfig?.icon ?? 'person_add' }}
         </span>
       </div>
-
       <div class="wz-head__text">
         <h2 class="wz-head__title">
           <ng-container *ngIf="wizardStep === 1">Nouveau profil</ng-container>
@@ -37,15 +36,13 @@
           <ng-container *ngIf="wizardStep === 3">Identifiants de connexion au système</ng-container>
         </p>
       </div>
-
       <button class="wz-close-btn" (click)="wizardCancel()">
         <span class="material-icons">close</span>
       </button>
     </div>
 
-    <!-- Barre de progression (stepper) -->
+    <!-- Stepper -->
     <div class="wz-stepper">
-      <!-- Étape 1 -->
       <div class="wz-step" [class.wz-step--active]="wizardStep === 1" [class.wz-step--done]="wizardStep > 1">
         <div class="wz-step__dot">
           <span class="material-icons" *ngIf="wizardStep > 1">check</span>
@@ -53,10 +50,7 @@
         </div>
         <span class="wz-step__label">Rôle</span>
       </div>
-
       <div class="wz-step__line" [class.wz-step__line--done]="wizardStep > 1"></div>
-
-      <!-- Étape 2 -->
       <div class="wz-step" [class.wz-step--active]="wizardStep === 2" [class.wz-step--done]="wizardStep > 2">
         <div class="wz-step__dot">
           <span class="material-icons" *ngIf="wizardStep > 2">check</span>
@@ -64,15 +58,10 @@
         </div>
         <span class="wz-step__label">Informations</span>
       </div>
-
       <ng-container *ngIf="!wizardIsPatient">
         <div class="wz-step__line" [class.wz-step__line--done]="wizardStep > 2"></div>
-
-        <!-- Étape 3 (personnel uniquement) -->
         <div class="wz-step" [class.wz-step--active]="wizardStep === 3">
-          <div class="wz-step__dot">
-            <span>3</span>
-          </div>
+          <div class="wz-step__dot"><span>3</span></div>
           <span class="wz-step__label">Accès</span>
         </div>
       </ng-container>
@@ -111,7 +100,6 @@
 
       <!-- ÉTAPE 2 · Informations personnelles -->
       <section class="wz-stage" *ngIf="wizardStep === 2">
-
         <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
              [style.background]="wizardSelectedConfig.color + '18'"
              [style.border-color]="wizardSelectedConfig.color + '40'"
@@ -122,104 +110,46 @@
 
         <!-- Champs Patient -->
         <ng-container *ngIf="wizardIsPatient">
-          <div class="wz-section-title">
-            <span class="material-icons">badge</span> Identité
+          <div class="wz-section-title"><span class="material-icons">badge</span> Identité</div>
+          <div class="wz-form-row">
+            <div class="wz-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" /></div>
+            <div class="wz-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" /></div>
+          </div>
+          <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">favorite</span> Données médicales</div>
+          <div class="wz-form-row">
+            <div class="wz-field"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="wizardData.dateNaissance" /></div>
+            <div class="wz-field"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="wizardData.groupeSanguin"><option value="">-- Sélectionner --</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
           </div>
           <div class="wz-form-row">
-            <div class="wz-field">
-              <label>Nom <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" />
-            </div>
-            <div class="wz-field">
-              <label>Prénom <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" />
-            </div>
-          </div>
-
-          <div class="wz-section-title" style="margin-top:14px">
-            <span class="material-icons">favorite</span> Données médicales
-          </div>
-          <div class="wz-form-row">
-            <div class="wz-field">
-              <label>Date de naissance <span class="req">*</span></label>
-              <input type="date" [(ngModel)]="wizardData.dateNaissance" />
-            </div>
-            <div class="wz-field">
-              <label>Groupe sanguin <span class="req">*</span></label>
-              <select [(ngModel)]="wizardData.groupeSanguin">
-                <option value="">-- Sélectionner --</option>
-                <option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option>
-              </select>
-            </div>
-          </div>
-          <div class="wz-form-row">
-            <div class="wz-field">
-              <label>Genre <span class="req">*</span></label>
-              <select [(ngModel)]="wizardData.genre">
-                <option value="">-- Sélectionner --</option>
-                <option value="Homme">Homme</option>
-                <option value="Femme">Femme</option>
-              </select>
-            </div>
-            <div class="wz-field">
-              <label>Téléphone</label>
-              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" />
-            </div>
+            <div class="wz-field"><label>Genre <span class="req">*</span></label><select [(ngModel)]="wizardData.genre"><option value="">-- Sélectionner --</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
+            <div class="wz-field"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
           </div>
         </ng-container>
 
         <!-- Champs Personnel -->
         <ng-container *ngIf="!wizardIsPatient">
-          <div class="wz-section-title">
-            <span class="material-icons">badge</span> Identité
+          <div class="wz-section-title"><span class="material-icons">badge</span> Identité</div>
+          <div class="wz-form-row">
+            <div class="wz-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" /></div>
+            <div class="wz-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" /></div>
           </div>
           <div class="wz-form-row">
-            <div class="wz-field">
-              <label>Nom <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" />
-            </div>
-            <div class="wz-field">
-              <label>Prénom <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" />
-            </div>
+            <div class="wz-field"><label>Matricule <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.mat" placeholder="MAT-001" /></div>
+            <div class="wz-field"><label>Email professionnel <span class="req">*</span></label><input type="email" [(ngModel)]="wizardData.email" placeholder="prenom.nom@dialysys.dz" /></div>
           </div>
+          <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">work</span> Poste &amp; Service</div>
           <div class="wz-form-row">
-            <div class="wz-field">
-              <label>Matricule <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.mat" placeholder="MAT-001" />
-            </div>
-            <div class="wz-field">
-              <label>Email professionnel <span class="req">*</span></label>
-              <input type="email" [(ngModel)]="wizardData.email" placeholder="prenom.nom@dialysys.dz" />
-            </div>
-          </div>
-
-          <div class="wz-section-title" style="margin-top:14px">
-            <span class="material-icons">work</span> Poste &amp; Service
-          </div>
-          <div class="wz-form-row">
-            <div class="wz-field">
-              <label>Téléphone</label>
-              <input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" />
-            </div>
-            <div class="wz-field">
-              <label>Service</label>
-              <input type="text" [(ngModel)]="wizardData.service" />
-            </div>
+            <div class="wz-field"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
+            <div class="wz-field"><label>Service</label><input type="text" [(ngModel)]="wizardData.service" /></div>
           </div>
           <div class="wz-form-row" *ngIf="wizardRole === 'medecin'">
-            <div class="wz-field">
-              <label>Spécialité</label>
-              <input type="text" [(ngModel)]="wizardData.specialite" />
-            </div>
+            <div class="wz-field"><label>Spécialité</label><input type="text" [(ngModel)]="wizardData.specialite" /></div>
           </div>
         </ng-container>
-
       </section>
 
-      <!-- ÉTAPE 3 · Accès & Sécurité (personnel uniquement) -->
+      <!-- ÉTAPE 3 · Accès & Sécurité -->
       <section class="wz-stage" *ngIf="wizardStep === 3">
-
         <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
              [style.background]="wizardSelectedConfig.color + '18'"
              [style.border-color]="wizardSelectedConfig.color + '40'"
@@ -227,291 +157,118 @@
           <span class="material-icons">{{ wizardSelectedConfig.icon }}</span>
           {{ wizardSelectedConfig.label }} — {{ wizardData.prenom }} {{ wizardData.nom }}
         </div>
-
-        <div class="wz-section-title">
-          <span class="material-icons">lock</span> Identifiants de connexion
+        <div class="wz-section-title"><span class="material-icons">lock</span> Identifiants de connexion</div>
+        <div class="wz-form-row">
+          <div class="wz-field"><label>Login <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.login" placeholder="login.utilisateur" autocomplete="off" /></div>
+          <div class="wz-field"><label>Nom d'affichage</label><input type="text" [(ngModel)]="wizardData.username" placeholder="Prénom Nom" /></div>
         </div>
         <div class="wz-form-row">
-          <div class="wz-field">
-            <label>Login <span class="req">*</span></label>
-            <input type="text" [(ngModel)]="wizardData.login" placeholder="login.utilisateur" autocomplete="off" />
-          </div>
-          <div class="wz-field">
-            <label>Nom d'affichage</label>
-            <input type="text" [(ngModel)]="wizardData.username" placeholder="Prénom Nom" />
-          </div>
+          <div class="wz-field"><label>Mot de passe</label><input type="password" [(ngModel)]="wizardData.mdp" placeholder="••••••••" autocomplete="new-password" /><small>8 caractères minimum avec majuscule, minuscule, chiffre et symbole.</small></div>
+          <div class="wz-field wz-field--center"><label>Statut du compte</label><div class="wz-toggle-row"><label class="toggle-switch"><input type="checkbox" [(ngModel)]="wizardData.actif" /><span class="toggle-track"></span></label><span class="wz-toggle-label" [style.color]="wizardData.actif ? 'var(--c-teal)' : 'var(--c-text-3)'">{{ wizardData.actif ? 'Compte actif' : 'Compte inactif' }}</span></div></div>
         </div>
-        <div class="wz-form-row">
-          <div class="wz-field">
-            <label>Mot de passe</label>
-            <input type="password" [(ngModel)]="wizardData.mdp" placeholder="••••••••" autocomplete="new-password" />
-            <small>8 caractères minimum avec majuscule, minuscule, chiffre et symbole.</small>
-          </div>
-          <div class="wz-field wz-field--center">
-            <label>Statut du compte</label>
-            <div class="wz-toggle-row">
-              <label class="toggle-switch">
-                <input type="checkbox" [(ngModel)]="wizardData.actif" />
-                <span class="toggle-track"></span>
-              </label>
-              <span class="wz-toggle-label"
-                    [style.color]="wizardData.actif ? 'var(--c-teal)' : 'var(--c-text-3)'">
-                {{ wizardData.actif ? 'Compte actif' : 'Compte inactif' }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Résumé récapitulatif -->
         <div class="wz-recap">
-          <div class="wz-recap__title">
-            <span class="material-icons">summarize</span> Récapitulatif
-          </div>
+          <div class="wz-recap__title"><span class="material-icons">summarize</span> Récapitulatif</div>
           <div class="wz-recap__grid">
-            <div class="wz-recap__item">
-              <span class="wz-recap__key">Rôle</span>
-              <span class="wz-recap__val">{{ wizardSelectedConfig?.label }}</span>
-            </div>
-            <div class="wz-recap__item">
-              <span class="wz-recap__key">Nom complet</span>
-              <span class="wz-recap__val">{{ wizardData.prenom }} {{ wizardData.nom }}</span>
-            </div>
-            <div class="wz-recap__item">
-              <span class="wz-recap__key">Matricule</span>
-              <span class="wz-recap__val">{{ wizardData.mat }}</span>
-            </div>
-            <div class="wz-recap__item">
-              <span class="wz-recap__key">Email</span>
-              <span class="wz-recap__val">{{ wizardData.email }}</span>
-            </div>
-            <div class="wz-recap__item">
-              <span class="wz-recap__key">Service</span>
-              <span class="wz-recap__val">{{ wizardData.service }}</span>
-            </div>
-            <div class="wz-recap__item">
-              <span class="wz-recap__key">Login</span>
-              <span class="wz-recap__val mono">{{ wizardData.login }}</span>
-            </div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Rôle</span><span class="wz-recap__val">{{ wizardSelectedConfig?.label }}</span></div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Nom complet</span><span class="wz-recap__val">{{ wizardData.prenom }} {{ wizardData.nom }}</span></div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Matricule</span><span class="wz-recap__val">{{ wizardData.mat }}</span></div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Email</span><span class="wz-recap__val">{{ wizardData.email }}</span></div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Service</span><span class="wz-recap__val">{{ wizardData.service }}</span></div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Login</span><span class="wz-recap__val mono">{{ wizardData.login }}</span></div>
           </div>
         </div>
-
       </section>
-
-    </div><!-- /wz-body -->
+    </div>
 
     <!-- Footer navigation -->
     <div class="wz-footer">
       <div class="wz-footer__left">
-        <button class="btn-outline-sm" *ngIf="wizardStep === 1" (click)="wizardCancel()">
-          Annuler
-        </button>
-        <button class="btn-outline-sm" *ngIf="wizardStep > 1" (click)="wizardPrev()">
-          <span class="material-icons">arrow_back</span> Précédent
-        </button>
+        <button class="btn-outline-sm" *ngIf="wizardStep === 1" (click)="wizardCancel()">Annuler</button>
+        <button class="btn-outline-sm" *ngIf="wizardStep > 1" (click)="wizardPrev()"><span class="material-icons">arrow_back</span> Précédent</button>
       </div>
-
-      <div class="wz-footer__center">
-        <span class="wz-step-counter">Étape {{ wizardStep }} / {{ wizardStepCount }}</span>
-      </div>
-
+      <div class="wz-footer__center"><span class="wz-step-counter">Étape {{ wizardStep }} / {{ wizardStepCount }}</span></div>
       <div class="wz-footer__right">
-        <button class="btn-sm-primary" (click)="wizardNext()"
-                [disabled]="wizardStep === 1 && !wizardRole">
-          <ng-container *ngIf="wizardStep < wizardStepCount">
-            Suivant <span class="material-icons">arrow_forward</span>
-          </ng-container>
-          <ng-container *ngIf="wizardStep === wizardStepCount">
-            <span class="material-icons">check</span>
-            {{ wizardIsPatient ? 'Créer le patient' : 'Créer le profil' }}
-          </ng-container>
+        <button class="btn-sm-primary" (click)="wizardNext()" [disabled]="wizardStep === 1 && !wizardRole">
+          <ng-container *ngIf="wizardStep < wizardStepCount">Suivant <span class="material-icons">arrow_forward</span></ng-container>
+          <ng-container *ngIf="wizardStep === wizardStepCount"><span class="material-icons">check</span>{{ wizardIsPatient ? 'Créer le patient' : 'Créer le profil' }}</ng-container>
         </button>
       </div>
     </div>
-
   </div>
 </div>
 
 <!-- User detail modal (Édition) -->
 <div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
   <div class="modal-panel wizard-panel wizard-panel--lg" (click)="$event.stopPropagation()">
-
     <div class="wizard-header">
       <div class="wizard-header__icon" [style.background]="'color-mix(in srgb,' + roleColorVar(selectedUser!.role) + ' 15%, transparent)'">
-        <span style="font-size:17px;font-weight:700;" [style.color]="roleColorVar(selectedUser!.role)">
-          {{ initials(selectedUser!) }}
-        </span>
+        <span style="font-size:17px;font-weight:700;" [style.color]="roleColorVar(selectedUser!.role)">{{ initials(selectedUser!) }}</span>
       </div>
       <div class="wizard-header__text">
         <h2>{{ selectedUser?.prenom }} {{ selectedUser?.nom }}</h2>
         <p>{{ selectedUser?.mat }} · {{ roleLabel(selectedUser!.role) }}</p>
       </div>
-      <span class="badge {{ statusClass(selectedUser!.statut) }}" style="margin-right:8px">
-        {{ statusLabel(selectedUser!.statut) }}
-      </span>
-      <button class="modal-close-btn" (click)="closeUserModal()">
-        <span class="material-icons">close</span>
-      </button>
+      <span class="badge {{ statusClass(selectedUser!.statut) }}" style="margin-right:8px">{{ statusLabel(selectedUser!.statut) }}</span>
+      <button class="modal-close-btn" (click)="closeUserModal()"><span class="material-icons">close</span></button>
     </div>
-
     <div class="wizard-body wizard-body--form">
-
-      <div class="wizard-section-label">
-        <span class="material-icons">badge</span> Identité
-      </div>
+      <div class="wizard-section-label"><span class="material-icons">badge</span> Identité</div>
       <div class="form-grid">
-        <div class="form-field">
-          <label>Nom <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="selectedUser!.nom" />
-        </div>
-        <div class="form-field">
-          <label>Prénom <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="selectedUser!.prenom" />
-        </div>
-        <div class="form-field">
-          <label>Matricule</label>
-          <input type="text" [(ngModel)]="selectedUser!.mat" />
-        </div>
-        <div class="form-field">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="selectedUser!.email" />
-        </div>
-        <div class="form-field">
-          <label>Téléphone</label>
-          <input type="text" [(ngModel)]="selectedUser!.telephone" placeholder="06 XX XX XX XX" />
-        </div>
-        <div class="form-field">
-          <label>Service</label>
-          <input type="text" [(ngModel)]="selectedUser!.service" />
-        </div>
+        <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="selectedUser!.nom" /></div>
+        <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="selectedUser!.prenom" /></div>
+        <div class="form-field"><label>Matricule</label><input type="text" [(ngModel)]="selectedUser!.mat" /></div>
+        <div class="form-field"><label>Email</label><input type="email" [(ngModel)]="selectedUser!.email" /></div>
+        <div class="form-field"><label>Téléphone</label><input type="text" [(ngModel)]="selectedUser!.telephone" placeholder="06 XX XX XX XX" /></div>
+        <div class="form-field"><label>Service</label><input type="text" [(ngModel)]="selectedUser!.service" /></div>
       </div>
-
-      <div class="wizard-section-label" style="margin-top:16px">
-        <span class="material-icons">lock</span> Accès &amp; Connexion
-      </div>
+      <div class="wizard-section-label" style="margin-top:16px"><span class="material-icons">lock</span> Accès &amp; Connexion</div>
       <div class="form-grid">
-        <div class="form-field">
-          <label>Login</label>
-          <input type="text" [(ngModel)]="selectedUser!.login" />
-        </div>
-        <div class="form-field">
-          <label>Username</label>
-          <input type="text" [(ngModel)]="selectedUser!.username" />
-        </div>
-        <div class="form-field">
-          <label>Rôle</label>
-          <select [(ngModel)]="selectedUser!.role">
-            <option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Statut</label>
-          <select [(ngModel)]="selectedUser!.statut"
-                  (change)="selectedUser!.actif = selectedUser!.statut === 'actif'">
-            <option value="actif">Actif</option>
-            <option value="inactif">Inactif</option>
-            <option value="suspendu">Suspendu</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Date de création</label>
-          <input type="text" [value]="selectedUser!.dateCreation" disabled style="opacity:.6" />
-        </div>
-        <div class="form-field">
-          <label>Compte actif</label>
-          <div class="toggle-row">
-            <label class="toggle-switch">
-              <input type="checkbox" [(ngModel)]="selectedUser!.actif"
-                     (change)="selectedUser!.statut = selectedUser!.actif ? 'actif' : 'inactif'" />
-              <span class="toggle-track"></span>
-            </label>
-            <span class="toggle-label">{{ selectedUser!.actif ? 'Actif' : 'Inactif' }}</span>
-          </div>
-        </div>
+        <div class="form-field"><label>Login</label><input type="text" [(ngModel)]="selectedUser!.login" /></div>
+        <div class="form-field"><label>Username</label><input type="text" [(ngModel)]="selectedUser!.username" /></div>
+        <div class="form-field"><label>Rôle</label><select [(ngModel)]="selectedUser!.role"><option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option></select></div>
+        <div class="form-field"><label>Statut</label><select [(ngModel)]="selectedUser!.statut" (change)="selectedUser!.actif = selectedUser!.statut === 'actif'"><option value="actif">Actif</option><option value="inactif">Inactif</option><option value="suspendu">Suspendu</option></select></div>
+        <div class="form-field"><label>Date de création</label><input type="text" [value]="selectedUser!.dateCreation" disabled style="opacity:.6" /></div>
+        <div class="form-field"><label>Compte actif</label><div class="toggle-row"><label class="toggle-switch"><input type="checkbox" [(ngModel)]="selectedUser!.actif" (change)="selectedUser!.statut = selectedUser!.actif ? 'actif' : 'inactif'" /><span class="toggle-track"></span></label><span class="toggle-label">{{ selectedUser!.actif ? 'Actif' : 'Inactif' }}</span></div></div>
       </div>
     </div>
-
     <div class="wizard-footer">
       <div class="wizard-footer__danger">
-        <button class="btn-delete" (click)="deleteUser(selectedUser!)">
-          <span class="material-icons">delete_outline</span> Supprimer
-        </button>
-        <button class="btn-outline-sm btn-warn"
-                *ngIf="selectedUser!.statut !== 'suspendu'"
-                (click)="suspendUser(selectedUser!)">
-          <span class="material-icons">block</span> Suspendre
-        </button>
+        <button class="btn-delete" (click)="deleteUser(selectedUser!)"><span class="material-icons">delete_outline</span> Supprimer</button>
+        <button class="btn-outline-sm btn-warn" *ngIf="selectedUser!.statut !== 'suspendu'" (click)="suspendUser(selectedUser!)"><span class="material-icons">block</span> Suspendre</button>
       </div>
       <div class="wizard-footer__actions">
-        <button class="btn-outline-sm" (click)="resetPassword(selectedUser!)">
-          <span class="material-icons">lock_reset</span> Réinitialiser MDP
-        </button>
+        <button class="btn-outline-sm" (click)="resetPassword(selectedUser!)"><span class="material-icons">lock_reset</span> Réinitialiser MDP</button>
         <button class="btn-outline-sm" (click)="closeUserModal()">Annuler</button>
-        <button class="btn-sm-primary" (click)="saveUser()">
-          <span class="material-icons">save</span> Enregistrer
-        </button>
+        <button class="btn-sm-primary" (click)="saveUser()"><span class="material-icons">save</span> Enregistrer</button>
       </div>
     </div>
-
   </div>
 </div>
 
 <!-- New patient modal -->
 <div class="modal-overlay" *ngIf="showNewPatientModal" (click)="showNewPatientModal = false">
   <div class="modal-panel wizard-panel" (click)="$event.stopPropagation()">
-
     <div class="wizard-header">
-      <div class="wizard-header__icon" style="background:rgba(48,209,88,.12)">
-        <span class="material-icons" style="color:var(--c-green);font-size:20px">person_add</span>
-      </div>
-      <div class="wizard-header__text">
-        <h2>Nouveau patient</h2>
-        <p>Renseignez les informations du patient</p>
-      </div>
-      <button class="modal-close-btn" (click)="showNewPatientModal = false">
-        <span class="material-icons">close</span>
-      </button>
+      <div class="wizard-header__icon" style="background:rgba(48,209,88,.12)"><span class="material-icons" style="color:var(--c-green);font-size:20px">person_add</span></div>
+      <div class="wizard-header__text"><h2>Nouveau patient</h2><p>Renseignez les informations du patient</p></div>
+      <button class="modal-close-btn" (click)="showNewPatientModal = false"><span class="material-icons">close</span></button>
     </div>
-
     <div class="wizard-body wizard-body--form">
-      <div class="wizard-section-label">
-        <span class="material-icons">badge</span> Identité du patient
-      </div>
+      <div class="wizard-section-label"><span class="material-icons">badge</span> Identité du patient</div>
       <div class="form-grid">
-        <div class="form-field">
-          <label>Nom <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="newPatient.nom" placeholder="Nom de famille" />
-        </div>
-        <div class="form-field">
-          <label>Prénom <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="newPatient.prenom" placeholder="Prénom" />
-        </div>
-        <div class="form-field">
-          <label>Date de naissance <span class="req">*</span></label>
-          <input type="date" [(ngModel)]="newPatient.dateNaissance" />
-        </div>
-        <div class="form-field">
-          <label>Groupe sanguin <span class="req">*</span></label>
-          <select [(ngModel)]="newPatient.groupeSanguin">
-            <option value="">— Sélectionner —</option>
-            <option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option>
-          </select>
-        </div>
+        <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="newPatient.nom" placeholder="Nom de famille" /></div>
+        <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="newPatient.prenom" placeholder="Prénom" /></div>
+        <div class="form-field"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="newPatient.dateNaissance" /></div>
+        <div class="form-field"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="newPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
       </div>
     </div>
-
     <div class="wizard-footer">
-      <div class="wizard-footer__selected">
-        <span class="material-icons" style="color:var(--c-green)">person</span>
-        <span>Patient</span>
-      </div>
+      <div class="wizard-footer__selected"><span class="material-icons" style="color:var(--c-green)">person</span><span>Patient</span></div>
       <div class="wizard-footer__actions">
         <button class="btn-outline-sm" (click)="showNewPatientModal = false">Annuler</button>
-        <button class="btn-sm-primary" (click)="saveNewPatient()">
-          <span class="material-icons">person_add</span> Créer le patient
-        </button>
+        <button class="btn-sm-primary" (click)="saveNewPatient()"><span class="material-icons">person_add</span> Créer le patient</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -622,9 +379,23 @@
           <div class="form-field"><label>Sélection nom</label><select [(ngModel)]="editHoraire.staffNom" [disabled]="!editHoraire.staffRole"><option value="">— Choisir le nom —</option><option *ngFor="let s of staffParType(editHoraire.staffRole === 'Infirmier(e)' ? 'infirmier' : 'aide-soignant')" [value]="s.prenom + ' ' + s.nom">{{ s.prenom }} {{ s.nom }}</option></select></div>
           <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="editHoraire.heureDebut" /></div>
           <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="editHoraire.heureFin" /></div>
-          <div class="cal-selected-summary" *ngIf="editHoraire.jours.length"><span class="material-icons">event_available</span>{{ editHoraire.jours.length }} jour(s) sélectionné(s)<button class="cal-clear-btn" (click)="editHoraire!.jours = []"><span class="material-icons">close</span></button></div>
+          <div class="cal-selected-summary" *ngIf="editHoraire.jours.length">
+            <span class="material-icons">event_available</span>{{ editHoraire.jours.length }} jour(s) sélectionné(s)
+            <button class="cal-clear-btn" (click)="editHoraire!.jours = []"><span class="material-icons">close</span></button>
+          </div>
         </div>
-        <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="editCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editCalTitle }}</span><button class="cal-nav-btn" (click)="editCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of editCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div>
+        <div class="horaire-form-right">
+          <div class="cal-inline">
+            <div class="cal-header"><button class="cal-nav-btn" (click)="editCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editCalTitle }}</span><button class="cal-nav-btn" (click)="editCalNextMonth()"><span class="material-icons">chevron_right</span></button></div>
+            <div class="cal-grid">
+              <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+              <ng-container *ngFor="let cell of editCalDays">
+                <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                <div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn-sm-primary" (click)="saveEditHoraire()"><span class="material-icons">save</span> Enregistrer</button>
@@ -646,14 +417,28 @@
       <div class="horaire-form-layout">
         <div class="horaire-form-left">
           <div class="form-field"><label>Patient</label><select [(ngModel)]="editSeance.patientId"><option [value]="p.id" *ngFor="let p of patientsUsers">{{ p.prenom }} {{ p.nom }}</option></select></div>
-          <div class="form-field"><label>Aide-Soignant</label><select [(ngModel)]="editSeance.responsableId"><option [ngValue]="null"> Sélection automatique </option><option [value]="a.id" *ngFor="let a of availableAidesSoignantsForEdit">{{ a.prenom }} {{ a.nom }} ? {{ getAideSoignantLoadForEdit(a.id) }} patient(s)</option></select><small *ngIf="editSeanceDates.length">Liste tri?e par disponibilit? et charge minimale sur les dates choisies.</small><small *ngIf="editSeanceDates.length && availableAidesSoignantsForEdit.length === 0">Aucun aide-soignant disponible sur cette plage horaire.</small></div>
+          <div class="form-field"><label>Aide-Soignant</label><select [(ngModel)]="editSeance.responsableId"><option [ngValue]="null"> Sélection automatique </option><option [value]="a.id" *ngFor="let a of availableAidesSoignantsForEdit">{{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForEdit(a.id) }} patient(s)</option></select><small *ngIf="editSeanceDates.length">Liste triée par disponibilité et charge minimale sur les dates choisies.</small><small *ngIf="editSeanceDates.length && availableAidesSoignantsForEdit.length === 0">Aucun aide-soignant disponible sur cette plage horaire.</small></div>
           <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="editSeance.heureDebut" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
           <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="editSeance.heureFin" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
           <div class="form-field"><label>Machine</label><select [(ngModel)]="editSeance.machine"><option value="">— Sélectionner —</option><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select></div>
           <div class="form-field"><label>Statut</label><select [(ngModel)]="editSeance.statut"><option value="PLANIFIEE">Planifiée</option><option value="EN_COURS">En cours</option><option value="TERMINEE">Terminée</option><option value="ANNULEE">Annulée</option></select></div>
-          <div class="cal-selected-summary" *ngIf="editSeanceDates.length"><span class="material-icons">event_available</span>{{ editSeanceDates.length }} date(s) sélectionnée(s)<button class="cal-clear-btn" (click)="editSeanceDates = []"><span class="material-icons">close</span></button></div>
+          <div class="cal-selected-summary" *ngIf="editSeanceDates.length">
+            <span class="material-icons">event_available</span>{{ editSeanceDates.length }} date(s) sélectionnée(s)
+            <button class="cal-clear-btn" (click)="editSeanceDates = []"><span class="material-icons">close</span></button>
+          </div>
         </div>
-        <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="editSeanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editSeanceCalTitle }}</span><button class="cal-nav-btn" (click)="editSeanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of editSeanceCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div>
+        <div class="horaire-form-right">
+          <div class="cal-inline">
+            <div class="cal-header"><button class="cal-nav-btn" (click)="editSeanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editSeanceCalTitle }}</span><button class="cal-nav-btn" (click)="editSeanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div>
+            <div class="cal-grid">
+              <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+              <ng-container *ngFor="let cell of editSeanceCalDays">
+                <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                <div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn-sm-primary" (click)="saveEditSeance()"><span class="material-icons">save</span> Enregistrer</button>
@@ -683,9 +468,7 @@
         <button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()">
           <span class="material-icons">person_add</span>{{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}
         </button>
-        <button class="icon-btn" (click)="toggleTheme()" [title]="isLight ? 'Passer en mode sombre' : 'Passer en mode clair'">
-          <span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span>
-        </button>
+        <button class="icon-btn" (click)="toggleTheme()" [title]="isLight ? 'Passer en mode sombre' : 'Passer en mode clair'"><span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span></button>
         <button class="icon-btn" (click)="showSettingsModal = true"><span class="material-icons">settings</span></button>
       </div>
     </header>
@@ -699,7 +482,7 @@
       <div class="kpi-card" style="cursor:pointer" (click)="setActiveTab('seances')"><div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div><div class="kpi-body"><span class="kpi-val">{{ seancesAdmin.length }}</span><span class="kpi-lbl">Séances planifiées</span></div></div>
     </div>
 
-    <!-- TAB PROFILS -->
+    <!-- ═══════════════════════════════════════════════════════ TAB PROFILS -->
     <ng-container *ngIf="activeTab === 'profils'">
       <div class="panel panel--full">
         <div class="panel__head">
@@ -744,9 +527,9 @@
           <table class="data-table">
             <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Date de naissance</th><th>Groupe sanguin</th><th>Actions</th></tr></thead>
             <tbody>
-              <ng-container *ngFor="let u of paginatedPatients">
+              <ng-container *ngFor="let u of paginatedPatients; let i = index">
                 <tr>
-                  <td><span class="mono">{{ u.id }}</span></td>
+                  <td><span class="mono">{{ (patientPage - 1) * pageSize + i + 1 }}</span></td>
                   <td><b>{{ u.nom }}</b></td>
                   <td>{{ u.prenom }}</td>
                   <td>{{ u.dateNaissance || '—' }}</td>
@@ -761,24 +544,26 @@
         <div class="pagination-bar" *ngIf="filteredPatients.length > 0">
           <span class="pg-rows-info">{{ (patientPage - 1) * pageSize + 1 }}–{{ pageEnd(patientPage, filteredPatients.length) }} sur {{ filteredPatients.length }}</span>
           <div class="pg-nav">
-            <button class="pg-arrow" [disabled]="patientPage === 1" (click)="goToPage('patientPage', 1, totalPatientPages)" title="Première page"><span class="material-icons">first_page</span></button>
-            <button class="pg-arrow" [disabled]="patientPage === 1" (click)="goToPage('patientPage', patientPage - 1, totalPatientPages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <button class="pg-arrow" [disabled]="patientPage === 1" (click)="goToPage('patientPage', 1, totalPatientPages)"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="patientPage === 1" (click)="goToPage('patientPage', patientPage - 1, totalPatientPages)"><span class="material-icons">chevron_left</span></button>
             <span class="pg-label">{{ patientPage }} / {{ totalPatientPages }}</span>
-            <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="goToPage('patientPage', patientPage + 1, totalPatientPages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
-            <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="goToPage('patientPage', totalPatientPages, totalPatientPages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+            <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="goToPage('patientPage', patientPage + 1, totalPatientPages)"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="goToPage('patientPage', totalPatientPages, totalPatientPages)"><span class="material-icons">last_page</span></button>
           </div>
         </div>
         <div class="panel__footer">{{ totalUsers }} profil(s) enregistré(s)</div>
       </div>
     </ng-container>
 
-    <!-- TAB HORAIRES -->
+    <!-- ═══════════════════════════════════════════════════════ TAB HORAIRES -->
     <ng-container *ngIf="activeTab === 'horaires'">
       <div class="action-form-card">
         <div class="action-form-title">
           <span class="material-icons">add_circle</span> Planifier un horaire de travail
         </div>
         <div class="horaire-form-layout">
+
+          <!-- ── Colonne gauche ── -->
           <div class="horaire-form-left">
             <div class="form-field">
               <label>Sélection poste <span class="req">*</span></label>
@@ -788,6 +573,7 @@
                 <option value="aide-soignant">Aide-Soignant</option>
               </select>
             </div>
+
             <div class="form-field">
               <label>Sélection nom <span class="req">*</span></label>
               <select [(ngModel)]="newHoraire.staffNom" [disabled]="!newHoraire.staffType">
@@ -795,20 +581,56 @@
                 <option *ngFor="let s of staffParType(newHoraire.staffType)" [value]="s.id">{{ s.prenom }} {{ s.nom }}</option>
               </select>
             </div>
-            <div class="form-field">
-              <label>Heure début <span class="req">*</span></label>
-              <input type="time" [(ngModel)]="newHoraire.heureDebut" />
+
+            <!-- Heures par défaut appliquées aux prochains jours sélectionnés -->
+            <div class="per-day-section-header">
+              <span class="material-icons">schedule</span>
+              <span>Heures par défaut</span>
+              <span class="per-day-hint">Appliquées aux nouveaux jours sélectionnés</span>
             </div>
-            <div class="form-field">
-              <label>Heure fin <span class="req">*</span></label>
-              <input type="time" [(ngModel)]="newHoraire.heureFin" />
+            <div class="form-row-inline">
+              <div class="form-field">
+                <label>Début par défaut <span class="req">*</span></label>
+                <input type="time" [(ngModel)]="newHoraire.heureDebut" />
+              </div>
+              <div class="form-field">
+                <label>Fin par défaut <span class="req">*</span></label>
+                <input type="time" [(ngModel)]="newHoraire.heureFin" />
+              </div>
             </div>
-            <div class="cal-selected-summary" *ngIf="newHoraire.jours.length">
-              <span class="material-icons">event_available</span>
-              {{ newHoraire.jours.length }} jour(s) sélectionné(s)
-              <button class="cal-clear-btn" (click)="newHoraire.jours = []"><span class="material-icons">close</span></button>
+
+            <!-- Liste des jours sélectionnés avec horaires individuels -->
+            <ng-container *ngIf="newHoraire.joursHoraires.length > 0">
+              <div class="per-day-section-header" style="margin-top:14px">
+                <span class="material-icons">event_note</span>
+                <span>Horaires par jour</span>
+                <span class="per-day-badge">{{ newHoraire.joursHoraires.length }} jour(s)</span>
+              </div>
+              <div class="jour-horaire-list">
+                <div class="jour-horaire-row" *ngFor="let jh of newHoraire.joursHoraires">
+                  <span class="jour-horaire-date">{{ isoToDisplayDate(jh.date) }}</span>
+                  <div class="jour-horaire-times">
+                    <input type="time" [(ngModel)]="jh.heureDebut" class="time-input-sm"
+                           [class.time-input--error]="jh.heureDebut >= jh.heureFin" />
+                    <span class="jour-horaire-sep">→</span>
+                    <input type="time" [(ngModel)]="jh.heureFin" class="time-input-sm"
+                           [class.time-input--error]="jh.heureDebut >= jh.heureFin" />
+                  </div>
+                  <button class="jour-remove-btn" (click)="toggleCalDay(jh.date)" title="Retirer ce jour">
+                    <span class="material-icons">close</span>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- État vide : pas encore de jours -->
+            <div class="per-day-empty" *ngIf="newHoraire.joursHoraires.length === 0">
+              <span class="material-icons">calendar_today</span>
+              <span>Sélectionnez des jours dans le calendrier</span>
             </div>
           </div>
+
+          <!-- ── Colonne droite : calendrier ── -->
           <div class="horaire-form-right">
             <div class="cal-inline">
               <div class="cal-header">
@@ -820,14 +642,20 @@
                 <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
                 <ng-container *ngFor="let cell of calDays">
                   <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                  <div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isDaySelected(cell.date)" (click)="toggleCalDay(cell.date)">{{ cell.day }}</div>
+                  <div *ngIf="cell !== null" class="cal-cell"
+                       [class.cal-cell--today]="cell.today"
+                       [class.cal-cell--selected]="isDaySelected(cell.date)"
+                       (click)="toggleCalDay(cell.date)">{{ cell.day }}</div>
                 </ng-container>
               </div>
             </div>
           </div>
         </div>
+
         <div class="action-form-footer">
-          <button class="btn-sm-primary" (click)="ajouterHoraire()"><span class="material-icons">save</span> Enregistrer l'horaire</button>
+          <button class="btn-sm-primary" (click)="ajouterHoraire()">
+            <span class="material-icons">save</span> Enregistrer {{ newHoraire.joursHoraires.length > 1 ? 'les ' + newHoraire.joursHoraires.length + ' horaires' : 'l\'horaire' }}
+          </button>
         </div>
       </div>
 
@@ -836,32 +664,24 @@
         <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par personnel, rôle, date ou horaire…" [(ngModel)]="searchHoraire" /><button class="table-search-clear" *ngIf="searchHoraire" (click)="searchHoraire = ''"><span class="material-icons">close</span></button></div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead>
-              <tr><th>Personnel</th><th>Rôle</th><th>Jours planifiés</th><th>Heure début</th><th>Heure fin</th><th>Actions</th></tr>
-            </thead>
+            <thead><tr><th>Personnel</th><th>Rôle</th><th>Jour planifié</th><th>Heure début</th><th>Heure fin</th><th>Actions</th></tr></thead>
             <tbody>
-              <tr *ngFor="let h of paginatedGroupedHoraires">
+              <tr *ngFor="let h of paginatedHoraires">
                 <td><b>{{ h.staffNom }}</b></td>
                 <td>{{ h.staffRole }}</td>
                 <td>
-                  <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                    <span *ngFor="let jour of getVisibleHoraireDates(h.dates)"
-                          class="badge info"
-                          style="font-size:11px;padding:2px 8px;font-family:monospace;">
-                      {{ formatJours([jour]) }}
-                    </span>
-                  </div>
+                  <span class="badge info" style="font-size:11px;padding:2px 8px;font-family:monospace;">{{ formatJours(h.jours) }}</span>
                 </td>
                 <td>{{ h.heureDebut }}</td>
                 <td>{{ h.heureFin }}</td>
                 <td>
                   <div class="row-actions">
-                    <button class="row-btn" (click)="openEditHoraire(h.horaires[0])" title="Modifier"><span class="material-icons">edit</span></button>
-                    <button class="row-btn row-btn--warn" (click)="supprimerGroupedHoraires(h)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                    <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="filteredGroupedHoraires.length === 0">
+              <tr *ngIf="filteredHorairesFlat.length === 0">
                 <td colspan="6" class="empty-row">
                   <span class="material-icons">event_busy</span>
                   <ng-container *ngIf="filterHoraireDate">Aucun horaire trouvé pour le {{ formatFilterDate(filterHoraireDate) }}</ng-container>
@@ -871,89 +691,176 @@
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" *ngIf="filteredGroupedHoraires.length > 0">
-          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredGroupedHoraires.length) }} sur {{ filteredGroupedHoraires.length }}</span>
+        <div class="pagination-bar" *ngIf="filteredHorairesFlat.length > 0">
+          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredHorairesFlat.length) }} sur {{ filteredHorairesFlat.length }}</span>
           <div class="pg-nav">
-            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', 1, totalHorairePages)" title="Première page"><span class="material-icons">first_page</span></button>
-            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', horairePage - 1, totalHorairePages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', 1, totalHorairePages)"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', horairePage - 1, totalHorairePages)"><span class="material-icons">chevron_left</span></button>
             <span class="pg-label">{{ horairePage }} / {{ totalHorairePages }}</span>
-            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', horairePage + 1, totalHorairePages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
-            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', totalHorairePages, totalHorairePages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', horairePage + 1, totalHorairePages)"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', totalHorairePages, totalHorairePages)"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ filteredGroupedHoraires.length }} groupe(s) · {{ horaires.length }} horaire(s) enregistré(s)</div>
+        <div class="panel__footer">{{ filteredHorairesFlat.length }} horaire(s) affiché(s) · {{ horaires.length }} horaire(s) enregistré(s)</div>
       </div>
     </ng-container>
 
-    <!-- TAB SÉANCES -->
+    <!-- ═══════════════════════════════════════════════════════ TAB SÉANCES -->
     <ng-container *ngIf="activeTab === 'seances'">
       <div class="action-form-card">
         <div class="action-form-title"><span class="material-icons">add_circle</span> Planifier une séance de dialyse</div>
         <div class="horaire-form-layout">
+
+          <!-- ── Colonne gauche ── -->
           <div class="horaire-form-left">
-            <div class="form-field"><label>Patient <span class="req">*</span></label><select [(ngModel)]="newSeance.patientId"><option value="">— Sélectionner —</option><option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option></select></div>
             <div class="form-field">
-              <label>Aide-soignant disponible</label>
-              <select [(ngModel)]="newSeance.aideSoignantId"><option value="">— Sélection automatique —</option><option *ngFor="let a of availableAidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForSelection(a.id) }} patient(s)</option></select>
-              <small *ngIf="newSeance.dates.length">Liste triée par disponibilité et charge minimale sur les dates choisies.</small>
-              <small *ngIf="newSeance.dates.length && availableAidesSoignants.length === 0">Aucun aide-soignant disponible sur cette plage horaire.</small>
+              <label>Patient <span class="req">*</span></label>
+              <select [(ngModel)]="newSeance.patientId">
+                <option value="">— Sélectionner —</option>
+                <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option>
+              </select>
             </div>
-            <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="newSeance.heureDebut" (ngModelChange)="onNewSeanceScheduleChange()" /></div>
-            <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="newSeance.heureFin" (ngModelChange)="onNewSeanceScheduleChange()" /></div>
+
+              <div class="form-field">
+                <label>Aide-soignant par défaut</label>
+                <select [(ngModel)]="newSeance.aideSoignantId">
+                  <option value="">— Sélection automatique —</option>
+                  <option *ngFor="let a of availableAidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForSelection(a.id) }} patient(s)</option>
+                </select>
+                <small *ngIf="newSeance.dates.length">Utilisé comme préférence par défaut, puis ajusté date par date selon les horaires disponibles.</small>
+              </div>
+
+            <!-- Heures par défaut -->
+            <div class="per-day-section-header">
+              <span class="material-icons">schedule</span>
+              <span>Heures par défaut</span>
+              <span class="per-day-hint">Appliquées aux nouvelles dates sélectionnées</span>
+            </div>
+            <div class="form-row-inline">
+              <div class="form-field">
+                <label>Début par défaut</label>
+                <input type="time" [(ngModel)]="newSeance.heureDebut" (ngModelChange)="onNewSeanceScheduleChange()" />
+              </div>
+              <div class="form-field">
+                <label>Fin par défaut</label>
+                <input type="time" [(ngModel)]="newSeance.heureFin" (ngModelChange)="onNewSeanceScheduleChange()" />
+              </div>
+            </div>
+
             <div class="form-field">
               <label>Machine</label>
-              <select [(ngModel)]="newSeance.machine"><option value="">— Sélectionner —</option><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select>
+              <select [(ngModel)]="newSeance.machine">
+                <option value="">— Sélectionner —</option>
+                <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
+              </select>
               <small *ngIf="newSeance.dates.length && machines.length === 0">Aucune machine disponible sur ce créneau.</small>
             </div>
-            <div class="cal-selected-summary" *ngIf="newSeance.dates.length">
-              <span class="material-icons">event_available</span>{{ newSeance.dates.length }} date(s) sélectionnée(s)
-              <button class="cal-clear-btn" (click)="newSeance.dates = []; onNewSeanceScheduleChange()"><span class="material-icons">close</span></button>
+
+            <!-- Liste des dates sélectionnées avec horaires individuels -->
+            <ng-container *ngIf="newSeance.datesSeances.length > 0">
+              <div class="per-day-section-header" style="margin-top:14px">
+                <span class="material-icons">event_note</span>
+                <span>Horaires par date</span>
+                <span class="per-day-badge">{{ newSeance.datesSeances.length }} date(s)</span>
+              </div>
+              <div class="jour-horaire-list">
+                <ng-container *ngFor="let ds of newSeance.datesSeances">
+                  <div class="jour-horaire-row">
+                    <span class="jour-horaire-date">{{ isoToDisplayDate(ds.date) }}</span>
+                    <div class="jour-horaire-times">
+                      <input type="time" [(ngModel)]="ds.heureDebut" class="time-input-sm"
+                             [class.time-input--error]="ds.heureDebut >= ds.heureFin"
+                             (ngModelChange)="onNewSeanceScheduleChange()" />
+                      <span class="jour-horaire-sep">→</span>
+                      <input type="time" [(ngModel)]="ds.heureFin" class="time-input-sm"
+                             [class.time-input--error]="ds.heureDebut >= ds.heureFin"
+                             (ngModelChange)="onNewSeanceScheduleChange()" />
+                    </div>
+                    <select [(ngModel)]="ds.aideSoignantId" class="time-input-sm" style="min-width: 220px;">
+                      <option [ngValue]="null">Sélection auto</option>
+                      <option *ngFor="let a of getAvailableAidesSoignantsForDate(ds.date, ds.heureDebut, ds.heureFin)" [ngValue]="a.id">
+                        {{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForDate(a.id, ds.date) }} patient(s)
+                      </option>
+                    </select>
+                    <button class="jour-remove-btn" (click)="toggleSeanceCalDay(ds.date)" title="Retirer cette date">
+                      <span class="material-icons">close</span>
+                    </button>
+                  </div>
+                  <small *ngIf="getAvailableAidesSoignantsForDate(ds.date, ds.heureDebut, ds.heureFin).length === 0">
+                    Aucun aide-soignant disponible pour le {{ isoToDisplayDate(ds.date) }} sur ce créneau.
+                  </small>
+                </ng-container>
+              </div>
+            </ng-container>
+
+            <!-- État vide -->
+            <div class="per-day-empty" *ngIf="newSeance.datesSeances.length === 0">
+              <span class="material-icons">calendar_today</span>
+              <span>Sélectionnez des dates dans le calendrier</span>
             </div>
           </div>
-          <div class="horaire-form-right"><div class="cal-inline"><div class="cal-header"><button class="cal-nav-btn" (click)="seanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ seanceCalTitle }}</span><button class="cal-nav-btn" (click)="seanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div><div class="cal-grid"><div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div><ng-container *ngFor="let cell of seanceCalDays"><div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div><div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isSeanceDaySelected(cell.date)" (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</div></ng-container></div></div></div>
+
+          <!-- ── Colonne droite : calendrier ── -->
+          <div class="horaire-form-right">
+            <div class="cal-inline">
+              <div class="cal-header">
+                <button class="cal-nav-btn" (click)="seanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button>
+                <span class="cal-title">{{ seanceCalTitle }}</span>
+                <button class="cal-nav-btn" (click)="seanceCalNextMonth()"><span class="material-icons">chevron_right</span></button>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
+                <ng-container *ngFor="let cell of seanceCalDays">
+                  <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
+                  <div *ngIf="cell !== null" class="cal-cell"
+                       [class.cal-cell--today]="cell.today"
+                       [class.cal-cell--selected]="isSeanceDaySelected(cell.date)"
+                       (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="action-form-footer"><button class="btn-sm-primary" (click)="ajouterSeance()"><span class="material-icons">event_available</span> Planifier la séance</button></div>
+
+        <div class="action-form-footer">
+          <button class="btn-sm-primary" (click)="ajouterSeance()">
+            <span class="material-icons">event_available</span>
+            Planifier {{ newSeance.datesSeances.length > 1 ? 'les ' + newSeance.datesSeances.length + ' séances' : 'la séance' }}
+          </button>
+        </div>
       </div>
 
       <div class="panel panel--full">
         <div class="panel__head"><h2>Séances planifiées</h2></div>
-
-        <!-- Barre de recherche texte -->
         <div class="table-search-bar">
           <span class="material-icons">search</span>
           <input type="text" placeholder="Rechercher par patient, aide-soignant, date, machine…" [(ngModel)]="searchSeance" />
           <button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''"><span class="material-icons">close</span></button>
         </div>
-
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Dates planifiées</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Date planifiée</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody>
-              <tr *ngFor="let g of paginatedGroupedSeances">
-                <td><b>{{ g.patientNom }}</b></td>
-                <td>{{ g.aideSoignantNom }}</td>
+              <tr *ngFor="let s of paginatedSeances">
+                <td><b>{{ s.patientNom }}</b></td>
+                <td>{{ s.aideSoignantNom }}</td>
                 <td>
-                  <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                    <span *ngFor="let d of g.dates"
-                          class="badge info"
-                          [style.background]="isSeanceDateMatchingFilter(d) ? 'rgba(0,217,196,0.35)' : ''"
-                          [style.font-weight]="isSeanceDateMatchingFilter(d) ? '700' : '400'"
-                          style="font-size:11px;padding:2px 8px;font-family:monospace;">
-                      {{ d }}
-                    </span>
-                  </div>
+                  <span class="badge info"
+                        [style.background]="isSeanceDateMatchingFilter(s.date) ? 'rgba(0,217,196,0.35)' : ''"
+                        [style.font-weight]="isSeanceDateMatchingFilter(s.date) ? '700' : '400'"
+                        style="font-size:11px;padding:2px 8px;font-family:monospace;">{{ s.date }}</span>
                 </td>
-                <td>{{ g.heureDebut }} – {{ g.heureFin }}</td>
-                <td><span class="mono">{{ g.machine }}</span></td>
-                <td><span class="badge {{ seanceStatutClass(g.statut) }}">{{ seanceStatutLabel(g.statut) }}</span></td>
+                <td>{{ s.heureDebut }} – {{ s.heureFin }}</td>
+                <td><span class="mono">{{ s.machine }}</span></td>
+                <td><span class="badge {{ seanceStatutClass(s.statut) }}">{{ seanceStatutLabel(s.statut) }}</span></td>
                 <td>
                   <div class="row-actions">
-                    <button class="row-btn" (click)="openEditSeance(g.seances[0])" title="Modifier"><span class="material-icons">edit</span></button>
-                    <button class="row-btn row-btn--warn" (click)="supprimerGroupedSeances(g)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                    <button class="row-btn" (click)="openEditSeance(s)" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerSeance(s.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="filteredGroupedSeances.length === 0">
+              <tr *ngIf="filteredSeances.length === 0">
                 <td colspan="7" class="empty-row">
                   <span class="material-icons">event_busy</span>
                   <ng-container *ngIf="filterSeanceDate">Aucune séance trouvée pour le {{ formatFilterDate(filterSeanceDate) }}</ng-container>
@@ -963,18 +870,19 @@
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" *ngIf="filteredGroupedSeances.length > 0">
-          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredGroupedSeances.length) }} sur {{ filteredGroupedSeances.length }}</span>
+        <div class="pagination-bar" *ngIf="filteredSeances.length > 0">
+          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredSeances.length) }} sur {{ filteredSeances.length }}</span>
           <div class="pg-nav">
-            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', 1, totalSeancePages)" title="Première page"><span class="material-icons">first_page</span></button>
-            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', seancePage - 1, totalSeancePages)" title="Précédent"><span class="material-icons">chevron_left</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', 1, totalSeancePages)"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', seancePage - 1, totalSeancePages)"><span class="material-icons">chevron_left</span></button>
             <span class="pg-label">{{ seancePage }} / {{ totalSeancePages }}</span>
-            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', seancePage + 1, totalSeancePages)" title="Suivant"><span class="material-icons">chevron_right</span></button>
-            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', totalSeancePages, totalSeancePages)" title="Dernière page"><span class="material-icons">last_page</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', seancePage + 1, totalSeancePages)"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', totalSeancePages, totalSeancePages)"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ filteredGroupedSeances.length }} groupe(s) · {{ seancesAdmin.length }} séance(s) au total</div>
+        <div class="panel__footer">{{ filteredSeances.length }} séance(s) affichée(s) · {{ seancesAdmin.length }} séance(s) au total</div>
       </div>
     </ng-container>
+
   </div>
 </div>
