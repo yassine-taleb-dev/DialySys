@@ -40,6 +40,7 @@ export interface JourSeance {
   heureDebut: string;
   heureFin: string;
   aideSoignantId?: number | null;
+  machine?: string;
 }
 
 /** Regroupement de séances identiques (même patient, aide-soignant, machine, statut) avec dates multiples */
@@ -256,14 +257,15 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   /** Formulaire de planification de séance avec heures individuelles par date */
   newSeance = {
-    patientId: '',
-    aideSoignantId: '',
-    dates: [] as string[],
-    datesSeances: [] as JourSeance[],   // horaire spécifique par date sélectionnée
-    heureDebut: '07:30',   // valeur par défaut
-    heureFin:   '11:30',
-    machine: ''
-  };
+      patientId: '',
+      aideSoignantId: '',
+      dates: [] as string[],
+      datesSeances: [] as JourSeance[],   // horaire spécifique par date sélectionnée
+      heureDebut: '07:30',   // valeur par défaut
+      heureFin:   '11:30',
+      machine: ''
+    };
+  newSeanceActiveDate: string | null = null;
 
   editSeance: {
     id: number; patientId: number; patientNom: string;
@@ -1016,12 +1018,17 @@ export class AdminComponent implements OnInit, OnDestroy {
         date,
         heureDebut: this.newSeance.heureDebut,
         heureFin: this.newSeance.heureFin,
-        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
+        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin),
+        machine: this.resolveDefaultMachineForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
       });
       this.newSeance.datesSeances.sort((a, b) => a.date.localeCompare(b.date));
+      this.newSeanceActiveDate = date;
     } else {
       this.newSeance.dates.splice(idx, 1);
       this.newSeance.datesSeances = this.newSeance.datesSeances.filter(d => d.date !== date);
+      if (this.newSeanceActiveDate === date) {
+        this.newSeanceActiveDate = this.newSeance.datesSeances[this.newSeance.datesSeances.length - 1]?.date ?? null;
+      }
     }
     this.onNewSeanceScheduleChange();
   }
@@ -1107,6 +1114,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   get aidesSoignants(): AppUser[] { return this.users.filter(u => u.role === 'aide-soignant'); }
 
   get availableAidesSoignants(): AppUser[] {
+    const activeDate = this.getActiveNewSeanceDateEntry();
+    if (!activeDate) return [];
     const candidates = this.aidesSoignants.filter(user => this.isAideSoignantAvailableForSelection(user.id));
     return [...candidates].sort((left, right) => {
       const loadDiff = this.getAideSoignantLoadForSelection(left.id) - this.getAideSoignantLoadForSelection(right.id);
@@ -1125,7 +1134,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   get patientsUsers(): AppUser[] { return this.users.filter(u => u.role === 'patient'); }
 
   getAideSoignantLoadForSelection(userId: number): number {
-    const dates = this.newSeance.dates.length ? this.newSeance.dates : [this.todayLocalIso()];
+    const activeDate = this.getActiveNewSeanceDateEntry();
+    const dates = activeDate ? [activeDate.date] : [];
+    if (!dates.length) return 0;
     return this.seancesAdmin.filter(seance =>
       seance.responsableId === userId && dates.includes(this.displayToIsoDate(seance.date))
     ).length;
@@ -1177,13 +1188,19 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.showToast(`Aucun aide-soignant disponible pour le ${this.isoToDisplayDate(invalidAide.date)}`, 'warning');
       return;
     }
+    const invalidMachine = this.newSeance.datesSeances.find(d => !this.resolveMachineForDate(d));
+    if (invalidMachine) {
+      this.showToast(`Aucune machine disponible pour le ${this.isoToDisplayDate(invalidMachine.date)}`, 'warning');
+      return;
+    }
     const requests = this.newSeance.datesSeances.map((d): SeanceRequestDto => {
       const aideSoignantId = this.resolveAvailableAideSoignantIdForDate(d)!;
+      const machine = this.resolveMachineForDate(d)!;
       return {
       date: d.date,
       heureDebut: d.heureDebut,
       heureFin: d.heureFin,
-      machine: this.newSeance.machine,
+      machine,
       notes: 'Planifiee depuis l administration',
       dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
       patientId: Number(this.newSeance.patientId),
@@ -1541,6 +1558,22 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
+  private syncSelectedMachinesByDate(): void {
+    this.newSeance.datesSeances = this.newSeance.datesSeances.map(dateSeance => {
+      const selectedMachine = dateSeance.machine ?? '';
+      const candidates = this.getAvailableMachineCodesForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
+
+      if (selectedMachine && candidates.includes(selectedMachine)) {
+        return dateSeance;
+      }
+
+      return {
+        ...dateSeance,
+        machine: this.resolveDefaultMachineForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin)
+      };
+    });
+  }
+
   private syncSelectedAideSoignantForEdit(): void {
     if (!this.editSeance?.responsableId) return;
     const selectedId = Number(this.editSeance.responsableId);
@@ -1568,6 +1601,38 @@ export class AdminComponent implements OnInit, OnDestroy {
     return candidates[0]?.id ?? null;
   }
 
+  private resolveMachineForDate(dateSeance: JourSeance): string | null {
+    const selectedMachine = dateSeance.machine ?? '';
+    const candidates = this.getAvailableMachineCodesForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
+    if (selectedMachine && candidates.includes(selectedMachine)) return selectedMachine;
+    return candidates[0] ?? null;
+  }
+
+  private resolveDefaultMachineForDate(date: string, start: string, end: string): string {
+    const globalSelectedMachine = this.newSeance.machine ?? '';
+    const candidates = this.getAvailableMachineCodesForDate(date, start, end);
+    if (globalSelectedMachine && candidates.includes(globalSelectedMachine)) return globalSelectedMachine;
+    return candidates[0] ?? '';
+  }
+
+  getAvailableMachineCodesForDate(date: string, start: string, end: string): string[] {
+    return this.allMachineCodes.filter(code =>
+      !this.seancesAdmin.some(seance =>
+        seance.machine === code &&
+        this.displayToIsoDate(seance.date) === date &&
+        this.rangesOverlap(start, end, seance.heureDebut, seance.heureFin)
+      )
+    );
+  }
+
+  private getActiveNewSeanceDateEntry(): JourSeance | null {
+    if (!this.newSeance.datesSeances.length) return null;
+    if (this.newSeanceActiveDate) {
+      return this.newSeance.datesSeances.find(d => d.date === this.newSeanceActiveDate) ?? this.newSeance.datesSeances[this.newSeance.datesSeances.length - 1];
+    }
+    return this.newSeance.datesSeances[this.newSeance.datesSeances.length - 1];
+  }
+
   private resolveAvailableAideSoignantIdForEdit(): number | null {
     const selectedId = this.editSeance?.responsableId ? Number(this.editSeance.responsableId) : null;
     if (selectedId && this.availableAidesSoignantsForEdit.some(user => user.id === selectedId)) return selectedId;
@@ -1575,11 +1640,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private isAideSoignantAvailableForSelection(userId: number): boolean {
-    if (!this.newSeance.datesSeances.length) return true;
-    return this.newSeance.datesSeances.every(ds =>
-      this.hasHoraireCoverage(userId, ds.date, ds.heureDebut, ds.heureFin) &&
-      !this.hasSeanceConflict(userId, ds.date, ds.heureDebut, ds.heureFin)
-    );
+    const selectedDate = this.getActiveNewSeanceDateEntry();
+    if (!selectedDate) return false;
+    return this.hasHoraireCoverage(userId, selectedDate.date, selectedDate.heureDebut, selectedDate.heureFin) &&
+      !this.hasSeanceConflict(userId, selectedDate.date, selectedDate.heureDebut, selectedDate.heureFin);
   }
 
   private isAideSoignantAvailableForEdit(userId: number): boolean {
@@ -1716,6 +1780,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   onNewSeanceScheduleChange(): void {
     this.syncSelectedAideSoignant();
     this.syncSelectedAideSoignantsByDate();
+    this.syncSelectedMachinesByDate();
     this.refreshAvailableMachinesForNewSeance();
   }
 
@@ -1737,20 +1802,20 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private refreshAvailableMachinesForNewSeance(): void {
-    const dates = this.newSeance.dates.length ? [...this.newSeance.dates] : [];
-    if (!dates.length || !this.newSeance.heureDebut || !this.newSeance.heureFin) {
+    const activeDate = this.getActiveNewSeanceDateEntry();
+    if (!activeDate || !activeDate.heureDebut || !activeDate.heureFin) {
       this.machines = [...this.allMachineCodes];
       if (!this.machines.includes(this.newSeance.machine)) this.newSeance.machine = this.machines[0] ?? '';
       return;
     }
-    forkJoin(
-      dates.map(date => this.machineService.getAvailable(date, this.newSeance.heureDebut, this.newSeance.heureFin).pipe(
-        catchError(() => of([] as MachineDto[]))
-      ))
-    ).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (machineGroups) => {
-        this.machines = this.intersectMachineCodes(machineGroups);
+    this.machineService.getAvailable(activeDate.date, activeDate.heureDebut, activeDate.heureFin).pipe(
+      catchError(() => of([] as MachineDto[])),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (machineGroup) => {
+        this.machines = machineGroup.map(machine => machine.code).sort();
         if (!this.machines.includes(this.newSeance.machine)) this.newSeance.machine = this.machines[0] ?? '';
+        this.syncSelectedMachinesByDate();
       },
       error: () => { this.machines = [...this.allMachineCodes]; }
     });
@@ -1785,6 +1850,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private resetNewSeanceForm(): void {
     this.newSeance = { patientId: '', aideSoignantId: '', dates: [], datesSeances: [], heureDebut: '07:30', heureFin: '11:30', machine: this.allMachineCodes[0] ?? '' };
+    this.newSeanceActiveDate = null;
     this.machines = [...this.allMachineCodes];
   }
 

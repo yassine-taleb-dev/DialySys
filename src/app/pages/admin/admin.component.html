@@ -747,14 +747,14 @@
               </div>
             </div>
 
-            <div class="form-field">
-              <label>Machine</label>
-              <select [(ngModel)]="newSeance.machine">
-                <option value="">— Sélectionner —</option>
-                <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
-              </select>
-              <small *ngIf="newSeance.dates.length && machines.length === 0">Aucune machine disponible sur ce créneau.</small>
-            </div>
+              <div class="form-field">
+                <label>Machine par défaut</label>
+                <select [(ngModel)]="newSeance.machine">
+                  <option value="">— Sélectionner —</option>
+                  <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
+                </select>
+                <small *ngIf="newSeance.dates.length">Utilisée comme préférence pour la date active, puis ajustée date par date.</small>
+              </div>
 
             <!-- Liste des dates sélectionnées avec horaires individuels -->
             <ng-container *ngIf="newSeance.datesSeances.length > 0">
@@ -782,12 +782,21 @@
                         {{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForDate(a.id, ds.date) }} patient(s)
                       </option>
                     </select>
+                    <select [(ngModel)]="ds.machine" class="time-input-sm" style="min-width: 140px;">
+                      <option value="">Machine auto</option>
+                      <option *ngFor="let machine of getAvailableMachineCodesForDate(ds.date, ds.heureDebut, ds.heureFin)" [value]="machine">
+                        {{ machine }}
+                      </option>
+                    </select>
                     <button class="jour-remove-btn" (click)="toggleSeanceCalDay(ds.date)" title="Retirer cette date">
                       <span class="material-icons">close</span>
                     </button>
                   </div>
                   <small *ngIf="getAvailableAidesSoignantsForDate(ds.date, ds.heureDebut, ds.heureFin).length === 0">
                     Aucun aide-soignant disponible pour le {{ isoToDisplayDate(ds.date) }} sur ce créneau.
+                  </small>
+                  <small *ngIf="getAvailableMachineCodesForDate(ds.date, ds.heureDebut, ds.heureFin).length === 0">
+                    Aucune machine disponible pour le {{ isoToDisplayDate(ds.date) }} sur ce créneau.
                   </small>
                 </ng-container>
               </div>
