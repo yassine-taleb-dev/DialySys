@@ -19,6 +19,8 @@ export class LoginComponent {
   errorMessage = '';
   loginSuccess = false;
   roleLabel = '';
+  requiresTwoFactor = false;
+  twoFactorCode = '';
 
   // ── Se souvenir de moi ──
   rememberMe = false;
@@ -75,13 +77,29 @@ export class LoginComponent {
       this.errorMessage = 'Veuillez saisir votre mot de passe.';
       return;
     }
+    if (this.requiresTwoFactor && !this.twoFactorCode.trim()) {
+      this.errorMessage = 'Veuillez saisir le code de verification recu par email.';
+      return;
+    }
 
     this.isLoading = true;
 
     // rememberMe → localStorage, sinon sessionStorage
-    this.authService.login(this.identifiant.trim(), this.motDePasse.trim(), this.rememberMe).subscribe({
-      next: () => {
+    this.authService.login(
+      this.identifiant.trim(),
+      this.motDePasse.trim(),
+      this.rememberMe,
+      this.requiresTwoFactor ? this.twoFactorCode.trim() : undefined
+    ).subscribe({
+      next: (response) => {
         this.isLoading = false;
+
+        if (response.requiresTwoFactor && !response.token) {
+          this.requiresTwoFactor = true;
+          this.twoFactorCode = '';
+          this.errorMessage = response.message ?? 'Code de verification envoye par email.';
+          return;
+        }
 
         const role  = this.authService.getRole();
         const route = this.roleRoutes[role];

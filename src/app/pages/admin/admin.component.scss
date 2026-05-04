@@ -1000,9 +1000,25 @@
 // â”€â”€ Misc helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .req { color: var(--c-red); margin-left: 2px; }
 
-// â”€â”€ Settings modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .modal-panel--settings {
   max-width: 500px;
+   max-height: 90vh;       // ← ajouter
+  display: flex;          // ← ajouter
+  flex-direction: column; // ← ajouter
+
+  .modal-body {
+    flex: 1;              // ← ajouter
+    overflow-y: auto;     // ← ajouter
+
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-track { background: var(--c-surface-1); border-radius: 3px; }
+    &::-webkit-scrollbar-thumb {
+      background: var(--c-border);
+      border-radius: 3px;
+      &:hover { background: var(--c-teal); }
+    }
+  }.modal-header { flex-shrink: 0; }  // ← ajouter
+  .modal-actions { flex-shrink: 0; } // ← ajouter
 }
 
 .settings-group {
@@ -2074,89 +2090,262 @@
 
 }
 
-// ── Modal overlay en mode clair → fond noir, écriture claire ─────────────────
+// Light mode for admin modals.
 .modal-overlay.light {
 
   .modal-panel {
-    background: #0f1117 !important;
-    border: 1px solid #2a2e3a !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,.7) !important;
+    background: #ffffff !important;
+    border: 1px solid #d6deea !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .22) !important;
+    color: #111827 !important;
 
     .modal-header, .modal-header--simple {
-      background: #161b26 !important;
-      border-bottom: 1px solid #2a2e3a !important;
-      h2 { color: #f0f0f0 !important; }
-      .material-icons { color: #00d9c4; }
+      background: #f8fafc !important;
+      border-bottom: 1px solid #d6deea !important;
+      color: #111827 !important;
+      h2 { color: #111827 !important; }
+      .material-icons { color: #14b8a6; }
     }
 
-    .modal-body { background: #0f1117 !important; color: #e0e0e0 !important; }
-    .modal-actions { border-top-color: #2a2e3a !important; }
+    .modal-body {
+      background: #ffffff !important;
+      color: #111827 !important;
+    }
+
+    .modal-actions {
+      background: #f8fafc !important;
+      border-top-color: #d6deea !important;
+    }
   }
 
   .wizard-panel {
-    background: #0f1117 !important;
-    border: 1px solid #2a2e3a !important;
-    box-shadow: 0 24px 72px rgba(0,0,0,.7) !important;
+    background: #ffffff !important;
+    border: 1px solid #d6deea !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .22) !important;
+    color: #111827 !important;
   }
 
   .wizard-header {
-    background: #161b26 !important;
-    border-bottom: 1px solid #2a2e3a !important;
-    .wizard-header__text h2 { color: #f0f0f0 !important; }
-    .wizard-header__text p  { color: #8a9bb0 !important; }
+    background: #f8fafc !important;
+    border-bottom: 1px solid #d6deea !important;
+    .wizard-header__text h2 { color: #111827 !important; }
+    .wizard-header__text p  { color: #64748b !important; }
   }
 
-  .wizard-body, .wizard-body--form { background: #0f1117 !important; }
+  .wizard-body, .wizard-body--form { background: #ffffff !important; color: #111827 !important; }
 
-  .wizard-section-label { color: #c0c8d8 !important; border-bottom-color: #2a2e3a !important; }
+  .wizard-section-label { color: #334155 !important; border-bottom-color: #d6deea !important; }
 
   .wizard-footer {
-    background: #161b26 !important;
-    border-top: 1px solid #2a2e3a !important;
-    .wizard-footer__selected { color: #9aa8bc !important; }
+    background: #f8fafc !important;
+    border-top: 1px solid #d6deea !important;
+    .wizard-footer__selected { color: #475569 !important; }
   }
 
-  .wz-stepper { background: #161b26 !important; border-bottom: 1px solid #2a2e3a !important; }
+  .wz-stepper { background: #f8fafc !important; border-bottom: 1px solid #d6deea !important; }
 
   .wz-step {
-    .wz-step__dot   { background: #1e2535 !important; border-color: #3a4255 !important; color: #6a7a90 !important; }
-    .wz-step__label { color: #6a7a90 !important; }
-    .wz-step__line  { background: #2a3045 !important; }
-    &--active .wz-step__dot { border-color: #00d9c4 !important; background: rgba(0,217,196,.15) !important; color: #00d9c4 !important; }
-    &--active .wz-step__label { color: #00d9c4 !important; }
-    &--done .wz-step__dot { background: #00d9c4 !important; border-color: #00d9c4 !important; color: #0a0e14 !important; }
-    &--done .wz-step__label { color: #00d9c4 !important; }
+    .wz-step__dot   { background: #ffffff !important; border-color: #cbd5e1 !important; color: #64748b !important; }
+    .wz-step__label { color: #64748b !important; }
+    .wz-step__line  { background: #cbd5e1 !important; }
+    &--active .wz-step__dot { border-color: #14b8a6 !important; background: #ccfbf1 !important; color: #0f766e !important; }
+    &--active .wz-step__label { color: #0f766e !important; }
+    &--done .wz-step__dot { background: #14b8a6 !important; border-color: #14b8a6 !important; color: #ffffff !important; }
+    &--done .wz-step__label { color: #0f766e !important; }
   }
 
-  .wz-body  { background: #0f1117 !important; }
-  .wz-stage { background: #0f1117 !important; }
+  .wz-body  { background: #ffffff !important; }
+  .wz-stage { background: #ffffff !important; }
 
-  .wz-section-title { color: #c0c8d8 !important; border-bottom-color: #2a2e3a !important; }
+  .wz-section-title { color: #334155 !important; border-bottom-color: #d6deea !important; }
 
   .wizard-role-card {
-    background: #161b26 !important;
-    border-color: #2a2e3a !important;
-    &:hover    { background: #1c2235 !important; border-color: #00d9c4 !important; }
-    &.selected { background: rgba(0,217,196,.08) !important; border-color: #00d9c4 !important; }
-    .wizard-role-card__name { color: #f0f0f0 !important; }
-    .wizard-role-card__desc { color: #8a9bb0 !important; }
+    background: #ffffff !important;
+    border-color: #d6deea !important;
+    &:hover    { background: #f8fafc !important; border-color: #14b8a6 !important; }
+    &.selected { background: #f0fdfa !important; border-color: #14b8a6 !important; }
+    .wizard-role-card__name { color: #111827 !important; }
+    .wizard-role-card__desc { color: #64748b !important; }
   }
 
-  .form-field label   { color: #c0c8d8 !important; }
-  .form-section-label { color: #8a9bb0 !important; border-bottom-color: #2a2e3a !important; }
+  .form-field label,
+  .settings-row__label b,
+  .wizard-section-label {
+    color: #334155 !important;
+  }
+
+  .settings-row__label span,
+  .form-section-label,
+  small {
+    color: #64748b !important;
+  }
+
+  .settings-group {
+    border-bottom-color: #e2e8f0 !important;
+  }
+
+  .settings-group-title {
+    color: #475569 !important;
+    .material-icons { color: #14b8a6 !important; }
+  }
+
+  .settings-row {
+    border-color: #e2e8f0 !important;
+  }
 
   .modal-close-btn {
-    color: #8a9bb0 !important;
-    &:hover { background: #1e2535 !important; color: #f0f0f0 !important; }
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #64748b !important;
+    &:hover { background: #fef2f2 !important; border-color: #ef4444 !important; color: #dc2626 !important; }
   }
 
   input, select, textarea {
-    background: #1a1f2e !important;
-    border-color: #2a2e3a !important;
-    color: #e0e0e0 !important;
-    &::placeholder { color: #4a5568 !important; }
-    option { background: #1a1f2e !important; color: #e0e0e0 !important; }
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #111827 !important;
+    &::placeholder { color: #94a3b8 !important; }
+    option { background: #ffffff !important; color: #111827 !important; }
+    &:focus {
+      border-color: #14b8a6 !important;
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, .14);
+    }
   }
 
-  label { color: #c0c8d8 !important; }
+  label { color: #334155 !important; }
+}
+
+:host-context(.theme-light) {
+  .wz-overlay {
+    background: rgba(15, 23, 42, .28) !important;
+    backdrop-filter: blur(3px);
+  }
+
+  .wz-panel {
+    background: #ffffff !important;
+    border: 1px solid #d6deea !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .22) !important;
+  }
+
+  .wz-head,
+  .wz-stepper,
+  .wz-footer {
+    background: #f8fafc !important;
+    border-color: #d6deea !important;
+  }
+
+  .wz-body,
+  .wz-stage {
+    background: #ffffff !important;
+  }
+
+  .wz-head__title,
+  .wz-role-card__name,
+  .wz-recap__val {
+    color: #111827 !important;
+  }
+
+  .wz-head__sub,
+  .wz-role-card__desc,
+  .wz-step__label,
+  .wz-recap__key,
+  .wz-toggle-label,
+  .wz-field small {
+    color: #64748b !important;
+  }
+
+  .wz-hint {
+    background: #ecfeff !important;
+    border-color: #99f6e4 !important;
+    color: #334155 !important;
+  }
+
+  .wz-role-card,
+  .wz-recap {
+    background: #ffffff !important;
+    border-color: #d6deea !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+  }
+
+  .wz-role-card:hover {
+    background: #f8fafc !important;
+    border-color: #14b8a6 !important;
+  }
+
+  .wz-role-card--selected {
+    background: #f0fdfa !important;
+    border-color: #14b8a6 !important;
+  }
+
+  .wz-field label,
+  .wz-section-title {
+    color: #334155 !important;
+  }
+
+  .wz-field input,
+  .wz-field select {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #111827 !important;
+  }
+
+  .wz-field input::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  .wz-field input:focus,
+  .wz-field select:focus {
+    border-color: #14b8a6 !important;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, .14);
+  }
+
+  .wz-step__dot {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #64748b !important;
+  }
+
+  .wz-step__line,
+  .wz-step__line--done {
+    background: #cbd5e1 !important;
+  }
+
+  .wz-step--active .wz-step__dot {
+    background: #ccfbf1 !important;
+    border-color: #14b8a6 !important;
+    color: #0f766e !important;
+  }
+
+  .wz-step--active .wz-step__label,
+  .wz-step--done .wz-step__label {
+    color: #0f766e !important;
+  }
+
+  .wz-step--done .wz-step__dot {
+    background: #14b8a6 !important;
+    border-color: #14b8a6 !important;
+    color: #ffffff !important;
+  }
+
+  .wz-recap__title {
+    background: #f8fafc !important;
+    border-color: #d6deea !important;
+    color: #475569 !important;
+  }
+
+  .wz-recap__item {
+    border-color: #e2e8f0 !important;
+  }
+
+  .wz-close-btn {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #64748b !important;
+  }
+
+  .wz-close-btn:hover {
+    background: #fef2f2 !important;
+    border-color: #ef4444 !important;
+    color: #dc2626 !important;
+  }
 }

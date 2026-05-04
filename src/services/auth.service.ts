@@ -15,12 +15,12 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  login(login: string, motDePasse: string, rememberMe = false): Observable<LoginResponseDto> {
-    const body: LoginRequestDto = { login, motDePasse };
+  login(login: string, motDePasse: string, rememberMe = false, twoFactorCode?: string): Observable<LoginResponseDto> {
+    const body: LoginRequestDto = { login, motDePasse, twoFactorCode };
 
     return this.http.post<LoginResponseDto>(`${this.apiUrl}/auth/login`, body).pipe(
       tap(response => {
-        if (response?.token) {
+        if (response?.token && response?.utilisateur) {
           this.clearSession();
           const storage = rememberMe ? localStorage : sessionStorage;
           storage.setItem('token', response.token);

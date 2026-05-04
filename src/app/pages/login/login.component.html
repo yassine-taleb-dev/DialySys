@@ -159,6 +159,23 @@
           </div>
         </div>
 
+        <div class="field" *ngIf="requiresTwoFactor" [class.field--error]="errorMessage && !twoFactorCode.trim()">
+          <label>Code de vérification</label>
+          <div class="input-wrap">
+            <span class="material-icons prefix-icon">verified_user</span>
+            <input
+              type="text"
+              placeholder="Code à 6 chiffres"
+              autocomplete="one-time-code"
+              inputmode="numeric"
+              maxlength="6"
+              [(ngModel)]="twoFactorCode"
+              name="twoFactorCode"
+              [disabled]="isLoading"
+            />
+          </div>
+        </div>
+
         <div class="error-msg" *ngIf="errorMessage">
           <span class="material-icons">error_outline</span>
           {{ errorMessage }}
