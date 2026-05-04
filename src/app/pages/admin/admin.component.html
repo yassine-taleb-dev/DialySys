@@ -118,10 +118,10 @@
           <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">favorite</span> Données médicales</div>
           <div class="wz-form-row">
             <div class="wz-field"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="wizardData.dateNaissance" /></div>
-            <div class="wz-field"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="wizardData.groupeSanguin"><option value="">-- Sélectionner --</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
+            <div class="wz-field wz-field--black"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="wizardData.groupeSanguin"><option value="">-- Sélectionner --</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
           </div>
           <div class="wz-form-row">
-            <div class="wz-field"><label>Genre <span class="req">*</span></label><select [(ngModel)]="wizardData.genre"><option value="">-- Sélectionner --</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
+            <div class="wz-field wz-field--black"><label>Genre <span class="req">*</span></label><select [(ngModel)]="wizardData.genre"><option value="">-- Sélectionner --</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
             <div class="wz-field"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
           </div>
         </ng-container>
@@ -198,7 +198,7 @@
 </div>
 
 <!-- User detail modal (Édition) -->
-<div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showUserModal" (click)="closeUserModal()">
   <div class="modal-panel wizard-panel wizard-panel--lg" (click)="$event.stopPropagation()">
     <div class="wizard-header">
       <div class="wizard-header__icon" [style.background]="'color-mix(in srgb,' + roleColorVar(selectedUser!.role) + ' 15%, transparent)'">
@@ -246,7 +246,7 @@
 </div>
 
 <!-- New patient modal -->
-<div class="modal-overlay" *ngIf="showNewPatientModal" (click)="showNewPatientModal = false">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showNewPatientModal" (click)="showNewPatientModal = false">
   <div class="modal-panel wizard-panel" (click)="$event.stopPropagation()">
     <div class="wizard-header">
       <div class="wizard-header__icon" style="background:rgba(48,209,88,.12)"><span class="material-icons" style="color:var(--c-green);font-size:20px">person_add</span></div>
@@ -259,7 +259,8 @@
         <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="newPatient.nom" placeholder="Nom de famille" /></div>
         <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="newPatient.prenom" placeholder="Prénom" /></div>
         <div class="form-field"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="newPatient.dateNaissance" /></div>
-        <div class="form-field"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="newPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
+        <div class="form-field form-field--black"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="newPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
+        <div class="form-field form-field--black"><label>Genre <span class="req">*</span></label><select [(ngModel)]="newPatient.genre"><option value="">— Sélectionner —</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
       </div>
     </div>
     <div class="wizard-footer">
@@ -273,7 +274,7 @@
 </div>
 
 <!-- New user modal (Staff) -->
-<div class="modal-overlay" *ngIf="showNewUserModal" (click)="showNewUserModal = false">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showNewUserModal" (click)="showNewUserModal = false">
   <div class="modal-panel modal-panel--new-user" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-teal);font-size:22px">person_add</span>
@@ -307,7 +308,7 @@
 </div>
 
 <!-- Settings modal -->
-<div class="modal-overlay" *ngIf="showSettingsModal" (click)="showSettingsModal = false">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showSettingsModal" (click)="showSettingsModal = false">
   <div class="modal-panel modal-panel--settings" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-teal);font-size:22px">settings</span>
@@ -340,7 +341,7 @@
 </div>
 
 <!-- Edit patient modal -->
-<div class="modal-overlay" *ngIf="showEditPatientModal" (click)="showEditPatientModal = false">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showEditPatientModal" (click)="showEditPatientModal = false">
   <div class="modal-panel modal-panel--new-patient" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-green);font-size:22px">edit</span>
@@ -354,7 +355,8 @@
         <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="editPatient.nom" placeholder="Nom de famille" /></div>
         <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="editPatient.prenom" placeholder="Prénom" /></div>
         <div class="form-field"><label>Date de naissance</label><input type="date" [(ngModel)]="editPatient.dateNaissance" /></div>
-        <div class="form-field"><label>Groupe sanguin</label><select [(ngModel)]="editPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
+        <div class="form-field form-field--black"><label>Groupe sanguin</label><select [(ngModel)]="editPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
+        <div class="form-field form-field--black"><label>Genre</label><select [(ngModel)]="editPatient.genre"><option value="">— Sélectionner —</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
       </div>
       <div class="modal-actions">
         <button class="btn-sm-primary" (click)="saveEditPatient()"><span class="material-icons">save</span> Enregistrer</button>
@@ -365,7 +367,7 @@
 </div>
 
 <!-- Edit horaire modal -->
-<div class="modal-overlay" *ngIf="showEditHoraireModal" (click)="showEditHoraireModal = false">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showEditHoraireModal" (click)="showEditHoraireModal = false">
   <div class="modal-panel modal-panel--edit-horaire" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit_calendar</span>
@@ -406,7 +408,7 @@
 </div>
 
 <!-- Edit séance modal -->
-<div class="modal-overlay" *ngIf="showEditSeanceModal" (click)="showEditSeanceModal = false">
+<div class="modal-overlay" [class.light]="isLight" *ngIf="showEditSeanceModal" (click)="showEditSeanceModal = false">
   <div class="modal-panel modal-panel--edit-horaire" (click)="$event.stopPropagation()">
     <div class="modal-header modal-header--simple">
       <span class="material-icons" style="color:var(--c-teal);font-size:22px">edit</span>
@@ -661,28 +663,35 @@
 
       <div class="panel panel--full">
         <div class="panel__head"><h2>Horaires planifiés</h2></div>
-        <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher par personnel, rôle, date ou horaire…" [(ngModel)]="searchHoraire" /><button class="table-search-clear" *ngIf="searchHoraire" (click)="searchHoraire = ''"><span class="material-icons">close</span></button></div>
+        <div class="table-search-bar">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par personnel, rôle, date ou horaire…" [(ngModel)]="searchHoraire" />
+          <button class="table-search-clear" *ngIf="searchHoraire" (click)="searchHoraire = ''"><span class="material-icons">close</span></button>
+        </div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Personnel</th><th>Rôle</th><th>Jour planifié</th><th>Heure début</th><th>Heure fin</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Personnel</th><th>Rôle</th><th>Jours &amp; Heures planifiés</th><th>Actions</th></tr></thead>
             <tbody>
-              <tr *ngFor="let h of paginatedHoraires">
-                <td><b>{{ h.staffNom }}</b></td>
-                <td>{{ h.staffRole }}</td>
+              <tr *ngFor="let p of paginatedPersonHoraires">
+                <td><b>{{ p.staffNom }}</b></td>
+                <td>{{ p.staffRole }}</td>
                 <td>
-                  <span class="badge info" style="font-size:11px;padding:2px 8px;font-family:monospace;">{{ formatJours(h.jours) }}</span>
+                  <div class="horaire-chips-row">
+                    <div class="horaire-chip" *ngFor="let e of p.entries">
+                      <span class="horaire-chip__date">{{ isoToDisplayDate(e.date) }}</span>
+                      <span class="horaire-chip__time">{{ e.heureDebut }} → {{ e.heureFin }}</span>
+                    </div>
+                  </div>
                 </td>
-                <td>{{ h.heureDebut }}</td>
-                <td>{{ h.heureFin }}</td>
                 <td>
                   <div class="row-actions">
-                    <button class="row-btn" (click)="openEditHoraire(h)" title="Modifier"><span class="material-icons">edit</span></button>
-                    <button class="row-btn row-btn--warn" (click)="supprimerHoraire(h.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                    <button class="row-btn" (click)="openEditPersonHoraire(p)" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerPersonHoraires(p)" title="Supprimer tout"><span class="material-icons">delete_outline</span></button>
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="filteredHorairesFlat.length === 0">
-                <td colspan="6" class="empty-row">
+              <tr *ngIf="filteredPersonHoraires.length === 0">
+                <td colspan="4" class="empty-row">
                   <span class="material-icons">event_busy</span>
                   <ng-container *ngIf="filterHoraireDate">Aucun horaire trouvé pour le {{ formatFilterDate(filterHoraireDate) }}</ng-container>
                   <ng-container *ngIf="!filterHoraireDate">Aucun horaire planifié</ng-container>
@@ -691,17 +700,17 @@
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" *ngIf="filteredHorairesFlat.length > 0">
-          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredHorairesFlat.length) }} sur {{ filteredHorairesFlat.length }}</span>
+        <div class="pagination-bar" *ngIf="filteredPersonHoraires.length > 0">
+          <span class="pg-rows-info">{{ (horairePage - 1) * pageSize + 1 }}–{{ pageEnd(horairePage, filteredPersonHoraires.length) }} sur {{ filteredPersonHoraires.length }}</span>
           <div class="pg-nav">
-            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', 1, totalHorairePages)"><span class="material-icons">first_page</span></button>
-            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', horairePage - 1, totalHorairePages)"><span class="material-icons">chevron_left</span></button>
-            <span class="pg-label">{{ horairePage }} / {{ totalHorairePages }}</span>
-            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', horairePage + 1, totalHorairePages)"><span class="material-icons">chevron_right</span></button>
-            <button class="pg-arrow" [disabled]="horairePage === totalHorairePages" (click)="goToPage('horairePage', totalHorairePages, totalHorairePages)"><span class="material-icons">last_page</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', 1, totalPersonHorairePages)"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === 1" (click)="goToPage('horairePage', horairePage - 1, totalPersonHorairePages)"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ horairePage }} / {{ totalPersonHorairePages }}</span>
+            <button class="pg-arrow" [disabled]="horairePage === totalPersonHorairePages" (click)="goToPage('horairePage', horairePage + 1, totalPersonHorairePages)"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="horairePage === totalPersonHorairePages" (click)="goToPage('horairePage', totalPersonHorairePages, totalPersonHorairePages)"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ filteredHorairesFlat.length }} horaire(s) affiché(s) · {{ horaires.length }} horaire(s) enregistré(s)</div>
+        <div class="panel__footer">{{ filteredPersonHoraires.length }} personne(s) · {{ horaires.length }} horaire(s) enregistré(s)</div>
       </div>
     </ng-container>
 
@@ -839,48 +848,48 @@
         </div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Date planifiée</th><th>Horaire</th><th>Machine</th><th>Statut</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Patient</th><th>Aide-Soignant</th><th>Séances planifiées</th><th>Actions</th></tr></thead>
             <tbody>
-              <tr *ngFor="let s of paginatedSeances">
-                <td><b>{{ s.patientNom }}</b></td>
-                <td>{{ s.aideSoignantNom }}</td>
+              <tr *ngFor="let p of paginatedPersonSeances">
+                <td><b>{{ p.patientNom }}</b></td>
+                <td>{{ p.aideSoignantNom }}</td>
                 <td>
-                  <span class="badge info"
-                        [style.background]="isSeanceDateMatchingFilter(s.date) ? 'rgba(0,217,196,0.35)' : ''"
-                        [style.font-weight]="isSeanceDateMatchingFilter(s.date) ? '700' : '400'"
-                        style="font-size:11px;padding:2px 8px;font-family:monospace;">{{ s.date }}</span>
+                  <div class="horaire-chips-row">
+                    <div class="horaire-chip seance-chip" *ngFor="let e of p.entries">
+                      <span class="horaire-chip__date">{{ e.date }}</span>
+                      <span class="horaire-chip__time">{{ e.heureDebut }} → {{ e.heureFin }}</span>
+                      <span class="seance-chip__machine" *ngIf="e.machine">· {{ e.machine }}</span>
+                      <span class="badge {{ seanceStatutClass(e.statut) }}" style="font-size:10px;padding:1px 6px;">{{ seanceStatutLabel(e.statut) }}</span>
+                    </div>
+                  </div>
                 </td>
-                <td>{{ s.heureDebut }} – {{ s.heureFin }}</td>
-                <td><span class="mono">{{ s.machine }}</span></td>
-                <td><span class="badge {{ seanceStatutClass(s.statut) }}">{{ seanceStatutLabel(s.statut) }}</span></td>
                 <td>
                   <div class="row-actions">
-                    <button class="row-btn" (click)="openEditSeance(s)" title="Modifier"><span class="material-icons">edit</span></button>
-                    <button class="row-btn row-btn--warn" (click)="supprimerSeance(s.id)" title="Supprimer"><span class="material-icons">delete_outline</span></button>
+                    <button class="row-btn" (click)="openEditPersonSeance(p)" title="Modifier"><span class="material-icons">edit</span></button>
+                    <button class="row-btn row-btn--warn" (click)="supprimerPersonSeances(p)" title="Supprimer tout"><span class="material-icons">delete_outline</span></button>
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="filteredSeances.length === 0">
-                <td colspan="7" class="empty-row">
+              <tr *ngIf="filteredPersonSeances.length === 0">
+                <td colspan="4" class="empty-row">
                   <span class="material-icons">event_busy</span>
-                  <ng-container *ngIf="filterSeanceDate">Aucune séance trouvée pour le {{ formatFilterDate(filterSeanceDate) }}</ng-container>
-                  <ng-container *ngIf="!filterSeanceDate">Aucune séance planifiée</ng-container>
+                  Aucune séance planifiée
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div class="pagination-bar" *ngIf="filteredSeances.length > 0">
-          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredSeances.length) }} sur {{ filteredSeances.length }}</span>
+        <div class="pagination-bar" *ngIf="filteredPersonSeances.length > 0">
+          <span class="pg-rows-info">{{ (seancePage - 1) * pageSize + 1 }}–{{ pageEnd(seancePage, filteredPersonSeances.length) }} sur {{ filteredPersonSeances.length }}</span>
           <div class="pg-nav">
-            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', 1, totalSeancePages)"><span class="material-icons">first_page</span></button>
-            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', seancePage - 1, totalSeancePages)"><span class="material-icons">chevron_left</span></button>
-            <span class="pg-label">{{ seancePage }} / {{ totalSeancePages }}</span>
-            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', seancePage + 1, totalSeancePages)"><span class="material-icons">chevron_right</span></button>
-            <button class="pg-arrow" [disabled]="seancePage === totalSeancePages" (click)="goToPage('seancePage', totalSeancePages, totalSeancePages)"><span class="material-icons">last_page</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', 1, totalPersonSeancePages)"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === 1" (click)="goToPage('seancePage', seancePage - 1, totalPersonSeancePages)"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ seancePage }} / {{ totalPersonSeancePages }}</span>
+            <button class="pg-arrow" [disabled]="seancePage === totalPersonSeancePages" (click)="goToPage('seancePage', seancePage + 1, totalPersonSeancePages)"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="seancePage === totalPersonSeancePages" (click)="goToPage('seancePage', totalPersonSeancePages, totalPersonSeancePages)"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ filteredSeances.length }} séance(s) affichée(s) · {{ seancesAdmin.length }} séance(s) au total</div>
+        <div class="panel__footer">{{ filteredPersonSeances.length }} patient(s) · {{ seancesAdmin.length }} séance(s) au total</div>
       </div>
     </ng-container>
 
