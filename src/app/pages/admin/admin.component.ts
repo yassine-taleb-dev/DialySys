@@ -67,6 +67,36 @@ export interface GroupedHoraire {
   horaires: HoraireRow[];
 }
 
+export interface PersonHoraireEntry {
+  date: string;
+  heureDebut: string;
+  heureFin: string;
+  horaireId: number;
+}
+
+export interface PersonHoraire {
+  utilisateurId: number;
+  staffNom: string;
+  staffRole: string;
+  entries: PersonHoraireEntry[];
+}
+
+export interface PersonSeanceEntry {
+  date: string;
+  heureDebut: string;
+  heureFin: string;
+  machine: string;
+  statut: string;
+  seanceId: number;
+}
+
+export interface PersonSeance {
+  patientId: number;
+  patientNom: string;
+  aideSoignantNom: string;
+  entries: PersonSeanceEntry[];
+}
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -111,7 +141,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
   }
 
-  activeTab: AdminTab = 'profils';
+  activeTab: AdminTab = (localStorage.getItem('admin_activeTab') as AdminTab) || 'profils';
   activeProfilRole: RoleId = 'medecin';
   loading = false;
   isLight = false;
@@ -292,6 +322,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ──────────────────────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
+    if (this.isLight) document.body.classList.add('theme-light');
     this.loadSharedAdminData();
     this.loadMachines();
     this.refreshAdminCollections();
@@ -300,6 +331,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   setActiveTab(tab: AdminTab): void {
     this.activeTab = tab;
+    localStorage.setItem('admin_activeTab', tab);
     this.scrollAdminToTop();
     this.refreshAdminCollections(false, false);
   }
@@ -825,6 +857,34 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   get filteredGroupedHoraires(): GroupedHoraire[] { return this.groupHoraires(this.filteredHorairesFlat); }
 
+  get filteredPersonHoraires(): PersonHoraire[] {
+    const map = new Map<number, PersonHoraire>();
+    for (const h of this.filteredHorairesFlat) {
+      let person = map.get(h.utilisateurId);
+      if (!person) {
+        person = { utilisateurId: h.utilisateurId, staffNom: h.staffNom, staffRole: h.staffRole, entries: [] };
+        map.set(h.utilisateurId, person);
+      }
+      for (const date of h.jours) {
+        if (this.filterHoraireDate && date !== this.filterHoraireDate) continue;
+        person.entries.push({ date, heureDebut: h.heureDebut, heureFin: h.heureFin, horaireId: h.id });
+      }
+    }
+    const persons = Array.from(map.values()).filter(p => p.entries.length > 0);
+    persons.forEach(p => p.entries.sort((a, b) => a.date.localeCompare(b.date)));
+    return persons;
+  }
+
+  get paginatedPersonHoraires(): PersonHoraire[] {
+    const items = this.filteredPersonHoraires;
+    const totalPages = Math.max(1, Math.ceil(items.length / this.pageSize));
+    if (this.horairePage > totalPages) this.horairePage = totalPages;
+    const start = (this.horairePage - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
+  }
+
+  get totalPersonHorairePages(): number { return Math.max(1, Math.ceil(this.filteredPersonHoraires.length / this.pageSize)); }
+
   get paginatedHoraires(): HoraireRow[] { return this.paginateArray(this.filteredHorairesFlat, 'horairePage'); }
 
   get paginatedGroupedHoraires(): GroupedHoraire[] {
@@ -836,6 +896,14 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   get totalHorairePages(): number { return this.getTotalPages(this.filteredHorairesFlat.length); }
+
+  supprimerPersonHoraires(person: PersonHoraire): void {
+    const ids = [...new Set(person.entries.map(e => e.horaireId))];
+    forkJoin(ids.map(id => this.horaireTravailService.delete(id))).subscribe({
+      next: () => { this.showToast(`${ids.length} horaire(s) supprimé(s)`, 'warning'); this.refreshAfterMutation(); },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les horaires', 'error')
+    });
+  }
 
   supprimerGroupedHoraires(group: GroupedHoraire): void {
     const ids = group.horaires.map(h => h.id);
@@ -927,6 +995,22 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
   }
   isEditDaySelected(date: string): boolean { return !!this.editHoraire && this.editHoraire.jours.includes(date); }
+
+  openEditPersonHoraire(person: PersonHoraire): void {
+    const ids = [...new Set(person.entries.map(e => e.horaireId))];
+    const rows = this.horaires.filter(h => ids.includes(h.id));
+    if (!rows.length) return;
+    const group: GroupedHoraire = {
+      utilisateurId: person.utilisateurId,
+      staffNom: person.staffNom,
+      staffRole: person.staffRole,
+      dates: rows.flatMap(h => h.jours),
+      heureDebut: rows[0].heureDebut,
+      heureFin: rows[0].heureFin,
+      horaires: rows
+    };
+    this.openEditHoraire(group);
+  }
 
   openEditHoraire(groupOrRow: GroupedHoraire | HoraireRow): void {
     const group = 'horaires' in groupOrRow
@@ -1094,6 +1178,46 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   get paginatedSeances(): SeanceAdminRow[] { return this.paginateArray(this.filteredSeances, 'seancePage'); }
   get totalSeancePages(): number { return this.getTotalPages(this.filteredSeances.length); }
+
+  get filteredPersonSeances(): PersonSeance[] {
+    const map = new Map<number, PersonSeance>();
+    for (const s of this.filteredSeances) {
+      let person = map.get(s.patientId);
+      if (!person) {
+        person = { patientId: s.patientId, patientNom: s.patientNom, aideSoignantNom: s.aideSoignantNom, entries: [] };
+        map.set(s.patientId, person);
+      }
+      person.entries.push({ date: s.date, heureDebut: s.heureDebut, heureFin: s.heureFin, machine: s.machine, statut: s.statut, seanceId: s.id });
+    }
+    const persons = Array.from(map.values());
+    persons.forEach(p => p.entries.sort((a, b) => a.date.localeCompare(b.date)));
+    return persons;
+  }
+
+  get paginatedPersonSeances(): PersonSeance[] {
+    const items = this.filteredPersonSeances;
+    const totalPages = Math.max(1, Math.ceil(items.length / this.pageSize));
+    if (this.seancePage > totalPages) this.seancePage = totalPages;
+    const start = (this.seancePage - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
+  }
+
+  get totalPersonSeancePages(): number { return Math.max(1, Math.ceil(this.filteredPersonSeances.length / this.pageSize)); }
+
+  supprimerPersonSeances(person: PersonSeance): void {
+    const ids = person.entries.map(e => e.seanceId);
+    forkJoin(ids.map(id => this.seanceService.delete(id))).subscribe({
+      next: () => { this.showToast(`${ids.length} séance(s) supprimée(s)`, 'warning'); this.refreshAfterMutation(); },
+      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les séances', 'error')
+    });
+  }
+
+  openEditPersonSeance(person: PersonSeance): void {
+    const firstEntry = person.entries[0];
+    if (!firstEntry) return;
+    const row = this.seancesAdmin.find(s => s.id === firstEntry.seanceId);
+    if (row) this.openEditSeance(row);
+  }
 
   isSeanceDateMatchingFilter(displayDate: string): boolean {
     if (!this.filterSeanceDate) return false;
@@ -1399,7 +1523,14 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleTheme(): void { this.isLight = !this.isLight; }
+  toggleTheme(): void {
+    this.isLight = !this.isLight;
+    if (this.isLight) {
+      document.body.classList.add('theme-light');
+    } else {
+      document.body.classList.remove('theme-light');
+    }
+  }
 
   logout(): void {
     this.stopPolling();

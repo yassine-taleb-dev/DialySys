@@ -23,6 +23,7 @@
 
 // Light mode overrides
 .admin-shell.light {
+  // Local variables
   --c-surface-1:  #F0F4FA;
   --c-surface-2:  #FFFFFF;
   --c-surface-3:  #E8EEF8;
@@ -40,6 +41,14 @@
   --c-red:        #D93030;
   --c-purple:     #6D4FC2;
   --c-purple-soft:rgba(109,79,194,.10);
+
+  // Override global dark variables used by modal-panel, form-field, etc.
+  --c-bg:         #F0F4FA;
+  --c-surface:    #FFFFFF;
+  --c-card:       #FFFFFF;
+  --c-card-hi:    #F4F6FA;
+  --c-border-hi:  rgba(0,0,0,.15);
+  --c-text:       #0D1B2E;
 }
 
 // â”€â”€ Admin shell layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -87,6 +96,18 @@
     align-items: center;
     gap: 10px;
   }
+}
+
+.admin-shell.light .topbar {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+  padding: 14px 20px;
+
+  .topbar__left h1 { color: #111111 !important; font-weight: 700; }
+  .topbar__date { color: #666666; }
 }
 
 // â”€â”€ KPI row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1052,6 +1073,35 @@
   }
 }
 
+.horaire-date-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 1px solid var(--c-border);
+  padding-left: 12px;
+  flex-shrink: 0;
+
+  .material-icons {
+    font-size: 17px;
+    color: var(--c-teal);
+  }
+
+  input[type="date"] {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 12.5px;
+    color: var(--c-text-1);
+    cursor: pointer;
+    font-family: var(--f-body);
+
+    &::-webkit-calendar-picker-indicator {
+      filter: invert(0.6);
+      cursor: pointer;
+    }
+  }
+}
+
 .table-search-clear {
   background: transparent;
   border: none;
@@ -1790,24 +1840,63 @@
   @media (max-width: 500px) { grid-template-columns: 1fr; }
 }
 /* ── Horaire/Séance par jour ─────────────────────────────── */
+.horaire-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.horaire-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 217, 196, .08);
+  border: 1px solid rgba(0, 217, 196, .25);
+  border-radius: 20px;
+  padding: 4px 10px;
+  white-space: nowrap;
+
+  &__date {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--c-teal);
+    font-family: monospace;
+  }
+
+  &__time {
+    font-size: 11px;
+    color: var(--c-text-2);
+    font-family: monospace;
+  }
+}
+
+.seance-chip__machine {
+  font-size: 10.5px;
+  color: var(--c-text-3);
+  font-family: monospace;
+}
+
 .jour-horaire-list {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 220px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 260px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 4px 2px;
 }
 
 .jour-horaire-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--c-surface-2, rgba(255,255,255,0.04));
   border: 1px solid var(--c-border);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 13px;
+  border-radius: 20px;
+  padding: 5px 10px 5px 12px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .jour-horaire-date {
@@ -1973,4 +2062,101 @@
   border: 1px solid var(--c-border);
   border-radius: 20px;
   padding: 3px 12px;
+}
+
+// ── Light mode : Modal overlay + Wizard + tous les modals ────────────────────
+.admin-shell.light {
+
+  // Overlay plus clair
+  .modal-overlay {
+    background: rgba(100,120,150,.45);
+  }
+
+}
+
+// ── Modal overlay en mode clair → fond noir, écriture claire ─────────────────
+.modal-overlay.light {
+
+  .modal-panel {
+    background: #0f1117 !important;
+    border: 1px solid #2a2e3a !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.7) !important;
+
+    .modal-header, .modal-header--simple {
+      background: #161b26 !important;
+      border-bottom: 1px solid #2a2e3a !important;
+      h2 { color: #f0f0f0 !important; }
+      .material-icons { color: #00d9c4; }
+    }
+
+    .modal-body { background: #0f1117 !important; color: #e0e0e0 !important; }
+    .modal-actions { border-top-color: #2a2e3a !important; }
+  }
+
+  .wizard-panel {
+    background: #0f1117 !important;
+    border: 1px solid #2a2e3a !important;
+    box-shadow: 0 24px 72px rgba(0,0,0,.7) !important;
+  }
+
+  .wizard-header {
+    background: #161b26 !important;
+    border-bottom: 1px solid #2a2e3a !important;
+    .wizard-header__text h2 { color: #f0f0f0 !important; }
+    .wizard-header__text p  { color: #8a9bb0 !important; }
+  }
+
+  .wizard-body, .wizard-body--form { background: #0f1117 !important; }
+
+  .wizard-section-label { color: #c0c8d8 !important; border-bottom-color: #2a2e3a !important; }
+
+  .wizard-footer {
+    background: #161b26 !important;
+    border-top: 1px solid #2a2e3a !important;
+    .wizard-footer__selected { color: #9aa8bc !important; }
+  }
+
+  .wz-stepper { background: #161b26 !important; border-bottom: 1px solid #2a2e3a !important; }
+
+  .wz-step {
+    .wz-step__dot   { background: #1e2535 !important; border-color: #3a4255 !important; color: #6a7a90 !important; }
+    .wz-step__label { color: #6a7a90 !important; }
+    .wz-step__line  { background: #2a3045 !important; }
+    &--active .wz-step__dot { border-color: #00d9c4 !important; background: rgba(0,217,196,.15) !important; color: #00d9c4 !important; }
+    &--active .wz-step__label { color: #00d9c4 !important; }
+    &--done .wz-step__dot { background: #00d9c4 !important; border-color: #00d9c4 !important; color: #0a0e14 !important; }
+    &--done .wz-step__label { color: #00d9c4 !important; }
+  }
+
+  .wz-body  { background: #0f1117 !important; }
+  .wz-stage { background: #0f1117 !important; }
+
+  .wz-section-title { color: #c0c8d8 !important; border-bottom-color: #2a2e3a !important; }
+
+  .wizard-role-card {
+    background: #161b26 !important;
+    border-color: #2a2e3a !important;
+    &:hover    { background: #1c2235 !important; border-color: #00d9c4 !important; }
+    &.selected { background: rgba(0,217,196,.08) !important; border-color: #00d9c4 !important; }
+    .wizard-role-card__name { color: #f0f0f0 !important; }
+    .wizard-role-card__desc { color: #8a9bb0 !important; }
+  }
+
+  .form-field label   { color: #c0c8d8 !important; }
+  .form-section-label { color: #8a9bb0 !important; border-bottom-color: #2a2e3a !important; }
+
+  .modal-close-btn {
+    color: #8a9bb0 !important;
+    &:hover { background: #1e2535 !important; color: #f0f0f0 !important; }
+  }
+
+  input, select, textarea {
+    background: #1a1f2e !important;
+    border-color: #2a2e3a !important;
+    color: #e0e0e0 !important;
+    &::placeholder { color: #4a5568 !important; }
+    option { background: #1a1f2e !important; color: #e0e0e0 !important; }
+  }
+
+  label { color: #c0c8d8 !important; }
 }
