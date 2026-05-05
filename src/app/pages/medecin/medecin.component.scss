@@ -1549,3 +1549,22 @@ textarea {
   color: var(--c-text-3);
   margin-top: 4px;
 }
+
+/* ─── Responsive ─── */
+@media (max-width: 1100px) {
+  .main-scroll { padding: 0 18px 18px; }
+}
+
+@media (max-width: 768px) {
+  .main-scroll { padding: 0 12px 12px; }
+
+  .section-header { flex-wrap: wrap; gap: 8px; }
+  .section-header__actions { flex-wrap: wrap; gap: 6px; }
+
+  .patient-grid { grid-template-columns: 1fr !important; }
+  .two-col      { grid-template-columns: 1fr !important; }
+  .chart-row    { grid-template-columns: 1fr !important; }
+  .stats-row    { flex-wrap: wrap; }
+
+  .data-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}

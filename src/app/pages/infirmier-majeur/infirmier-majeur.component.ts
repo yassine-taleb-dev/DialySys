@@ -73,6 +73,9 @@ interface Notif  { icon: string; text: string; time: string; type: string; read:
 export class InfirmierMajeurComponent {
   constructor(private router: Router) {}
 
+  // ── Sidebar mobile ──
+  sidebarOpen = false;
+
   // ── Navigation ──
   activeSection = 'dashboard';
 

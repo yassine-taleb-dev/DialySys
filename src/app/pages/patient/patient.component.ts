@@ -16,6 +16,9 @@ interface Notif  { icon: string; text: string; time: string; type: string; read:
 export class PatientComponent {
   constructor(private router: Router) {}
 
+  // ── Sidebar mobile ──
+  sidebarOpen = false;
+
   // ── Navigation ──
   activeSection = 'dashboard';
   setSection(s: string): void {

@@ -652,3 +652,22 @@
     .material-icons { font-size: 15px; color: var(--c-teal); flex-shrink: 0; margin-top: 1px; }
   }
 }
+
+/* ─── Responsive ─── */
+@media (max-width: 1100px) {
+  .dashboard-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 768px) {
+  .main-scroll { padding: 0 12px 12px; }
+  .section-header { flex-wrap: wrap; gap: 8px; }
+  .data-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tabs-row { overflow-x: auto; }
+  .tab-btn  { white-space: nowrap; flex-shrink: 0; }
+  .planning-grid { grid-template-columns: 1fr !important; }
+  .equipe-grid   { grid-template-columns: 1fr 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .equipe-grid { grid-template-columns: 1fr !important; }
+}

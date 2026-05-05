@@ -119,6 +119,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     private rolePermissionService: RolePermissionService
   ) {}
 
+  // ── Sidebar mobile ──
+  sidebarOpen = false;
+
   private destroy$ = new Subject<void>();
 
   ngOnDestroy(): void {

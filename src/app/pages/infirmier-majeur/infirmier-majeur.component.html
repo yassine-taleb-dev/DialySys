@@ -231,7 +231,10 @@
 </div>
 
 <!-- ══ SHELL ══ -->
-<div class="dashboard">
+<div class="dashboard" [class.sidebar-open]="sidebarOpen">
+
+  <!-- Mobile backdrop -->
+  <div class="sidebar-backdrop" (click)="sidebarOpen = false"></div>
 
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -300,6 +303,7 @@
         <span class="topbar__date">Service Hémodialyse — 3 Avril 2026</span>
       </div>
       <div class="topbar__right">
+        <button class="hamburger-btn" (click)="sidebarOpen = !sidebarOpen"><span class="material-icons">menu</span></button>
         <button class="btn-sm-primary" (click)="showNouvelleSeanceModal = true">
           <span class="material-icons">add</span> Nouvelle Séance
         </button>

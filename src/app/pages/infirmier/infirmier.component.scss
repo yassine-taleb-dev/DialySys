@@ -643,3 +643,18 @@
   text-overflow: ellipsis;
 }
 
+/* ─── Responsive ─── */
+@media (max-width: 1100px) {
+  .content-layout { flex-direction: column; }
+  .right-panel { width: 100%; }
+}
+
+@media (max-width: 768px) {
+  .main-scroll { padding: 0 12px 12px; }
+  .section-header { flex-wrap: wrap; gap: 8px; }
+  .data-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tabs-row { overflow-x: auto; }
+  .tab-btn  { white-space: nowrap; flex-shrink: 0; }
+  .grid-2col { grid-template-columns: 1fr !important; }
+}
+

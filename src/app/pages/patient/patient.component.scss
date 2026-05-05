@@ -215,3 +215,11 @@
 
 /* Table enhancements */
 .mono.ok { color: var(--c-green); }
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: 1fr 1fr !important; padding: 12px 14px !important; }
+  .content-grid { grid-template-columns: 1fr !important; }
+  .data-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .topbar { padding: 0 12px; }
+}

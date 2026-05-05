@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  // HttpClient est fourni via provideHttpClient() dans app.config.ts
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   identifiant = '';
   motDePasse = '';
   showPassword = false;
@@ -32,6 +35,11 @@ export class LoginComponent {
   forgotLoading   = false;
   forgotError     = '';
 
+  // ── Stats dynamiques ──
+  statPatients   = 0;
+  statEfficacite = 0;
+  statsLoading   = true;
+
   private readonly roleRoutes: Record<string, string> = {
     MEDECIN:          '/medecin',
     INFIRMIER:        '/infirmier',
@@ -50,7 +58,7 @@ export class LoginComponent {
     ADMIN:            'Administrateur',
   };
 
-  constructor(private router: Router, private authService: AuthService) {
+  constructor(private router: Router, private authService: AuthService, private http: HttpClient) {
     // Redirection automatique si déjà connecté
     if (this.authService.isLoggedIn()) {
       const role = this.authService.getRole();
@@ -58,8 +66,45 @@ export class LoginComponent {
       if (route) this.router.navigate([route]);
     }
 
-    // Pré-cocher "Se souvenir de moi" si le token est en localStorage
-    this.rememberMe = !!localStorage.getItem('token');
+    // Coché par défaut
+    this.rememberMe = true;
+  }
+
+  ngOnInit(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/patients`).subscribe({
+      next: (patients) => {
+        const actifs = patients.filter(p =>
+          ['STABLE', 'ACTIF', 'EN_COURS'].includes(p.statut?.toUpperCase?.() ?? p.statut)
+        ).length;
+        const total = patients.length || 1;
+        const efficacite = Math.round((actifs / total) * 1000) / 10;
+        this.statsLoading = false;
+        this.animateCount('statPatients',   0, actifs,      1200);
+        this.animateCount('statEfficacite', 0, efficacite,  1400);
+      },
+      error: () => {
+        this.statsLoading = false;
+        this.animateCount('statPatients',   0, 0,    800);
+        this.animateCount('statEfficacite', 0, 0, 1000);
+      }
+    });
+  }
+
+  private animateCount(key: 'statPatients' | 'statEfficacite', from: number, to: number, duration: number): void {
+    const steps = 40;
+    const interval = duration / steps;
+    const increment = (to - from) / steps;
+    let current = from;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      current += increment;
+      (this as any)[key] = Math.round(current * 10) / 10;
+      if (step >= steps) {
+        (this as any)[key] = to;
+        clearInterval(timer);
+      }
+    }, interval);
   }
 
   togglePassword(): void {

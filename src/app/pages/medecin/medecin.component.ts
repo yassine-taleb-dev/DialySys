@@ -109,6 +109,9 @@ export class MedecinComponent implements OnInit {
     private authSvc:       AuthService,
   ) {}
 
+  // ── Sidebar mobile ────────────────────────────────────────────────────────
+  sidebarOpen = false;
+
   // ── État global ────────────────────────────────────────────────────────────
   isLoading = true;
 

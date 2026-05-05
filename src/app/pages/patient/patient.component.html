@@ -40,7 +40,8 @@
   </div>
 </div>
 
-<div class="dashboard">
+<div class="dashboard" [class.sidebar-open]="sidebarOpen">
+  <div class="sidebar-backdrop" (click)="sidebarOpen = false"></div>
   <aside class="sidebar">
     <div class="sidebar__logo">
       <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
@@ -92,6 +93,7 @@
         <span class="topbar__date">Bonjour, Khalid — 3 Avril 2026</span>
       </div>
       <div class="topbar__right">
+        <button class="hamburger-btn" (click)="sidebarOpen = !sidebarOpen"><span class="material-icons">menu</span></button>
         <div class="notif-wrapper">
           <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
             <span class="material-icons">notifications</span>

@@ -143,7 +143,10 @@
             <div class="wz-field"><label>Service</label><input type="text" [(ngModel)]="wizardData.service" /></div>
           </div>
           <div class="wz-form-row" *ngIf="wizardRole === 'medecin'">
-            <div class="wz-field"><label>Spécialité</label><input type="text" [(ngModel)]="wizardData.specialite" /></div>
+            <div class="wz-field wz-field--full">
+              <label>Spécialité <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="wizardData.specialite" placeholder="Ex : Néphrologue, Cardiologue, Généraliste…" autocomplete="off" />
+            </div>
           </div>
         </ng-container>
       </section>
@@ -451,7 +454,8 @@
 </div>
 
 <!-- Shell principal -->
-<div class="admin-shell" [class.light]="isLight">
+<div class="admin-shell" [class.light]="isLight" [class.sidebar-open]="sidebarOpen">
+  <div class="sidebar-backdrop" (click)="sidebarOpen = false"></div>
   <aside class="sidebar">
     <div class="sidebar__logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/><path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/><path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>DialySys</span></div>
     <nav class="sidebar__nav">
@@ -467,6 +471,7 @@
     <header class="topbar">
       <div class="topbar__left"><h1>{{ activeTabTitle }}</h1></div>
       <div class="topbar__right">
+        <button class="hamburger-btn" (click)="sidebarOpen = !sidebarOpen"><span class="material-icons">menu</span></button>
         <button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()">
           <span class="material-icons">person_add</span>{{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}
         </button>

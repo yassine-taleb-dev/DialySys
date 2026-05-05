@@ -687,7 +687,29 @@
   .as-main-grid { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 768px) {
+  .as-topbar {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .as-topbar__center { display: none; }
+  .as-topbar__brand { flex: 1; }
+
+  .as-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .as-tab  { white-space: nowrap; flex-shrink: 0; }
+
+  .as-content { padding: 12px; }
+  .as-stats-row { grid-template-columns: 1fr 1fr; }
+
+  .pd-tabs { overflow-x: auto; }
+  .pd-tab  { white-space: nowrap; }
+
+  .cv-row { flex-wrap: wrap; }
+  .cv-field { flex: 1 1 100%; }
+}
+
 @media (max-width: 560px) {
   .as-stats-row { grid-template-columns: 1fr; }
-  .as-content   { padding: 16px; }
+  .as-content   { padding: 10px; }
 }
