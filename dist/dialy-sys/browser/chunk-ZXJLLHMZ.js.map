@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/unauthorized/unauthorized.component.ts", "src/app/pages/unauthorized/unauthorized.component.html"],
-  "sourcesContent": ["import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'app-unauthorized',\r\n  standalone: true,\r\n  imports: [],\r\n  templateUrl: './unauthorized.component.html',\r\n  styleUrl: './unauthorized.component.scss'\r\n})\r\nexport class UnauthorizedComponent {\r\n\r\n}\r\n", "<p>unauthorized works!</p>\r\n"],
-  "mappings": ";;;;;;;;;;AASM,IAAO,wBAAP,MAAO,uBAAqB;;qCAArB,wBAAqB;EAAA;yEAArB,wBAAqB,WAAA,CAAA,CAAA,kBAAA,CAAA,GAAA,YAAA,MAAA,UAAA,CAAA,6BAAA,GAAA,OAAA,GAAA,MAAA,GAAA,UAAA,SAAA,+BAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;ACTlC,MAAA,yBAAA,GAAA,GAAA;AAAG,MAAA,iBAAA,GAAA,qBAAA;AAAmB,MAAA,uBAAA;;;;;6EDST,uBAAqB,EAAA,WAAA,yBAAA,UAAA,uDAAA,YAAA,GAAA,CAAA;AAAA,GAAA;",
-  "names": []
-}
