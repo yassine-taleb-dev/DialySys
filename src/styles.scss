@@ -1125,3 +1125,211 @@ body.theme-light .modal-overlay,
   .topbar { height: 52px; }
   :root { --header-h: 52px; }
 }
+
+/* Responsive safety net for all dashboards and inspect/mobile viewports */
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+app-root {
+  display: block;
+  min-width: 0;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+.dashboard,
+.admin-shell,
+.as-shell,
+.planning-shell {
+  min-width: 0 !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.main,
+.admin-main,
+.as-main,
+.planning-main,
+.tab-content,
+.panel,
+.kpi-card,
+.content-grid,
+.right-col {
+  min-width: 0 !important;
+}
+
+.table-scroll,
+.table-responsive,
+.data-table-wrap,
+.panel:has(.data-table) {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  min-width: max-content;
+}
+
+@media (max-width: 1100px) {
+  .admin-main,
+  .as-content,
+  .planning-content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .kpi-row,
+  .as-stats-row,
+  .dashboard-grid,
+  .patient-grid,
+  .cards-grid,
+  .sessions-grid,
+  .grid-2col,
+  .two-col,
+  .chart-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .content-grid,
+  .as-main-grid,
+  .horaire-form-layout,
+  .planning-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard,
+  .admin-shell,
+  .as-shell,
+  .planning-shell {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow-x: hidden !important;
+  }
+
+  .main,
+  .admin-main,
+  .as-main,
+  .planning-main {
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-main,
+  .as-content,
+  .planning-content {
+    padding: 12px !important;
+  }
+
+  .topbar,
+  .admin-shell .topbar,
+  .as-header,
+  .planning-header {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    min-height: var(--header-h);
+  }
+
+  .topbar__left,
+  .topbar__right,
+  .panel__actions,
+  .toolbar-actions,
+  .filters-row,
+  .pagination-bar,
+  .modal-actions,
+  .wizard-footer,
+  .wz-footer {
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+  }
+
+  .search-mini,
+  .table-search-bar {
+    width: 100% !important;
+  }
+
+  .search-mini input,
+  .table-search-bar input,
+  .filter-select {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .kpi-row,
+  .as-stats-row,
+  .dashboard-grid,
+  .patient-grid,
+  .cards-grid,
+  .sessions-grid,
+  .grid-2col,
+  .two-col,
+  .chart-row,
+  .modal-stat-row,
+  .form-grid,
+  .wz-form-row,
+  .form-row-inline,
+  .equipe-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .panel__head,
+  .modal-header,
+  .wizard-header,
+  .wz-head {
+    align-items: flex-start !important;
+  }
+
+  .modal-overlay,
+  .wz-overlay {
+    padding: 10px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+  }
+
+  .modal-panel,
+  .wizard-panel,
+  .wz-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 20px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-row,
+  .as-stats-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .panel__head,
+  .panel__footer,
+  .modal-body,
+  .wizard-body,
+  .wz-body,
+  .wz-footer,
+  .wizard-footer {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .btn-sm-primary,
+  .btn-outline-sm,
+  .btn-teal-xs {
+    justify-content: center;
+    width: 100%;
+  }
+}

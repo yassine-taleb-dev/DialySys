@@ -16,7 +16,7 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(login: string, motDePasse: string, rememberMe = false, twoFactorCode?: string): Observable<LoginResponseDto> {
-    const body: LoginRequestDto = { login, motDePasse, twoFactorCode };
+    const body: LoginRequestDto = { login, motDePasse, twoFactorCode, rememberMe };
 
     return this.http.post<LoginResponseDto>(`${this.apiUrl}/auth/login`, body).pipe(
       tap(response => {

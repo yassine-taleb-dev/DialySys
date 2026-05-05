@@ -1,10 +1,16 @@
-:host { display: block; height: 100vh; }
+:host {
+  display: block;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
 
 /* ─── Layout Shell ─── */
 .shell {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ─── Left Brand Panel ─── */
@@ -154,6 +160,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
+  min-width: 0;
 }
 
 .form-card {
@@ -304,6 +311,8 @@
   align-items: center;
   justify-content: space-between;
   margin-top: -4px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .remember-me {
@@ -539,7 +548,7 @@
 
   .brand {
     flex: 0 0 auto;
-    min-height: 180px;
+    min-height: auto;
 
     .brand__inner {
       padding: 20px 24px;
@@ -561,7 +570,10 @@
 
   .form-area { padding: 16px; }
 
-  .form-card { padding: 24px; }
+  .form-card {
+    padding: 24px;
+    max-width: 520px;
+  }
 
   .role-tabs { grid-template-columns: repeat(3, 1fr); }
 }
@@ -570,7 +582,29 @@
   .brand .brand__inner { flex-direction: column; align-items: center; padding: 16px; }
   .brand__emblem { margin-right: 0; margin-bottom: 10px; }
 
-  .form-card { padding: 20px 16px; }
+  .form-area {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .form-card {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .form-card__head {
+    margin-bottom: 20px;
+
+    h2 { font-size: 22px; }
+  }
+
+  .login-form { gap: 14px; }
+  .form-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .forgot-link { padding-left: 22px; }
   .role-tabs { grid-template-columns: repeat(2, 1fr); }
 }
 .stat-pulse {
