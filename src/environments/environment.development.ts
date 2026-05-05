@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://dialysys-ulhemw.fly.dev/api'
+  production: false,
+  apiUrl: 'http://localhost:8085/api'
 };
