@@ -147,7 +147,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   activeTab: AdminTab = (localStorage.getItem('admin_activeTab') as AdminTab) || 'profils';
   activeProfilRole: RoleId = 'medecin';
   loading = false;
-  isLight = false;
+  isLight = true;
   private profilsLoaded = false;
   private horairesLoaded = false;
   private seancesLoaded = false;
@@ -166,12 +166,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   ];
 
   readonly serviceParRole: Record<string, string> = {
-    'medecin':          'Service de Hémodialyse',
-    'infirmier-majeur': 'Service d\'Hémodialyse',
-    'infirmier':        'Service d\'Hémodialyse',
-    'aide-soignant':    'Service d\'Hémodialyse',
+    'medecin':          'Hémodialyse',
+    'infirmier-majeur': 'Hémodialyse',
+    'infirmier':        'Hémodialyse',
+    'aide-soignant':    'Hémodialyse',
     'patient':          '',
-    'admin':            'Administration',
+    'admin':            'Hémodialyse',
   };
 
   readonly specialiteParRole: Record<string, string> = {
@@ -228,6 +228,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   showEditSeanceModal = false;
 
   searchQuery = ''; filterRole: RoleId | '' = ''; filterStatus: UserStatus | '' = '';
+  activeKpi: string = '';   // tracks which KPI card is highlighted
   searchPatient = '';
   searchHoraire = '';
   filterHoraireDate = '';
@@ -337,6 +338,27 @@ export class AdminComponent implements OnInit, OnDestroy {
     localStorage.setItem('admin_activeTab', tab);
     this.scrollAdminToTop();
     this.refreshAdminCollections(false, false);
+  }
+
+  selectKpi(role: string): void {
+    // Toggle: clicking the same KPI again resets the filter
+    if (this.activeKpi === role) {
+      this.activeKpi = '';
+      this.activeProfilRole = 'medecin';
+      this.filterRole = '';
+    } else {
+      this.activeKpi = role;
+      if (role === 'seances') {
+        this.setActiveTab('seances');
+        return;
+      }
+      this.activeProfilRole = role as RoleId;
+      // sync the dropdown filter
+      this.filterRole = role === 'patient' ? '' : role as RoleId;
+      this.staffPage = 1;
+      this.patientPage = 1;
+    }
+    this.setActiveTab('profils');
   }
 
   refreshAdminCollections(showLoader = true, restoreScroll = false): void {
@@ -469,17 +491,39 @@ export class AdminComponent implements OnInit, OnDestroy {
     return this.wizardRoleOptions.find(r => r.id === this.wizardRole);
   }
 
+  private readonly matPrefix: Record<RoleId | 'patient', string> = {
+    'medecin':          'MED',
+    'infirmier':        'INF',
+    'infirmier-majeur': 'INFM',
+    'aide-soignant':    'AID',
+    'admin':            'ADM',
+    'patient':          'PAT',
+  };
+
+  generateMat(role: RoleId | 'patient'): string {
+    const prefix = this.matPrefix[role] ?? 'USR';
+    const pattern = new RegExp(`^${prefix}-(\\d+)$`, 'i');
+    const max = this.users
+      .map(u => { const m = u.mat?.match(pattern); return m ? parseInt(m[1], 10) : 0; })
+      .reduce((a, b) => Math.max(a, b), 0);
+    return `${prefix}-${String(max + 1).padStart(3, '0')}`;
+  }
+
   openNewProfil(): void {
     this.wizardStep = 1;
     this.wizardRole = this.activeProfilRole === 'admin' ? 'medecin' : (this.activeProfilRole as RoleId);
     this.wizardData = {
-      nom: '', prenom: '', mat: '', email: '', telephone: '',
+      nom: '', prenom: '', mat: this.generateMat(this.wizardRole), email: '', telephone: '',
       service: this.serviceParRole[this.wizardRole] ?? '',
       login: '', username: '', mdp: '', actif: true,
       dateNaissance: '', groupeSanguin: '', genre: '', adresse: '', cin: '',
       specialite: this.specialiteParRole[this.wizardRole] ?? '', superviseurId: '',
     };
     this.showWizardModal = true;
+  }
+
+  onWizardRoleChange(): void {
+    this.wizardData.mat = this.generateMat(this.wizardRole);
   }
 
   wizardNext(): void {

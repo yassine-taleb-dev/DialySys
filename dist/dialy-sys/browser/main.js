@@ -82,7 +82,7 @@ var routes = [
   },
   {
     path: "admin",
-    loadComponent: () => import("./chunk-TUYPW3PT.js").then((m) => m.AdminComponent),
+    loadComponent: () => import("./chunk-R3OYAHRD.js").then((m) => m.AdminComponent),
     canActivate: [authGuard],
     data: { roles: ["ADMIN"] }
   },
