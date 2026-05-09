@@ -59,6 +59,32 @@
   color: var(--c-text-1);
   font-family: var(--font);
   overflow: hidden;
+
+  // Backdrop invisible par défaut — ne bloque jamais les clics sur la sidebar
+  > .sidebar-backdrop {
+    display: none;
+    pointer-events: none;
+  }
+
+  &.sidebar-open > .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+    background: rgba(0,0,0,.45);
+    pointer-events: auto;
+  }
+
+  // Sidebar toujours au-dessus et cliquable
+  > .sidebar {
+    position: relative;
+    z-index: 60;
+  }
+
+  .nav-item {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+  }
 }
 
 .admin-main {

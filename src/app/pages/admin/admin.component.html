@@ -150,9 +150,11 @@
           </div>
           <div class="wz-form-row" *ngIf="wizardRole === 'medecin'">
             <div class="wz-field wz-field--full">
-              <label>Spécialité <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.specialite" (ngModelChange)="clearWizardError('specialite')" placeholder="Ex : Néphrologue, Cardiologue, Généraliste…" autocomplete="off" />
-              <small class="field-error" *ngIf="hasWizardError('specialite')">{{ wizardError('specialite') }}</small>
+              <label>Spécialité</label>
+              <select [(ngModel)]="wizardData.specialite" (ngModelChange)="clearWizardError('specialite')">
+                <option value="Néphrologie">Néphrologie</option>
+                <option value="Généraliste">Généraliste</option>
+              </select>
             </div>
           </div>
         </ng-container>
