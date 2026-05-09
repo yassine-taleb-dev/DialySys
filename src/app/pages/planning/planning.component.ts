@@ -10,6 +10,8 @@ import { AuthService }    from '../../../services/auth.service';
 // ✅ CHANGEMENT: Importer les DTOs au lieu des modèles internes
 import { SeanceDto } from '../../../models/seance-dto';
 import { PatientDto } from '../../../models/patient-dto';
+import { AideSoignantDisponibiliteDto } from '../../../models/aide-soignant-disponibilite-dto';
+import { HoraireTravailDto } from '../../../models/horaire-travail-dto';
 
 interface Toast { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
 
@@ -60,6 +62,8 @@ export class PlanningComponent implements OnInit {
   // ✅ CHANGEMENT: Utiliser SeanceDto[] et PatientDto[]
   seances:  SeanceDto[]  = [];
   patients: PatientDto[] = [];
+  aidesDisponibles: AideSoignantDisponibiliteDto[] = [];
+  isLoadingAides = false;
   isLoading = false;
 
   // ── Filtres ──────────────────────────────────────────────────────────────
@@ -75,11 +79,13 @@ export class PlanningComponent implements OnInit {
   newSeance = {
     patientId:    0,
     dayOffset:    0,
+    date:         '',
     hour:         8,
     minute:       0,
     dureeHeures:  4,
     machine:      '',
     notes:        '',
+    aideSoignantId: 0,
   };
 
   // ────────────────────────────────────────────────────────────────────────
@@ -245,16 +251,84 @@ export class PlanningComponent implements OnInit {
 
   // ── Nouvelle séance ───────────────────────────────────────────────────────
   openNewModal(dayIndex?: number): void {
+    const selectedDay = this.weekDays[dayIndex ?? 0];
     this.newSeance = {
       patientId: 0, dayOffset: dayIndex ?? 0,
+      date: toLocalIso(selectedDay),
       hour: 8, minute: 0, dureeHeures: 4, machine: '', notes: '',
+      aideSoignantId: 0,
     };
+    this.aidesDisponibles = [];
     this.showNewModal = true;
+    this.loadAidesDisponibles();
+  }
+
+  onNewSeanceDateChange(): void {
+    const index = this.weekDays.findIndex(day => toLocalIso(day) === this.newSeance.date);
+    this.newSeance.dayOffset = index >= 0 ? index : 0;
+    this.newSeance.aideSoignantId = 0;
+    this.loadAidesDisponibles();
+  }
+
+  loadAidesDisponibles(): void {
+    if (!this.newSeance.date) {
+      this.aidesDisponibles = [];
+      return;
+    }
+
+    this.isLoadingAides = true;
+    this.seanceSvc.getAidesSoignantesDisponibles(this.newSeance.date).subscribe({
+      next: aides => {
+        this.aidesDisponibles = aides;
+        this.isLoadingAides = false;
+        if (aides.length === 1) {
+          this.newSeance.aideSoignantId = aides[0].aideSoignant.id;
+          this.applySelectedAideHoraire();
+        }
+      },
+      error: () => {
+        this.aidesDisponibles = [];
+        this.isLoadingAides = false;
+        this.showToast('Erreur chargement aides-soignantes disponibles', 'error');
+      }
+    });
+  }
+
+  selectedAideDisponibilite(): AideSoignantDisponibiliteDto | undefined {
+    return this.aidesDisponibles.find(item => item.aideSoignant.id === Number(this.newSeance.aideSoignantId));
+  }
+
+  selectedAideHoraires(): HoraireTravailDto[] {
+    return this.selectedAideDisponibilite()?.horaires ?? [];
+  }
+
+  aideNom(item: AideSoignantDisponibiliteDto): string {
+    return `${item.aideSoignant.nom} ${item.aideSoignant.prenom}`;
+  }
+
+  onAideSoignantChange(): void {
+    this.applySelectedAideHoraire();
+  }
+
+  private applySelectedAideHoraire(): void {
+    const horaire = this.selectedAideHoraires()[0];
+    if (!horaire) {
+      return;
+    }
+
+    const [debutHeure, debutMinute] = horaire.heureDebut.split(':').map(Number);
+    const [finHeure, finMinute] = horaire.heureFin.split(':').map(Number);
+    const debutTotal = debutHeure * 60 + debutMinute;
+    const finTotal = finHeure * 60 + finMinute;
+
+    this.newSeance.hour = debutHeure;
+    this.newSeance.minute = debutMinute;
+    this.newSeance.dureeHeures = Math.max((finTotal - debutTotal) / 60, 0.5);
   }
 
   saveNewSession(): void {
-    if (!this.newSeance.patientId || !this.newSeance.machine.trim()) {
-      this.showToast('Patient et machine sont obligatoires', 'warning');
+    if (!this.newSeance.patientId || !this.newSeance.date || !this.newSeance.aideSoignantId || !this.newSeance.machine.trim()) {
+      this.showToast('Patient, date, aide-soignante et machine sont obligatoires', 'warning');
       return;
     }
 
@@ -264,8 +338,7 @@ export class PlanningComponent implements OnInit {
       return; 
     }
 
-    const day = this.weekDays[this.newSeance.dayOffset];
-    const dateStr    = toLocalIso(day);
+    const dateStr    = this.newSeance.date;
     const heureDebut = `${String(this.newSeance.hour).padStart(2,'0')}:${String(this.newSeance.minute).padStart(2,'0')}:00`;
     const totalMin   = this.newSeance.hour * 60 + this.newSeance.minute + this.newSeance.dureeHeures * 60;
     const heureFin   = `${String(Math.floor(totalMin/60)).padStart(2,'0')}:${String(totalMin%60).padStart(2,'0')}:00`;
@@ -279,6 +352,7 @@ export class PlanningComponent implements OnInit {
       dureeHeures:  this.newSeance.dureeHeures,
       patientId:    this.newSeance.patientId,
       utilisateurId,
+      aideSoignantId: this.newSeance.aideSoignantId || null,
     };
 
     this.seanceSvc.create(payload).subscribe({

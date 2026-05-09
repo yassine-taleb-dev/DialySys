@@ -3,7 +3,7 @@ import {
 } from "./chunk-O7CSYSXH.js";
 import {
   SeanceService
-} from "./chunk-O7WTSBFZ.js";
+} from "./chunk-5BLW7LA2.js";
 import {
   AuthService,
   environment
@@ -4258,7 +4258,7 @@ function AdminComponent_ng_container_75_option_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate2("", p_r70.prenom, " ", p_r70.nom, "");
   }
 }
-function AdminComponent_ng_container_75_option_23_Template(rf, ctx) {
+function AdminComponent_ng_container_75_option_25_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "option", 90);
     \u0275\u0275text(1);
@@ -4272,14 +4272,7 @@ function AdminComponent_ng_container_75_option_23_Template(rf, ctx) {
     \u0275\u0275textInterpolate3("", a_r71.prenom, " ", a_r71.nom, " \xB7 ", ctx_r3.getAideSoignantLoadForSelection(a_r71.id), " patient(s)");
   }
 }
-function AdminComponent_ng_container_75_small_24_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "small");
-    \u0275\u0275text(1, "Utilis\xE9 comme pr\xE9f\xE9rence par d\xE9faut, puis ajust\xE9 date par date selon les horaires disponibles.");
-    \u0275\u0275elementEnd();
-  }
-}
-function AdminComponent_ng_container_75_option_47_Template(rf, ctx) {
+function AdminComponent_ng_container_75_option_48_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "option", 90);
     \u0275\u0275text(1);
@@ -4292,14 +4285,24 @@ function AdminComponent_ng_container_75_option_47_Template(rf, ctx) {
     \u0275\u0275textInterpolate(m_r72);
   }
 }
-function AdminComponent_ng_container_75_small_48_Template(rf, ctx) {
+function AdminComponent_ng_container_75_small_49_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "small");
     \u0275\u0275text(1, "Utilis\xE9e comme pr\xE9f\xE9rence pour la date active, puis ajust\xE9e date par date.");
     \u0275\u0275elementEnd();
   }
 }
-function AdminComponent_ng_container_75_ng_container_49_ng_container_9_option_12_Template(rf, ctx) {
+function AdminComponent_ng_container_75_div_50_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 276)(1, "span", 286);
+    \u0275\u0275text(2, "warning");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span");
+    \u0275\u0275text(4, "S\xE9lectionnez un aide-soignant pour afficher les horaires par date");
+    \u0275\u0275elementEnd()();
+  }
+}
+function AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "option", 201);
     \u0275\u0275text(1);
@@ -4314,7 +4317,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_option_12
     \u0275\u0275textInterpolate3(" ", a_r75.prenom, " ", a_r75.nom, " \xB7 ", ctx_r3.getAideSoignantLoadForDate(a_r75.id, ds_r74.date), " patient(s) ");
   }
 }
-function AdminComponent_ng_container_75_ng_container_49_ng_container_9_option_16_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_16_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "option", 90);
     \u0275\u0275text(1);
@@ -4327,7 +4330,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_option_16
     \u0275\u0275textInterpolate1(" ", machine_r76, " ");
   }
 }
-function AdminComponent_ng_container_75_ng_container_49_ng_container_9_small_20_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_51_ng_container_9_small_20_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "small");
     \u0275\u0275text(1);
@@ -4340,7 +4343,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_small_20_
     \u0275\u0275textInterpolate1(" Aucun aide-soignant disponible pour le ", ctx_r3.isoToDisplayDate(ds_r74.date), " sur ce cr\xE9neau. ");
   }
 }
-function AdminComponent_ng_container_75_ng_container_49_ng_container_9_small_21_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_51_ng_container_9_small_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "small");
     \u0275\u0275text(1);
@@ -4353,7 +4356,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_small_21_
     \u0275\u0275textInterpolate1(" Aucune machine disponible pour le ", ctx_r3.isoToDisplayDate(ds_r74.date), " sur ce cr\xE9neau. ");
   }
 }
-function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r73 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
@@ -4361,12 +4364,12 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 272)(5, "input", 273);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_input_ngModelChange_5_listener($event) {
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_input_ngModelChange_5_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.heureDebut, $event) || (ds_r74.heureDebut = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_input_ngModelChange_5_listener() {
+    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_input_ngModelChange_5_listener() {
       \u0275\u0275restoreView(_r73);
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
@@ -4376,30 +4379,30 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(
     \u0275\u0275text(7, "\u2192");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(8, "input", 273);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_input_ngModelChange_8_listener($event) {
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_input_ngModelChange_8_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.heureFin, $event) || (ds_r74.heureFin = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_input_ngModelChange_8_listener() {
+    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_input_ngModelChange_8_listener() {
       \u0275\u0275restoreView(_r73);
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "select", 285);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_select_ngModelChange_9_listener($event) {
+    \u0275\u0275elementStart(9, "select", 287);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_select_ngModelChange_9_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.aideSoignantId, $event) || (ds_r74.aideSoignantId = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(10, "option", 201);
-    \u0275\u0275text(11, "S\xE9lection auto");
+    \u0275\u0275elementStart(10, "option", 288);
+    \u0275\u0275text(11, "\u2014 S\xE9lectionner aide-soignant \u2014");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(12, AdminComponent_ng_container_75_ng_container_49_ng_container_9_option_12_Template, 2, 4, "option", 286);
+    \u0275\u0275template(12, AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_12_Template, 2, 4, "option", 289);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "select", 287);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_select_ngModelChange_13_listener($event) {
+    \u0275\u0275elementStart(13, "select", 290);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_select_ngModelChange_13_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.machine, $event) || (ds_r74.machine = $event);
       return \u0275\u0275resetView($event);
@@ -4407,10 +4410,10 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(
     \u0275\u0275elementStart(14, "option", 84);
     \u0275\u0275text(15, "Machine auto");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(16, AdminComponent_ng_container_75_ng_container_49_ng_container_9_option_16_Template, 2, 2, "option", 85);
+    \u0275\u0275template(16, AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_16_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "button", 288);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template_button_click_17_listener() {
+    \u0275\u0275elementStart(17, "button", 291);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_button_click_17_listener() {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.toggleSeanceCalDay(ds_r74.date));
@@ -4418,7 +4421,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(
     \u0275\u0275elementStart(18, "span", 16);
     \u0275\u0275text(19, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(20, AdminComponent_ng_container_75_ng_container_49_ng_container_9_small_20_Template, 2, 1, "small", 33)(21, AdminComponent_ng_container_75_ng_container_49_ng_container_9_small_21_Template, 2, 1, "small", 33);
+    \u0275\u0275template(20, AdminComponent_ng_container_75_ng_container_51_ng_container_9_small_20_Template, 2, 1, "small", 33)(21, AdminComponent_ng_container_75_ng_container_51_ng_container_9_small_21_Template, 2, 1, "small", 33);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -4433,6 +4436,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(
     \u0275\u0275classProp("time-input--error", ds_r74.heureDebut >= ds_r74.heureFin);
     \u0275\u0275twoWayProperty("ngModel", ds_r74.heureFin);
     \u0275\u0275advance();
+    \u0275\u0275classProp("time-input--error", !ds_r74.aideSoignantId);
     \u0275\u0275twoWayProperty("ngModel", ds_r74.aideSoignantId);
     \u0275\u0275advance();
     \u0275\u0275property("ngValue", null);
@@ -4448,7 +4452,7 @@ function AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template(
     \u0275\u0275property("ngIf", ctx_r3.getAvailableMachineCodesForDate(ds_r74.date, ds_r74.heureDebut, ds_r74.heureFin).length === 0);
   }
 }
-function AdminComponent_ng_container_75_ng_container_49_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_51_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
     \u0275\u0275elementStart(1, "div", 266)(2, "span", 16);
@@ -4461,7 +4465,7 @@ function AdminComponent_ng_container_75_ng_container_49_Template(rf, ctx) {
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(8, "div", 268);
-    \u0275\u0275template(9, AdminComponent_ng_container_75_ng_container_49_ng_container_9_Template, 22, 14, "ng-container", 193);
+    \u0275\u0275template(9, AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template, 22, 16, "ng-container", 193);
     \u0275\u0275elementEnd();
     \u0275\u0275elementContainerEnd();
   }
@@ -4473,7 +4477,7 @@ function AdminComponent_ng_container_75_ng_container_49_Template(rf, ctx) {
     \u0275\u0275property("ngForOf", ctx_r3.newSeance.datesSeances);
   }
 }
-function AdminComponent_ng_container_75_div_50_Template(rf, ctx) {
+function AdminComponent_ng_container_75_div_52_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 276)(1, "span", 16);
     \u0275\u0275text(2, "calendar_today");
@@ -4483,7 +4487,7 @@ function AdminComponent_ng_container_75_div_50_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function AdminComponent_ng_container_75_div_63_Template(rf, ctx) {
+function AdminComponent_ng_container_75_div_65_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 196);
     \u0275\u0275text(1);
@@ -4495,16 +4499,16 @@ function AdminComponent_ng_container_75_div_63_Template(rf, ctx) {
     \u0275\u0275textInterpolate(j_r77);
   }
 }
-function AdminComponent_ng_container_75_ng_container_64_div_1_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_66_div_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 199);
   }
 }
-function AdminComponent_ng_container_75_ng_container_64_button_2_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_66_button_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r78 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 200);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_ng_container_64_button_2_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_ng_container_66_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r78);
       const cell_r79 = \u0275\u0275nextContext().$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4521,10 +4525,10 @@ function AdminComponent_ng_container_75_ng_container_64_button_2_Template(rf, ct
     \u0275\u0275textInterpolate(cell_r79.day);
   }
 }
-function AdminComponent_ng_container_75_ng_container_64_Template(rf, ctx) {
+function AdminComponent_ng_container_75_ng_container_66_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, AdminComponent_ng_container_75_ng_container_64_div_1_Template, 1, 0, "div", 197)(2, AdminComponent_ng_container_75_ng_container_64_button_2_Template, 2, 5, "button", 198);
+    \u0275\u0275template(1, AdminComponent_ng_container_75_ng_container_66_div_1_Template, 1, 0, "div", 197)(2, AdminComponent_ng_container_75_ng_container_66_button_2_Template, 2, 5, "button", 198);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -4535,11 +4539,11 @@ function AdminComponent_ng_container_75_ng_container_64_Template(rf, ctx) {
     \u0275\u0275property("ngIf", cell_r79 !== null);
   }
 }
-function AdminComponent_ng_container_75_button_78_Template(rf, ctx) {
+function AdminComponent_ng_container_75_button_80_Template(rf, ctx) {
   if (rf & 1) {
     const _r80 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 233);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_button_78_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_button_80_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r80);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.searchSeance = "");
@@ -4549,9 +4553,9 @@ function AdminComponent_ng_container_75_button_78_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function AdminComponent_ng_container_75_tr_92_div_8_span_5_Template(rf, ctx) {
+function AdminComponent_ng_container_75_tr_94_div_8_span_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 293);
+    \u0275\u0275elementStart(0, "span", 296);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4561,16 +4565,16 @@ function AdminComponent_ng_container_75_tr_92_div_8_span_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate1("\xB7 ", e_r82.machine, "");
   }
 }
-function AdminComponent_ng_container_75_tr_92_div_8_Template(rf, ctx) {
+function AdminComponent_ng_container_75_tr_94_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 290)(1, "span", 281);
+    \u0275\u0275elementStart(0, "div", 293)(1, "span", 281);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "span", 282);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, AdminComponent_ng_container_75_tr_92_div_8_span_5_Template, 2, 1, "span", 291);
-    \u0275\u0275elementStart(6, "span", 292);
+    \u0275\u0275template(5, AdminComponent_ng_container_75_tr_94_div_8_span_5_Template, 2, 1, "span", 294);
+    \u0275\u0275elementStart(6, "span", 295);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
   }
@@ -4589,7 +4593,7 @@ function AdminComponent_ng_container_75_tr_92_div_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r3.seanceStatutLabel(e_r82.statut));
   }
 }
-function AdminComponent_ng_container_75_tr_92_Template(rf, ctx) {
+function AdminComponent_ng_container_75_tr_94_Template(rf, ctx) {
   if (rf & 1) {
     const _r81 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "tr")(1, "td")(2, "b");
@@ -4599,10 +4603,10 @@ function AdminComponent_ng_container_75_tr_92_Template(rf, ctx) {
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "td")(7, "div", 277);
-    \u0275\u0275template(8, AdminComponent_ng_container_75_tr_92_div_8_Template, 8, 8, "div", 289);
+    \u0275\u0275template(8, AdminComponent_ng_container_75_tr_94_div_8_Template, 8, 8, "div", 292);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(9, "td")(10, "div", 237)(11, "button", 238);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_tr_92_Template_button_click_11_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_tr_94_Template_button_click_11_listener() {
       const p_r83 = \u0275\u0275restoreView(_r81).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.openEditPersonSeance(p_r83));
@@ -4611,7 +4615,7 @@ function AdminComponent_ng_container_75_tr_92_Template(rf, ctx) {
     \u0275\u0275text(13, "edit");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(14, "button", 279);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_tr_92_Template_button_click_14_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_tr_94_Template_button_click_14_listener() {
       const p_r83 = \u0275\u0275restoreView(_r81).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.supprimerPersonSeances(p_r83));
@@ -4630,7 +4634,7 @@ function AdminComponent_ng_container_75_tr_92_Template(rf, ctx) {
     \u0275\u0275property("ngForOf", p_r83.entries);
   }
 }
-function AdminComponent_ng_container_75_tr_93_Template(rf, ctx) {
+function AdminComponent_ng_container_75_tr_95_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr")(1, "td", 283)(2, "span", 16);
     \u0275\u0275text(3, "event_busy");
@@ -4639,14 +4643,14 @@ function AdminComponent_ng_container_75_tr_93_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function AdminComponent_ng_container_75_div_94_Template(rf, ctx) {
+function AdminComponent_ng_container_75_div_96_Template(rf, ctx) {
   if (rf & 1) {
     const _r84 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 242)(1, "span", 243);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 244)(4, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_94_Template_button_click_4_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.goToPage("seancePage", 1, ctx_r3.totalPersonSeancePages));
@@ -4655,7 +4659,7 @@ function AdminComponent_ng_container_75_div_94_Template(rf, ctx) {
     \u0275\u0275text(6, "first_page");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(7, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_94_Template_button_click_7_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.goToPage("seancePage", ctx_r3.seancePage - 1, ctx_r3.totalPersonSeancePages));
@@ -4667,7 +4671,7 @@ function AdminComponent_ng_container_75_div_94_Template(rf, ctx) {
     \u0275\u0275text(11);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_94_Template_button_click_12_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.goToPage("seancePage", ctx_r3.seancePage + 1, ctx_r3.totalPersonSeancePages));
@@ -4676,7 +4680,7 @@ function AdminComponent_ng_container_75_div_94_Template(rf, ctx) {
     \u0275\u0275text(14, "chevron_right");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(15, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_94_Template_button_click_15_listener() {
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.goToPage("seancePage", ctx_r3.totalPersonSeancePages, ctx_r3.totalPersonSeancePages));
@@ -4728,151 +4732,156 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275template(16, AdminComponent_ng_container_75_option_16_Template, 2, 3, "option", 85);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(17, "div", 120)(18, "label");
-    \u0275\u0275text(19, "Aide-soignant par d\xE9faut");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "select", 83);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_select_ngModelChange_20_listener($event) {
+    \u0275\u0275text(19, "Aide-soignant ");
+    \u0275\u0275elementStart(20, "span", 76);
+    \u0275\u0275text(21, "*");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(22, "select", 83);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_select_ngModelChange_22_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.newSeance.aideSoignantId, $event) || (ctx_r3.newSeance.aideSoignantId = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(21, "option", 84);
-    \u0275\u0275text(22, "\u2014 S\xE9lection automatique \u2014");
+    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_Template_select_ngModelChange_22_listener() {
+      \u0275\u0275restoreView(_r69);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.onNewSeanceAideSoignantChange());
+    });
+    \u0275\u0275elementStart(23, "option", 284);
+    \u0275\u0275text(24, "\u2014 S\xE9lectionner un aide-soignant \u2014");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(23, AdminComponent_ng_container_75_option_23_Template, 2, 4, "option", 85);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(24, AdminComponent_ng_container_75_small_24_Template, 2, 0, "small", 33);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(25, "div", 260)(26, "span", 16);
-    \u0275\u0275text(27, "schedule");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(28, "span");
-    \u0275\u0275text(29, "Heures par d\xE9faut");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(30, "span", 261);
-    \u0275\u0275text(31, "Appliqu\xE9es aux nouvelles dates s\xE9lectionn\xE9es");
+    \u0275\u0275template(25, AdminComponent_ng_container_75_option_25_Template, 2, 4, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(32, "div", 262)(33, "div", 120)(34, "label");
-    \u0275\u0275text(35, "D\xE9but par d\xE9faut");
+    \u0275\u0275elementStart(26, "div", 260)(27, "span", 16);
+    \u0275\u0275text(28, "schedule");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(36, "input", 184);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_36_listener($event) {
+    \u0275\u0275elementStart(29, "span");
+    \u0275\u0275text(30, "Heures par d\xE9faut");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(31, "span", 261);
+    \u0275\u0275text(32, "Appliqu\xE9es aux nouvelles dates s\xE9lectionn\xE9es");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(33, "div", 262)(34, "div", 120)(35, "label");
+    \u0275\u0275text(36, "D\xE9but par d\xE9faut");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(37, "input", 184);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_37_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.newSeance.heureDebut, $event) || (ctx_r3.newSeance.heureDebut = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_36_listener() {
+    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_37_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(37, "div", 120)(38, "label");
-    \u0275\u0275text(39, "Fin par d\xE9faut");
+    \u0275\u0275elementStart(38, "div", 120)(39, "label");
+    \u0275\u0275text(40, "Fin par d\xE9faut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(40, "input", 184);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_40_listener($event) {
+    \u0275\u0275elementStart(41, "input", 184);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_41_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.newSeance.heureFin, $event) || (ctx_r3.newSeance.heureFin = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_40_listener() {
+    \u0275\u0275listener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_41_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(41, "div", 120)(42, "label");
-    \u0275\u0275text(43, "Machine par d\xE9faut");
+    \u0275\u0275elementStart(42, "div", 120)(43, "label");
+    \u0275\u0275text(44, "Machine par d\xE9faut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(44, "select", 83);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_select_ngModelChange_44_listener($event) {
+    \u0275\u0275elementStart(45, "select", 83);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_select_ngModelChange_45_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.newSeance.machine, $event) || (ctx_r3.newSeance.machine = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(45, "option", 84);
-    \u0275\u0275text(46, "\u2014 S\xE9lectionner \u2014");
+    \u0275\u0275elementStart(46, "option", 84);
+    \u0275\u0275text(47, "\u2014 S\xE9lectionner \u2014");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(47, AdminComponent_ng_container_75_option_47_Template, 2, 2, "option", 85);
+    \u0275\u0275template(48, AdminComponent_ng_container_75_option_48_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(48, AdminComponent_ng_container_75_small_48_Template, 2, 0, "small", 33);
+    \u0275\u0275template(49, AdminComponent_ng_container_75_small_49_Template, 2, 0, "small", 33);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(49, AdminComponent_ng_container_75_ng_container_49_Template, 10, 2, "ng-container", 33)(50, AdminComponent_ng_container_75_div_50_Template, 5, 0, "div", 263);
+    \u0275\u0275template(50, AdminComponent_ng_container_75_div_50_Template, 5, 0, "div", 263)(51, AdminComponent_ng_container_75_ng_container_51_Template, 10, 2, "ng-container", 33)(52, AdminComponent_ng_container_75_div_52_Template, 5, 0, "div", 263);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(51, "div", 186)(52, "div", 187)(53, "div", 188)(54, "button", 189);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_54_listener() {
+    \u0275\u0275elementStart(53, "div", 186)(54, "div", 187)(55, "div", 188)(56, "button", 189);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_56_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.seanceCalPrevMonth());
     });
-    \u0275\u0275elementStart(55, "span", 16);
-    \u0275\u0275text(56, "chevron_left");
+    \u0275\u0275elementStart(57, "span", 16);
+    \u0275\u0275text(58, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(57, "span", 190);
-    \u0275\u0275text(58);
+    \u0275\u0275elementStart(59, "span", 190);
+    \u0275\u0275text(60);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(59, "button", 189);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_59_listener() {
+    \u0275\u0275elementStart(61, "button", 189);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_61_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.seanceCalNextMonth());
     });
-    \u0275\u0275elementStart(60, "span", 16);
-    \u0275\u0275text(61, "chevron_right");
+    \u0275\u0275elementStart(62, "span", 16);
+    \u0275\u0275text(63, "chevron_right");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(62, "div", 191);
-    \u0275\u0275template(63, AdminComponent_ng_container_75_div_63_Template, 2, 1, "div", 192)(64, AdminComponent_ng_container_75_ng_container_64_Template, 3, 2, "ng-container", 193);
+    \u0275\u0275elementStart(64, "div", 191);
+    \u0275\u0275template(65, AdminComponent_ng_container_75_div_65_Template, 2, 1, "div", 192)(66, AdminComponent_ng_container_75_ng_container_66_Template, 3, 2, "ng-container", 193);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(65, "div", 264)(66, "button", 140);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_66_listener() {
+    \u0275\u0275elementStart(67, "div", 264)(68, "button", 140);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_68_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.ajouterSeance());
     });
-    \u0275\u0275elementStart(67, "span", 16);
-    \u0275\u0275text(68, "event_available");
+    \u0275\u0275elementStart(69, "span", 16);
+    \u0275\u0275text(70, "event_available");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(69);
+    \u0275\u0275text(71);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(70, "div", 219)(71, "div", 220)(72, "h2");
-    \u0275\u0275text(73, "S\xE9ances planifi\xE9es");
+    \u0275\u0275elementStart(72, "div", 219)(73, "div", 220)(74, "h2");
+    \u0275\u0275text(75, "S\xE9ances planifi\xE9es");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(74, "div", 227)(75, "span", 16);
-    \u0275\u0275text(76, "search");
+    \u0275\u0275elementStart(76, "div", 227)(77, "span", 16);
+    \u0275\u0275text(78, "search");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(77, "input", 284);
-    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_77_listener($event) {
+    \u0275\u0275elementStart(79, "input", 285);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_79_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.searchSeance, $event) || (ctx_r3.searchSeance = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(78, AdminComponent_ng_container_75_button_78_Template, 3, 0, "button", 229);
+    \u0275\u0275template(80, AdminComponent_ng_container_75_button_80_Template, 3, 0, "button", 229);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(79, "div", 230)(80, "table", 231)(81, "thead")(82, "tr")(83, "th");
-    \u0275\u0275text(84, "Patient");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(85, "th");
-    \u0275\u0275text(86, "Aide-Soignant");
+    \u0275\u0275elementStart(81, "div", 230)(82, "table", 231)(83, "thead")(84, "tr")(85, "th");
+    \u0275\u0275text(86, "Patient");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(87, "th");
-    \u0275\u0275text(88, "S\xE9ances planifi\xE9es");
+    \u0275\u0275text(88, "Aide-Soignant");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(89, "th");
-    \u0275\u0275text(90, "Actions");
+    \u0275\u0275text(90, "S\xE9ances planifi\xE9es");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(91, "th");
+    \u0275\u0275text(92, "Actions");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(91, "tbody");
-    \u0275\u0275template(92, AdminComponent_ng_container_75_tr_92_Template, 17, 3, "tr", 193)(93, AdminComponent_ng_container_75_tr_93_Template, 5, 0, "tr", 33);
+    \u0275\u0275elementStart(93, "tbody");
+    \u0275\u0275template(94, AdminComponent_ng_container_75_tr_94_Template, 17, 3, "tr", 193)(95, AdminComponent_ng_container_75_tr_95_Template, 5, 0, "tr", 33);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(94, AdminComponent_ng_container_75_div_94_Template, 18, 9, "div", 232);
-    \u0275\u0275elementStart(95, "div", 224);
-    \u0275\u0275text(96);
+    \u0275\u0275template(96, AdminComponent_ng_container_75_div_96_Template, 18, 9, "div", 232);
+    \u0275\u0275elementStart(97, "div", 224);
+    \u0275\u0275text(98);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementContainerEnd();
   }
@@ -4882,12 +4891,11 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275twoWayProperty("ngModel", ctx_r3.newSeance.patientId);
     \u0275\u0275advance(3);
     \u0275\u0275property("ngForOf", ctx_r3.patientsUsers);
-    \u0275\u0275advance(4);
+    \u0275\u0275advance(6);
+    \u0275\u0275classProp("select--required", ctx_r3.newSeance.dates.length && !ctx_r3.newSeance.aideSoignantId);
     \u0275\u0275twoWayProperty("ngModel", ctx_r3.newSeance.aideSoignantId);
     \u0275\u0275advance(3);
     \u0275\u0275property("ngForOf", ctx_r3.availableAidesSoignants);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r3.newSeance.dates.length);
     \u0275\u0275advance(12);
     \u0275\u0275twoWayProperty("ngModel", ctx_r3.newSeance.heureDebut);
     \u0275\u0275advance(4);
@@ -4899,7 +4907,9 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx_r3.newSeance.dates.length);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r3.newSeance.datesSeances.length > 0);
+    \u0275\u0275property("ngIf", ctx_r3.newSeance.datesSeances.length > 0 && !ctx_r3.newSeance.aideSoignantId);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r3.newSeance.datesSeances.length > 0 && ctx_r3.newSeance.aideSoignantId);
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx_r3.newSeance.datesSeances.length === 0);
     \u0275\u0275advance(8);
@@ -6035,7 +6045,7 @@ var AdminComponent = class _AdminComponent {
         date,
         heureDebut: this.newSeance.heureDebut,
         heureFin: this.newSeance.heureFin,
-        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin),
+        aideSoignantId: this.newSeance.aideSoignantId ? Number(this.newSeance.aideSoignantId) : this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin),
         machine: this.resolveDefaultMachineForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
       });
       this.newSeance.datesSeances.sort((a, b) => a.date.localeCompare(b.date));
@@ -6233,6 +6243,11 @@ var AdminComponent = class _AdminComponent {
     const invalid = this.newSeance.datesSeances.find((d) => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
     if (invalid) {
       this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit \xEAtre apr\xE8s l'heure de d\xE9but`, "warning");
+      return;
+    }
+    const missingAide = this.newSeance.datesSeances.find((d) => !d.aideSoignantId);
+    if (missingAide) {
+      this.showToast(`Veuillez s\xE9lectionner un aide-soignant pour le ${this.isoToDisplayDate(missingAide.date)}`, "warning");
       return;
     }
     const invalidAide = this.newSeance.datesSeances.find((d) => !this.resolveAvailableAideSoignantIdForDate(d));
@@ -6938,6 +6953,13 @@ var AdminComponent = class _AdminComponent {
       return left.patientNom.localeCompare(right.patientNom, "fr");
     });
   }
+  onNewSeanceAideSoignantChange() {
+    if (this.newSeance.aideSoignantId) {
+      const id = Number(this.newSeance.aideSoignantId);
+      this.newSeance.datesSeances = this.newSeance.datesSeances.map((d) => __spreadProps(__spreadValues({}, d), { aideSoignantId: id }));
+    }
+    this.onNewSeanceScheduleChange();
+  }
   onNewSeanceScheduleChange() {
     this.syncSelectedAideSoignant();
     this.syncSelectedAideSoignantsByDate();
@@ -7032,7 +7054,7 @@ var AdminComponent = class _AdminComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.adminMainRef = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 76, vars: 30, consts: [["adminMain", ""], [1, "toast-container"], [3, "class", "click", 4, "ngFor", "ngForOf"], ["class", "wz-overlay", 3, "click", 4, "ngIf"], ["class", "modal-overlay", 3, "light", "click", 4, "ngIf"], [1, "admin-shell"], [1, "sidebar-backdrop", 3, "click"], [1, "sidebar"], [1, "sidebar__logo"], ["width", "28", "height", "28", "viewBox", "0 0 44 44", "fill", "none"], ["d", "M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z", "fill", "rgba(0,217,196,0.1)", "stroke", "var(--c-teal)", "stroke-width", "1.5"], ["d", "M22 12v8M18 16h8", "stroke", "var(--c-teal)", "stroke-width", "2.5", "stroke-linecap", "round"], ["d", "M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6", "stroke", "var(--c-teal)", "stroke-width", "2", "stroke-linecap", "round", "stroke-linejoin", "round", "fill", "none"], [1, "sidebar__nav"], [1, "nav-section-label"], [1, "nav-item", 3, "click"], [1, "material-icons"], [1, "nav-badge"], [1, "sidebar__user"], [1, "user-avatar", 2, "background", "rgba(255,87,87,.12)", "border-color", "rgba(255,87,87,.3)", "color", "var(--c-red)"], [1, "user-info"], [1, "user-name"], [1, "user-role"], [1, "logout-btn", 3, "click"], [1, "admin-main"], [1, "topbar"], [1, "topbar__left"], [1, "topbar__right"], [1, "hamburger-btn", 3, "click"], ["class", "btn-sm-primary", 3, "click", 4, "ngIf"], [1, "icon-btn", 3, "click", "title"], [1, "icon-btn", 3, "click"], ["class", "kpi-row", 4, "ngIf"], [4, "ngIf"], [3, "click"], [1, "toast-close"], [1, "wz-overlay", 3, "click"], [1, "wz-panel", 3, "click"], [1, "wz-head"], [1, "wz-head__icon"], [1, "wz-head__text"], [1, "wz-head__title"], [1, "wz-head__sub"], [1, "wz-close-btn", 3, "click"], [1, "wz-stepper"], [1, "wz-step"], [1, "wz-step__dot"], ["class", "material-icons", 4, "ngIf"], [1, "wz-step__label"], [1, "wz-step__line"], [1, "wz-body"], ["class", "wz-stage", 4, "ngIf"], [1, "wz-footer"], [1, "wz-footer__left"], ["class", "btn-outline-sm", 3, "click", 4, "ngIf"], [1, "wz-footer__center"], [1, "wz-step-counter"], [1, "wz-footer__right"], [1, "btn-sm-primary", 3, "click", "disabled"], [1, "wz-stage"], [1, "wz-hint"], [1, "wz-role-grid"], ["class", "wz-role-card", 3, "wz-role-card--selected", "click", 4, "ngFor", "ngForOf"], [1, "wz-role-card", 3, "click"], [1, "wz-role-card__accent"], [1, "wz-role-card__ico"], [1, "wz-role-card__body"], [1, "wz-role-card__name"], [1, "wz-role-card__desc"], ["class", "wz-role-card__check", 3, "color", 4, "ngIf"], [1, "wz-role-card__check"], ["class", "wz-role-badge", 3, "background", "border-color", "color", 4, "ngIf"], [1, "wz-role-badge"], [1, "wz-section-title"], [1, "wz-form-row"], [1, "wz-field"], [1, "req"], ["type", "text", "placeholder", "Nom de famille", 3, "ngModelChange", "ngModel"], ["class", "field-error", 4, "ngIf"], ["type", "text", "placeholder", "Pr\xE9nom", 3, "ngModelChange", "ngModel"], [1, "wz-section-title", 2, "margin-top", "14px"], ["type", "date", 3, "ngModelChange", "ngModel"], [1, "wz-field", "wz-field--black"], [3, "ngModelChange", "ngModel"], ["value", ""], [3, "value", 4, "ngFor", "ngForOf"], ["value", "Homme"], ["value", "Femme"], ["type", "tel", "placeholder", "0600000000", "inputmode", "numeric", "maxlength", "10", 3, "ngModelChange", "ngModel"], [1, "field-error"], [3, "value"], [1, "wz-field", "wz-field--readonly"], ["type", "text", "disabled", "", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.dz", 3, "ngModelChange", "ngModel"], ["value", "H\xE9modialyse"], ["value", "Permanence"], ["value", "Laboratoire"], ["class", "wz-form-row", 4, "ngIf"], [1, "wz-field", "wz-field--full"], ["value", "N\xE9phrologie"], ["value", "G\xE9n\xE9raliste"], [1, "wz-auth-note"], [1, "wz-recap"], [1, "wz-recap__title"], [1, "wz-recap__grid"], [1, "wz-recap__item"], [1, "wz-recap__key"], [1, "wz-recap__val"], [1, "btn-outline-sm", 3, "click"], [1, "modal-overlay", 3, "click"], [1, "modal-panel", "wizard-panel", "wizard-panel--lg", 3, "click"], [1, "wizard-header"], [1, "wizard-header__icon"], [2, "font-size", "17px", "font-weight", "700"], [1, "wizard-header__text"], [2, "margin-right", "8px"], [1, "modal-close-btn", 3, "click"], [1, "wizard-body", "wizard-body--form"], [1, "wizard-section-label"], [1, "form-grid"], [1, "form-field"], ["type", "text", 3, "ngModelChange", "ngModel"], ["type", "email", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "06 XX XX XX XX", 3, "ngModelChange", "ngModel"], [1, "wizard-section-label", 2, "margin-top", "16px"], [3, "ngModelChange", "change", "ngModel"], ["value", "actif"], ["value", "inactif"], ["value", "suspendu"], ["type", "text", "disabled", "", 2, "opacity", ".6", 3, "value"], [1, "toggle-row"], [1, "toggle-switch"], ["type", "checkbox", 3, "ngModelChange", "change", "ngModel"], [1, "toggle-track"], [1, "toggle-label"], [1, "wizard-footer"], [1, "wizard-footer__danger"], [1, "btn-delete", 3, "click"], ["class", "btn-outline-sm btn-warn", 3, "click", 4, "ngIf"], [1, "wizard-footer__actions"], [1, "btn-sm-primary", 3, "click"], [1, "btn-outline-sm", "btn-warn", 3, "click"], [1, "modal-panel", "wizard-panel", 3, "click"], [1, "wizard-header__icon", 2, "background", "rgba(48,209,88,.12)"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "20px"], [1, "form-field", "form-field--black"], [1, "wizard-footer__selected"], [1, "material-icons", 2, "color", "var(--c-green)"], [1, "modal-panel", "modal-panel--new-user", 3, "click"], [1, "modal-header", "modal-header--simple"], [1, "material-icons", 2, "color", "var(--c-teal)", "font-size", "22px"], [1, "modal-body"], [1, "form-section-label"], ["type", "text", "placeholder", "Ex : INF-2025-060", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.ma", 3, "ngModelChange", "ngModel"], [1, "form-section-label", 2, "margin-top", "8px"], ["type", "text", "placeholder", "Ex : p.nom", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "Auto-g\xE9n\xE9r\xE9 si vide", 3, "ngModelChange", "ngModel"], ["type", "password", "placeholder", "G\xE9n\xE9r\xE9 automatiquement si vide", "minlength", "8", 3, "ngModelChange", "ngModel"], [1, "form-field", "form-field--full"], ["type", "checkbox", 3, "ngModelChange", "ngModel"], [1, "modal-actions"], [1, "modal-panel", "modal-panel--settings", 3, "click"], [1, "settings-group"], [1, "settings-group-title"], [1, "settings-row"], [1, "settings-row__label"], [1, "form-field", 2, "margin", "0", "min-width", "120px"], [1, "form-field", 2, "margin", "0", "min-width", "130px"], ["value", "fr"], ["value", "ar"], ["value", "en"], ["value", "csv"], ["value", "xlsx"], ["value", "pdf"], [1, "modal-panel", "modal-panel--new-patient", 3, "click"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "22px"], ["class", "modal-body", 4, "ngIf"], [1, "modal-panel", "modal-panel--edit-horaire", 3, "click"], [1, "horaire-form-layout"], [1, "horaire-form-left"], ["value", "Infirmier(e)"], ["value", "Aide-Soignant"], [3, "ngModelChange", "ngModel", "disabled"], ["type", "time", 3, "ngModelChange", "ngModel"], ["class", "cal-selected-summary", 4, "ngIf"], [1, "horaire-form-right"], [1, "cal-inline"], [1, "cal-header"], [1, "cal-nav-btn", 3, "click"], [1, "cal-title"], [1, "cal-grid"], ["class", "cal-day-name", 4, "ngFor", "ngForOf"], [4, "ngFor", "ngForOf"], [1, "cal-selected-summary"], [1, "cal-clear-btn", 3, "click"], [1, "cal-day-name"], ["class", "cal-cell cal-cell--empty", 4, "ngIf"], ["type", "button", "class", "cal-cell", 3, "cal-cell--today", "cal-cell--selected", "click", 4, "ngIf"], [1, "cal-cell", "cal-cell--empty"], ["type", "button", 1, "cal-cell", 3, "click"], [3, "ngValue"], ["value", "PLANIFIEE"], ["value", "EN_COURS"], ["value", "TERMINEE"], ["value", "ANNULEE"], [1, "kpi-row"], [1, "kpi-card", "kpi-card--filter", "kpi-card--teal", 3, "click"], [1, "kpi-icon"], [1, "kpi-body"], [1, "kpi-val"], [1, "kpi-lbl"], ["class", "kpi-filter-dot", 4, "ngIf"], [1, "kpi-card", "kpi-card--filter", "kpi-card--purple", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--blue", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--amber", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--green", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--cyan", 3, "click"], [1, "kpi-filter-dot"], [1, "panel", "panel--full"], [1, "panel__head"], ["class", "kpi-active-badge", 4, "ngIf"], [1, "panel__actions"], [1, "filter-select", 3, "ngModelChange", "ngModel"], [1, "panel__footer"], [1, "kpi-active-badge"], [1, "kpi-badge-clear", 3, "click"], [1, "table-search-bar"], ["type", "text", "placeholder", "Rechercher par nom, pr\xE9nom, matricule, email", 3, "ngModelChange", "ngModel"], ["class", "table-search-clear", 3, "click", 4, "ngIf"], [1, "table-scroll"], [1, "data-table"], ["class", "pagination-bar", 4, "ngIf"], [1, "table-search-clear", 3, "click"], [1, "user-cell"], [1, "avatar-role"], [1, "mono"], [1, "row-actions"], ["title", "Modifier", 1, "row-btn", 3, "click"], ["title", "Supprimer", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "row-btn", 3, "click", "ngClass", "title"], ["colspan", "6", 1, "empty-row"], [1, "pagination-bar"], [1, "pg-rows-info"], [1, "pg-nav"], ["title", "Premi\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Pr\xE9c\xE9dent", 1, "pg-arrow", 3, "click", "disabled"], [1, "pg-label"], ["title", "Suivant", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Derni\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["type", "text", "placeholder", "Rechercher un patient par nom, pr\xE9nom, ID ou groupe sanguin", 3, "ngModelChange", "ngModel"], ["class", "badge info", 4, "ngIf"], ["class", "badge neutral", 4, "ngIf"], [1, "badge", "info"], [1, "badge", "neutral"], [1, "pg-arrow", 3, "click", "disabled"], [1, "action-form-card"], [1, "action-form-title"], ["value", "infirmier"], ["value", "aide-soignant"], [1, "per-day-section-header"], [1, "per-day-hint"], [1, "form-row-inline"], ["class", "per-day-empty", 4, "ngIf"], [1, "action-form-footer"], ["type", "text", "placeholder", "Rechercher par personnel, r\xF4le, date ou horaire\u2026", 3, "ngModelChange", "ngModel"], [1, "per-day-section-header", 2, "margin-top", "14px"], [1, "per-day-badge"], [1, "jour-horaire-list"], ["class", "jour-horaire-row", 4, "ngFor", "ngForOf"], [1, "jour-horaire-row"], [1, "jour-horaire-date"], [1, "jour-horaire-times"], ["type", "time", 1, "time-input-sm", 3, "ngModelChange", "ngModel"], [1, "jour-horaire-sep"], ["title", "Retirer ce jour", 1, "jour-remove-btn", 3, "click"], [1, "per-day-empty"], [1, "horaire-chips-row"], ["class", "horaire-chip", 4, "ngFor", "ngForOf"], ["title", "Supprimer tout", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "horaire-chip"], [1, "horaire-chip__date"], [1, "horaire-chip__time"], ["colspan", "4", 1, "empty-row"], ["type", "text", "placeholder", "Rechercher par patient, aide-soignant, date, machine\u2026", 3, "ngModelChange", "ngModel"], [1, "time-input-sm", 2, "min-width", "220px", 3, "ngModelChange", "ngModel"], [3, "ngValue", 4, "ngFor", "ngForOf"], [1, "time-input-sm", 2, "min-width", "140px", 3, "ngModelChange", "ngModel"], ["title", "Retirer cette date", 1, "jour-remove-btn", 3, "click"], ["class", "horaire-chip seance-chip", 4, "ngFor", "ngForOf"], [1, "horaire-chip", "seance-chip"], ["class", "seance-chip__machine", 4, "ngIf"], [2, "font-size", "10px", "padding", "1px 6px"], [1, "seance-chip__machine"]], template: function AdminComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 76, vars: 30, consts: [["adminMain", ""], [1, "toast-container"], [3, "class", "click", 4, "ngFor", "ngForOf"], ["class", "wz-overlay", 3, "click", 4, "ngIf"], ["class", "modal-overlay", 3, "light", "click", 4, "ngIf"], [1, "admin-shell"], [1, "sidebar-backdrop", 3, "click"], [1, "sidebar"], [1, "sidebar__logo"], ["width", "28", "height", "28", "viewBox", "0 0 44 44", "fill", "none"], ["d", "M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z", "fill", "rgba(0,217,196,0.1)", "stroke", "var(--c-teal)", "stroke-width", "1.5"], ["d", "M22 12v8M18 16h8", "stroke", "var(--c-teal)", "stroke-width", "2.5", "stroke-linecap", "round"], ["d", "M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6", "stroke", "var(--c-teal)", "stroke-width", "2", "stroke-linecap", "round", "stroke-linejoin", "round", "fill", "none"], [1, "sidebar__nav"], [1, "nav-section-label"], [1, "nav-item", 3, "click"], [1, "material-icons"], [1, "nav-badge"], [1, "sidebar__user"], [1, "user-avatar", 2, "background", "rgba(255,87,87,.12)", "border-color", "rgba(255,87,87,.3)", "color", "var(--c-red)"], [1, "user-info"], [1, "user-name"], [1, "user-role"], [1, "logout-btn", 3, "click"], [1, "admin-main"], [1, "topbar"], [1, "topbar__left"], [1, "topbar__right"], [1, "hamburger-btn", 3, "click"], ["class", "btn-sm-primary", 3, "click", 4, "ngIf"], [1, "icon-btn", 3, "click", "title"], [1, "icon-btn", 3, "click"], ["class", "kpi-row", 4, "ngIf"], [4, "ngIf"], [3, "click"], [1, "toast-close"], [1, "wz-overlay", 3, "click"], [1, "wz-panel", 3, "click"], [1, "wz-head"], [1, "wz-head__icon"], [1, "wz-head__text"], [1, "wz-head__title"], [1, "wz-head__sub"], [1, "wz-close-btn", 3, "click"], [1, "wz-stepper"], [1, "wz-step"], [1, "wz-step__dot"], ["class", "material-icons", 4, "ngIf"], [1, "wz-step__label"], [1, "wz-step__line"], [1, "wz-body"], ["class", "wz-stage", 4, "ngIf"], [1, "wz-footer"], [1, "wz-footer__left"], ["class", "btn-outline-sm", 3, "click", 4, "ngIf"], [1, "wz-footer__center"], [1, "wz-step-counter"], [1, "wz-footer__right"], [1, "btn-sm-primary", 3, "click", "disabled"], [1, "wz-stage"], [1, "wz-hint"], [1, "wz-role-grid"], ["class", "wz-role-card", 3, "wz-role-card--selected", "click", 4, "ngFor", "ngForOf"], [1, "wz-role-card", 3, "click"], [1, "wz-role-card__accent"], [1, "wz-role-card__ico"], [1, "wz-role-card__body"], [1, "wz-role-card__name"], [1, "wz-role-card__desc"], ["class", "wz-role-card__check", 3, "color", 4, "ngIf"], [1, "wz-role-card__check"], ["class", "wz-role-badge", 3, "background", "border-color", "color", 4, "ngIf"], [1, "wz-role-badge"], [1, "wz-section-title"], [1, "wz-form-row"], [1, "wz-field"], [1, "req"], ["type", "text", "placeholder", "Nom de famille", 3, "ngModelChange", "ngModel"], ["class", "field-error", 4, "ngIf"], ["type", "text", "placeholder", "Pr\xE9nom", 3, "ngModelChange", "ngModel"], [1, "wz-section-title", 2, "margin-top", "14px"], ["type", "date", 3, "ngModelChange", "ngModel"], [1, "wz-field", "wz-field--black"], [3, "ngModelChange", "ngModel"], ["value", ""], [3, "value", 4, "ngFor", "ngForOf"], ["value", "Homme"], ["value", "Femme"], ["type", "tel", "placeholder", "0600000000", "inputmode", "numeric", "maxlength", "10", 3, "ngModelChange", "ngModel"], [1, "field-error"], [3, "value"], [1, "wz-field", "wz-field--readonly"], ["type", "text", "disabled", "", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.dz", 3, "ngModelChange", "ngModel"], ["value", "H\xE9modialyse"], ["value", "Permanence"], ["value", "Laboratoire"], ["class", "wz-form-row", 4, "ngIf"], [1, "wz-field", "wz-field--full"], ["value", "N\xE9phrologie"], ["value", "G\xE9n\xE9raliste"], [1, "wz-auth-note"], [1, "wz-recap"], [1, "wz-recap__title"], [1, "wz-recap__grid"], [1, "wz-recap__item"], [1, "wz-recap__key"], [1, "wz-recap__val"], [1, "btn-outline-sm", 3, "click"], [1, "modal-overlay", 3, "click"], [1, "modal-panel", "wizard-panel", "wizard-panel--lg", 3, "click"], [1, "wizard-header"], [1, "wizard-header__icon"], [2, "font-size", "17px", "font-weight", "700"], [1, "wizard-header__text"], [2, "margin-right", "8px"], [1, "modal-close-btn", 3, "click"], [1, "wizard-body", "wizard-body--form"], [1, "wizard-section-label"], [1, "form-grid"], [1, "form-field"], ["type", "text", 3, "ngModelChange", "ngModel"], ["type", "email", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "06 XX XX XX XX", 3, "ngModelChange", "ngModel"], [1, "wizard-section-label", 2, "margin-top", "16px"], [3, "ngModelChange", "change", "ngModel"], ["value", "actif"], ["value", "inactif"], ["value", "suspendu"], ["type", "text", "disabled", "", 2, "opacity", ".6", 3, "value"], [1, "toggle-row"], [1, "toggle-switch"], ["type", "checkbox", 3, "ngModelChange", "change", "ngModel"], [1, "toggle-track"], [1, "toggle-label"], [1, "wizard-footer"], [1, "wizard-footer__danger"], [1, "btn-delete", 3, "click"], ["class", "btn-outline-sm btn-warn", 3, "click", 4, "ngIf"], [1, "wizard-footer__actions"], [1, "btn-sm-primary", 3, "click"], [1, "btn-outline-sm", "btn-warn", 3, "click"], [1, "modal-panel", "wizard-panel", 3, "click"], [1, "wizard-header__icon", 2, "background", "rgba(48,209,88,.12)"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "20px"], [1, "form-field", "form-field--black"], [1, "wizard-footer__selected"], [1, "material-icons", 2, "color", "var(--c-green)"], [1, "modal-panel", "modal-panel--new-user", 3, "click"], [1, "modal-header", "modal-header--simple"], [1, "material-icons", 2, "color", "var(--c-teal)", "font-size", "22px"], [1, "modal-body"], [1, "form-section-label"], ["type", "text", "placeholder", "Ex : INF-2025-060", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.ma", 3, "ngModelChange", "ngModel"], [1, "form-section-label", 2, "margin-top", "8px"], ["type", "text", "placeholder", "Ex : p.nom", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "Auto-g\xE9n\xE9r\xE9 si vide", 3, "ngModelChange", "ngModel"], ["type", "password", "placeholder", "G\xE9n\xE9r\xE9 automatiquement si vide", "minlength", "8", 3, "ngModelChange", "ngModel"], [1, "form-field", "form-field--full"], ["type", "checkbox", 3, "ngModelChange", "ngModel"], [1, "modal-actions"], [1, "modal-panel", "modal-panel--settings", 3, "click"], [1, "settings-group"], [1, "settings-group-title"], [1, "settings-row"], [1, "settings-row__label"], [1, "form-field", 2, "margin", "0", "min-width", "120px"], [1, "form-field", 2, "margin", "0", "min-width", "130px"], ["value", "fr"], ["value", "ar"], ["value", "en"], ["value", "csv"], ["value", "xlsx"], ["value", "pdf"], [1, "modal-panel", "modal-panel--new-patient", 3, "click"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "22px"], ["class", "modal-body", 4, "ngIf"], [1, "modal-panel", "modal-panel--edit-horaire", 3, "click"], [1, "horaire-form-layout"], [1, "horaire-form-left"], ["value", "Infirmier(e)"], ["value", "Aide-Soignant"], [3, "ngModelChange", "ngModel", "disabled"], ["type", "time", 3, "ngModelChange", "ngModel"], ["class", "cal-selected-summary", 4, "ngIf"], [1, "horaire-form-right"], [1, "cal-inline"], [1, "cal-header"], [1, "cal-nav-btn", 3, "click"], [1, "cal-title"], [1, "cal-grid"], ["class", "cal-day-name", 4, "ngFor", "ngForOf"], [4, "ngFor", "ngForOf"], [1, "cal-selected-summary"], [1, "cal-clear-btn", 3, "click"], [1, "cal-day-name"], ["class", "cal-cell cal-cell--empty", 4, "ngIf"], ["type", "button", "class", "cal-cell", 3, "cal-cell--today", "cal-cell--selected", "click", 4, "ngIf"], [1, "cal-cell", "cal-cell--empty"], ["type", "button", 1, "cal-cell", 3, "click"], [3, "ngValue"], ["value", "PLANIFIEE"], ["value", "EN_COURS"], ["value", "TERMINEE"], ["value", "ANNULEE"], [1, "kpi-row"], [1, "kpi-card", "kpi-card--filter", "kpi-card--teal", 3, "click"], [1, "kpi-icon"], [1, "kpi-body"], [1, "kpi-val"], [1, "kpi-lbl"], ["class", "kpi-filter-dot", 4, "ngIf"], [1, "kpi-card", "kpi-card--filter", "kpi-card--purple", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--blue", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--amber", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--green", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--cyan", 3, "click"], [1, "kpi-filter-dot"], [1, "panel", "panel--full"], [1, "panel__head"], ["class", "kpi-active-badge", 4, "ngIf"], [1, "panel__actions"], [1, "filter-select", 3, "ngModelChange", "ngModel"], [1, "panel__footer"], [1, "kpi-active-badge"], [1, "kpi-badge-clear", 3, "click"], [1, "table-search-bar"], ["type", "text", "placeholder", "Rechercher par nom, pr\xE9nom, matricule, email", 3, "ngModelChange", "ngModel"], ["class", "table-search-clear", 3, "click", 4, "ngIf"], [1, "table-scroll"], [1, "data-table"], ["class", "pagination-bar", 4, "ngIf"], [1, "table-search-clear", 3, "click"], [1, "user-cell"], [1, "avatar-role"], [1, "mono"], [1, "row-actions"], ["title", "Modifier", 1, "row-btn", 3, "click"], ["title", "Supprimer", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "row-btn", 3, "click", "ngClass", "title"], ["colspan", "6", 1, "empty-row"], [1, "pagination-bar"], [1, "pg-rows-info"], [1, "pg-nav"], ["title", "Premi\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Pr\xE9c\xE9dent", 1, "pg-arrow", 3, "click", "disabled"], [1, "pg-label"], ["title", "Suivant", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Derni\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["type", "text", "placeholder", "Rechercher un patient par nom, pr\xE9nom, ID ou groupe sanguin", 3, "ngModelChange", "ngModel"], ["class", "badge info", 4, "ngIf"], ["class", "badge neutral", 4, "ngIf"], [1, "badge", "info"], [1, "badge", "neutral"], [1, "pg-arrow", 3, "click", "disabled"], [1, "action-form-card"], [1, "action-form-title"], ["value", "infirmier"], ["value", "aide-soignant"], [1, "per-day-section-header"], [1, "per-day-hint"], [1, "form-row-inline"], ["class", "per-day-empty", 4, "ngIf"], [1, "action-form-footer"], ["type", "text", "placeholder", "Rechercher par personnel, r\xF4le, date ou horaire\u2026", 3, "ngModelChange", "ngModel"], [1, "per-day-section-header", 2, "margin-top", "14px"], [1, "per-day-badge"], [1, "jour-horaire-list"], ["class", "jour-horaire-row", 4, "ngFor", "ngForOf"], [1, "jour-horaire-row"], [1, "jour-horaire-date"], [1, "jour-horaire-times"], ["type", "time", 1, "time-input-sm", 3, "ngModelChange", "ngModel"], [1, "jour-horaire-sep"], ["title", "Retirer ce jour", 1, "jour-remove-btn", 3, "click"], [1, "per-day-empty"], [1, "horaire-chips-row"], ["class", "horaire-chip", 4, "ngFor", "ngForOf"], ["title", "Supprimer tout", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "horaire-chip"], [1, "horaire-chip__date"], [1, "horaire-chip__time"], ["colspan", "4", 1, "empty-row"], ["value", "", "disabled", ""], ["type", "text", "placeholder", "Rechercher par patient, aide-soignant, date, machine\u2026", 3, "ngModelChange", "ngModel"], [1, "material-icons", 2, "color", "var(--c-amber)"], [1, "time-input-sm", 2, "min-width", "220px", 3, "ngModelChange", "ngModel"], ["disabled", "", 3, "ngValue"], [3, "ngValue", 4, "ngFor", "ngForOf"], [1, "time-input-sm", 2, "min-width", "140px", 3, "ngModelChange", "ngModel"], ["title", "Retirer cette date", 1, "jour-remove-btn", 3, "click"], ["class", "horaire-chip seance-chip", 4, "ngFor", "ngForOf"], [1, "horaire-chip", "seance-chip"], ["class", "seance-chip__machine", 4, "ngIf"], [2, "font-size", "10px", "padding", "1px 6px"], [1, "seance-chip__machine"]], template: function AdminComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 1);
@@ -7144,7 +7166,7 @@ var AdminComponent = class _AdminComponent {
       \u0275\u0275elementStart(70, "span", 16);
       \u0275\u0275text(71, "settings");
       \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(72, AdminComponent_div_72_Template, 60, 23, "div", 32)(73, AdminComponent_ng_container_73_Template, 24, 7, "ng-container", 33)(74, AdminComponent_ng_container_74_Template, 97, 19, "ng-container", 33)(75, AdminComponent_ng_container_75_Template, 97, 23, "ng-container", 33);
+      \u0275\u0275template(72, AdminComponent_div_72_Template, 60, 23, "div", 32)(73, AdminComponent_ng_container_73_Template, 24, 7, "ng-container", 33)(74, AdminComponent_ng_container_74_Template, 97, 19, "ng-container", 33)(75, AdminComponent_ng_container_75_Template, 99, 25, "ng-container", 33);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -7205,4 +7227,4 @@ var AdminComponent = class _AdminComponent {
 export {
   AdminComponent
 };
-//# sourceMappingURL=chunk-S4M2RZ2V.js.map
+//# sourceMappingURL=chunk-4GDQQCCP.js.map

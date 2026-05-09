@@ -46,7 +46,7 @@ var routes = [
   },
   {
     path: "medecin",
-    loadComponent: () => import("./chunk-C3BW3XJD.js").then((m) => m.MedecinComponent),
+    loadComponent: () => import("./chunk-JBNBX3SM.js").then((m) => m.MedecinComponent),
     canActivate: [authGuard],
     data: { roles: ["MEDECIN"] }
   },
@@ -64,7 +64,7 @@ var routes = [
   },
   {
     path: "aide-soignant",
-    loadComponent: () => import("./chunk-GFUYL3E3.js").then((m) => m.AideSoignantComponent),
+    loadComponent: () => import("./chunk-H2PAYWXX.js").then((m) => m.AideSoignantComponent),
     canActivate: [authGuard],
     data: { roles: ["AIDE_SOIGNANT"] }
   },
@@ -76,13 +76,13 @@ var routes = [
   },
   {
     path: "planning",
-    loadComponent: () => import("./chunk-4WINTFE7.js").then((m) => m.PlanningComponent),
+    loadComponent: () => import("./chunk-XIUCABZH.js").then((m) => m.PlanningComponent),
     canActivate: [authGuard],
     data: { roles: ["MEDECIN", "INFIRMIER", "INFIRMIER_MAJEUR", "AIDE_SOIGNANT"] }
   },
   {
     path: "admin",
-    loadComponent: () => import("./chunk-S4M2RZ2V.js").then((m) => m.AdminComponent),
+    loadComponent: () => import("./chunk-4GDQQCCP.js").then((m) => m.AdminComponent),
     canActivate: [authGuard],
     data: { roles: ["ADMIN"] }
   },

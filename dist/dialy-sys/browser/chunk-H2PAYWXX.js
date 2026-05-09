@@ -3,7 +3,7 @@ import {
 } from "./chunk-ADRQN3WJ.js";
 import {
   SeanceService
-} from "./chunk-O7WTSBFZ.js";
+} from "./chunk-5BLW7LA2.js";
 import {
   AuthService,
   environment
@@ -1195,4 +1195,4 @@ var AideSoignantComponent = class _AideSoignantComponent {
 export {
   AideSoignantComponent
 };
-//# sourceMappingURL=chunk-GFUYL3E3.js.map
+//# sourceMappingURL=chunk-H2PAYWXX.js.map

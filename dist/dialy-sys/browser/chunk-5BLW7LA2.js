@@ -51,6 +51,9 @@ var SeanceService = class _SeanceService {
   getMesSeances() {
     return this.http.get(`${this.api}/mes-seances`);
   }
+  getAidesSoignantesDisponibles(date) {
+    return this.http.get(`${this.api}/planification/aides-soignantes-disponibles?date=${date}`);
+  }
   getById(id) {
     return this.http.get(`${this.api}/${id}`);
   }
@@ -72,4 +75,4 @@ var SeanceService = class _SeanceService {
 export {
   SeanceService
 };
-//# sourceMappingURL=chunk-O7WTSBFZ.js.map
+//# sourceMappingURL=chunk-5BLW7LA2.js.map

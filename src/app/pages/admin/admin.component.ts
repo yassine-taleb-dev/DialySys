@@ -1120,7 +1120,9 @@ export class AdminComponent implements OnInit, OnDestroy {
         date,
         heureDebut: this.newSeance.heureDebut,
         heureFin: this.newSeance.heureFin,
-        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin),
+        aideSoignantId: this.newSeance.aideSoignantId
+          ? Number(this.newSeance.aideSoignantId)
+          : this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin),
         machine: this.resolveDefaultMachineForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
       });
       this.newSeance.datesSeances.sort((a, b) => a.date.localeCompare(b.date));
@@ -1323,6 +1325,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     const invalid = this.newSeance.datesSeances.find(d => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
     if (invalid) {
       this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit être après l'heure de début`, 'warning');
+      return;
+    }
+    const missingAide = this.newSeance.datesSeances.find(d => !d.aideSoignantId);
+    if (missingAide) {
+      this.showToast(`Veuillez sélectionner un aide-soignant pour le ${this.isoToDisplayDate(missingAide.date)}`, 'warning');
       return;
     }
     const invalidAide = this.newSeance.datesSeances.find(d => !this.resolveAvailableAideSoignantIdForDate(d));
@@ -1975,6 +1982,14 @@ export class AdminComponent implements OnInit, OnDestroy {
       if (startDiff !== 0) return startDiff;
       return left.patientNom.localeCompare(right.patientNom, 'fr');
     });
+  }
+
+  onNewSeanceAideSoignantChange(): void {
+    if (this.newSeance.aideSoignantId) {
+      const id = Number(this.newSeance.aideSoignantId);
+      this.newSeance.datesSeances = this.newSeance.datesSeances.map(d => ({ ...d, aideSoignantId: id }));
+    }
+    this.onNewSeanceScheduleChange();
   }
 
   onNewSeanceScheduleChange(): void {

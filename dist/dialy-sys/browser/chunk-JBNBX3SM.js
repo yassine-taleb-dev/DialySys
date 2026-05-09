@@ -6,7 +6,7 @@ import {
 } from "./chunk-O7CSYSXH.js";
 import {
   SeanceService
-} from "./chunk-O7WTSBFZ.js";
+} from "./chunk-5BLW7LA2.js";
 import {
   AuthService,
   environment
@@ -3630,4 +3630,4 @@ var MedecinComponent = class _MedecinComponent {
 export {
   MedecinComponent
 };
-//# sourceMappingURL=chunk-C3BW3XJD.js.map
+//# sourceMappingURL=chunk-JBNBX3SM.js.map

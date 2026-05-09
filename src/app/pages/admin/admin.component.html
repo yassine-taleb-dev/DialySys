@@ -789,12 +789,11 @@
             </div>
 
               <div class="form-field">
-                <label>Aide-soignant par défaut</label>
-                <select [(ngModel)]="newSeance.aideSoignantId">
-                  <option value="">— Sélection automatique —</option>
+                <label>Aide-soignant <span class="req">*</span></label>
+                <select [(ngModel)]="newSeance.aideSoignantId" (ngModelChange)="onNewSeanceAideSoignantChange()" [class.select--required]="newSeance.dates.length && !newSeance.aideSoignantId">
+                  <option value="" disabled>— Sélectionner un aide-soignant —</option>
                   <option *ngFor="let a of availableAidesSoignants" [value]="a.id">{{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForSelection(a.id) }} patient(s)</option>
                 </select>
-                <small *ngIf="newSeance.dates.length">Utilisé comme préférence par défaut, puis ajusté date par date selon les horaires disponibles.</small>
               </div>
 
             <!-- Heures par défaut -->
@@ -823,8 +822,14 @@
                 <small *ngIf="newSeance.dates.length">Utilisée comme préférence pour la date active, puis ajustée date par date.</small>
               </div>
 
+            <!-- Aide-soignant requis avant d'afficher les dates -->
+            <div class="per-day-empty" *ngIf="newSeance.datesSeances.length > 0 && !newSeance.aideSoignantId">
+              <span class="material-icons" style="color:var(--c-amber)">warning</span>
+              <span>Sélectionnez un aide-soignant pour afficher les horaires par date</span>
+            </div>
+
             <!-- Liste des dates sélectionnées avec horaires individuels -->
-            <ng-container *ngIf="newSeance.datesSeances.length > 0">
+            <ng-container *ngIf="newSeance.datesSeances.length > 0 && newSeance.aideSoignantId">
               <div class="per-day-section-header" style="margin-top:14px">
                 <span class="material-icons">event_note</span>
                 <span>Horaires par date</span>
@@ -843,8 +848,8 @@
                              [class.time-input--error]="ds.heureDebut >= ds.heureFin"
                              (ngModelChange)="onNewSeanceScheduleChange()" />
                     </div>
-                    <select [(ngModel)]="ds.aideSoignantId" class="time-input-sm" style="min-width: 220px;">
-                      <option [ngValue]="null">Sélection auto</option>
+                    <select [(ngModel)]="ds.aideSoignantId" class="time-input-sm" [class.time-input--error]="!ds.aideSoignantId" style="min-width: 220px;">
+                      <option [ngValue]="null" disabled>— Sélectionner aide-soignant —</option>
                       <option *ngFor="let a of getAvailableAidesSoignantsForDate(ds.date, ds.heureDebut, ds.heureFin)" [ngValue]="a.id">
                         {{ a.prenom }} {{ a.nom }} · {{ getAideSoignantLoadForDate(a.id, ds.date) }} patient(s)
                       </option>
