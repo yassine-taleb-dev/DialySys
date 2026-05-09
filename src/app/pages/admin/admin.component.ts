@@ -483,6 +483,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     dateNaissance: '', groupeSanguin: '', genre: '', adresse: '', cin: '',
     specialite: '', superviseurId: '',
   };
+  wizardErrors: Record<string, string> = {};
 
   get wizardIsPatient(): boolean { return this.wizardRole === 'patient'; }
   get wizardStepCount(): number  { return this.wizardIsPatient ? 2 : 3; }
@@ -494,8 +495,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   private readonly matPrefix: Record<RoleId | 'patient', string> = {
     'medecin':          'MED',
     'infirmier':        'INF',
-    'infirmier-majeur': 'INFM',
-    'aide-soignant':    'AID',
+    'infirmier-majeur': 'IMJ',
+    'aide-soignant':    'ASG',
     'admin':            'ADM',
     'patient':          'PAT',
   };
@@ -511,6 +512,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   openNewProfil(): void {
     this.wizardStep = 1;
+    this.wizardErrors = {};
     this.wizardRole = this.activeProfilRole === 'admin' ? 'medecin' : (this.activeProfilRole as RoleId);
     this.wizardData = {
       nom: '', prenom: '', mat: this.generateMat(this.wizardRole), email: '', telephone: '',
@@ -523,55 +525,31 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   onWizardRoleChange(): void {
+    this.wizardErrors = {};
     this.wizardData.mat = this.generateMat(this.wizardRole);
+    this.wizardData.service = this.serviceParRole[this.wizardRole] ?? '';
+    this.wizardData.specialite = this.specialiteParRole[this.wizardRole] ?? '';
   }
 
   wizardNext(): void {
     if (this.wizardStep === 1) {
       this.wizardData.service = this.serviceParRole[this.wizardRole] ?? '';
       this.wizardData.specialite = this.specialiteParRole[this.wizardRole] ?? '';
-      this.wizardStep = 2;
+      this.setWizardStep(2);
     } else if (this.wizardStep === 2) {
-      if (!this.wizardData.nom.trim() || !this.wizardData.prenom.trim()) {
-        this.showToast('Nom et prenom sont obligatoires', 'warning');
-        return;
-      }
-      if (!this.isValidOptionalPhone(this.wizardData.telephone)) {
-        this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning');
-        return;
-      }
+      if (!this.validateWizardIdentityStep()) return;
       if (this.wizardIsPatient) {
-        const missingFields: string[] = [];
-        if (!this.wizardData.dateNaissance) missingFields.push('date de naissance');
-        if (!this.wizardData.groupeSanguin) missingFields.push('groupe sanguin');
-        if (!this.wizardData.genre) missingFields.push('genre');
-        if (missingFields.length) {
-          this.showToast(`Les champs suivants sont obligatoires: ${missingFields.join(', ')}`, 'warning');
-          return;
-        }
         this.wizardSave();
       } else {
-        if (!this.wizardData.mat.trim() || !this.wizardData.email.trim()) {
-          this.showToast('Matricule et email sont obligatoires', 'warning');
-          return;
-        }
-        this.wizardStep = 3;
+        this.setWizardStep(3);
       }
     } else if (this.wizardStep === 3) {
-      if (!this.wizardData.login.trim()) {
-        this.showToast('Le login est obligatoire', 'warning');
-        return;
-      }
-      if (this.wizardData.mdp.trim() && !this.isStrongPassword(this.wizardData.mdp.trim())) {
-        this.showToast('Le mot de passe doit contenir au moins 8 caracteres, avec majuscule, minuscule, chiffre et symbole', 'warning');
-        return;
-      }
       this.wizardSave();
     }
   }
 
-  wizardPrev(): void { if (this.wizardStep > 1) this.wizardStep--; }
-  wizardCancel(): void { this.showWizardModal = false; }
+  wizardPrev(): void { if (this.wizardStep > 1) this.setWizardStep(this.wizardStep - 1); }
+  wizardCancel(): void { this.showWizardModal = false; this.wizardErrors = {}; }
 
   wizardSave(): void {
     if (this.wizardIsPatient) {
@@ -585,9 +563,8 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.saveNewPatient();
     } else {
       this.newUser = {
-        login: this.wizardData.login, username: this.wizardData.username,
-        mat: this.wizardData.mat, nom: this.wizardData.nom, prenom: this.wizardData.prenom,
-        email: this.wizardData.email, mdp: this.wizardData.mdp,
+        login: '', username: '', mat: this.wizardData.mat, nom: this.wizardData.nom, prenom: this.wizardData.prenom,
+        email: this.wizardData.email, mdp: '',
         role: this.wizardRole, actif: this.wizardData.actif,
         telephone: this.wizardData.telephone, service: this.wizardData.service,
         specialite: this.wizardData.specialite, superviseurId: this.wizardData.superviseurId,
@@ -782,18 +759,27 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ──────────────────────────────────────────────────────────────────────────────
 
   saveNewUser(): void {
-    if (!this.newUser.nom.trim() || !this.newUser.prenom.trim() || !this.newUser.login.trim() || !this.newUser.email.trim() || !this.newUser.mat.trim()) {
-      this.showToast('Veuillez remplir tous les champs obligatoires du compte', 'warning'); return;
+    this.wizardErrors = {};
+    if (!this.newUser.nom.trim() || !this.newUser.prenom.trim() || !this.newUser.email.trim()) {
+      this.wizardErrors = {
+        ...(!this.newUser.nom.trim() ? { nom: 'Le nom est obligatoire' } : {}),
+        ...(!this.newUser.prenom.trim() ? { prenom: 'Le prenom est obligatoire' } : {}),
+        ...(!this.newUser.email.trim() ? { email: "L'email est obligatoire" } : {})
+      };
+      this.showWizardModal = true;
+      this.setWizardStep(2);
+      return;
     }
     const normalizedPhone = this.normalizePhone(this.newUser.telephone);
-    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) { this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning'); return; }
-    const rawPassword = this.newUser.mdp.trim();
-    if (rawPassword && !this.isStrongPassword(rawPassword)) { this.showToast('Le mot de passe doit contenir au moins 8 caracteres, avec majuscule, minuscule, chiffre et symbole', 'warning'); return; }
+    if (normalizedPhone && !this.isValidPhone(normalizedPhone)) {
+      this.wizardErrors = { telephone: 'Le telephone doit contenir 10 chiffres et commencer par 0' };
+      this.showWizardModal = true;
+      this.setWizardStep(2);
+      return;
+    }
     const payload: UtilisateurCreateDto = {
-      login: this.newUser.login.trim(), username: this.newUser.username.trim() || this.newUser.login.trim(),
-      motDePasse: rawPassword || `Temp@${Math.random().toString(36).slice(2, 8)}`,
       nom: this.newUser.nom.trim(), prenom: this.newUser.prenom.trim(),
-      email: this.newUser.email.trim(), mat: this.newUser.mat.trim(),
+      email: this.newUser.email.trim(),
       role: this.toBackendRole(this.newUser.role),
       telephone: normalizedPhone || null, service: this.newUser.service.trim() || null,
       specialite: this.newUser.specialite.trim() || null,
@@ -802,26 +788,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.utilisateurService.create(payload).subscribe({
       next: () => {
         this.showNewUserModal = false;
-        if (!this.newUser.actif) {
-          this.utilisateurService.getAll().subscribe({
-            next: (users) => {
-              const created = users.find(u => u.login === payload.login);
-              if (created) {
-                this.utilisateurService.toggleActif(created.id).subscribe({
-                  next: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); },
-                  error: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); }
-                });
-                return;
-              }
-              this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation();
-            },
-            error: () => { this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); }
-          });
-          return;
-        }
-        this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation();
+        this.showWizardModal = false;
+        this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree. Le mot de passe a ete envoye par email.`, 'success');
+        this.refreshAfterMutation();
       },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de creer le compte', 'error')
+      error: (err) => this.handleCreateUserError(err)
     });
   }
 
@@ -1594,6 +1565,57 @@ export class AdminComponent implements OnInit, OnDestroy {
   private isValidPhone(value: string): boolean { return /^0\d{9}$/.test(value); }
   private isValidOptionalPhone(value: string | null | undefined): boolean { const normalized = this.normalizePhone(value); return !normalized || this.isValidPhone(normalized); }
   private isStrongPassword(value: string): boolean { return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,64}$/.test(value); }
+
+  hasWizardError(field: string): boolean { return !!this.wizardErrors[field]; }
+  wizardError(field: string): string { return this.wizardErrors[field] ?? ''; }
+  clearWizardError(field: string): void {
+    if (!this.wizardErrors[field]) return;
+    const { [field]: _removed, ...remaining } = this.wizardErrors;
+    this.wizardErrors = remaining;
+  }
+
+  private setWizardStep(step: number): void {
+    this.wizardStep = step;
+    setTimeout(() => {
+      const body = document.querySelector('.wz-body');
+      body?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
+  }
+
+  private validateWizardIdentityStep(): boolean {
+    const errors: Record<string, string> = {};
+    if (!this.wizardData.nom.trim()) errors['nom'] = 'Le nom est obligatoire';
+    if (!this.wizardData.prenom.trim()) errors['prenom'] = 'Le prenom est obligatoire';
+    if (!this.isValidOptionalPhone(this.wizardData.telephone)) errors['telephone'] = 'Le telephone doit contenir 10 chiffres et commencer par 0';
+
+    if (this.wizardIsPatient) {
+      if (!this.wizardData.dateNaissance) errors['dateNaissance'] = 'La date de naissance est obligatoire';
+      if (!this.wizardData.groupeSanguin) errors['groupeSanguin'] = 'Le groupe sanguin est obligatoire';
+      if (!this.wizardData.genre) errors['genre'] = 'Le genre est obligatoire';
+    } else {
+      if (!this.wizardData.email.trim()) errors['email'] = "L'email professionnel est obligatoire";
+      if (this.wizardData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.wizardData.email.trim())) {
+        errors['email'] = "L'email n'est pas valide";
+      }
+      if (this.wizardRole === 'medecin' && !this.wizardData.specialite.trim()) {
+        errors['specialite'] = 'La specialite est obligatoire';
+      }
+    }
+
+    this.wizardErrors = errors;
+    return Object.keys(errors).length === 0;
+  }
+
+  private handleCreateUserError(err: any): void {
+    const fieldErrors = err?.error?.fieldErrors;
+    if (fieldErrors && typeof fieldErrors === 'object') {
+      this.wizardErrors = fieldErrors;
+      this.showWizardModal = true;
+      this.setWizardStep(2);
+      return;
+    }
+    this.showToast(err?.error?.message ?? 'Impossible de creer le compte', 'error');
+  }
 
   private applyRolePermissions(configs: RolePermissionsDto[]): void {
     this.roles.forEach(r => r.permissions = {});

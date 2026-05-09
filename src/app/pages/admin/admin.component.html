@@ -27,13 +27,13 @@
         <h2 class="wz-head__title">
           <ng-container *ngIf="wizardStep === 1">Nouveau profil</ng-container>
           <ng-container *ngIf="wizardStep === 2">Informations personnelles</ng-container>
-          <ng-container *ngIf="wizardStep === 3">Accès &amp; sécurité</ng-container>
+          <ng-container *ngIf="wizardStep === 3">Authentification</ng-container>
         </h2>
         <p class="wz-head__sub">
           <ng-container *ngIf="wizardStep === 1">Choisissez le type de compte à créer</ng-container>
           <ng-container *ngIf="wizardStep === 2 && wizardIsPatient">Patient · coordonnées &amp; données médicales</ng-container>
           <ng-container *ngIf="wizardStep === 2 && !wizardIsPatient">{{ wizardSelectedConfig?.label }} · identité &amp; contact</ng-container>
-          <ng-container *ngIf="wizardStep === 3">Identifiants de connexion au système</ng-container>
+          <ng-container *ngIf="wizardStep === 3">Identifiants de connexion générés automatiquement</ng-container>
         </p>
       </div>
       <button class="wz-close-btn" (click)="wizardCancel()">
@@ -62,7 +62,7 @@
         <div class="wz-step__line" [class.wz-step__line--done]="wizardStep > 2"></div>
         <div class="wz-step" [class.wz-step--active]="wizardStep === 3">
           <div class="wz-step__dot"><span>3</span></div>
-          <span class="wz-step__label">Accès</span>
+          <span class="wz-step__label">Authentification</span>
         </div>
       </ng-container>
     </div>
@@ -112,17 +112,17 @@
         <ng-container *ngIf="wizardIsPatient">
           <div class="wz-section-title"><span class="material-icons">badge</span> Identité</div>
           <div class="wz-form-row">
-            <div class="wz-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" /></div>
-            <div class="wz-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" /></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('nom')"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.nom" (ngModelChange)="clearWizardError('nom')" placeholder="Nom de famille" /><small class="field-error" *ngIf="hasWizardError('nom')">{{ wizardError('nom') }}</small></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('prenom')"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.prenom" (ngModelChange)="clearWizardError('prenom')" placeholder="Prénom" /><small class="field-error" *ngIf="hasWizardError('prenom')">{{ wizardError('prenom') }}</small></div>
           </div>
           <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">favorite</span> Données médicales</div>
           <div class="wz-form-row">
-            <div class="wz-field"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="wizardData.dateNaissance" /></div>
-            <div class="wz-field wz-field--black"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="wizardData.groupeSanguin"><option value="">-- Sélectionner --</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('dateNaissance')"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="wizardData.dateNaissance" (ngModelChange)="clearWizardError('dateNaissance')" /><small class="field-error" *ngIf="hasWizardError('dateNaissance')">{{ wizardError('dateNaissance') }}</small></div>
+            <div class="wz-field wz-field--black" [class.wz-field--error]="hasWizardError('groupeSanguin')"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="wizardData.groupeSanguin" (ngModelChange)="clearWizardError('groupeSanguin')"><option value="">-- Sélectionner --</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select><small class="field-error" *ngIf="hasWizardError('groupeSanguin')">{{ wizardError('groupeSanguin') }}</small></div>
           </div>
           <div class="wz-form-row">
-            <div class="wz-field wz-field--black"><label>Genre <span class="req">*</span></label><select [(ngModel)]="wizardData.genre"><option value="">-- Sélectionner --</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
-            <div class="wz-field"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
+            <div class="wz-field wz-field--black" [class.wz-field--error]="hasWizardError('genre')"><label>Genre <span class="req">*</span></label><select [(ngModel)]="wizardData.genre" (ngModelChange)="clearWizardError('genre')"><option value="">-- Sélectionner --</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select><small class="field-error" *ngIf="hasWizardError('genre')">{{ wizardError('genre') }}</small></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('telephone')"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" (ngModelChange)="clearWizardError('telephone')" placeholder="0600000000" inputmode="numeric" maxlength="10" /><small class="field-error" *ngIf="hasWizardError('telephone')">{{ wizardError('telephone') }}</small></div>
           </div>
         </ng-container>
 
@@ -130,16 +130,16 @@
         <ng-container *ngIf="!wizardIsPatient">
           <div class="wz-section-title"><span class="material-icons">badge</span> Identité</div>
           <div class="wz-form-row">
-            <div class="wz-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.nom" placeholder="Nom de famille" /></div>
-            <div class="wz-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.prenom" placeholder="Prénom" /></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('nom')"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.nom" (ngModelChange)="clearWizardError('nom')" placeholder="Nom de famille" /><small class="field-error" *ngIf="hasWizardError('nom')">{{ wizardError('nom') }}</small></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('prenom')"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.prenom" (ngModelChange)="clearWizardError('prenom')" placeholder="Prénom" /><small class="field-error" *ngIf="hasWizardError('prenom')">{{ wizardError('prenom') }}</small></div>
           </div>
           <div class="wz-form-row">
-            <div class="wz-field"><label>Matricule <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.mat" placeholder="MAT-001" /></div>
-            <div class="wz-field"><label>Email professionnel <span class="req">*</span></label><input type="email" [(ngModel)]="wizardData.email" placeholder="prenom.nom@dialysys.dz" /></div>
+            <div class="wz-field wz-field--readonly"><label>Matricule</label><input type="text" [(ngModel)]="wizardData.mat" disabled /></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('email')"><label>Email professionnel <span class="req">*</span></label><input type="email" [(ngModel)]="wizardData.email" (ngModelChange)="clearWizardError('email')" placeholder="prenom.nom@dialysys.dz" /><small class="field-error" *ngIf="hasWizardError('email')">{{ wizardError('email') }}</small></div>
           </div>
           <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">work</span> Poste &amp; Service</div>
           <div class="wz-form-row">
-            <div class="wz-field"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('telephone')"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" (ngModelChange)="clearWizardError('telephone')" placeholder="0600000000" inputmode="numeric" maxlength="10" /><small class="field-error" *ngIf="hasWizardError('telephone')">{{ wizardError('telephone') }}</small></div>
             <div class="wz-field"><label>Service</label>
               <select [(ngModel)]="wizardData.service">
                 <option value="Hémodialyse">Hémodialyse</option>
@@ -151,13 +151,14 @@
           <div class="wz-form-row" *ngIf="wizardRole === 'medecin'">
             <div class="wz-field wz-field--full">
               <label>Spécialité <span class="req">*</span></label>
-              <input type="text" [(ngModel)]="wizardData.specialite" placeholder="Ex : Néphrologue, Cardiologue, Généraliste…" autocomplete="off" />
+              <input type="text" [(ngModel)]="wizardData.specialite" (ngModelChange)="clearWizardError('specialite')" placeholder="Ex : Néphrologue, Cardiologue, Généraliste…" autocomplete="off" />
+              <small class="field-error" *ngIf="hasWizardError('specialite')">{{ wizardError('specialite') }}</small>
             </div>
           </div>
         </ng-container>
       </section>
 
-      <!-- ÉTAPE 3 · Accès & Sécurité -->
+      <!-- ÉTAPE 3 · Authentification -->
       <section class="wz-stage" *ngIf="wizardStep === 3">
         <div class="wz-role-badge" *ngIf="wizardSelectedConfig"
              [style.background]="wizardSelectedConfig.color + '18'"
@@ -167,13 +168,11 @@
           {{ wizardSelectedConfig.label }} — {{ wizardData.prenom }} {{ wizardData.nom }}
         </div>
         <div class="wz-section-title"><span class="material-icons">lock</span> Identifiants de connexion</div>
-        <div class="wz-form-row">
-          <div class="wz-field"><label>Login <span class="req">*</span></label><input type="text" [(ngModel)]="wizardData.login" placeholder="login.utilisateur" autocomplete="off" /></div>
-          <div class="wz-field"><label>Nom d'affichage</label><input type="text" [(ngModel)]="wizardData.username" placeholder="Prénom Nom" /></div>
-        </div>
-        <div class="wz-form-row">
-          <div class="wz-field"><label>Mot de passe</label><input type="password" [(ngModel)]="wizardData.mdp" placeholder="••••••••" autocomplete="new-password" /><small>8 caractères minimum avec majuscule, minuscule, chiffre et symbole.</small></div>
-          <div class="wz-field wz-field--center"><label>Statut du compte</label><div class="wz-toggle-row"><label class="toggle-switch"><input type="checkbox" [(ngModel)]="wizardData.actif" /><span class="toggle-track"></span></label><span class="wz-toggle-label" [style.color]="wizardData.actif ? 'var(--c-teal)' : 'var(--c-text-3)'">{{ wizardData.actif ? 'Compte actif' : 'Compte inactif' }}</span></div></div>
+        <div class="wz-auth-note">
+          <span class="material-icons">mark_email_read</span>
+          <div>
+            <strong>Le login et le mot de passe temporaire seront générés automatiquement.</strong>
+           </div>
         </div>
         <div class="wz-recap">
           <div class="wz-recap__title"><span class="material-icons">summarize</span> Récapitulatif</div>
@@ -183,7 +182,7 @@
             <div class="wz-recap__item"><span class="wz-recap__key">Matricule</span><span class="wz-recap__val">{{ wizardData.mat }}</span></div>
             <div class="wz-recap__item"><span class="wz-recap__key">Email</span><span class="wz-recap__val">{{ wizardData.email }}</span></div>
             <div class="wz-recap__item"><span class="wz-recap__key">Service</span><span class="wz-recap__val">{{ wizardData.service }}</span></div>
-            <div class="wz-recap__item"><span class="wz-recap__key">Login</span><span class="wz-recap__val mono">{{ wizardData.login }}</span></div>
+            <div class="wz-recap__item"><span class="wz-recap__key">Mot de passe</span><span class="wz-recap__val">Envoyé par email</span></div>
           </div>
         </div>
       </section>
@@ -414,7 +413,7 @@
               <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
               <ng-container *ngFor="let cell of editCalDays">
                 <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                <div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</div>
+                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (mousedown)="$event.preventDefault()" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</button>
               </ng-container>
             </div>
           </div>
@@ -457,7 +456,7 @@
               <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
               <ng-container *ngFor="let cell of editSeanceCalDays">
                 <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                <div *ngIf="cell !== null" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</div>
+                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (mousedown)="$event.preventDefault()" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</button>
               </ng-container>
             </div>
           </div>
@@ -701,10 +700,11 @@
                 <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
                 <ng-container *ngFor="let cell of calDays">
                   <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                  <div *ngIf="cell !== null" class="cal-cell"
+                  <button *ngIf="cell !== null" type="button" class="cal-cell"
                        [class.cal-cell--today]="cell.today"
                        [class.cal-cell--selected]="isDaySelected(cell.date)"
-                       (click)="toggleCalDay(cell.date)">{{ cell.day }}</div>
+                       (mousedown)="$event.preventDefault()"
+                       (click)="toggleCalDay(cell.date)">{{ cell.day }}</button>
                 </ng-container>
               </div>
             </div>
@@ -887,10 +887,11 @@
                 <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
                 <ng-container *ngFor="let cell of seanceCalDays">
                   <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                  <div *ngIf="cell !== null" class="cal-cell"
+                  <button *ngIf="cell !== null" type="button" class="cal-cell"
                        [class.cal-cell--today]="cell.today"
                        [class.cal-cell--selected]="isSeanceDaySelected(cell.date)"
-                       (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</div>
+                       (mousedown)="$event.preventDefault()"
+                       (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</button>
                 </ng-container>
               </div>
             </div>

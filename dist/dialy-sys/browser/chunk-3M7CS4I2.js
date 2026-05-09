@@ -1,0 +1,1 @@
+import{$a as i,Na as o,Oa as a,Z as n,jb as r}from"./chunk-2PGFLLX4.js";var p=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=n({type:t,selectors:[["app-unauthorized"]],standalone:!0,features:[r],decls:2,vars:0,template:function(e,s){e&1&&(o(0,"p"),i(1,"unauthorized works!"),a())}})};export{p as UnauthorizedComponent};

@@ -6,13 +6,13 @@ import { UtilisateurSummaryDto } from '../models/utilisateur-summary-dto';
 import { UtilisateurResponseDto } from '../models/utilisateur.model';
 
 export interface UtilisateurCreateDto {
-  login: string;
-  username: string;
-  motDePasse: string;
+  login?: string;
+  username?: string;
+  motDePasse?: string;
   nom: string;
   prenom: string;
   email: string;
-  mat: string;
+  mat?: string;
   role: string;
   specialite?: string | null;
   superviseurId?: number | null;

@@ -113,12 +113,12 @@
 
       <form class="login-form" (ngSubmit)="login()" *ngIf="!loginSuccess">
         <div class="field" [class.field--error]="errorMessage && !identifiant.trim()">
-          <label>Matricule / Identifiant</label>
+          <label>Login ou Gmail</label>
           <div class="input-wrap">
             <span class="material-icons prefix-icon">badge</span>
             <input
               type="text"
-              placeholder="Ex: medecin"
+              placeholder="Ex: medecin ou prenom.nom@gmail.com"
               autocomplete="username"
               [(ngModel)]="identifiant"
               name="identifiant"
