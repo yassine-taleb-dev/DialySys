@@ -413,7 +413,7 @@
               <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
               <ng-container *ngFor="let cell of editCalDays">
                 <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (mousedown)="$event.preventDefault()" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</button>
+                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditDaySelected(cell.date)" (click)="toggleEditCalDay(cell.date)">{{ cell.day }}</button>
               </ng-container>
             </div>
           </div>
@@ -456,7 +456,7 @@
               <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
               <ng-container *ngFor="let cell of editSeanceCalDays">
                 <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (mousedown)="$event.preventDefault()" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</button>
+                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</button>
               </ng-container>
             </div>
           </div>
@@ -703,7 +703,6 @@
                   <button *ngIf="cell !== null" type="button" class="cal-cell"
                        [class.cal-cell--today]="cell.today"
                        [class.cal-cell--selected]="isDaySelected(cell.date)"
-                       (mousedown)="$event.preventDefault()"
                        (click)="toggleCalDay(cell.date)">{{ cell.day }}</button>
                 </ng-container>
               </div>
@@ -890,7 +889,6 @@
                   <button *ngIf="cell !== null" type="button" class="cal-cell"
                        [class.cal-cell--today]="cell.today"
                        [class.cal-cell--selected]="isSeanceDaySelected(cell.date)"
-                       (mousedown)="$event.preventDefault()"
                        (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</button>
                 </ng-container>
               </div>
