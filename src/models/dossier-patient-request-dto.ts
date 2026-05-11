@@ -6,6 +6,7 @@ export interface DossierPatientRequestDto {
   frequenceCardiaque?: number | null;
   frequenceRespiratoire?: number | null;
   antecedents?: string | null;
+  instructions?: string | null;
   pathologie?: string | null;
   debutDialyse?: string | null;
   poids?: string | null;

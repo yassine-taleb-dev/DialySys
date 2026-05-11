@@ -1,17 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 
 import { ConstantesVitalesDto } from '../../../models/constantes-vitales-dto';
 import { todayIso, formatDateFr } from '../../../models/dateutils';
+import { DossierPatientDto } from '../../../models/dossier-patient-dto';
 import { OrdonnanceDto } from '../../../models/ordonnance-dto';
 import { OrdonnanceRequestDto } from '../../../models/ordonnance-request-dto';
 import { PatientDto } from '../../../models/patient-dto';
+import { PatientInstructionsDto } from '../../../models/patient-instructions-dto';
+import { PatientInstructionsRequestDto } from '../../../models/patient-instructions-request-dto';
 import { Utilisateur } from '../../../models/utilisateur';
 import { AuthService } from '../../../services/auth.service';
 import { ConstantesVitalesService } from '../../../services/constantes-vitales.service';
+import { DossierPatientService } from '../../../services/dossier-patient.service';
 import { OrdonnanceService } from '../../../services/ordonnance.service';
+import { PatientInstructionsService } from '../../../services/patient-instructions.service';
 import { PatientService } from '../../../services/patient.service';
 
 type TabKey = 'resume' | 'constantes' | 'ordonnances' | 'rediger';
@@ -49,6 +54,33 @@ interface OrdonnanceForm {
   dateExpiration: string;
 }
 
+interface InstructionsForm {
+  poidsSec: string;
+  taille: string;
+  groupeSanguin: string;
+  abordFav: boolean;
+  abordCatheter: boolean;
+  abordGoretex: boolean;
+  locBrasG: boolean;
+  locBrasD: boolean;
+  locJugulaire: boolean;
+  aiguilles15: boolean;
+  aiguilles16: boolean;
+  aiguilles17: boolean;
+  taSystolique: string;
+  taDiastolique: string;
+  epoActif: boolean;
+  eprex: boolean;
+  eprexDose: string;
+  recormon: boolean;
+  recormonDose: string;
+  epoFrequence: string;
+  ferIvActif: boolean;
+  venoferDose: string;
+  ferIvFrequence: string;
+  allergies: string;
+}
+
 @Component({
   selector: 'app-medecin',
   standalone: true,
@@ -71,8 +103,13 @@ export class MedecinComponent implements OnInit {
   ordonnances: OrdonnanceDto[] = [];
   constantes: ConstantesVitalesDto[] = [];
   selectedOrdonnance: OrdonnanceDto | null = null;
+  isEditingInstructions = false;
+  isUpdatingInstructions = false;
+  instructionDraft = '';
 
   ordonnanceForm: OrdonnanceForm = this.emptyOrdonnanceForm();
+  instructionsForm: InstructionsForm = this.emptyInstructionsForm();
+  isSavingInstructions = false;
   toasts: Toast[] = [];
   private toastId = 0;
 
@@ -80,6 +117,8 @@ export class MedecinComponent implements OnInit {
     private patientService: PatientService,
     private ordonnanceService: OrdonnanceService,
     private constantesService: ConstantesVitalesService,
+    private dossierService: DossierPatientService,
+    private instructionsService: PatientInstructionsService,
     private authService: AuthService,
   ) {}
 
@@ -150,19 +189,34 @@ export class MedecinComponent implements OnInit {
     this.ordonnances = [];
     this.constantes = [];
     this.ordonnanceForm = this.emptyOrdonnanceForm();
+    this.instructionsForm = this.toInstructionsForm(null, patient.groupeSanguin);
     this.isLoadingDetails = true;
 
     forkJoin({
-      ordonnances: this.ordonnanceService.getByPatient(patient.id),
-      constantes: this.constantesService.getByPatient(patient.id),
+      ordonnances: this.ordonnanceService.getByPatient(patient.id).pipe(
+        catchError(() => of([] as OrdonnanceDto[]))
+      ),
+      constantes: this.constantesService.getByPatient(patient.id).pipe(
+        catchError(() => of([] as ConstantesVitalesDto[]))
+      ),
+      dossier: this.dossierService.getByPatient(patient.id).pipe(
+        catchError(() => of(null))
+      ),
+      instructions: this.instructionsService.getByPatient(patient.id).pipe(
+        catchError(() => of(null))
+      ),
     }).subscribe({
-      next: ({ ordonnances, constantes }) => {
+      next: ({ ordonnances, constantes, dossier, instructions }) => {
+        this.updateSelectedPatientDossier(dossier);
+        this.instructionsForm = this.toInstructionsForm(instructions, this.selectedPatient?.groupeSanguin ?? patient.groupeSanguin);
         this.ordonnances = this.sortOrdonnances(ordonnances);
         this.constantes = this.sortConstantes(constantes);
         this.isLoadingDetails = false;
       },
-      error: () => {
-        this.detailError = 'Impossible de charger les ordonnances et constantes de ce patient.';
+      error: (err) => {
+        this.detailError = err?.status === 401 || err?.status === 403
+          ? 'Acces refuse. Veuillez vous reconnecter avec un compte autorise.'
+          : 'Impossible de charger les donnees de ce patient.';
         this.isLoadingDetails = false;
       },
     });
@@ -174,10 +228,50 @@ export class MedecinComponent implements OnInit {
 
   openOrdonnance(ordonnance: OrdonnanceDto): void {
     this.selectedOrdonnance = ordonnance;
+    this.isEditingInstructions = false;
+    this.instructionDraft = ordonnance.instructions ?? '';
   }
 
   closeOrdonnance(): void {
     this.selectedOrdonnance = null;
+    this.isEditingInstructions = false;
+    this.isUpdatingInstructions = false;
+    this.instructionDraft = '';
+  }
+
+  editInstructions(): void {
+    if (!this.selectedOrdonnance) return;
+    this.instructionDraft = this.selectedOrdonnance.instructions ?? '';
+    this.isEditingInstructions = true;
+  }
+
+  cancelEditInstructions(): void {
+    this.instructionDraft = this.selectedOrdonnance?.instructions ?? '';
+    this.isEditingInstructions = false;
+  }
+
+  saveOrdonnanceInstructions(): void {
+    if (!this.selectedOrdonnance || this.isUpdatingInstructions) return;
+
+    const instructions = this.instructionDraft.trim() || null;
+    this.isUpdatingInstructions = true;
+
+    this.ordonnanceService.update(this.selectedOrdonnance.id, { instructions }).subscribe({
+      next: updated => {
+        this.selectedOrdonnance = updated;
+        this.ordonnances = this.sortOrdonnances(
+          this.ordonnances.map(ordonnance => ordonnance.id === updated.id ? updated : ordonnance)
+        );
+        this.instructionDraft = updated.instructions ?? '';
+        this.isEditingInstructions = false;
+        this.isUpdatingInstructions = false;
+        this.showToast('Instructions modifiees avec succes.', 'success');
+      },
+      error: () => {
+        this.isUpdatingInstructions = false;
+        this.showToast("Les instructions n'ont pas pu etre modifiees.", 'error');
+      },
+    });
   }
 
   submitOrdonnance(): void {
@@ -224,6 +318,115 @@ export class MedecinComponent implements OnInit {
 
   resetOrdonnanceForm(): void {
     this.ordonnanceForm = this.emptyOrdonnanceForm();
+  }
+
+  saveInstructions(): void {
+    if (!this.selectedPatient || this.isSavingInstructions) return;
+    const f = this.instructionsForm;
+    const s = (v: unknown) => String(v ?? '').trim();
+    const payload: PatientInstructionsRequestDto = {
+      poidsSec: s(f.poidsSec),
+      taille: s(f.taille),
+      groupeSanguin: s(f.groupeSanguin),
+      abordVasculaire: this.joinSelected([
+        [f.abordFav, 'FAV'],
+        [f.abordCatheter, 'Catheter'],
+        [f.abordGoretex, 'Goretex'],
+      ]),
+      localisationAbord: this.joinSelected([
+        [f.locBrasG, 'Bras G'],
+        [f.locBrasD, 'Bras D'],
+        [f.locJugulaire, 'Jugulaire'],
+      ]),
+      aiguilles: this.joinSelected([
+        [f.aiguilles15, '15G'],
+        [f.aiguilles16, '16G'],
+        [f.aiguilles17, '17G'],
+      ]),
+      taSystoliqueCible: s(f.taSystolique),
+      taDiastoliqueCible: s(f.taDiastolique),
+      epoActif: f.epoActif,
+      eprex: f.eprex,
+      eprexDose: s(f.eprexDose),
+      recormon: f.recormon,
+      recormonDose: s(f.recormonDose),
+      epoFrequence: s(f.epoFrequence),
+      ferIvActif: f.ferIvActif,
+      venoferDose: s(f.venoferDose),
+      ferIvFrequence: s(f.ferIvFrequence),
+      allergies: s(f.allergies),
+    };
+    this.isSavingInstructions = true;
+
+    this.instructionsService.saveForPatient(this.selectedPatient.id, payload).subscribe({
+      next: instructions => {
+        const groupeSanguin = instructions.groupeSanguin ?? f.groupeSanguin;
+        if (this.selectedPatient) {
+          this.updateSelectedPatient({ ...this.selectedPatient, groupeSanguin });
+        }
+        this.instructionsForm = this.toInstructionsForm(instructions, groupeSanguin);
+        this.isSavingInstructions = false;
+        this.showToast('Instructions sauvegardees.', 'success');
+      },
+      error: () => {
+        this.isSavingInstructions = false;
+        this.showToast('Erreur lors de la sauvegarde.', 'error');
+      },
+    });
+  }
+
+  private toInstructionsForm(instructions: PatientInstructionsDto | null | undefined, groupeSanguin: string | null | undefined): InstructionsForm {
+    const abord = instructions?.abordVasculaire ?? '';
+    const localisation = instructions?.localisationAbord ?? '';
+    const aiguilles = instructions?.aiguilles ?? '';
+
+    return {
+      ...this.emptyInstructionsForm(),
+      poidsSec: instructions?.poidsSec ?? '',
+      taille: instructions?.taille ?? '',
+      groupeSanguin: instructions?.groupeSanguin ?? groupeSanguin ?? '',
+      abordFav: this.containsValue(abord, 'FAV'),
+      abordCatheter: this.containsValue(abord, 'Catheter'),
+      abordGoretex: this.containsValue(abord, 'Goretex'),
+      locBrasG: this.containsValue(localisation, 'Bras G'),
+      locBrasD: this.containsValue(localisation, 'Bras D'),
+      locJugulaire: this.containsValue(localisation, 'Jugulaire'),
+      aiguilles15: this.containsValue(aiguilles, '15G'),
+      aiguilles16: this.containsValue(aiguilles, '16G'),
+      aiguilles17: this.containsValue(aiguilles, '17G'),
+      taSystolique: instructions?.taSystoliqueCible ?? '',
+      taDiastolique: instructions?.taDiastoliqueCible ?? '',
+      epoActif: instructions?.epoActif ?? false,
+      eprex: instructions?.eprex ?? false,
+      eprexDose: instructions?.eprexDose ?? '',
+      recormon: instructions?.recormon ?? false,
+      recormonDose: instructions?.recormonDose ?? '',
+      epoFrequence: instructions?.epoFrequence ?? '',
+      ferIvActif: instructions?.ferIvActif ?? false,
+      venoferDose: instructions?.venoferDose ?? '',
+      ferIvFrequence: instructions?.ferIvFrequence ?? '',
+      allergies: instructions?.allergies ?? '',
+    };
+  }
+
+  private updateSelectedPatientDossier(dossier: DossierPatientDto | null): void {
+    if (!this.selectedPatient || !dossier) return;
+    const updated = this.toPatientVM({ ...this.selectedPatient, dossierPatient: dossier });
+    this.updateSelectedPatient(updated);
+  }
+
+  private updateSelectedPatient(patient: PatientDto): void {
+    const updated = this.toPatientVM(patient);
+    this.selectedPatient = updated;
+    this.patients = this.patients.map(item => item.id === updated.id ? updated : item);
+  }
+
+  private joinSelected(items: Array<[boolean, string]>): string {
+    return items.filter(([selected]) => selected).map(([, value]) => value).join(', ');
+  }
+
+  private containsValue(source: string, value: string): boolean {
+    return source.split(',').map(item => item.trim()).includes(value);
   }
 
   toggleTheme(): void {
@@ -345,11 +548,21 @@ export class MedecinComponent implements OnInit {
   }
 
   private emptyOrdonnanceForm(): OrdonnanceForm {
+    return { medicaments: '', posologie: '', instructions: '', dateExpiration: '' };
+  }
+
+  emptyInstructionsFormPublic(): InstructionsForm { return this.emptyInstructionsForm(); }
+
+  private emptyInstructionsForm(): InstructionsForm {
     return {
-      medicaments: '',
-      posologie: '',
-      instructions: '',
-      dateExpiration: '',
+      poidsSec: '', taille: '', groupeSanguin: '',
+      abordFav: false, abordCatheter: false, abordGoretex: false,
+      locBrasG: false, locBrasD: false, locJugulaire: false,
+      aiguilles15: false, aiguilles16: false, aiguilles17: false,
+      taSystolique: '', taDiastolique: '',
+      epoActif: false, eprex: false, eprexDose: '', recormon: false, recormonDose: '', epoFrequence: '',
+      ferIvActif: false, venoferDose: '', ferIvFrequence: '',
+      allergies: '',
     };
   }
 

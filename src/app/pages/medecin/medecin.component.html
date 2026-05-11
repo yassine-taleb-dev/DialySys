@@ -12,7 +12,13 @@
 <div class="doctor-shell">
   <header class="doctor-topbar">
     <div class="brand">
-      <span class="material-icons brand__mark">health_and_safety</span>
+      <div class="brand__mark">
+        <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="24" fill="rgba(0,217,196,0.15)" stroke="rgba(0,217,196,0.5)" stroke-width="1.5"/>
+          <path d="M26 13v10M21 18h10" stroke="#00D9C4" stroke-width="2.8" stroke-linecap="round"/>
+          <path d="M14 33c0 0 3-9 6-9s4 6 6 6 3-9 6-9 6 9 6 9" stroke="#00D9C4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
       <div>
         <strong>DialySys</strong>
         <span>Espace medecin</span>
@@ -102,6 +108,22 @@
           <span class="pill pill--{{ selectedPatient.statutTone }}">{{ selectedPatient.statutLabel }}</span>
         </section>
 
+        <div class="quick-actions" *ngIf="!isLoadingDetails">
+          <button class="quick-btn" type="button" (click)="setTab('resume')" [class.quick-btn--active]="activeTab === 'resume'">
+            <span class="material-icons">person</span>
+            <span>Consulter patient</span>
+          </button>
+          <button class="quick-btn" type="button" (click)="setTab('ordonnances')" [class.quick-btn--active]="activeTab === 'ordonnances'">
+            <span class="material-icons">description</span>
+            <span>Ordonnances</span>
+            <small>{{ ordonnances.length }}</small>
+          </button>
+          <button class="quick-btn" type="button" (click)="setTab('constantes')" [class.quick-btn--active]="activeTab === 'constantes'">
+            <span class="material-icons">monitor_heart</span>
+            <span>Instructions de patient</span>
+          </button>
+        </div>
+
         <div class="detail-loading" *ngIf="isLoadingDetails">
           <span class="material-icons spin">progress_activity</span>
           Chargement du dossier...
@@ -112,70 +134,8 @@
           {{ detailError }}
         </div>
 
-        <nav class="tabs" *ngIf="!isLoadingDetails">
-          <button type="button" [class.tabs__item--active]="activeTab === 'resume'" (click)="setTab('resume')" class="tabs__item">
-            <span class="material-icons">dashboard</span>
-            Resume
-          </button>
-          <button type="button" [class.tabs__item--active]="activeTab === 'constantes'" (click)="setTab('constantes')" class="tabs__item">
-            <span class="material-icons">monitor_heart</span>
-            Constantes
-          </button>
-          <button type="button" [class.tabs__item--active]="activeTab === 'ordonnances'" (click)="setTab('ordonnances')" class="tabs__item">
-            <span class="material-icons">description</span>
-            Ordonnances
-            <small>{{ ordonnances.length }}</small>
-          </button>
-          <button type="button" [class.tabs__item--active]="activeTab === 'rediger'" (click)="setTab('rediger')" class="tabs__item">
-            <span class="material-icons">edit_note</span>
-            Rediger
-          </button>
-        </nav>
 
         <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'resume'">
-          <div class="metric-grid">
-            <article class="metric-card">
-              <span>Pathologie</span>
-              <strong>{{ selectedPatient.pathologie }}</strong>
-            </article>
-            <article class="metric-card">
-              <span>Debut dialyse</span>
-              <strong>{{ selectedPatient.debutDialyse }}</strong>
-            </article>
-            <article class="metric-card">
-              <span>Poids dossier</span>
-              <strong>{{ selectedPatient.poidsDossier }}</strong>
-            </article>
-            <article class="metric-card">
-              <span>Tension dossier</span>
-              <strong>{{ selectedPatient.tensionDossier }}</strong>
-            </article>
-          </div>
-
-          <div class="split-grid">
-            <article class="info-panel">
-              <header>
-                <span class="material-icons">science</span>
-                Bilan biologique
-              </header>
-              <dl>
-                <div><dt>Creatinine</dt><dd>{{ selectedPatient.creatinine }}</dd></div>
-                <div><dt>Uree</dt><dd>{{ selectedPatient.uree }}</dd></div>
-                <div><dt>Hemoglobine</dt><dd>{{ selectedPatient.hemoglobine }}</dd></div>
-              </dl>
-            </article>
-
-            <article class="info-panel">
-              <header>
-                <span class="material-icons">history_edu</span>
-                Antecedents
-              </header>
-              <p>{{ selectedPatient.antecedents }}</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'constantes'">
           <article class="latest-vitals" *ngIf="latestConstantes">
             <div>
               <span>Derniere saisie</span>
@@ -183,23 +143,16 @@
             </div>
             <div>
               <span>Aide-soignant</span>
-              <strong *ngIf="latestConstantes.aideSoignant">
-                {{ latestConstantes.aideSoignant.prenom }} {{ latestConstantes.aideSoignant.nom }}
-              </strong>
+              <strong *ngIf="latestConstantes.aideSoignant">{{ latestConstantes.aideSoignant.prenom }} {{ latestConstantes.aideSoignant.nom }}</strong>
               <strong *ngIf="!latestConstantes.aideSoignant">-</strong>
             </div>
             <div class="vital-strip">
-              <span><b>{{ latestConstantes.tensionSys }}/{{ latestConstantes.tensionDia }}</b> mmHg</span>
-              <span><b>{{ latestConstantes.bpm }}</b> bpm</span>
-              <span><b>{{ latestConstantes.poids }}</b> kg</span>
+              <span><b>{{ latestConstantes.tensionSys }}/{{ latestConstantes.tensionDia }}</b><br><small>mmHg</small></span>
+              <span><b>{{ latestConstantes.bpm }}</b><br><small>bpm</small></span>
+              <span><b>{{ latestConstantes.poids }}</b><br><small>kg</small></span>
             </div>
             <p *ngIf="latestConstantes.notes">{{ latestConstantes.notes }}</p>
           </article>
-
-          <div class="state-box" *ngIf="!latestConstantes">
-            <span class="material-icons">sensors_off</span>
-            Aucune constante vitale saisie pour ce patient.
-          </div>
 
           <div class="table-wrap" *ngIf="constantes.length">
             <table>
@@ -228,6 +181,163 @@
               </tbody>
             </table>
           </div>
+
+          <div class="state-box" *ngIf="!latestConstantes">
+            <span class="material-icons">sensors_off</span>
+            Aucune constante vitale saisie pour ce patient.
+          </div>
+        </section>
+
+        <section class="tab-content instr-content" *ngIf="!isLoadingDetails && activeTab === 'constantes'">
+
+          <!-- BLOC 1 : Paramètres dialyse -->
+          <article class="instr-bloc">
+            <header class="instr-bloc__header">
+              <span class="material-icons">settings</span>
+              Parametres dialyse
+            </header>
+
+            <div class="instr-grid">
+              <div class="instr-field">
+                <label>Poids sec (kg)</label>
+                <input type="number" [(ngModel)]="instructionsForm.poidsSec" placeholder="Ex: 65" />
+              </div>
+              <div class="instr-field">
+                <label>Taille (cm)</label>
+                <input type="number" [(ngModel)]="instructionsForm.taille" placeholder="Ex: 170" />
+              </div>
+              <div class="instr-field">
+                <label>Groupe sanguin</label>
+                <select [(ngModel)]="instructionsForm.groupeSanguin">
+                  <option value="">-- Sélectionner --</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="instr-check-group">
+              <label class="instr-check-title">Abord vasculaire</label>
+              <div class="instr-checks">
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.abordFav" /><span>FAV</span></label>
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.abordCatheter" /><span>Catheter</span></label>
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.abordGoretex" /><span>Goretex</span></label>
+              </div>
+            </div>
+
+            <div class="instr-check-group">
+              <label class="instr-check-title">Localisation</label>
+              <div class="instr-checks">
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.locBrasG" /><span>Bras G</span></label>
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.locBrasD" /><span>Bras D</span></label>
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.locJugulaire" /><span>Jugulaire</span></label>
+              </div>
+            </div>
+
+            <div class="instr-check-group">
+              <label class="instr-check-title">Type d'aiguilles habituel</label>
+              <div class="instr-checks">
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.aiguilles15" /><span>15G</span></label>
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.aiguilles16" /><span>16G</span></label>
+                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.aiguilles17" /><span>17G</span></label>
+              </div>
+            </div>
+          </article>
+
+          <!-- BLOC 2 : Tensions de référence -->
+          <article class="instr-bloc">
+            <header class="instr-bloc__header">
+              <span class="material-icons">favorite</span>
+              Tensions de reference
+            </header>
+            <div class="instr-grid">
+              <div class="instr-field">
+                <label>TA Systolique cible (mmHg)</label>
+                <input type="number" [(ngModel)]="instructionsForm.taSystolique" placeholder="Ex: 140" />
+              </div>
+              <div class="instr-field">
+                <label>TA Diastolique cible (mmHg)</label>
+                <input type="number" [(ngModel)]="instructionsForm.taDiastolique" placeholder="Ex: 90" />
+              </div>
+            </div>
+          </article>
+
+          <!-- BLOC 3 : Traitement anémie -->
+          <article class="instr-bloc">
+            <header class="instr-bloc__header">
+              <span class="material-icons">biotech</span>
+              Traitement anemie
+            </header>
+
+            <div class="instr-check-group">
+              <label class="instr-check instr-check--bold">
+                <input type="checkbox" [(ngModel)]="instructionsForm.epoActif" /><span>EPO</span>
+              </label>
+              <div class="instr-sub" *ngIf="instructionsForm.epoActif">
+                <div class="instr-checks">
+                  <label class="instr-check">
+                    <input type="checkbox" [(ngModel)]="instructionsForm.eprex" /><span>Eprex</span>
+                  </label>
+                  <input class="instr-inline-input" type="number" [(ngModel)]="instructionsForm.eprexDose" placeholder="UI" *ngIf="instructionsForm.eprex" />
+                  <label class="instr-check">
+                    <input type="checkbox" [(ngModel)]="instructionsForm.recormon" /><span>Recormon</span>
+                  </label>
+                  <input class="instr-inline-input" type="number" [(ngModel)]="instructionsForm.recormonDose" placeholder="UI" *ngIf="instructionsForm.recormon" />
+                </div>
+                <div class="instr-field instr-field--sm">
+                  <label>Frequence (/ semaine)</label>
+                  <input type="number" [(ngModel)]="instructionsForm.epoFrequence" placeholder="Ex: 3" />
+                </div>
+              </div>
+            </div>
+
+            <div class="instr-check-group" style="margin-top:12px">
+              <label class="instr-check instr-check--bold">
+                <input type="checkbox" [(ngModel)]="instructionsForm.ferIvActif" /><span>FER IV</span>
+              </label>
+              <div class="instr-sub" *ngIf="instructionsForm.ferIvActif">
+                <div class="instr-checks">
+                  <span class="instr-label-sm">Venofer</span>
+                  <input class="instr-inline-input" type="number" [(ngModel)]="instructionsForm.venoferDose" placeholder="mg" />
+                </div>
+                <div class="instr-field instr-field--sm">
+                  <label>Frequence (/ semaine)</label>
+                  <input type="number" [(ngModel)]="instructionsForm.ferIvFrequence" placeholder="Ex: 2" />
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- BLOC 4 : Allergies -->
+          <article class="instr-bloc">
+            <header class="instr-bloc__header">
+              <span class="material-icons">warning_amber</span>
+              Allergies / Remarques
+            </header>
+            <div class="instr-field instr-field--wide">
+              <label>Allergies connues</label>
+              <textarea [(ngModel)]="instructionsForm.allergies" rows="3" placeholder="Ex: Penicilline, Iode..."></textarea>
+            </div>
+          </article>
+
+          <!-- Actions -->
+          <div class="instr-actions">
+            <button class="primary-button" type="button" (click)="saveInstructions()" [disabled]="isSavingInstructions">
+              <span class="material-icons">{{ isSavingInstructions ? 'hourglass_empty' : 'save' }}</span>
+              {{ isSavingInstructions ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+            <button class="ghost-button" type="button" (click)="instructionsForm = emptyInstructionsFormPublic()">
+              <span class="material-icons">restart_alt</span>
+              Reinitialiser
+            </button>
+          </div>
+
         </section>
 
         <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'ordonnances'">
@@ -325,9 +435,36 @@
       <label>Posologie</label>
       <p>{{ selectedOrdonnance.posologie }}</p>
     </section>
-    <section *ngIf="selectedOrdonnance.instructions">
-      <label>Instructions</label>
-      <p>{{ selectedOrdonnance.instructions }}</p>
+    <section>
+      <div class="modal-section-title">
+        <label>Instructions</label>
+        <button
+          *ngIf="!isEditingInstructions"
+          class="text-button"
+          type="button"
+          (click)="editInstructions()">
+          <span class="material-icons">edit</span>
+          Modifier
+        </button>
+      </div>
+
+      <p *ngIf="!isEditingInstructions">{{ selectedOrdonnance.instructions || 'Aucune instruction renseignee.' }}</p>
+
+      <div class="instruction-editor" *ngIf="isEditingInstructions">
+        <textarea
+          rows="4"
+          [(ngModel)]="instructionDraft"
+          placeholder="Ajouter ou modifier les instructions du patient..."></textarea>
+        <div class="instruction-editor__actions">
+          <button class="primary-button" type="button" [disabled]="isUpdatingInstructions" (click)="saveOrdonnanceInstructions()">
+            <span class="material-icons">{{ isUpdatingInstructions ? 'hourglass_empty' : 'save' }}</span>
+            {{ isUpdatingInstructions ? 'Sauvegarde...' : 'Sauvegarder' }}
+          </button>
+          <button class="ghost-button" type="button" [disabled]="isUpdatingInstructions" (click)="cancelEditInstructions()">
+            Annuler
+          </button>
+        </div>
+      </div>
     </section>
     <footer>
       <span class="pill pill--{{ ordonnanceStatusTone(selectedOrdonnance.statut) }}">

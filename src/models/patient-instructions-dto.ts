@@ -1,0 +1,24 @@
+import { PatientSummaryDto } from './patient-summary-dto';
+
+export interface PatientInstructionsDto {
+  id: number;
+  patient: PatientSummaryDto | null;
+  poidsSec: string | null;
+  taille: string | null;
+  groupeSanguin: string | null;
+  abordVasculaire: string | null;
+  localisationAbord: string | null;
+  aiguilles: string | null;
+  taSystoliqueCible: string | null;
+  taDiastoliqueCible: string | null;
+  epoActif: boolean | null;
+  eprex: boolean | null;
+  eprexDose: string | null;
+  recormon: boolean | null;
+  recormonDose: string | null;
+  epoFrequence: string | null;
+  ferIvActif: boolean | null;
+  venoferDose: string | null;
+  ferIvFrequence: string | null;
+  allergies: string | null;
+}

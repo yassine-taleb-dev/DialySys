@@ -1,15 +1,15 @@
 import {
   environment
-} from "./chunk-KGRZ3KR2.js";
+} from "./chunk-ESCATL5T.js";
 import {
   HttpClient
-} from "./chunk-T6UPCRXA.js";
+} from "./chunk-J3ZCRHTI.js";
 import {
   shareReplay,
   tap,
   ɵɵdefineInjectable,
   ɵɵinject
-} from "./chunk-MOKET3XK.js";
+} from "./chunk-EEOME3E7.js";
 
 // src/services/patient.service.ts
 var PatientService = class _PatientService {
@@ -60,4 +60,4 @@ var PatientService = class _PatientService {
 export {
   PatientService
 };
-//# sourceMappingURL=chunk-RX2EHWO5.js.map
+//# sourceMappingURL=chunk-MMBBGFBA.js.map

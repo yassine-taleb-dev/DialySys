@@ -118,13 +118,10 @@
           <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">favorite</span> Données médicales</div>
           <div class="wz-form-row">
             <div class="wz-field" [class.wz-field--error]="hasWizardError('dateNaissance')"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="wizardData.dateNaissance" (ngModelChange)="clearWizardError('dateNaissance')" /><small class="field-error" *ngIf="hasWizardError('dateNaissance')">{{ wizardError('dateNaissance') }}</small></div>
-            <div class="wz-field wz-field--black" [class.wz-field--error]="hasWizardError('groupeSanguin')"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="wizardData.groupeSanguin" (ngModelChange)="clearWizardError('groupeSanguin')"><option value="">-- Sélectionner --</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select><small class="field-error" *ngIf="hasWizardError('groupeSanguin')">{{ wizardError('groupeSanguin') }}</small></div>
-          </div>
-          <div class="wz-form-row">
             <div class="wz-field wz-field--black" [class.wz-field--error]="hasWizardError('genre')"><label>Genre <span class="req">*</span></label><select [(ngModel)]="wizardData.genre" (ngModelChange)="clearWizardError('genre')"><option value="">-- Sélectionner --</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select><small class="field-error" *ngIf="hasWizardError('genre')">{{ wizardError('genre') }}</small></div>
-            <div class="wz-field" [class.wz-field--error]="hasWizardError('cin')"><label>CIN</label><input type="text" [(ngModel)]="wizardData.cin" (ngModelChange)="clearWizardError('cin')" placeholder="Ex: AB123456" /><small class="field-error" *ngIf="hasWizardError('cin')">{{ wizardError('cin') }}</small></div>
           </div>
           <div class="wz-form-row">
+            <div class="wz-field" [class.wz-field--error]="hasWizardError('cin')"><label>CIN</label><input type="text" [(ngModel)]="wizardData.cin" (ngModelChange)="clearWizardError('cin')" placeholder="Ex: AB123456" /><small class="field-error" *ngIf="hasWizardError('cin')">{{ wizardError('cin') }}</small></div>
             <div class="wz-field" [class.wz-field--error]="hasWizardError('telephone')"><label>Téléphone</label><input type="tel" [(ngModel)]="wizardData.telephone" (ngModelChange)="clearWizardError('telephone')" placeholder="0600000000" inputmode="numeric" maxlength="10" /><small class="field-error" *ngIf="hasWizardError('telephone')">{{ wizardError('telephone') }}</small></div>
           </div>
         </ng-container>
@@ -278,7 +275,6 @@
         <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="newPatient.nom" placeholder="Nom de famille" /></div>
         <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="newPatient.prenom" placeholder="Prénom" /></div>
         <div class="form-field"><label>Date de naissance <span class="req">*</span></label><input type="date" [(ngModel)]="newPatient.dateNaissance" /></div>
-        <div class="form-field form-field--black"><label>Groupe sanguin <span class="req">*</span></label><select [(ngModel)]="newPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
         <div class="form-field form-field--black"><label>Genre <span class="req">*</span></label><select [(ngModel)]="newPatient.genre"><option value="">— Sélectionner —</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
       </div>
     </div>
@@ -380,7 +376,6 @@
         <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="editPatient.nom" placeholder="Nom de famille" /></div>
         <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="editPatient.prenom" placeholder="Prénom" /></div>
         <div class="form-field"><label>Date de naissance</label><input type="date" [(ngModel)]="editPatient.dateNaissance" /></div>
-        <div class="form-field form-field--black"><label>Groupe sanguin</label><select [(ngModel)]="editPatient.groupeSanguin"><option value="">— Sélectionner —</option><option *ngFor="let g of groupesSanguins" [value]="g">{{ g }}</option></select></div>
         <div class="form-field form-field--black"><label>Genre</label><select [(ngModel)]="editPatient.genre"><option value="">— Sélectionner —</option><option value="Homme">Homme</option><option value="Femme">Femme</option></select></div>
         <div class="form-field"><label>CIN</label><input type="text" [(ngModel)]="editPatient.cin" placeholder="Ex: AB123456" /></div>
       </div>
@@ -588,7 +583,7 @@
         <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher un patient par nom, prénom, ID ou groupe sanguin" [(ngModel)]="searchPatient" /><button class="table-search-clear" *ngIf="searchPatient" (click)="searchPatient = ''"><span class="material-icons">close</span></button></div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>CIN</th><th>Date de naissance</th><th>Groupe sanguin</th><th>Actions</th></tr></thead>
+            <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>CIN</th><th>Date de naissance</th><th>Actions</th></tr></thead>
             <tbody>
               <ng-container *ngFor="let u of paginatedPatients; let i = index">
                 <tr>
@@ -597,11 +592,10 @@
                   <td>{{ u.prenom }}</td>
                   <td>{{ u.cin || '—' }}</td>
                   <td>{{ u.dateNaissance || '—' }}</td>
-                  <td><span class="badge info" *ngIf="u.groupeSanguin">{{ u.groupeSanguin }}</span><span class="badge neutral" *ngIf="!u.groupeSanguin">—</span></td>
                   <td><div class="row-actions"><button class="row-btn" (click)="openEditPatient(u)" title="Modifier"><span class="material-icons">edit</span></button><button class="row-btn row-btn--warn" (click)="deleteUser(u)" title="Supprimer"><span class="material-icons">delete_outline</span></button></div></td>
                 </tr>
               </ng-container>
-              <tr *ngIf="filteredPatients.length === 0"><td colspan="7" class="empty-row"><span class="material-icons">person_off</span> Aucun patient enregistré</td></tr>
+              <tr *ngIf="filteredPatients.length === 0"><td colspan="6" class="empty-row"><span class="material-icons">person_off</span> Aucun patient enregistré</td></tr>
             </tbody>
           </table>
         </div>
