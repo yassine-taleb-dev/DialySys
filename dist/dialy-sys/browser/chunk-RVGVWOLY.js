@@ -1,13 +1,13 @@
 import {
   PatientService
-} from "./chunk-O7CSYSXH.js";
+} from "./chunk-RX2EHWO5.js";
 import {
   SeanceService
-} from "./chunk-5BLW7LA2.js";
+} from "./chunk-27BDLWNO.js";
 import {
   AuthService,
   environment
-} from "./chunk-XKHRPCVX.js";
+} from "./chunk-KGRZ3KR2.js";
 import {
   CheckboxControlValueAccessor,
   DefaultValueAccessor,
@@ -19,7 +19,7 @@ import {
   NgSelectOption,
   SelectControlValueAccessor,
   ɵNgSelectMultipleOption
-} from "./chunk-M52EQFS5.js";
+} from "./chunk-C2IOWBAM.js";
 import {
   CommonModule,
   HttpClient,
@@ -28,7 +28,7 @@ import {
   NgForOf,
   NgIf,
   Router
-} from "./chunk-CGTKSDI3.js";
+} from "./chunk-T6UPCRXA.js";
 import {
   Subject,
   __objRest,
@@ -74,7 +74,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuery
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // src/services/utilisateur.service.ts
 var UtilisateurService = class _UtilisateurService {
@@ -422,7 +422,7 @@ function AdminComponent_div_2_section_36_div_1_Template(rf, ctx) {
 }
 function AdminComponent_div_2_section_36_ng_container_2_small_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -434,7 +434,7 @@ function AdminComponent_div_2_section_36_ng_container_2_small_12_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_2_small_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -446,7 +446,7 @@ function AdminComponent_div_2_section_36_ng_container_2_small_19_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_2_small_31_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -458,7 +458,7 @@ function AdminComponent_div_2_section_36_ng_container_2_small_31_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_2_option_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -471,7 +471,7 @@ function AdminComponent_div_2_section_36_ng_container_2_option_40_Template(rf, c
 }
 function AdminComponent_div_2_section_36_ng_container_2_small_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -483,7 +483,7 @@ function AdminComponent_div_2_section_36_ng_container_2_small_41_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_2_small_55_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -495,7 +495,19 @@ function AdminComponent_div_2_section_36_ng_container_2_small_55_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_2_small_60_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r3.wizardError("cin"));
+  }
+}
+function AdminComponent_div_2_section_36_ng_container_2_small_66_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -632,22 +644,40 @@ function AdminComponent_div_2_section_36_ng_container_2_Template(rf, ctx) {
     \u0275\u0275template(55, AdminComponent_div_2_section_36_ng_container_2_small_55_Template, 2, 1, "small", 78);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(56, "div", 75)(57, "label");
-    \u0275\u0275text(58, "T\xE9l\xE9phone");
+    \u0275\u0275text(58, "CIN");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(59, "input", 88);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_2_Template_input_ngModelChange_59_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext(3);
-      \u0275\u0275twoWayBindingSet(ctx_r3.wizardData.telephone, $event) || (ctx_r3.wizardData.telephone = $event);
+      \u0275\u0275twoWayBindingSet(ctx_r3.wizardData.cin, $event) || (ctx_r3.wizardData.cin = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275listener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_2_Template_input_ngModelChange_59_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r3.clearWizardError("telephone"));
+      return \u0275\u0275resetView(ctx_r3.clearWizardError("cin"));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275template(60, AdminComponent_div_2_section_36_ng_container_2_small_60_Template, 2, 1, "small", 78);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(61, "div", 74)(62, "div", 75)(63, "label");
+    \u0275\u0275text(64, "T\xE9l\xE9phone");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(65, "input", 89);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_2_Template_input_ngModelChange_65_listener($event) {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r3 = \u0275\u0275nextContext(3);
+      \u0275\u0275twoWayBindingSet(ctx_r3.wizardData.telephone, $event) || (ctx_r3.wizardData.telephone = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_2_Template_input_ngModelChange_65_listener() {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r3 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r3.clearWizardError("telephone"));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(66, AdminComponent_div_2_section_36_ng_container_2_small_66_Template, 2, 1, "small", 78);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementContainerEnd();
   }
@@ -686,6 +716,12 @@ function AdminComponent_div_2_section_36_ng_container_2_Template(rf, ctx) {
     \u0275\u0275advance(7);
     \u0275\u0275property("ngIf", ctx_r3.hasWizardError("genre"));
     \u0275\u0275advance();
+    \u0275\u0275classProp("wz-field--error", ctx_r3.hasWizardError("cin"));
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r3.wizardData.cin);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r3.hasWizardError("cin"));
+    \u0275\u0275advance(2);
     \u0275\u0275classProp("wz-field--error", ctx_r3.hasWizardError("telephone"));
     \u0275\u0275advance(3);
     \u0275\u0275twoWayProperty("ngModel", ctx_r3.wizardData.telephone);
@@ -695,7 +731,7 @@ function AdminComponent_div_2_section_36_ng_container_2_Template(rf, ctx) {
 }
 function AdminComponent_div_2_section_36_ng_container_3_small_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -707,7 +743,7 @@ function AdminComponent_div_2_section_36_ng_container_3_small_12_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_3_small_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -719,7 +755,7 @@ function AdminComponent_div_2_section_36_ng_container_3_small_19_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_3_small_31_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -731,7 +767,7 @@ function AdminComponent_div_2_section_36_ng_container_3_small_31_Template(rf, ct
 }
 function AdminComponent_div_2_section_36_ng_container_3_small_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "small", 89);
+    \u0275\u0275elementStart(0, "small", 90);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -744,7 +780,7 @@ function AdminComponent_div_2_section_36_ng_container_3_small_41_Template(rf, ct
 function AdminComponent_div_2_section_36_ng_container_3_div_52_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 74)(1, "div", 98)(2, "label");
+    \u0275\u0275elementStart(0, "div", 74)(1, "div", 99)(2, "label");
     \u0275\u0275text(3, "Sp\xE9cialit\xE9");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "select", 83);
@@ -759,10 +795,10 @@ function AdminComponent_div_2_section_36_ng_container_3_div_52_Template(rf, ctx)
       const ctx_r3 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r3.clearWizardError("specialite"));
     });
-    \u0275\u0275elementStart(5, "option", 99);
+    \u0275\u0275elementStart(5, "option", 100);
     \u0275\u0275text(6, "N\xE9phrologie");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "option", 100);
+    \u0275\u0275elementStart(7, "option", 101);
     \u0275\u0275text(8, "G\xE9n\xE9raliste");
     \u0275\u0275elementEnd()()()();
   }
@@ -821,10 +857,10 @@ function AdminComponent_div_2_section_36_ng_container_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(19, AdminComponent_div_2_section_36_ng_container_3_small_19_Template, 2, 1, "small", 78);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(20, "div", 74)(21, "div", 91)(22, "label");
+    \u0275\u0275elementStart(20, "div", 74)(21, "div", 92)(22, "label");
     \u0275\u0275text(23, "Matricule");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "input", 92);
+    \u0275\u0275elementStart(24, "input", 93);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_3_Template_input_ngModelChange_24_listener($event) {
       \u0275\u0275restoreView(_r10);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -837,7 +873,7 @@ function AdminComponent_div_2_section_36_ng_container_3_Template(rf, ctx) {
     \u0275\u0275elementStart(28, "span", 76);
     \u0275\u0275text(29, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(30, "input", 93);
+    \u0275\u0275elementStart(30, "input", 94);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_3_Template_input_ngModelChange_30_listener($event) {
       \u0275\u0275restoreView(_r10);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -860,7 +896,7 @@ function AdminComponent_div_2_section_36_ng_container_3_Template(rf, ctx) {
     \u0275\u0275elementStart(36, "div", 74)(37, "div", 75)(38, "label");
     \u0275\u0275text(39, "T\xE9l\xE9phone");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(40, "input", 88);
+    \u0275\u0275elementStart(40, "input", 89);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_2_section_36_ng_container_3_Template_input_ngModelChange_40_listener($event) {
       \u0275\u0275restoreView(_r10);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -885,16 +921,16 @@ function AdminComponent_div_2_section_36_ng_container_3_Template(rf, ctx) {
       \u0275\u0275twoWayBindingSet(ctx_r3.wizardData.service, $event) || (ctx_r3.wizardData.service = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(46, "option", 94);
+    \u0275\u0275elementStart(46, "option", 95);
     \u0275\u0275text(47, "H\xE9modialyse");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(48, "option", 95);
+    \u0275\u0275elementStart(48, "option", 96);
     \u0275\u0275text(49, "Permanence");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(50, "option", 96);
+    \u0275\u0275elementStart(50, "option", 97);
     \u0275\u0275text(51, "Laboratoire");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275template(52, AdminComponent_div_2_section_36_ng_container_3_div_52_Template, 9, 1, "div", 97);
+    \u0275\u0275template(52, AdminComponent_div_2_section_36_ng_container_3_div_52_Template, 9, 1, "div", 98);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -934,7 +970,7 @@ function AdminComponent_div_2_section_36_ng_container_3_Template(rf, ctx) {
 function AdminComponent_div_2_section_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 59);
-    \u0275\u0275template(1, AdminComponent_div_2_section_36_div_1_Template, 4, 8, "div", 71)(2, AdminComponent_div_2_section_36_ng_container_2_Template, 61, 25, "ng-container", 33)(3, AdminComponent_div_2_section_36_ng_container_3_Template, 53, 19, "ng-container", 33);
+    \u0275\u0275template(1, AdminComponent_div_2_section_36_div_1_Template, 4, 8, "div", 71)(2, AdminComponent_div_2_section_36_ng_container_2_Template, 67, 29, "ng-container", 33)(3, AdminComponent_div_2_section_36_ng_container_3_Template, 53, 19, "ng-container", 33);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -973,51 +1009,51 @@ function AdminComponent_div_2_section_37_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(5, " Identifiants de connexion");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 101)(7, "span", 16);
+    \u0275\u0275elementStart(6, "div", 102)(7, "span", 16);
     \u0275\u0275text(8, "mark_email_read");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(9, "div")(10, "strong");
     \u0275\u0275text(11, "Le login et le mot de passe temporaire seront g\xE9n\xE9r\xE9s automatiquement.");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(12, "div", 102)(13, "div", 103)(14, "span", 16);
+    \u0275\u0275elementStart(12, "div", 103)(13, "div", 104)(14, "span", 16);
     \u0275\u0275text(15, "summarize");
     \u0275\u0275elementEnd();
     \u0275\u0275text(16, " R\xE9capitulatif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "div", 104)(18, "div", 105)(19, "span", 106);
+    \u0275\u0275elementStart(17, "div", 105)(18, "div", 106)(19, "span", 107);
     \u0275\u0275text(20, "R\xF4le");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "span", 107);
+    \u0275\u0275elementStart(21, "span", 108);
     \u0275\u0275text(22);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(23, "div", 105)(24, "span", 106);
+    \u0275\u0275elementStart(23, "div", 106)(24, "span", 107);
     \u0275\u0275text(25, "Nom complet");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(26, "span", 107);
+    \u0275\u0275elementStart(26, "span", 108);
     \u0275\u0275text(27);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(28, "div", 105)(29, "span", 106);
+    \u0275\u0275elementStart(28, "div", 106)(29, "span", 107);
     \u0275\u0275text(30, "Matricule");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(31, "span", 107);
+    \u0275\u0275elementStart(31, "span", 108);
     \u0275\u0275text(32);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(33, "div", 105)(34, "span", 106);
+    \u0275\u0275elementStart(33, "div", 106)(34, "span", 107);
     \u0275\u0275text(35, "Email");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(36, "span", 107);
+    \u0275\u0275elementStart(36, "span", 108);
     \u0275\u0275text(37);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(38, "div", 105)(39, "span", 106);
+    \u0275\u0275elementStart(38, "div", 106)(39, "span", 107);
     \u0275\u0275text(40, "Service");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(41, "span", 107);
+    \u0275\u0275elementStart(41, "span", 108);
     \u0275\u0275text(42);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(43, "div", 105)(44, "span", 106);
+    \u0275\u0275elementStart(43, "div", 106)(44, "span", 107);
     \u0275\u0275text(45, "Mot de passe");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(46, "span", 107);
+    \u0275\u0275elementStart(46, "span", 108);
     \u0275\u0275text(47, "Envoy\xE9 par email");
     \u0275\u0275elementEnd()()()()();
   }
@@ -1040,7 +1076,7 @@ function AdminComponent_div_2_section_37_Template(rf, ctx) {
 function AdminComponent_div_2_button_40_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 108);
+    \u0275\u0275elementStart(0, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_2_button_40_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r12);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -1053,7 +1089,7 @@ function AdminComponent_div_2_button_40_Template(rf, ctx) {
 function AdminComponent_div_2_button_41_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 108);
+    \u0275\u0275elementStart(0, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_2_button_41_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -1220,7 +1256,7 @@ function AdminComponent_div_2_Template(rf, ctx) {
 }
 function AdminComponent_div_3_option_73_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1234,7 +1270,7 @@ function AdminComponent_div_3_option_73_Template(rf, ctx) {
 function AdminComponent_div_3_button_103_Template(rf, ctx) {
   if (rf & 1) {
     const _r16 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 141);
+    \u0275\u0275elementStart(0, "button", 142);
     \u0275\u0275listener("click", function AdminComponent_div_3_button_103_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r16);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -1250,30 +1286,30 @@ function AdminComponent_div_3_button_103_Template(rf, ctx) {
 function AdminComponent_div_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r14 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.closeUserModal());
     });
-    \u0275\u0275elementStart(1, "div", 110);
+    \u0275\u0275elementStart(1, "div", 111);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r14);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 111)(3, "div", 112)(4, "span", 113);
+    \u0275\u0275elementStart(2, "div", 112)(3, "div", 113)(4, "span", 114);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 114)(7, "h2");
+    \u0275\u0275elementStart(6, "div", 115)(7, "h2");
     \u0275\u0275text(8);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(9, "p");
     \u0275\u0275text(10);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "span", 115);
+    \u0275\u0275elementStart(11, "span", 116);
     \u0275\u0275text(12);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "button", 116);
+    \u0275\u0275elementStart(13, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_button_click_13_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1282,17 +1318,17 @@ function AdminComponent_div_3_Template(rf, ctx) {
     \u0275\u0275elementStart(14, "span", 16);
     \u0275\u0275text(15, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(16, "div", 117)(17, "div", 118)(18, "span", 16);
+    \u0275\u0275elementStart(16, "div", 118)(17, "div", 119)(18, "span", 16);
     \u0275\u0275text(19, "badge");
     \u0275\u0275elementEnd();
     \u0275\u0275text(20, " Identit\xE9");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "div", 119)(22, "div", 120)(23, "label");
+    \u0275\u0275elementStart(21, "div", 120)(22, "div", 121)(23, "label");
     \u0275\u0275text(24, "Nom ");
     \u0275\u0275elementStart(25, "span", 76);
     \u0275\u0275text(26, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(27, "input", 121);
+    \u0275\u0275elementStart(27, "input", 122);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_27_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1300,12 +1336,12 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(28, "div", 120)(29, "label");
+    \u0275\u0275elementStart(28, "div", 121)(29, "label");
     \u0275\u0275text(30, "Pr\xE9nom ");
     \u0275\u0275elementStart(31, "span", 76);
     \u0275\u0275text(32, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(33, "input", 121);
+    \u0275\u0275elementStart(33, "input", 122);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_33_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1313,10 +1349,10 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(34, "div", 120)(35, "label");
+    \u0275\u0275elementStart(34, "div", 121)(35, "label");
     \u0275\u0275text(36, "Matricule");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(37, "input", 121);
+    \u0275\u0275elementStart(37, "input", 122);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_37_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1324,10 +1360,10 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(38, "div", 120)(39, "label");
+    \u0275\u0275elementStart(38, "div", 121)(39, "label");
     \u0275\u0275text(40, "Email");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(41, "input", 122);
+    \u0275\u0275elementStart(41, "input", 123);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_41_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1335,10 +1371,10 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(42, "div", 120)(43, "label");
+    \u0275\u0275elementStart(42, "div", 121)(43, "label");
     \u0275\u0275text(44, "T\xE9l\xE9phone");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(45, "input", 123);
+    \u0275\u0275elementStart(45, "input", 124);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_45_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1346,7 +1382,7 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(46, "div", 120)(47, "label");
+    \u0275\u0275elementStart(46, "div", 121)(47, "label");
     \u0275\u0275text(48, "Service");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(49, "select", 83);
@@ -1356,24 +1392,24 @@ function AdminComponent_div_3_Template(rf, ctx) {
       \u0275\u0275twoWayBindingSet(ctx_r3.selectedUser.service, $event) || (ctx_r3.selectedUser.service = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(50, "option", 94);
+    \u0275\u0275elementStart(50, "option", 95);
     \u0275\u0275text(51, "H\xE9modialyse");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(52, "option", 95);
+    \u0275\u0275elementStart(52, "option", 96);
     \u0275\u0275text(53, "Permanence");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(54, "option", 96);
+    \u0275\u0275elementStart(54, "option", 97);
     \u0275\u0275text(55, "Laboratoire");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(56, "div", 124)(57, "span", 16);
+    \u0275\u0275elementStart(56, "div", 125)(57, "span", 16);
     \u0275\u0275text(58, "lock");
     \u0275\u0275elementEnd();
     \u0275\u0275text(59, " Acc\xE8s & Connexion");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(60, "div", 119)(61, "div", 120)(62, "label");
+    \u0275\u0275elementStart(60, "div", 120)(61, "div", 121)(62, "label");
     \u0275\u0275text(63, "Login");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(64, "input", 121);
+    \u0275\u0275elementStart(64, "input", 122);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_64_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1381,10 +1417,10 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(65, "div", 120)(66, "label");
+    \u0275\u0275elementStart(65, "div", 121)(66, "label");
     \u0275\u0275text(67, "Username");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(68, "input", 121);
+    \u0275\u0275elementStart(68, "input", 122);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_68_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1392,7 +1428,7 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(69, "div", 120)(70, "label");
+    \u0275\u0275elementStart(69, "div", 121)(70, "label");
     \u0275\u0275text(71, "R\xF4le");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(72, "select", 83);
@@ -1404,10 +1440,10 @@ function AdminComponent_div_3_Template(rf, ctx) {
     });
     \u0275\u0275template(73, AdminComponent_div_3_option_73_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(74, "div", 120)(75, "label");
+    \u0275\u0275elementStart(74, "div", 121)(75, "label");
     \u0275\u0275text(76, "Statut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(77, "select", 125);
+    \u0275\u0275elementStart(77, "select", 126);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_select_ngModelChange_77_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1419,24 +1455,24 @@ function AdminComponent_div_3_Template(rf, ctx) {
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectedUser.actif = ctx_r3.selectedUser.statut === "actif");
     });
-    \u0275\u0275elementStart(78, "option", 126);
+    \u0275\u0275elementStart(78, "option", 127);
     \u0275\u0275text(79, "Actif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(80, "option", 127);
+    \u0275\u0275elementStart(80, "option", 128);
     \u0275\u0275text(81, "Inactif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(82, "option", 128);
+    \u0275\u0275elementStart(82, "option", 129);
     \u0275\u0275text(83, "Suspendu");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(84, "div", 120)(85, "label");
+    \u0275\u0275elementStart(84, "div", 121)(85, "label");
     \u0275\u0275text(86, "Date de cr\xE9ation");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(87, "input", 129);
+    \u0275\u0275element(87, "input", 130);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(88, "div", 120)(89, "label");
+    \u0275\u0275elementStart(88, "div", 121)(89, "label");
     \u0275\u0275text(90, "Compte actif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(91, "div", 130)(92, "label", 131)(93, "input", 132);
+    \u0275\u0275elementStart(91, "div", 131)(92, "label", 132)(93, "input", 133);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_3_Template_input_ngModelChange_93_listener($event) {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1449,12 +1485,12 @@ function AdminComponent_div_3_Template(rf, ctx) {
       return \u0275\u0275resetView(ctx_r3.selectedUser.statut = ctx_r3.selectedUser.actif ? "actif" : "inactif");
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(94, "span", 133);
+    \u0275\u0275element(94, "span", 134);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(95, "span", 134);
+    \u0275\u0275elementStart(95, "span", 135);
     \u0275\u0275text(96);
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(97, "div", 135)(98, "div", 136)(99, "button", 137);
+    \u0275\u0275elementStart(97, "div", 136)(98, "div", 137)(99, "button", 138);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_button_click_99_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1465,9 +1501,9 @@ function AdminComponent_div_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(102, " Supprimer");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(103, AdminComponent_div_3_button_103_Template, 4, 0, "button", 138);
+    \u0275\u0275template(103, AdminComponent_div_3_button_103_Template, 4, 0, "button", 139);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(104, "div", 139)(105, "button", 108);
+    \u0275\u0275elementStart(104, "div", 140)(105, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_button_click_105_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1478,7 +1514,7 @@ function AdminComponent_div_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(108, " R\xE9initialiser MDP");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(109, "button", 108);
+    \u0275\u0275elementStart(109, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_button_click_109_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1486,7 +1522,7 @@ function AdminComponent_div_3_Template(rf, ctx) {
     });
     \u0275\u0275text(110, "Annuler");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(111, "button", 140);
+    \u0275\u0275elementStart(111, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_div_3_Template_button_click_111_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1549,7 +1585,7 @@ function AdminComponent_div_3_Template(rf, ctx) {
 }
 function AdminComponent_div_4_option_46_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1563,27 +1599,27 @@ function AdminComponent_div_4_option_46_Template(rf, ctx) {
 function AdminComponent_div_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r17 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_4_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r17);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.showNewPatientModal = false);
     });
-    \u0275\u0275elementStart(1, "div", 142);
+    \u0275\u0275elementStart(1, "div", 143);
     \u0275\u0275listener("click", function AdminComponent_div_4_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r17);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 111)(3, "div", 143)(4, "span", 144);
+    \u0275\u0275elementStart(2, "div", 112)(3, "div", 144)(4, "span", 145);
     \u0275\u0275text(5, "person_add");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 114)(7, "h2");
+    \u0275\u0275elementStart(6, "div", 115)(7, "h2");
     \u0275\u0275text(8, "Nouveau patient");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(9, "p");
     \u0275\u0275text(10, "Renseignez les informations du patient");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "button", 116);
+    \u0275\u0275elementStart(11, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_4_Template_button_click_11_listener() {
       \u0275\u0275restoreView(_r17);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1592,12 +1628,12 @@ function AdminComponent_div_4_Template(rf, ctx) {
     \u0275\u0275elementStart(12, "span", 16);
     \u0275\u0275text(13, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(14, "div", 117)(15, "div", 118)(16, "span", 16);
+    \u0275\u0275elementStart(14, "div", 118)(15, "div", 119)(16, "span", 16);
     \u0275\u0275text(17, "badge");
     \u0275\u0275elementEnd();
     \u0275\u0275text(18, " Identit\xE9 du patient");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(19, "div", 119)(20, "div", 120)(21, "label");
+    \u0275\u0275elementStart(19, "div", 120)(20, "div", 121)(21, "label");
     \u0275\u0275text(22, "Nom ");
     \u0275\u0275elementStart(23, "span", 76);
     \u0275\u0275text(24, "*");
@@ -1610,7 +1646,7 @@ function AdminComponent_div_4_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "div", 120)(27, "label");
+    \u0275\u0275elementStart(26, "div", 121)(27, "label");
     \u0275\u0275text(28, "Pr\xE9nom ");
     \u0275\u0275elementStart(29, "span", 76);
     \u0275\u0275text(30, "*");
@@ -1623,7 +1659,7 @@ function AdminComponent_div_4_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(32, "div", 120)(33, "label");
+    \u0275\u0275elementStart(32, "div", 121)(33, "label");
     \u0275\u0275text(34, "Date de naissance ");
     \u0275\u0275elementStart(35, "span", 76);
     \u0275\u0275text(36, "*");
@@ -1636,7 +1672,7 @@ function AdminComponent_div_4_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(38, "div", 145)(39, "label");
+    \u0275\u0275elementStart(38, "div", 146)(39, "label");
     \u0275\u0275text(40, "Groupe sanguin ");
     \u0275\u0275elementStart(41, "span", 76);
     \u0275\u0275text(42, "*");
@@ -1653,7 +1689,7 @@ function AdminComponent_div_4_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(46, AdminComponent_div_4_option_46_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(47, "div", 145)(48, "label");
+    \u0275\u0275elementStart(47, "div", 146)(48, "label");
     \u0275\u0275text(49, "Genre ");
     \u0275\u0275elementStart(50, "span", 76);
     \u0275\u0275text(51, "*");
@@ -1674,13 +1710,13 @@ function AdminComponent_div_4_Template(rf, ctx) {
     \u0275\u0275elementStart(57, "option", 87);
     \u0275\u0275text(58, "Femme");
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(59, "div", 135)(60, "div", 146)(61, "span", 147);
+    \u0275\u0275elementStart(59, "div", 136)(60, "div", 147)(61, "span", 148);
     \u0275\u0275text(62, "person");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(63, "span");
     \u0275\u0275text(64, "Patient");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(65, "div", 139)(66, "button", 108);
+    \u0275\u0275elementStart(65, "div", 140)(66, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_4_Template_button_click_66_listener() {
       \u0275\u0275restoreView(_r17);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1688,7 +1724,7 @@ function AdminComponent_div_4_Template(rf, ctx) {
     });
     \u0275\u0275text(67, "Annuler");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(68, "button", 140);
+    \u0275\u0275elementStart(68, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_div_4_Template_button_click_68_listener() {
       \u0275\u0275restoreView(_r17);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1719,7 +1755,7 @@ function AdminComponent_div_4_Template(rf, ctx) {
 }
 function AdminComponent_div_5_option_79_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1733,24 +1769,24 @@ function AdminComponent_div_5_option_79_Template(rf, ctx) {
 function AdminComponent_div_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r19 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_5_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.showNewUserModal = false);
     });
-    \u0275\u0275elementStart(1, "div", 148);
+    \u0275\u0275elementStart(1, "div", 149);
     \u0275\u0275listener("click", function AdminComponent_div_5_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r19);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 149)(3, "span", 150);
+    \u0275\u0275elementStart(2, "div", 150)(3, "span", 151);
     \u0275\u0275text(4, "person_add");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "h2");
     \u0275\u0275text(6, "Cr\xE9er un Utilisateur");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "button", 116);
+    \u0275\u0275elementStart(7, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_5_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1759,12 +1795,12 @@ function AdminComponent_div_5_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(10, "div", 151)(11, "div", 152)(12, "span", 16);
+    \u0275\u0275elementStart(10, "div", 152)(11, "div", 153)(12, "span", 16);
     \u0275\u0275text(13, "badge");
     \u0275\u0275elementEnd();
     \u0275\u0275text(14, " Identit\xE9");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "div", 119)(16, "div", 120)(17, "label");
+    \u0275\u0275elementStart(15, "div", 120)(16, "div", 121)(17, "label");
     \u0275\u0275text(18, "Nom ");
     \u0275\u0275elementStart(19, "span", 76);
     \u0275\u0275text(20, "*");
@@ -1777,7 +1813,7 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(22, "div", 120)(23, "label");
+    \u0275\u0275elementStart(22, "div", 121)(23, "label");
     \u0275\u0275text(24, "Pr\xE9nom ");
     \u0275\u0275elementStart(25, "span", 76);
     \u0275\u0275text(26, "*");
@@ -1790,12 +1826,12 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(28, "div", 120)(29, "label");
+    \u0275\u0275elementStart(28, "div", 121)(29, "label");
     \u0275\u0275text(30, "Matricule (Mat) ");
     \u0275\u0275elementStart(31, "span", 76);
     \u0275\u0275text(32, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(33, "input", 153);
+    \u0275\u0275elementStart(33, "input", 154);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_33_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1803,12 +1839,12 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(34, "div", 120)(35, "label");
+    \u0275\u0275elementStart(34, "div", 121)(35, "label");
     \u0275\u0275text(36, "Email ");
     \u0275\u0275elementStart(37, "span", 76);
     \u0275\u0275text(38, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(39, "input", 154);
+    \u0275\u0275elementStart(39, "input", 155);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_39_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1816,10 +1852,10 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(40, "div", 120)(41, "label");
+    \u0275\u0275elementStart(40, "div", 121)(41, "label");
     \u0275\u0275text(42, "T\xE9l\xE9phone");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(43, "input", 88);
+    \u0275\u0275elementStart(43, "input", 89);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_43_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1827,7 +1863,7 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(44, "div", 120)(45, "label");
+    \u0275\u0275elementStart(44, "div", 121)(45, "label");
     \u0275\u0275text(46, "Service");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(47, "select", 83);
@@ -1837,26 +1873,26 @@ function AdminComponent_div_5_Template(rf, ctx) {
       \u0275\u0275twoWayBindingSet(ctx_r3.newUser.service, $event) || (ctx_r3.newUser.service = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(48, "option", 94);
+    \u0275\u0275elementStart(48, "option", 95);
     \u0275\u0275text(49, "H\xE9modialyse");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(50, "option", 95);
+    \u0275\u0275elementStart(50, "option", 96);
     \u0275\u0275text(51, "Permanence");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(52, "option", 96);
+    \u0275\u0275elementStart(52, "option", 97);
     \u0275\u0275text(53, "Laboratoire");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(54, "div", 155)(55, "span", 16);
+    \u0275\u0275elementStart(54, "div", 156)(55, "span", 16);
     \u0275\u0275text(56, "lock");
     \u0275\u0275elementEnd();
     \u0275\u0275text(57, " Acc\xE8s & Connexion");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(58, "div", 119)(59, "div", 120)(60, "label");
+    \u0275\u0275elementStart(58, "div", 120)(59, "div", 121)(60, "label");
     \u0275\u0275text(61, "Login ");
     \u0275\u0275elementStart(62, "span", 76);
     \u0275\u0275text(63, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(64, "input", 156);
+    \u0275\u0275elementStart(64, "input", 157);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_64_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1864,10 +1900,10 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(65, "div", 120)(66, "label");
+    \u0275\u0275elementStart(65, "div", 121)(66, "label");
     \u0275\u0275text(67, "Username");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(68, "input", 157);
+    \u0275\u0275elementStart(68, "input", 158);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_68_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1875,10 +1911,10 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(69, "div", 120)(70, "label");
+    \u0275\u0275elementStart(69, "div", 121)(70, "label");
     \u0275\u0275text(71, "Mot de passe (MdP)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(72, "input", 158);
+    \u0275\u0275elementStart(72, "input", 159);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_72_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1886,7 +1922,7 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(73, "div", 120)(74, "label");
+    \u0275\u0275elementStart(73, "div", 121)(74, "label");
     \u0275\u0275text(75, "R\xF4le ");
     \u0275\u0275elementStart(76, "span", 76);
     \u0275\u0275text(77, "*");
@@ -1900,10 +1936,10 @@ function AdminComponent_div_5_Template(rf, ctx) {
     });
     \u0275\u0275template(79, AdminComponent_div_5_option_79_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(80, "div", 159)(81, "label");
+    \u0275\u0275elementStart(80, "div", 160)(81, "label");
     \u0275\u0275text(82, "Compte actif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(83, "div", 130)(84, "label", 131)(85, "input", 160);
+    \u0275\u0275elementStart(83, "div", 131)(84, "label", 132)(85, "input", 161);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_5_Template_input_ngModelChange_85_listener($event) {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1911,12 +1947,12 @@ function AdminComponent_div_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(86, "span", 133);
+    \u0275\u0275element(86, "span", 134);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(87, "span", 134);
+    \u0275\u0275elementStart(87, "span", 135);
     \u0275\u0275text(88);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(89, "div", 161)(90, "button", 140);
+    \u0275\u0275elementStart(89, "div", 162)(90, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_div_5_Template_button_click_90_listener() {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1927,7 +1963,7 @@ function AdminComponent_div_5_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(93, " Cr\xE9er le compte");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(94, "button", 108);
+    \u0275\u0275elementStart(94, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_5_Template_button_click_94_listener() {
       \u0275\u0275restoreView(_r19);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1970,24 +2006,24 @@ function AdminComponent_div_5_Template(rf, ctx) {
 function AdminComponent_div_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r21 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_6_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.showSettingsModal = false);
     });
-    \u0275\u0275elementStart(1, "div", 162);
+    \u0275\u0275elementStart(1, "div", 163);
     \u0275\u0275listener("click", function AdminComponent_div_6_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r21);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 149)(3, "span", 150);
+    \u0275\u0275elementStart(2, "div", 150)(3, "span", 151);
     \u0275\u0275text(4, "settings");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "h2");
     \u0275\u0275text(6, "Param\xE8tres syst\xE8me");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "button", 116);
+    \u0275\u0275elementStart(7, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_6_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -1996,18 +2032,18 @@ function AdminComponent_div_6_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(10, "div", 151)(11, "div", 163)(12, "div", 164)(13, "span", 16);
+    \u0275\u0275elementStart(10, "div", 152)(11, "div", 164)(12, "div", 165)(13, "span", 16);
     \u0275\u0275text(14, "notifications");
     \u0275\u0275elementEnd();
     \u0275\u0275text(15, " Notifications");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "div", 165)(17, "div", 166)(18, "b");
+    \u0275\u0275elementStart(16, "div", 166)(17, "div", 167)(18, "b");
     \u0275\u0275text(19, "Notifications par email");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(20, "span");
     \u0275\u0275text(21, "Recevoir les alertes critiques par email");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(22, "label", 131)(23, "input", 160);
+    \u0275\u0275elementStart(22, "label", 132)(23, "input", 161);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_input_ngModelChange_23_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2015,15 +2051,15 @@ function AdminComponent_div_6_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(24, "span", 133);
+    \u0275\u0275element(24, "span", 134);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "div", 165)(26, "div", 166)(27, "b");
+    \u0275\u0275elementStart(25, "div", 166)(26, "div", 167)(27, "b");
     \u0275\u0275text(28, "Notifications syst\xE8me");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(29, "span");
     \u0275\u0275text(30, "Alertes en temps r\xE9el dans l'interface");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(31, "label", 131)(32, "input", 160);
+    \u0275\u0275elementStart(31, "label", 132)(32, "input", 161);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_input_ngModelChange_32_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2031,20 +2067,20 @@ function AdminComponent_div_6_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(33, "span", 133);
+    \u0275\u0275element(33, "span", 134);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(34, "div", 163)(35, "div", 164)(36, "span", 16);
+    \u0275\u0275elementStart(34, "div", 164)(35, "div", 165)(36, "span", 16);
     \u0275\u0275text(37, "security");
     \u0275\u0275elementEnd();
     \u0275\u0275text(38, " S\xE9curit\xE9");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(39, "div", 165)(40, "div", 166)(41, "b");
+    \u0275\u0275elementStart(39, "div", 166)(40, "div", 167)(41, "b");
     \u0275\u0275text(42, "Double authentification");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(43, "span");
     \u0275\u0275text(44, "V\xE9rification en deux \xE9tapes \xE0 la connexion");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(45, "label", 131)(46, "input", 160);
+    \u0275\u0275elementStart(45, "label", 132)(46, "input", 161);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_input_ngModelChange_46_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2052,15 +2088,15 @@ function AdminComponent_div_6_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(47, "span", 133);
+    \u0275\u0275element(47, "span", 134);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(48, "div", 165)(49, "div", 166)(50, "b");
+    \u0275\u0275elementStart(48, "div", 166)(49, "div", 167)(50, "b");
     \u0275\u0275text(51, "Journal d'audit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(52, "span");
     \u0275\u0275text(53, "Enregistrer toutes les actions administratives");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(54, "label", 131)(55, "input", 160);
+    \u0275\u0275elementStart(54, "label", 132)(55, "input", 161);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_input_ngModelChange_55_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2068,83 +2104,83 @@ function AdminComponent_div_6_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275element(56, "span", 133);
+    \u0275\u0275element(56, "span", 134);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(57, "div", 165)(58, "div", 166)(59, "b");
+    \u0275\u0275elementStart(57, "div", 166)(58, "div", 167)(59, "b");
     \u0275\u0275text(60, "Expiration de session");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(61, "span");
     \u0275\u0275text(62, "D\xE9connexion automatique apr\xE8s inactivit\xE9");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(63, "div", 167)(64, "select", 83);
+    \u0275\u0275elementStart(63, "div", 168)(64, "select", 83);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_select_ngModelChange_64_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.settings.sessionTimeout, $event) || (ctx_r3.settings.sessionTimeout = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(65, "option", 90);
+    \u0275\u0275elementStart(65, "option", 91);
     \u0275\u0275text(66, "15 min");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(67, "option", 90);
+    \u0275\u0275elementStart(67, "option", 91);
     \u0275\u0275text(68, "30 min");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(69, "option", 90);
+    \u0275\u0275elementStart(69, "option", 91);
     \u0275\u0275text(70, "1 heure");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(71, "option", 90);
+    \u0275\u0275elementStart(71, "option", 91);
     \u0275\u0275text(72, "2 heures");
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(73, "div", 163)(74, "div", 164)(75, "span", 16);
+    \u0275\u0275elementStart(73, "div", 164)(74, "div", 165)(75, "span", 16);
     \u0275\u0275text(76, "tune");
     \u0275\u0275elementEnd();
     \u0275\u0275text(77, " Pr\xE9f\xE9rences");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(78, "div", 165)(79, "div", 166)(80, "b");
+    \u0275\u0275elementStart(78, "div", 166)(79, "div", 167)(80, "b");
     \u0275\u0275text(81, "Langue");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(82, "span");
     \u0275\u0275text(83, "Langue de l'interface");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(84, "div", 168)(85, "select", 83);
+    \u0275\u0275elementStart(84, "div", 169)(85, "select", 83);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_select_ngModelChange_85_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.settings.langue, $event) || (ctx_r3.settings.langue = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(86, "option", 169);
+    \u0275\u0275elementStart(86, "option", 170);
     \u0275\u0275text(87, "Fran\xE7ais");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(88, "option", 170);
+    \u0275\u0275elementStart(88, "option", 171);
     \u0275\u0275text(89, "\u0627\u0644\u0639\u0631\u0628\u064A\u0629");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(90, "option", 171);
+    \u0275\u0275elementStart(90, "option", 172);
     \u0275\u0275text(91, "English");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(92, "div", 165)(93, "div", 166)(94, "b");
+    \u0275\u0275elementStart(92, "div", 166)(93, "div", 167)(94, "b");
     \u0275\u0275text(95, "Format d'export");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(96, "span");
     \u0275\u0275text(97, "Format par d\xE9faut pour les exports");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(98, "div", 168)(99, "select", 83);
+    \u0275\u0275elementStart(98, "div", 169)(99, "select", 83);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_6_Template_select_ngModelChange_99_listener($event) {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r3.settings.exportFormat, $event) || (ctx_r3.settings.exportFormat = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(100, "option", 172);
+    \u0275\u0275elementStart(100, "option", 173);
     \u0275\u0275text(101, "CSV");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(102, "option", 173);
+    \u0275\u0275elementStart(102, "option", 174);
     \u0275\u0275text(103, "Excel (XLSX)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(104, "option", 174);
+    \u0275\u0275elementStart(104, "option", 175);
     \u0275\u0275text(105, "PDF");
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(106, "div", 161)(107, "button", 140);
+    \u0275\u0275elementStart(106, "div", 162)(107, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_div_6_Template_button_click_107_listener() {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2155,7 +2191,7 @@ function AdminComponent_div_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(110, " Enregistrer");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(111, "button", 108);
+    \u0275\u0275elementStart(111, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_6_Template_button_click_111_listener() {
       \u0275\u0275restoreView(_r21);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2193,7 +2229,7 @@ function AdminComponent_div_6_Template(rf, ctx) {
 }
 function AdminComponent_div_7_div_10_option_32_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2207,17 +2243,17 @@ function AdminComponent_div_7_div_10_option_32_Template(rf, ctx) {
 function AdminComponent_div_7_div_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r23 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 151)(1, "div", 152)(2, "span", 16);
+    \u0275\u0275elementStart(0, "div", 152)(1, "div", 153)(2, "span", 16);
     \u0275\u0275text(3, "badge");
     \u0275\u0275elementEnd();
     \u0275\u0275text(4, " Identit\xE9 du patient");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 119)(6, "div", 120)(7, "label");
+    \u0275\u0275elementStart(5, "div", 120)(6, "div", 121)(7, "label");
     \u0275\u0275text(8, "ID");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(9, "input", 129);
+    \u0275\u0275element(9, "input", 130);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 120)(11, "label");
+    \u0275\u0275elementStart(10, "div", 121)(11, "label");
     \u0275\u0275text(12, "Nom ");
     \u0275\u0275elementStart(13, "span", 76);
     \u0275\u0275text(14, "*");
@@ -2230,7 +2266,7 @@ function AdminComponent_div_7_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(16, "div", 120)(17, "label");
+    \u0275\u0275elementStart(16, "div", 121)(17, "label");
     \u0275\u0275text(18, "Pr\xE9nom ");
     \u0275\u0275elementStart(19, "span", 76);
     \u0275\u0275text(20, "*");
@@ -2243,7 +2279,7 @@ function AdminComponent_div_7_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(22, "div", 120)(23, "label");
+    \u0275\u0275elementStart(22, "div", 121)(23, "label");
     \u0275\u0275text(24, "Date de naissance");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(25, "input", 81);
@@ -2254,7 +2290,7 @@ function AdminComponent_div_7_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "div", 145)(27, "label");
+    \u0275\u0275elementStart(26, "div", 146)(27, "label");
     \u0275\u0275text(28, "Groupe sanguin");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(29, "select", 83);
@@ -2269,7 +2305,7 @@ function AdminComponent_div_7_div_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(32, AdminComponent_div_7_div_10_option_32_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(33, "div", 145)(34, "label");
+    \u0275\u0275elementStart(33, "div", 146)(34, "label");
     \u0275\u0275text(35, "Genre");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(36, "select", 83);
@@ -2287,25 +2323,36 @@ function AdminComponent_div_7_div_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(41, "option", 87);
     \u0275\u0275text(42, "Femme");
-    \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(43, "div", 161)(44, "button", 140);
-    \u0275\u0275listener("click", function AdminComponent_div_7_div_10_Template_button_click_44_listener() {
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(43, "div", 121)(44, "label");
+    \u0275\u0275text(45, "CIN");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(46, "input", 88);
+    \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_7_div_10_Template_input_ngModelChange_46_listener($event) {
+      \u0275\u0275restoreView(_r23);
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r3.editPatient.cin, $event) || (ctx_r3.editPatient.cin = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(47, "div", 162)(48, "button", 141);
+    \u0275\u0275listener("click", function AdminComponent_div_7_div_10_Template_button_click_48_listener() {
       \u0275\u0275restoreView(_r23);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.saveEditPatient());
     });
-    \u0275\u0275elementStart(45, "span", 16);
-    \u0275\u0275text(46, "save");
+    \u0275\u0275elementStart(49, "span", 16);
+    \u0275\u0275text(50, "save");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(47, " Enregistrer");
+    \u0275\u0275text(51, " Enregistrer");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(48, "button", 108);
-    \u0275\u0275listener("click", function AdminComponent_div_7_div_10_Template_button_click_48_listener() {
+    \u0275\u0275elementStart(52, "button", 109);
+    \u0275\u0275listener("click", function AdminComponent_div_7_div_10_Template_button_click_52_listener() {
       \u0275\u0275restoreView(_r23);
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.showEditPatientModal = false);
     });
-    \u0275\u0275text(49, "Annuler");
+    \u0275\u0275text(53, "Annuler");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -2324,29 +2371,31 @@ function AdminComponent_div_7_div_10_Template(rf, ctx) {
     \u0275\u0275property("ngForOf", ctx_r3.groupesSanguins);
     \u0275\u0275advance(4);
     \u0275\u0275twoWayProperty("ngModel", ctx_r3.editPatient.genre);
+    \u0275\u0275advance(10);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r3.editPatient.cin);
   }
 }
 function AdminComponent_div_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r22 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_7_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r22);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.showEditPatientModal = false);
     });
-    \u0275\u0275elementStart(1, "div", 175);
+    \u0275\u0275elementStart(1, "div", 176);
     \u0275\u0275listener("click", function AdminComponent_div_7_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r22);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 149)(3, "span", 176);
+    \u0275\u0275elementStart(2, "div", 150)(3, "span", 177);
     \u0275\u0275text(4, "edit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "h2");
     \u0275\u0275text(6, "Modifier le Patient");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "button", 116);
+    \u0275\u0275elementStart(7, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_7_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r22);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2355,7 +2404,7 @@ function AdminComponent_div_7_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(10, AdminComponent_div_7_div_10_Template, 50, 7, "div", 177);
+    \u0275\u0275template(10, AdminComponent_div_7_div_10_Template, 54, 8, "div", 178);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -2367,7 +2416,7 @@ function AdminComponent_div_7_Template(rf, ctx) {
 }
 function AdminComponent_div_8_div_10_option_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2381,11 +2430,11 @@ function AdminComponent_div_8_div_10_option_19_Template(rf, ctx) {
 function AdminComponent_div_8_div_10_div_28_Template(rf, ctx) {
   if (rf & 1) {
     const _r28 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 194)(1, "span", 16);
+    \u0275\u0275elementStart(0, "div", 195)(1, "span", 16);
     \u0275\u0275text(2, "event_available");
     \u0275\u0275elementEnd();
     \u0275\u0275text(3);
-    \u0275\u0275elementStart(4, "button", 195);
+    \u0275\u0275elementStart(4, "button", 196);
     \u0275\u0275listener("click", function AdminComponent_div_8_div_10_div_28_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r28);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -2403,7 +2452,7 @@ function AdminComponent_div_8_div_10_div_28_Template(rf, ctx) {
 }
 function AdminComponent_div_8_div_10_div_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 196);
+    \u0275\u0275elementStart(0, "div", 197);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2415,13 +2464,13 @@ function AdminComponent_div_8_div_10_div_41_Template(rf, ctx) {
 }
 function AdminComponent_div_8_div_10_ng_container_42_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 199);
+    \u0275\u0275element(0, "div", 200);
   }
 }
 function AdminComponent_div_8_div_10_ng_container_42_button_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r30 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 200);
+    \u0275\u0275elementStart(0, "button", 201);
     \u0275\u0275listener("click", function AdminComponent_div_8_div_10_ng_container_42_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r30);
       const cell_r31 = \u0275\u0275nextContext().$implicit;
@@ -2442,7 +2491,7 @@ function AdminComponent_div_8_div_10_ng_container_42_button_2_Template(rf, ctx) 
 function AdminComponent_div_8_div_10_ng_container_42_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, AdminComponent_div_8_div_10_ng_container_42_div_1_Template, 1, 0, "div", 197)(2, AdminComponent_div_8_div_10_ng_container_42_button_2_Template, 2, 5, "button", 198);
+    \u0275\u0275template(1, AdminComponent_div_8_div_10_ng_container_42_div_1_Template, 1, 0, "div", 198)(2, AdminComponent_div_8_div_10_ng_container_42_button_2_Template, 2, 5, "button", 199);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -2456,7 +2505,7 @@ function AdminComponent_div_8_div_10_ng_container_42_Template(rf, ctx) {
 function AdminComponent_div_8_div_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r26 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 151)(1, "div", 179)(2, "div", 180)(3, "div", 120)(4, "label");
+    \u0275\u0275elementStart(0, "div", 152)(1, "div", 180)(2, "div", 181)(3, "div", 121)(4, "label");
     \u0275\u0275text(5, "S\xE9lection poste");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "select", 83);
@@ -2474,16 +2523,16 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
     \u0275\u0275elementStart(7, "option", 84);
     \u0275\u0275text(8, "\u2014 Choisir le poste \u2014");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "option", 181);
+    \u0275\u0275elementStart(9, "option", 182);
     \u0275\u0275text(10, "Infirmier(e)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "option", 182);
+    \u0275\u0275elementStart(11, "option", 183);
     \u0275\u0275text(12, "Aide-Soignant");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(13, "div", 120)(14, "label");
+    \u0275\u0275elementStart(13, "div", 121)(14, "label");
     \u0275\u0275text(15, "S\xE9lection nom");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "select", 183);
+    \u0275\u0275elementStart(16, "select", 184);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_8_div_10_Template_select_ngModelChange_16_listener($event) {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2495,10 +2544,10 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(19, AdminComponent_div_8_div_10_option_19_Template, 2, 3, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(20, "div", 120)(21, "label");
+    \u0275\u0275elementStart(20, "div", 121)(21, "label");
     \u0275\u0275text(22, "Heure d\xE9but");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(23, "input", 184);
+    \u0275\u0275elementStart(23, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_8_div_10_Template_input_ngModelChange_23_listener($event) {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2506,10 +2555,10 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(24, "div", 120)(25, "label");
+    \u0275\u0275elementStart(24, "div", 121)(25, "label");
     \u0275\u0275text(26, "Heure fin");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(27, "input", 184);
+    \u0275\u0275elementStart(27, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_8_div_10_Template_input_ngModelChange_27_listener($event) {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2517,9 +2566,9 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(28, AdminComponent_div_8_div_10_div_28_Template, 7, 1, "div", 185);
+    \u0275\u0275template(28, AdminComponent_div_8_div_10_div_28_Template, 7, 1, "div", 186);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(29, "div", 186)(30, "div", 187)(31, "div", 188)(32, "button", 189);
+    \u0275\u0275elementStart(29, "div", 187)(30, "div", 188)(31, "div", 189)(32, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_div_8_div_10_Template_button_click_32_listener() {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2528,10 +2577,10 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
     \u0275\u0275elementStart(33, "span", 16);
     \u0275\u0275text(34, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(35, "span", 190);
+    \u0275\u0275elementStart(35, "span", 191);
     \u0275\u0275text(36);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(37, "button", 189);
+    \u0275\u0275elementStart(37, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_div_8_div_10_Template_button_click_37_listener() {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2540,10 +2589,10 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
     \u0275\u0275elementStart(38, "span", 16);
     \u0275\u0275text(39, "chevron_right");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(40, "div", 191);
-    \u0275\u0275template(41, AdminComponent_div_8_div_10_div_41_Template, 2, 1, "div", 192)(42, AdminComponent_div_8_div_10_ng_container_42_Template, 3, 2, "ng-container", 193);
+    \u0275\u0275elementStart(40, "div", 192);
+    \u0275\u0275template(41, AdminComponent_div_8_div_10_div_41_Template, 2, 1, "div", 193)(42, AdminComponent_div_8_div_10_ng_container_42_Template, 3, 2, "ng-container", 194);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(43, "div", 161)(44, "button", 140);
+    \u0275\u0275elementStart(43, "div", 162)(44, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_div_8_div_10_Template_button_click_44_listener() {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2554,7 +2603,7 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(47, " Enregistrer");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(48, "button", 108);
+    \u0275\u0275elementStart(48, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_8_div_10_Template_button_click_48_listener() {
       \u0275\u0275restoreView(_r26);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2589,24 +2638,24 @@ function AdminComponent_div_8_div_10_Template(rf, ctx) {
 function AdminComponent_div_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r25 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_8_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r25);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.showEditHoraireModal = false);
     });
-    \u0275\u0275elementStart(1, "div", 178);
+    \u0275\u0275elementStart(1, "div", 179);
     \u0275\u0275listener("click", function AdminComponent_div_8_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r25);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 149)(3, "span", 150);
+    \u0275\u0275elementStart(2, "div", 150)(3, "span", 151);
     \u0275\u0275text(4, "edit_calendar");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "h2");
     \u0275\u0275text(6, "Modifier l'horaire");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "button", 116);
+    \u0275\u0275elementStart(7, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_8_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r25);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2615,7 +2664,7 @@ function AdminComponent_div_8_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(10, AdminComponent_div_8_div_10_Template, 50, 10, "div", 177);
+    \u0275\u0275template(10, AdminComponent_div_8_div_10_Template, 50, 10, "div", 178);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -2627,7 +2676,7 @@ function AdminComponent_div_8_Template(rf, ctx) {
 }
 function AdminComponent_div_9_div_10_option_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2640,7 +2689,7 @@ function AdminComponent_div_9_div_10_option_7_Template(rf, ctx) {
 }
 function AdminComponent_div_9_div_10_option_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2668,7 +2717,7 @@ function AdminComponent_div_9_div_10_small_16_Template(rf, ctx) {
 }
 function AdminComponent_div_9_div_10_option_31_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2682,11 +2731,11 @@ function AdminComponent_div_9_div_10_option_31_Template(rf, ctx) {
 function AdminComponent_div_9_div_10_div_44_Template(rf, ctx) {
   if (rf & 1) {
     const _r37 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 194)(1, "span", 16);
+    \u0275\u0275elementStart(0, "div", 195)(1, "span", 16);
     \u0275\u0275text(2, "event_available");
     \u0275\u0275elementEnd();
     \u0275\u0275text(3);
-    \u0275\u0275elementStart(4, "button", 195);
+    \u0275\u0275elementStart(4, "button", 196);
     \u0275\u0275listener("click", function AdminComponent_div_9_div_10_div_44_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r37);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -2704,7 +2753,7 @@ function AdminComponent_div_9_div_10_div_44_Template(rf, ctx) {
 }
 function AdminComponent_div_9_div_10_div_57_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 196);
+    \u0275\u0275elementStart(0, "div", 197);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2716,13 +2765,13 @@ function AdminComponent_div_9_div_10_div_57_Template(rf, ctx) {
 }
 function AdminComponent_div_9_div_10_ng_container_58_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 199);
+    \u0275\u0275element(0, "div", 200);
   }
 }
 function AdminComponent_div_9_div_10_ng_container_58_button_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r39 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 200);
+    \u0275\u0275elementStart(0, "button", 201);
     \u0275\u0275listener("click", function AdminComponent_div_9_div_10_ng_container_58_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r39);
       const cell_r40 = \u0275\u0275nextContext().$implicit;
@@ -2743,7 +2792,7 @@ function AdminComponent_div_9_div_10_ng_container_58_button_2_Template(rf, ctx) 
 function AdminComponent_div_9_div_10_ng_container_58_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, AdminComponent_div_9_div_10_ng_container_58_div_1_Template, 1, 0, "div", 197)(2, AdminComponent_div_9_div_10_ng_container_58_button_2_Template, 2, 5, "button", 198);
+    \u0275\u0275template(1, AdminComponent_div_9_div_10_ng_container_58_div_1_Template, 1, 0, "div", 198)(2, AdminComponent_div_9_div_10_ng_container_58_button_2_Template, 2, 5, "button", 199);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -2757,7 +2806,7 @@ function AdminComponent_div_9_div_10_ng_container_58_Template(rf, ctx) {
 function AdminComponent_div_9_div_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r33 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 151)(1, "div", 179)(2, "div", 180)(3, "div", 120)(4, "label");
+    \u0275\u0275elementStart(0, "div", 152)(1, "div", 180)(2, "div", 181)(3, "div", 121)(4, "label");
     \u0275\u0275text(5, "Patient");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "select", 83);
@@ -2769,7 +2818,7 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
     });
     \u0275\u0275template(7, AdminComponent_div_9_div_10_option_7_Template, 2, 3, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "div", 120)(9, "label");
+    \u0275\u0275elementStart(8, "div", 121)(9, "label");
     \u0275\u0275text(10, "Aide-Soignant");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(11, "select", 83);
@@ -2779,17 +2828,17 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
       \u0275\u0275twoWayBindingSet(ctx_r3.editSeance.responsableId, $event) || (ctx_r3.editSeance.responsableId = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(12, "option", 201);
+    \u0275\u0275elementStart(12, "option", 202);
     \u0275\u0275text(13, " S\xE9lection automatique ");
     \u0275\u0275elementEnd();
     \u0275\u0275template(14, AdminComponent_div_9_div_10_option_14_Template, 2, 4, "option", 85);
     \u0275\u0275elementEnd();
     \u0275\u0275template(15, AdminComponent_div_9_div_10_small_15_Template, 2, 0, "small", 33)(16, AdminComponent_div_9_div_10_small_16_Template, 2, 0, "small", 33);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "div", 120)(18, "label");
+    \u0275\u0275elementStart(17, "div", 121)(18, "label");
     \u0275\u0275text(19, "Heure d\xE9but");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "input", 184);
+    \u0275\u0275elementStart(20, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_9_div_10_Template_input_ngModelChange_20_listener($event) {
       \u0275\u0275restoreView(_r33);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2802,10 +2851,10 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView(ctx_r3.onEditSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(21, "div", 120)(22, "label");
+    \u0275\u0275elementStart(21, "div", 121)(22, "label");
     \u0275\u0275text(23, "Heure fin");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "input", 184);
+    \u0275\u0275elementStart(24, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_div_9_div_10_Template_input_ngModelChange_24_listener($event) {
       \u0275\u0275restoreView(_r33);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2818,7 +2867,7 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
       return \u0275\u0275resetView(ctx_r3.onEditSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "div", 120)(26, "label");
+    \u0275\u0275elementStart(25, "div", 121)(26, "label");
     \u0275\u0275text(27, "Machine");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(28, "select", 83);
@@ -2833,7 +2882,7 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(31, AdminComponent_div_9_div_10_option_31_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(32, "div", 120)(33, "label");
+    \u0275\u0275elementStart(32, "div", 121)(33, "label");
     \u0275\u0275text(34, "Statut");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(35, "select", 83);
@@ -2843,21 +2892,21 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
       \u0275\u0275twoWayBindingSet(ctx_r3.editSeance.statut, $event) || (ctx_r3.editSeance.statut = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(36, "option", 202);
+    \u0275\u0275elementStart(36, "option", 203);
     \u0275\u0275text(37, "Planifi\xE9e");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(38, "option", 203);
+    \u0275\u0275elementStart(38, "option", 204);
     \u0275\u0275text(39, "En cours");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(40, "option", 204);
+    \u0275\u0275elementStart(40, "option", 205);
     \u0275\u0275text(41, "Termin\xE9e");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(42, "option", 205);
+    \u0275\u0275elementStart(42, "option", 206);
     \u0275\u0275text(43, "Annul\xE9e");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(44, AdminComponent_div_9_div_10_div_44_Template, 7, 1, "div", 185);
+    \u0275\u0275template(44, AdminComponent_div_9_div_10_div_44_Template, 7, 1, "div", 186);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(45, "div", 186)(46, "div", 187)(47, "div", 188)(48, "button", 189);
+    \u0275\u0275elementStart(45, "div", 187)(46, "div", 188)(47, "div", 189)(48, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_div_9_div_10_Template_button_click_48_listener() {
       \u0275\u0275restoreView(_r33);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2866,10 +2915,10 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
     \u0275\u0275elementStart(49, "span", 16);
     \u0275\u0275text(50, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(51, "span", 190);
+    \u0275\u0275elementStart(51, "span", 191);
     \u0275\u0275text(52);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(53, "button", 189);
+    \u0275\u0275elementStart(53, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_div_9_div_10_Template_button_click_53_listener() {
       \u0275\u0275restoreView(_r33);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2878,10 +2927,10 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
     \u0275\u0275elementStart(54, "span", 16);
     \u0275\u0275text(55, "chevron_right");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(56, "div", 191);
-    \u0275\u0275template(57, AdminComponent_div_9_div_10_div_57_Template, 2, 1, "div", 192)(58, AdminComponent_div_9_div_10_ng_container_58_Template, 3, 2, "ng-container", 193);
+    \u0275\u0275elementStart(56, "div", 192);
+    \u0275\u0275template(57, AdminComponent_div_9_div_10_div_57_Template, 2, 1, "div", 193)(58, AdminComponent_div_9_div_10_ng_container_58_Template, 3, 2, "ng-container", 194);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(59, "div", 161)(60, "button", 140);
+    \u0275\u0275elementStart(59, "div", 162)(60, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_div_9_div_10_Template_button_click_60_listener() {
       \u0275\u0275restoreView(_r33);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2892,7 +2941,7 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(63, " Enregistrer");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(64, "button", 108);
+    \u0275\u0275elementStart(64, "button", 109);
     \u0275\u0275listener("click", function AdminComponent_div_9_div_10_Template_button_click_64_listener() {
       \u0275\u0275restoreView(_r33);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -2940,24 +2989,24 @@ function AdminComponent_div_9_div_10_Template(rf, ctx) {
 function AdminComponent_div_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r32 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 109);
+    \u0275\u0275elementStart(0, "div", 110);
     \u0275\u0275listener("click", function AdminComponent_div_9_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r32);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.showEditSeanceModal = false);
     });
-    \u0275\u0275elementStart(1, "div", 178);
+    \u0275\u0275elementStart(1, "div", 179);
     \u0275\u0275listener("click", function AdminComponent_div_9_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r32);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "div", 149)(3, "span", 150);
+    \u0275\u0275elementStart(2, "div", 150)(3, "span", 151);
     \u0275\u0275text(4, "edit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "h2");
     \u0275\u0275text(6, "Modifier la s\xE9ance");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "button", 116);
+    \u0275\u0275elementStart(7, "button", 117);
     \u0275\u0275listener("click", function AdminComponent_div_9_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r32);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2966,7 +3015,7 @@ function AdminComponent_div_9_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(10, AdminComponent_div_9_div_10_Template, 66, 16, "div", 177);
+    \u0275\u0275template(10, AdminComponent_div_9_div_10_Template, 66, 16, "div", 178);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -2979,7 +3028,7 @@ function AdminComponent_div_9_Template(rf, ctx) {
 function AdminComponent_button_65_Template(rf, ctx) {
   if (rf & 1) {
     const _r41 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 140);
+    \u0275\u0275elementStart(0, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_button_65_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r41);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -2999,35 +3048,35 @@ function AdminComponent_button_65_Template(rf, ctx) {
 }
 function AdminComponent_div_72_span_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 218)(1, "span", 16);
+    \u0275\u0275elementStart(0, "span", 219)(1, "span", 16);
     \u0275\u0275text(2, "check_circle");
     \u0275\u0275elementEnd()();
   }
 }
 function AdminComponent_div_72_span_20_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 218)(1, "span", 16);
+    \u0275\u0275elementStart(0, "span", 219)(1, "span", 16);
     \u0275\u0275text(2, "check_circle");
     \u0275\u0275elementEnd()();
   }
 }
 function AdminComponent_div_72_span_30_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 218)(1, "span", 16);
+    \u0275\u0275elementStart(0, "span", 219)(1, "span", 16);
     \u0275\u0275text(2, "check_circle");
     \u0275\u0275elementEnd()();
   }
 }
 function AdminComponent_div_72_span_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 218)(1, "span", 16);
+    \u0275\u0275elementStart(0, "span", 219)(1, "span", 16);
     \u0275\u0275text(2, "check_circle");
     \u0275\u0275elementEnd()();
   }
 }
 function AdminComponent_div_72_span_50_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 218)(1, "span", 16);
+    \u0275\u0275elementStart(0, "span", 219)(1, "span", 16);
     \u0275\u0275text(2, "check_circle");
     \u0275\u0275elementEnd()();
   }
@@ -3035,104 +3084,104 @@ function AdminComponent_div_72_span_50_Template(rf, ctx) {
 function AdminComponent_div_72_Template(rf, ctx) {
   if (rf & 1) {
     const _r42 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 206)(1, "div", 207);
+    \u0275\u0275elementStart(0, "div", 207)(1, "div", 208);
     \u0275\u0275listener("click", function AdminComponent_div_72_Template_div_click_1_listener() {
       \u0275\u0275restoreView(_r42);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectKpi("medecin"));
     });
-    \u0275\u0275elementStart(2, "div", 208)(3, "span", 16);
+    \u0275\u0275elementStart(2, "div", 209)(3, "span", 16);
     \u0275\u0275text(4, "medical_services");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "div", 209)(6, "span", 210);
+    \u0275\u0275elementStart(5, "div", 210)(6, "span", 211);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "span", 211);
+    \u0275\u0275elementStart(8, "span", 212);
     \u0275\u0275text(9, "M\xE9decins");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(10, AdminComponent_div_72_span_10_Template, 3, 0, "span", 212);
+    \u0275\u0275template(10, AdminComponent_div_72_span_10_Template, 3, 0, "span", 213);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 213);
+    \u0275\u0275elementStart(11, "div", 214);
     \u0275\u0275listener("click", function AdminComponent_div_72_Template_div_click_11_listener() {
       \u0275\u0275restoreView(_r42);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectKpi("infirmier-majeur"));
     });
-    \u0275\u0275elementStart(12, "div", 208)(13, "span", 16);
+    \u0275\u0275elementStart(12, "div", 209)(13, "span", 16);
     \u0275\u0275text(14, "supervisor_account");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "div", 209)(16, "span", 210);
+    \u0275\u0275elementStart(15, "div", 210)(16, "span", 211);
     \u0275\u0275text(17);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "span", 211);
+    \u0275\u0275elementStart(18, "span", 212);
     \u0275\u0275text(19, "Inf. Majeurs");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(20, AdminComponent_div_72_span_20_Template, 3, 0, "span", 212);
+    \u0275\u0275template(20, AdminComponent_div_72_span_20_Template, 3, 0, "span", 213);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "div", 214);
+    \u0275\u0275elementStart(21, "div", 215);
     \u0275\u0275listener("click", function AdminComponent_div_72_Template_div_click_21_listener() {
       \u0275\u0275restoreView(_r42);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectKpi("infirmier"));
     });
-    \u0275\u0275elementStart(22, "div", 208)(23, "span", 16);
+    \u0275\u0275elementStart(22, "div", 209)(23, "span", 16);
     \u0275\u0275text(24, "local_hospital");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "div", 209)(26, "span", 210);
+    \u0275\u0275elementStart(25, "div", 210)(26, "span", 211);
     \u0275\u0275text(27);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(28, "span", 211);
+    \u0275\u0275elementStart(28, "span", 212);
     \u0275\u0275text(29, "Infirmiers");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(30, AdminComponent_div_72_span_30_Template, 3, 0, "span", 212);
+    \u0275\u0275template(30, AdminComponent_div_72_span_30_Template, 3, 0, "span", 213);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(31, "div", 215);
+    \u0275\u0275elementStart(31, "div", 216);
     \u0275\u0275listener("click", function AdminComponent_div_72_Template_div_click_31_listener() {
       \u0275\u0275restoreView(_r42);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectKpi("aide-soignant"));
     });
-    \u0275\u0275elementStart(32, "div", 208)(33, "span", 16);
+    \u0275\u0275elementStart(32, "div", 209)(33, "span", 16);
     \u0275\u0275text(34, "volunteer_activism");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(35, "div", 209)(36, "span", 210);
+    \u0275\u0275elementStart(35, "div", 210)(36, "span", 211);
     \u0275\u0275text(37);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(38, "span", 211);
+    \u0275\u0275elementStart(38, "span", 212);
     \u0275\u0275text(39, "Aides-Soignants");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(40, AdminComponent_div_72_span_40_Template, 3, 0, "span", 212);
+    \u0275\u0275template(40, AdminComponent_div_72_span_40_Template, 3, 0, "span", 213);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(41, "div", 216);
+    \u0275\u0275elementStart(41, "div", 217);
     \u0275\u0275listener("click", function AdminComponent_div_72_Template_div_click_41_listener() {
       \u0275\u0275restoreView(_r42);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectKpi("patient"));
     });
-    \u0275\u0275elementStart(42, "div", 208)(43, "span", 16);
+    \u0275\u0275elementStart(42, "div", 209)(43, "span", 16);
     \u0275\u0275text(44, "person");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(45, "div", 209)(46, "span", 210);
+    \u0275\u0275elementStart(45, "div", 210)(46, "span", 211);
     \u0275\u0275text(47);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(48, "span", 211);
+    \u0275\u0275elementStart(48, "span", 212);
     \u0275\u0275text(49, "Patients");
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(50, AdminComponent_div_72_span_50_Template, 3, 0, "span", 212);
+    \u0275\u0275template(50, AdminComponent_div_72_span_50_Template, 3, 0, "span", 213);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(51, "div", 217);
+    \u0275\u0275elementStart(51, "div", 218);
     \u0275\u0275listener("click", function AdminComponent_div_72_Template_div_click_51_listener() {
       \u0275\u0275restoreView(_r42);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.selectKpi("seances"));
     });
-    \u0275\u0275elementStart(52, "div", 208)(53, "span", 16);
+    \u0275\u0275elementStart(52, "div", 209)(53, "span", 16);
     \u0275\u0275text(54, "event_available");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(55, "div", 209)(56, "span", 210);
+    \u0275\u0275elementStart(55, "div", 210)(56, "span", 211);
     \u0275\u0275text(57);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(58, "span", 211);
+    \u0275\u0275elementStart(58, "span", 212);
     \u0275\u0275text(59, "S\xE9ances planifi\xE9es");
     \u0275\u0275elementEnd()()()();
   }
@@ -3177,11 +3226,11 @@ function AdminComponent_div_72_Template(rf, ctx) {
 function AdminComponent_ng_container_73_span_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r44 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "span", 225)(1, "span", 16);
+    \u0275\u0275elementStart(0, "span", 226)(1, "span", 16);
     \u0275\u0275text(2, "filter_alt");
     \u0275\u0275elementEnd();
     \u0275\u0275text(3);
-    \u0275\u0275elementStart(4, "button", 226);
+    \u0275\u0275elementStart(4, "button", 227);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_span_5_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r44);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3199,7 +3248,7 @@ function AdminComponent_ng_container_73_span_5_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_73_option_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -3213,7 +3262,7 @@ function AdminComponent_ng_container_73_option_10_Template(rf, ctx) {
 function AdminComponent_ng_container_73_div_20_button_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r47 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 233);
+    \u0275\u0275elementStart(0, "button", 234);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_button_5_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r47);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3227,7 +3276,7 @@ function AdminComponent_ng_container_73_div_20_button_5_Template(rf, ctx) {
 function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r48 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "tr")(1, "td")(2, "div", 234)(3, "div", 235)(4, "span");
+    \u0275\u0275elementStart(0, "tr")(1, "td")(2, "div", 235)(3, "div", 236)(4, "span");
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(6, "div")(7, "b");
@@ -3236,7 +3285,7 @@ function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template(rf,
     \u0275\u0275elementStart(9, "span");
     \u0275\u0275text(10);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(11, "td")(12, "span", 236);
+    \u0275\u0275elementStart(11, "td")(12, "span", 237);
     \u0275\u0275text(13);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(14, "td");
@@ -3248,7 +3297,7 @@ function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template(rf,
     \u0275\u0275elementStart(19, "td");
     \u0275\u0275text(20);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "td")(22, "div", 237)(23, "button", 238);
+    \u0275\u0275elementStart(21, "td")(22, "div", 238)(23, "button", 239);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template_button_click_23_listener() {
       \u0275\u0275restoreView(_r48);
       const u_r49 = \u0275\u0275nextContext().$implicit;
@@ -3258,7 +3307,7 @@ function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template(rf,
     \u0275\u0275elementStart(24, "span", 16);
     \u0275\u0275text(25, "edit");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "button", 239);
+    \u0275\u0275elementStart(26, "button", 240);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template_button_click_26_listener() {
       \u0275\u0275restoreView(_r48);
       const u_r49 = \u0275\u0275nextContext().$implicit;
@@ -3268,7 +3317,7 @@ function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template(rf,
     \u0275\u0275elementStart(27, "span", 16);
     \u0275\u0275text(28, "delete_outline");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(29, "button", 240);
+    \u0275\u0275elementStart(29, "button", 241);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_ng_container_23_tr_1_Template_button_click_29_listener() {
       \u0275\u0275restoreView(_r48);
       const u_r49 = \u0275\u0275nextContext().$implicit;
@@ -3322,7 +3371,7 @@ function AdminComponent_ng_container_73_div_20_ng_container_23_Template(rf, ctx)
 }
 function AdminComponent_ng_container_73_div_20_tr_24_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "tr")(1, "td", 241)(2, "span", 16);
+    \u0275\u0275elementStart(0, "tr")(1, "td", 242)(2, "span", 16);
     \u0275\u0275text(3, "person_off");
     \u0275\u0275elementEnd();
     \u0275\u0275text(4, " Aucun profil trouv\xE9");
@@ -3332,10 +3381,10 @@ function AdminComponent_ng_container_73_div_20_tr_24_Template(rf, ctx) {
 function AdminComponent_ng_container_73_div_20_div_25_Template(rf, ctx) {
   if (rf & 1) {
     const _r50 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 242)(1, "span", 243);
+    \u0275\u0275elementStart(0, "div", 243)(1, "span", 244);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 244)(4, "button", 245);
+    \u0275\u0275elementStart(3, "div", 245)(4, "button", 246);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_div_25_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r50);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3344,7 +3393,7 @@ function AdminComponent_ng_container_73_div_20_div_25_Template(rf, ctx) {
     \u0275\u0275elementStart(5, "span", 16);
     \u0275\u0275text(6, "first_page");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "button", 246);
+    \u0275\u0275elementStart(7, "button", 247);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_div_25_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r50);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3353,10 +3402,10 @@ function AdminComponent_ng_container_73_div_20_div_25_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "span", 247);
+    \u0275\u0275elementStart(10, "span", 248);
     \u0275\u0275text(11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "button", 248);
+    \u0275\u0275elementStart(12, "button", 249);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_div_25_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r50);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3365,7 +3414,7 @@ function AdminComponent_ng_container_73_div_20_div_25_Template(rf, ctx) {
     \u0275\u0275elementStart(13, "span", 16);
     \u0275\u0275text(14, "chevron_right");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "button", 249);
+    \u0275\u0275elementStart(15, "button", 250);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_20_div_25_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r50);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3394,10 +3443,10 @@ function AdminComponent_ng_container_73_div_20_div_25_Template(rf, ctx) {
 function AdminComponent_ng_container_73_div_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r46 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "div", 227)(2, "span", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 228)(2, "span", 16);
     \u0275\u0275text(3, "search");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "input", 228);
+    \u0275\u0275elementStart(4, "input", 229);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_73_div_20_Template_input_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r46);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3405,9 +3454,9 @@ function AdminComponent_ng_container_73_div_20_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, AdminComponent_ng_container_73_div_20_button_5_Template, 3, 0, "button", 229);
+    \u0275\u0275template(5, AdminComponent_ng_container_73_div_20_button_5_Template, 3, 0, "button", 230);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 230)(7, "table", 231)(8, "thead")(9, "tr")(10, "th");
+    \u0275\u0275elementStart(6, "div", 231)(7, "table", 232)(8, "thead")(9, "tr")(10, "th");
     \u0275\u0275text(11, "Utilisateur");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "th");
@@ -3426,9 +3475,9 @@ function AdminComponent_ng_container_73_div_20_Template(rf, ctx) {
     \u0275\u0275text(21, "Actions");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(22, "tbody");
-    \u0275\u0275template(23, AdminComponent_ng_container_73_div_20_ng_container_23_Template, 2, 1, "ng-container", 193)(24, AdminComponent_ng_container_73_div_20_tr_24_Template, 5, 0, "tr", 33);
+    \u0275\u0275template(23, AdminComponent_ng_container_73_div_20_ng_container_23_Template, 2, 1, "ng-container", 194)(24, AdminComponent_ng_container_73_div_20_tr_24_Template, 5, 0, "tr", 33);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(25, AdminComponent_ng_container_73_div_20_div_25_Template, 18, 9, "div", 232);
+    \u0275\u0275template(25, AdminComponent_ng_container_73_div_20_div_25_Template, 18, 9, "div", 233);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -3448,7 +3497,7 @@ function AdminComponent_ng_container_73_div_20_Template(rf, ctx) {
 function AdminComponent_ng_container_73_div_21_button_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r52 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 233);
+    \u0275\u0275elementStart(0, "button", 234);
     \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_button_5_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r52);
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3459,9 +3508,9 @@ function AdminComponent_ng_container_73_div_21_button_5_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function AdminComponent_ng_container_73_div_21_ng_container_23_span_13_Template(rf, ctx) {
+function AdminComponent_ng_container_73_div_21_ng_container_25_span_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 253);
+    \u0275\u0275elementStart(0, "span", 254);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -3471,18 +3520,18 @@ function AdminComponent_ng_container_73_div_21_ng_container_23_span_13_Template(
     \u0275\u0275textInterpolate(u_r54.groupeSanguin);
   }
 }
-function AdminComponent_ng_container_73_div_21_ng_container_23_span_14_Template(rf, ctx) {
+function AdminComponent_ng_container_73_div_21_ng_container_25_span_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 254);
+    \u0275\u0275elementStart(0, "span", 255);
     \u0275\u0275text(1, "\u2014");
     \u0275\u0275elementEnd();
   }
 }
-function AdminComponent_ng_container_73_div_21_ng_container_23_Template(rf, ctx) {
+function AdminComponent_ng_container_73_div_21_ng_container_25_Template(rf, ctx) {
   if (rf & 1) {
     const _r53 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "tr")(2, "td")(3, "span", 236);
+    \u0275\u0275elementStart(1, "tr")(2, "td")(3, "span", 237);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(5, "td")(6, "b");
@@ -3495,25 +3544,28 @@ function AdminComponent_ng_container_73_div_21_ng_container_23_Template(rf, ctx)
     \u0275\u0275text(11);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "td");
-    \u0275\u0275template(13, AdminComponent_ng_container_73_div_21_ng_container_23_span_13_Template, 2, 1, "span", 251)(14, AdminComponent_ng_container_73_div_21_ng_container_23_span_14_Template, 2, 0, "span", 252);
+    \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "td")(16, "div", 237)(17, "button", 238);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_ng_container_23_Template_button_click_17_listener() {
+    \u0275\u0275elementStart(14, "td");
+    \u0275\u0275template(15, AdminComponent_ng_container_73_div_21_ng_container_25_span_15_Template, 2, 1, "span", 252)(16, AdminComponent_ng_container_73_div_21_ng_container_25_span_16_Template, 2, 0, "span", 253);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(17, "td")(18, "div", 238)(19, "button", 239);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_ng_container_25_Template_button_click_19_listener() {
       const u_r54 = \u0275\u0275restoreView(_r53).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.openEditPatient(u_r54));
     });
-    \u0275\u0275elementStart(18, "span", 16);
-    \u0275\u0275text(19, "edit");
+    \u0275\u0275elementStart(20, "span", 16);
+    \u0275\u0275text(21, "edit");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(20, "button", 239);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_ng_container_23_Template_button_click_20_listener() {
+    \u0275\u0275elementStart(22, "button", 240);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_ng_container_25_Template_button_click_22_listener() {
       const u_r54 = \u0275\u0275restoreView(_r53).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.deleteUser(u_r54));
     });
-    \u0275\u0275elementStart(21, "span", 16);
-    \u0275\u0275text(22, "delete_outline");
+    \u0275\u0275elementStart(23, "span", 16);
+    \u0275\u0275text(24, "delete_outline");
     \u0275\u0275elementEnd()()()()();
     \u0275\u0275elementContainerEnd();
   }
@@ -3528,6 +3580,8 @@ function AdminComponent_ng_container_73_div_21_ng_container_23_Template(rf, ctx)
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(u_r54.prenom);
     \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(u_r54.cin || "\u2014");
+    \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(u_r54.dateNaissance || "\u2014");
     \u0275\u0275advance(2);
     \u0275\u0275property("ngIf", u_r54.groupeSanguin);
@@ -3535,23 +3589,23 @@ function AdminComponent_ng_container_73_div_21_ng_container_23_Template(rf, ctx)
     \u0275\u0275property("ngIf", !u_r54.groupeSanguin);
   }
 }
-function AdminComponent_ng_container_73_div_21_tr_24_Template(rf, ctx) {
+function AdminComponent_ng_container_73_div_21_tr_26_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "tr")(1, "td", 241)(2, "span", 16);
+    \u0275\u0275elementStart(0, "tr")(1, "td", 256)(2, "span", 16);
     \u0275\u0275text(3, "person_off");
     \u0275\u0275elementEnd();
     \u0275\u0275text(4, " Aucun patient enregistr\xE9");
     \u0275\u0275elementEnd()();
   }
 }
-function AdminComponent_ng_container_73_div_21_div_25_Template(rf, ctx) {
+function AdminComponent_ng_container_73_div_21_div_27_Template(rf, ctx) {
   if (rf & 1) {
     const _r56 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 242)(1, "span", 243);
+    \u0275\u0275elementStart(0, "div", 243)(1, "span", 244);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 244)(4, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_25_Template_button_click_4_listener() {
+    \u0275\u0275elementStart(3, "div", 245)(4, "button", 257);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_27_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r56);
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.goToPage("patientPage", 1, ctx_r3.totalPatientPages));
@@ -3559,8 +3613,8 @@ function AdminComponent_ng_container_73_div_21_div_25_Template(rf, ctx) {
     \u0275\u0275elementStart(5, "span", 16);
     \u0275\u0275text(6, "first_page");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_25_Template_button_click_7_listener() {
+    \u0275\u0275elementStart(7, "button", 257);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_27_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r56);
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.goToPage("patientPage", ctx_r3.patientPage - 1, ctx_r3.totalPatientPages));
@@ -3568,11 +3622,11 @@ function AdminComponent_ng_container_73_div_21_div_25_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "span", 247);
+    \u0275\u0275elementStart(10, "span", 248);
     \u0275\u0275text(11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_25_Template_button_click_12_listener() {
+    \u0275\u0275elementStart(12, "button", 257);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_27_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r56);
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.goToPage("patientPage", ctx_r3.patientPage + 1, ctx_r3.totalPatientPages));
@@ -3580,8 +3634,8 @@ function AdminComponent_ng_container_73_div_21_div_25_Template(rf, ctx) {
     \u0275\u0275elementStart(13, "span", 16);
     \u0275\u0275text(14, "chevron_right");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "button", 255);
-    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_25_Template_button_click_15_listener() {
+    \u0275\u0275elementStart(15, "button", 257);
+    \u0275\u0275listener("click", function AdminComponent_ng_container_73_div_21_div_27_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r56);
       const ctx_r3 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r3.goToPage("patientPage", ctx_r3.totalPatientPages, ctx_r3.totalPatientPages));
@@ -3609,10 +3663,10 @@ function AdminComponent_ng_container_73_div_21_div_25_Template(rf, ctx) {
 function AdminComponent_ng_container_73_div_21_Template(rf, ctx) {
   if (rf & 1) {
     const _r51 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "div", 227)(2, "span", 16);
+    \u0275\u0275elementStart(0, "div")(1, "div", 228)(2, "span", 16);
     \u0275\u0275text(3, "search");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "input", 250);
+    \u0275\u0275elementStart(4, "input", 251);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_73_div_21_Template_input_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r51);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3620,9 +3674,9 @@ function AdminComponent_ng_container_73_div_21_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, AdminComponent_ng_container_73_div_21_button_5_Template, 3, 0, "button", 229);
+    \u0275\u0275template(5, AdminComponent_ng_container_73_div_21_button_5_Template, 3, 0, "button", 230);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 230)(7, "table", 231)(8, "thead")(9, "tr")(10, "th");
+    \u0275\u0275elementStart(6, "div", 231)(7, "table", 232)(8, "thead")(9, "tr")(10, "th");
     \u0275\u0275text(11, "ID");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "th");
@@ -3632,18 +3686,21 @@ function AdminComponent_ng_container_73_div_21_Template(rf, ctx) {
     \u0275\u0275text(15, "Pr\xE9nom");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(16, "th");
-    \u0275\u0275text(17, "Date de naissance");
+    \u0275\u0275text(17, "CIN");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(18, "th");
-    \u0275\u0275text(19, "Groupe sanguin");
+    \u0275\u0275text(19, "Date de naissance");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(20, "th");
-    \u0275\u0275text(21, "Actions");
+    \u0275\u0275text(21, "Groupe sanguin");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(22, "th");
+    \u0275\u0275text(23, "Actions");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(22, "tbody");
-    \u0275\u0275template(23, AdminComponent_ng_container_73_div_21_ng_container_23_Template, 23, 6, "ng-container", 193)(24, AdminComponent_ng_container_73_div_21_tr_24_Template, 5, 0, "tr", 33);
+    \u0275\u0275elementStart(24, "tbody");
+    \u0275\u0275template(25, AdminComponent_ng_container_73_div_21_ng_container_25_Template, 25, 7, "ng-container", 194)(26, AdminComponent_ng_container_73_div_21_tr_26_Template, 5, 0, "tr", 33);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(25, AdminComponent_ng_container_73_div_21_div_25_Template, 18, 9, "div", 232);
+    \u0275\u0275template(27, AdminComponent_ng_container_73_div_21_div_27_Template, 18, 9, "div", 233);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -3652,7 +3709,7 @@ function AdminComponent_ng_container_73_div_21_Template(rf, ctx) {
     \u0275\u0275twoWayProperty("ngModel", ctx_r3.searchPatient);
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx_r3.searchPatient);
-    \u0275\u0275advance(18);
+    \u0275\u0275advance(20);
     \u0275\u0275property("ngForOf", ctx_r3.paginatedPatients);
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx_r3.filteredPatients.length === 0);
@@ -3664,11 +3721,11 @@ function AdminComponent_ng_container_73_Template(rf, ctx) {
   if (rf & 1) {
     const _r43 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 219)(2, "div", 220)(3, "h2");
+    \u0275\u0275elementStart(1, "div", 220)(2, "div", 221)(3, "h2");
     \u0275\u0275text(4, " Liste des Profils ");
-    \u0275\u0275template(5, AdminComponent_ng_container_73_span_5_Template, 7, 1, "span", 221);
+    \u0275\u0275template(5, AdminComponent_ng_container_73_span_5_Template, 7, 1, "span", 222);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 222)(7, "select", 223);
+    \u0275\u0275elementStart(6, "div", 223)(7, "select", 224);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_73_Template_select_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r43);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -3686,7 +3743,7 @@ function AdminComponent_ng_container_73_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(10, AdminComponent_ng_container_73_option_10_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "select", 223);
+    \u0275\u0275elementStart(11, "select", 224);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_73_Template_select_ngModelChange_11_listener($event) {
       \u0275\u0275restoreView(_r43);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -3696,17 +3753,17 @@ function AdminComponent_ng_container_73_Template(rf, ctx) {
     \u0275\u0275elementStart(12, "option", 84);
     \u0275\u0275text(13, "Tous les statuts");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "option", 126);
+    \u0275\u0275elementStart(14, "option", 127);
     \u0275\u0275text(15, "Actif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "option", 127);
+    \u0275\u0275elementStart(16, "option", 128);
     \u0275\u0275text(17, "Inactif");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "option", 128);
+    \u0275\u0275elementStart(18, "option", 129);
     \u0275\u0275text(19, "Suspendu");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275template(20, AdminComponent_ng_container_73_div_20_Template, 26, 5, "div", 33)(21, AdminComponent_ng_container_73_div_21_Template, 26, 5, "div", 33);
-    \u0275\u0275elementStart(22, "div", 224);
+    \u0275\u0275template(20, AdminComponent_ng_container_73_div_20_Template, 26, 5, "div", 33)(21, AdminComponent_ng_container_73_div_21_Template, 28, 5, "div", 33);
+    \u0275\u0275elementStart(22, "div", 225);
     \u0275\u0275text(23);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementContainerEnd();
@@ -3731,7 +3788,7 @@ function AdminComponent_ng_container_73_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_74_option_28_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -3745,27 +3802,27 @@ function AdminComponent_ng_container_74_option_28_Template(rf, ctx) {
 function AdminComponent_ng_container_74_ng_container_49_div_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r59 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 270)(1, "span", 271);
+    \u0275\u0275elementStart(0, "div", 272)(1, "span", 273);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 272)(4, "input", 273);
+    \u0275\u0275elementStart(3, "div", 274)(4, "input", 275);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_74_ng_container_49_div_9_Template_input_ngModelChange_4_listener($event) {
       const jh_r60 = \u0275\u0275restoreView(_r59).$implicit;
       \u0275\u0275twoWayBindingSet(jh_r60.heureDebut, $event) || (jh_r60.heureDebut = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 274);
+    \u0275\u0275elementStart(5, "span", 276);
     \u0275\u0275text(6, "\u2192");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "input", 273);
+    \u0275\u0275elementStart(7, "input", 275);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_74_ng_container_49_div_9_Template_input_ngModelChange_7_listener($event) {
       const jh_r60 = \u0275\u0275restoreView(_r59).$implicit;
       \u0275\u0275twoWayBindingSet(jh_r60.heureFin, $event) || (jh_r60.heureFin = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "button", 275);
+    \u0275\u0275elementStart(8, "button", 277);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_ng_container_49_div_9_Template_button_click_8_listener() {
       const jh_r60 = \u0275\u0275restoreView(_r59).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -3791,17 +3848,17 @@ function AdminComponent_ng_container_74_ng_container_49_div_9_Template(rf, ctx) 
 function AdminComponent_ng_container_74_ng_container_49_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 266)(2, "span", 16);
+    \u0275\u0275elementStart(1, "div", 268)(2, "span", 16);
     \u0275\u0275text(3, "event_note");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "Horaires par jour");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "span", 267);
+    \u0275\u0275elementStart(6, "span", 269);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "div", 268);
-    \u0275\u0275template(9, AdminComponent_ng_container_74_ng_container_49_div_9_Template, 11, 7, "div", 269);
+    \u0275\u0275elementStart(8, "div", 270);
+    \u0275\u0275template(9, AdminComponent_ng_container_74_ng_container_49_div_9_Template, 11, 7, "div", 271);
     \u0275\u0275elementEnd();
     \u0275\u0275elementContainerEnd();
   }
@@ -3815,7 +3872,7 @@ function AdminComponent_ng_container_74_ng_container_49_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_74_div_50_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 276)(1, "span", 16);
+    \u0275\u0275elementStart(0, "div", 278)(1, "span", 16);
     \u0275\u0275text(2, "calendar_today");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "span");
@@ -3825,7 +3882,7 @@ function AdminComponent_ng_container_74_div_50_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_74_div_63_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 196);
+    \u0275\u0275elementStart(0, "div", 197);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -3837,13 +3894,13 @@ function AdminComponent_ng_container_74_div_63_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_74_ng_container_64_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 199);
+    \u0275\u0275element(0, "div", 200);
   }
 }
 function AdminComponent_ng_container_74_ng_container_64_button_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r62 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 200);
+    \u0275\u0275elementStart(0, "button", 201);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_ng_container_64_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r62);
       const cell_r63 = \u0275\u0275nextContext().$implicit;
@@ -3864,7 +3921,7 @@ function AdminComponent_ng_container_74_ng_container_64_button_2_Template(rf, ct
 function AdminComponent_ng_container_74_ng_container_64_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, AdminComponent_ng_container_74_ng_container_64_div_1_Template, 1, 0, "div", 197)(2, AdminComponent_ng_container_74_ng_container_64_button_2_Template, 2, 5, "button", 198);
+    \u0275\u0275template(1, AdminComponent_ng_container_74_ng_container_64_div_1_Template, 1, 0, "div", 198)(2, AdminComponent_ng_container_74_ng_container_64_button_2_Template, 2, 5, "button", 199);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -3878,7 +3935,7 @@ function AdminComponent_ng_container_74_ng_container_64_Template(rf, ctx) {
 function AdminComponent_ng_container_74_button_78_Template(rf, ctx) {
   if (rf & 1) {
     const _r64 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 233);
+    \u0275\u0275elementStart(0, "button", 234);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_button_78_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r64);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3891,10 +3948,10 @@ function AdminComponent_ng_container_74_button_78_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_74_tr_92_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 280)(1, "span", 281);
+    \u0275\u0275elementStart(0, "div", 282)(1, "span", 283);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 282);
+    \u0275\u0275elementStart(3, "span", 284);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()();
   }
@@ -3916,10 +3973,10 @@ function AdminComponent_ng_container_74_tr_92_Template(rf, ctx) {
     \u0275\u0275elementStart(4, "td");
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "td")(7, "div", 277);
-    \u0275\u0275template(8, AdminComponent_ng_container_74_tr_92_div_8_Template, 5, 3, "div", 278);
+    \u0275\u0275elementStart(6, "td")(7, "div", 279);
+    \u0275\u0275template(8, AdminComponent_ng_container_74_tr_92_div_8_Template, 5, 3, "div", 280);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "td")(10, "div", 237)(11, "button", 238);
+    \u0275\u0275elementStart(9, "td")(10, "div", 238)(11, "button", 239);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_tr_92_Template_button_click_11_listener() {
       const p_r67 = \u0275\u0275restoreView(_r65).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3928,7 +3985,7 @@ function AdminComponent_ng_container_74_tr_92_Template(rf, ctx) {
     \u0275\u0275elementStart(12, "span", 16);
     \u0275\u0275text(13, "edit");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "button", 279);
+    \u0275\u0275elementStart(14, "button", 281);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_tr_92_Template_button_click_14_listener() {
       const p_r67 = \u0275\u0275restoreView(_r65).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3969,7 +4026,7 @@ function AdminComponent_ng_container_74_tr_93_ng_container_5_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_74_tr_93_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "tr")(1, "td", 283)(2, "span", 16);
+    \u0275\u0275elementStart(0, "tr")(1, "td", 285)(2, "span", 16);
     \u0275\u0275text(3, "event_busy");
     \u0275\u0275elementEnd();
     \u0275\u0275template(4, AdminComponent_ng_container_74_tr_93_ng_container_4_Template, 2, 1, "ng-container", 33)(5, AdminComponent_ng_container_74_tr_93_ng_container_5_Template, 2, 0, "ng-container", 33);
@@ -3986,10 +4043,10 @@ function AdminComponent_ng_container_74_tr_93_Template(rf, ctx) {
 function AdminComponent_ng_container_74_div_94_Template(rf, ctx) {
   if (rf & 1) {
     const _r68 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 242)(1, "span", 243);
+    \u0275\u0275elementStart(0, "div", 243)(1, "span", 244);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 244)(4, "button", 255);
+    \u0275\u0275elementStart(3, "div", 245)(4, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_div_94_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r68);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -3998,7 +4055,7 @@ function AdminComponent_ng_container_74_div_94_Template(rf, ctx) {
     \u0275\u0275elementStart(5, "span", 16);
     \u0275\u0275text(6, "first_page");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "button", 255);
+    \u0275\u0275elementStart(7, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_div_94_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r68);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4007,10 +4064,10 @@ function AdminComponent_ng_container_74_div_94_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "span", 247);
+    \u0275\u0275elementStart(10, "span", 248);
     \u0275\u0275text(11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "button", 255);
+    \u0275\u0275elementStart(12, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_div_94_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r68);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4019,7 +4076,7 @@ function AdminComponent_ng_container_74_div_94_Template(rf, ctx) {
     \u0275\u0275elementStart(13, "span", 16);
     \u0275\u0275text(14, "chevron_right");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "button", 255);
+    \u0275\u0275elementStart(15, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_div_94_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r68);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4049,12 +4106,12 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
   if (rf & 1) {
     const _r57 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 256)(2, "div", 257)(3, "span", 16);
+    \u0275\u0275elementStart(1, "div", 258)(2, "div", 259)(3, "span", 16);
     \u0275\u0275text(4, "add_circle");
     \u0275\u0275elementEnd();
     \u0275\u0275text(5, " Planifier un horaire de travail ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 179)(7, "div", 180)(8, "div", 120)(9, "label");
+    \u0275\u0275elementStart(6, "div", 180)(7, "div", 181)(8, "div", 121)(9, "label");
     \u0275\u0275text(10, "S\xE9lection poste ");
     \u0275\u0275elementStart(11, "span", 76);
     \u0275\u0275text(12, "*");
@@ -4074,18 +4131,18 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
     \u0275\u0275elementStart(14, "option", 84);
     \u0275\u0275text(15, "\u2014 Choisir le poste \u2014");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "option", 258);
+    \u0275\u0275elementStart(16, "option", 260);
     \u0275\u0275text(17, "Infirmier(e)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "option", 259);
+    \u0275\u0275elementStart(18, "option", 261);
     \u0275\u0275text(19, "Aide-Soignant");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(20, "div", 120)(21, "label");
+    \u0275\u0275elementStart(20, "div", 121)(21, "label");
     \u0275\u0275text(22, "S\xE9lection nom ");
     \u0275\u0275elementStart(23, "span", 76);
     \u0275\u0275text(24, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "select", 183);
+    \u0275\u0275elementStart(25, "select", 184);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_74_Template_select_ngModelChange_25_listener($event) {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4097,21 +4154,21 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(28, AdminComponent_ng_container_74_option_28_Template, 2, 3, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(29, "div", 260)(30, "span", 16);
+    \u0275\u0275elementStart(29, "div", 262)(30, "span", 16);
     \u0275\u0275text(31, "schedule");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(32, "span");
     \u0275\u0275text(33, "Heures par d\xE9faut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(34, "span", 261);
+    \u0275\u0275elementStart(34, "span", 263);
     \u0275\u0275text(35, "Appliqu\xE9es aux nouveaux jours s\xE9lectionn\xE9s");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(36, "div", 262)(37, "div", 120)(38, "label");
+    \u0275\u0275elementStart(36, "div", 264)(37, "div", 121)(38, "label");
     \u0275\u0275text(39, "D\xE9but par d\xE9faut ");
     \u0275\u0275elementStart(40, "span", 76);
     \u0275\u0275text(41, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(42, "input", 184);
+    \u0275\u0275elementStart(42, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_74_Template_input_ngModelChange_42_listener($event) {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4119,12 +4176,12 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(43, "div", 120)(44, "label");
+    \u0275\u0275elementStart(43, "div", 121)(44, "label");
     \u0275\u0275text(45, "Fin par d\xE9faut ");
     \u0275\u0275elementStart(46, "span", 76);
     \u0275\u0275text(47, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(48, "input", 184);
+    \u0275\u0275elementStart(48, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_74_Template_input_ngModelChange_48_listener($event) {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4132,9 +4189,9 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(49, AdminComponent_ng_container_74_ng_container_49_Template, 10, 2, "ng-container", 33)(50, AdminComponent_ng_container_74_div_50_Template, 5, 0, "div", 263);
+    \u0275\u0275template(49, AdminComponent_ng_container_74_ng_container_49_Template, 10, 2, "ng-container", 33)(50, AdminComponent_ng_container_74_div_50_Template, 5, 0, "div", 265);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(51, "div", 186)(52, "div", 187)(53, "div", 188)(54, "button", 189);
+    \u0275\u0275elementStart(51, "div", 187)(52, "div", 188)(53, "div", 189)(54, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_Template_button_click_54_listener() {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4143,10 +4200,10 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
     \u0275\u0275elementStart(55, "span", 16);
     \u0275\u0275text(56, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(57, "span", 190);
+    \u0275\u0275elementStart(57, "span", 191);
     \u0275\u0275text(58);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(59, "button", 189);
+    \u0275\u0275elementStart(59, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_Template_button_click_59_listener() {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4155,10 +4212,10 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
     \u0275\u0275elementStart(60, "span", 16);
     \u0275\u0275text(61, "chevron_right");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(62, "div", 191);
-    \u0275\u0275template(63, AdminComponent_ng_container_74_div_63_Template, 2, 1, "div", 192)(64, AdminComponent_ng_container_74_ng_container_64_Template, 3, 2, "ng-container", 193);
+    \u0275\u0275elementStart(62, "div", 192);
+    \u0275\u0275template(63, AdminComponent_ng_container_74_div_63_Template, 2, 1, "div", 193)(64, AdminComponent_ng_container_74_ng_container_64_Template, 3, 2, "ng-container", 194);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(65, "div", 264)(66, "button", 140);
+    \u0275\u0275elementStart(65, "div", 266)(66, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_ng_container_74_Template_button_click_66_listener() {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4169,13 +4226,13 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(69);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(70, "div", 219)(71, "div", 220)(72, "h2");
+    \u0275\u0275elementStart(70, "div", 220)(71, "div", 221)(72, "h2");
     \u0275\u0275text(73, "Horaires planifi\xE9s");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(74, "div", 227)(75, "span", 16);
+    \u0275\u0275elementStart(74, "div", 228)(75, "span", 16);
     \u0275\u0275text(76, "search");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(77, "input", 265);
+    \u0275\u0275elementStart(77, "input", 267);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_74_Template_input_ngModelChange_77_listener($event) {
       \u0275\u0275restoreView(_r57);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4183,9 +4240,9 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(78, AdminComponent_ng_container_74_button_78_Template, 3, 0, "button", 229);
+    \u0275\u0275template(78, AdminComponent_ng_container_74_button_78_Template, 3, 0, "button", 230);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(79, "div", 230)(80, "table", 231)(81, "thead")(82, "tr")(83, "th");
+    \u0275\u0275elementStart(79, "div", 231)(80, "table", 232)(81, "thead")(82, "tr")(83, "th");
     \u0275\u0275text(84, "Personnel");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(85, "th");
@@ -4198,10 +4255,10 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
     \u0275\u0275text(90, "Actions");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(91, "tbody");
-    \u0275\u0275template(92, AdminComponent_ng_container_74_tr_92_Template, 17, 3, "tr", 193)(93, AdminComponent_ng_container_74_tr_93_Template, 6, 2, "tr", 33);
+    \u0275\u0275template(92, AdminComponent_ng_container_74_tr_92_Template, 17, 3, "tr", 194)(93, AdminComponent_ng_container_74_tr_93_Template, 6, 2, "tr", 33);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(94, AdminComponent_ng_container_74_div_94_Template, 18, 9, "div", 232);
-    \u0275\u0275elementStart(95, "div", 224);
+    \u0275\u0275template(94, AdminComponent_ng_container_74_div_94_Template, 18, 9, "div", 233);
+    \u0275\u0275elementStart(95, "div", 225);
     \u0275\u0275text(96);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementContainerEnd();
@@ -4247,7 +4304,7 @@ function AdminComponent_ng_container_74_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_option_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4260,7 +4317,7 @@ function AdminComponent_ng_container_75_option_16_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_option_25_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4274,7 +4331,7 @@ function AdminComponent_ng_container_75_option_25_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_option_48_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4294,7 +4351,7 @@ function AdminComponent_ng_container_75_small_49_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_div_50_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 276)(1, "span", 286);
+    \u0275\u0275elementStart(0, "div", 278)(1, "span", 288);
     \u0275\u0275text(2, "warning");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "span");
@@ -4304,7 +4361,7 @@ function AdminComponent_ng_container_75_div_50_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 201);
+    \u0275\u0275elementStart(0, "option", 202);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4319,7 +4376,7 @@ function AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_12
 }
 function AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "option", 90);
+    \u0275\u0275elementStart(0, "option", 91);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4360,10 +4417,10 @@ function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template(
   if (rf & 1) {
     const _r73 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 270)(2, "span", 271);
+    \u0275\u0275elementStart(1, "div", 272)(2, "span", 273);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 272)(5, "input", 273);
+    \u0275\u0275elementStart(4, "div", 274)(5, "input", 275);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_input_ngModelChange_5_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.heureDebut, $event) || (ds_r74.heureDebut = $event);
@@ -4375,10 +4432,10 @@ function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template(
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "span", 274);
+    \u0275\u0275elementStart(6, "span", 276);
     \u0275\u0275text(7, "\u2192");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "input", 273);
+    \u0275\u0275elementStart(8, "input", 275);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_input_ngModelChange_8_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.heureFin, $event) || (ds_r74.heureFin = $event);
@@ -4390,18 +4447,18 @@ function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template(
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "select", 287);
+    \u0275\u0275elementStart(9, "select", 289);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_select_ngModelChange_9_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.aideSoignantId, $event) || (ds_r74.aideSoignantId = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(10, "option", 288);
+    \u0275\u0275elementStart(10, "option", 290);
     \u0275\u0275text(11, "\u2014 S\xE9lectionner aide-soignant \u2014");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(12, AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_12_Template, 2, 4, "option", 289);
+    \u0275\u0275template(12, AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_12_Template, 2, 4, "option", 291);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "select", 290);
+    \u0275\u0275elementStart(13, "select", 292);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_select_ngModelChange_13_listener($event) {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       \u0275\u0275twoWayBindingSet(ds_r74.machine, $event) || (ds_r74.machine = $event);
@@ -4412,7 +4469,7 @@ function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template(
     \u0275\u0275elementEnd();
     \u0275\u0275template(16, AdminComponent_ng_container_75_ng_container_51_ng_container_9_option_16_Template, 2, 2, "option", 85);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "button", 291);
+    \u0275\u0275elementStart(17, "button", 293);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template_button_click_17_listener() {
       const ds_r74 = \u0275\u0275restoreView(_r73).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -4455,17 +4512,17 @@ function AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template(
 function AdminComponent_ng_container_75_ng_container_51_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 266)(2, "span", 16);
+    \u0275\u0275elementStart(1, "div", 268)(2, "span", 16);
     \u0275\u0275text(3, "event_note");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "Horaires par date");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "span", 267);
+    \u0275\u0275elementStart(6, "span", 269);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "div", 268);
-    \u0275\u0275template(9, AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template, 22, 16, "ng-container", 193);
+    \u0275\u0275elementStart(8, "div", 270);
+    \u0275\u0275template(9, AdminComponent_ng_container_75_ng_container_51_ng_container_9_Template, 22, 16, "ng-container", 194);
     \u0275\u0275elementEnd();
     \u0275\u0275elementContainerEnd();
   }
@@ -4479,7 +4536,7 @@ function AdminComponent_ng_container_75_ng_container_51_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_div_52_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 276)(1, "span", 16);
+    \u0275\u0275elementStart(0, "div", 278)(1, "span", 16);
     \u0275\u0275text(2, "calendar_today");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "span");
@@ -4489,7 +4546,7 @@ function AdminComponent_ng_container_75_div_52_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_div_65_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 196);
+    \u0275\u0275elementStart(0, "div", 197);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4501,13 +4558,13 @@ function AdminComponent_ng_container_75_div_65_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_ng_container_66_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 199);
+    \u0275\u0275element(0, "div", 200);
   }
 }
 function AdminComponent_ng_container_75_ng_container_66_button_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r78 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 200);
+    \u0275\u0275elementStart(0, "button", 201);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_ng_container_66_button_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r78);
       const cell_r79 = \u0275\u0275nextContext().$implicit;
@@ -4528,7 +4585,7 @@ function AdminComponent_ng_container_75_ng_container_66_button_2_Template(rf, ct
 function AdminComponent_ng_container_75_ng_container_66_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275template(1, AdminComponent_ng_container_75_ng_container_66_div_1_Template, 1, 0, "div", 197)(2, AdminComponent_ng_container_75_ng_container_66_button_2_Template, 2, 5, "button", 198);
+    \u0275\u0275template(1, AdminComponent_ng_container_75_ng_container_66_div_1_Template, 1, 0, "div", 198)(2, AdminComponent_ng_container_75_ng_container_66_button_2_Template, 2, 5, "button", 199);
     \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
@@ -4542,7 +4599,7 @@ function AdminComponent_ng_container_75_ng_container_66_Template(rf, ctx) {
 function AdminComponent_ng_container_75_button_80_Template(rf, ctx) {
   if (rf & 1) {
     const _r80 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 233);
+    \u0275\u0275elementStart(0, "button", 234);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_button_80_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r80);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4555,7 +4612,7 @@ function AdminComponent_ng_container_75_button_80_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_tr_94_div_8_span_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 296);
+    \u0275\u0275elementStart(0, "span", 298);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -4567,14 +4624,14 @@ function AdminComponent_ng_container_75_tr_94_div_8_span_5_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_tr_94_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 293)(1, "span", 281);
+    \u0275\u0275elementStart(0, "div", 295)(1, "span", 283);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 282);
+    \u0275\u0275elementStart(3, "span", 284);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, AdminComponent_ng_container_75_tr_94_div_8_span_5_Template, 2, 1, "span", 294);
-    \u0275\u0275elementStart(6, "span", 295);
+    \u0275\u0275template(5, AdminComponent_ng_container_75_tr_94_div_8_span_5_Template, 2, 1, "span", 296);
+    \u0275\u0275elementStart(6, "span", 297);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
   }
@@ -4602,10 +4659,10 @@ function AdminComponent_ng_container_75_tr_94_Template(rf, ctx) {
     \u0275\u0275elementStart(4, "td");
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "td")(7, "div", 277);
-    \u0275\u0275template(8, AdminComponent_ng_container_75_tr_94_div_8_Template, 8, 8, "div", 292);
+    \u0275\u0275elementStart(6, "td")(7, "div", 279);
+    \u0275\u0275template(8, AdminComponent_ng_container_75_tr_94_div_8_Template, 8, 8, "div", 294);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "td")(10, "div", 237)(11, "button", 238);
+    \u0275\u0275elementStart(9, "td")(10, "div", 238)(11, "button", 239);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_tr_94_Template_button_click_11_listener() {
       const p_r83 = \u0275\u0275restoreView(_r81).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4614,7 +4671,7 @@ function AdminComponent_ng_container_75_tr_94_Template(rf, ctx) {
     \u0275\u0275elementStart(12, "span", 16);
     \u0275\u0275text(13, "edit");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "button", 279);
+    \u0275\u0275elementStart(14, "button", 281);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_tr_94_Template_button_click_14_listener() {
       const p_r83 = \u0275\u0275restoreView(_r81).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4636,7 +4693,7 @@ function AdminComponent_ng_container_75_tr_94_Template(rf, ctx) {
 }
 function AdminComponent_ng_container_75_tr_95_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "tr")(1, "td", 283)(2, "span", 16);
+    \u0275\u0275elementStart(0, "tr")(1, "td", 285)(2, "span", 16);
     \u0275\u0275text(3, "event_busy");
     \u0275\u0275elementEnd();
     \u0275\u0275text(4, " Aucune s\xE9ance planifi\xE9e ");
@@ -4646,10 +4703,10 @@ function AdminComponent_ng_container_75_tr_95_Template(rf, ctx) {
 function AdminComponent_ng_container_75_div_96_Template(rf, ctx) {
   if (rf & 1) {
     const _r84 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 242)(1, "span", 243);
+    \u0275\u0275elementStart(0, "div", 243)(1, "span", 244);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 244)(4, "button", 255);
+    \u0275\u0275elementStart(3, "div", 245)(4, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4658,7 +4715,7 @@ function AdminComponent_ng_container_75_div_96_Template(rf, ctx) {
     \u0275\u0275elementStart(5, "span", 16);
     \u0275\u0275text(6, "first_page");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "button", 255);
+    \u0275\u0275elementStart(7, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4667,10 +4724,10 @@ function AdminComponent_ng_container_75_div_96_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "span", 16);
     \u0275\u0275text(9, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "span", 247);
+    \u0275\u0275elementStart(10, "span", 248);
     \u0275\u0275text(11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "button", 255);
+    \u0275\u0275elementStart(12, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4679,7 +4736,7 @@ function AdminComponent_ng_container_75_div_96_Template(rf, ctx) {
     \u0275\u0275elementStart(13, "span", 16);
     \u0275\u0275text(14, "chevron_right");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(15, "button", 255);
+    \u0275\u0275elementStart(15, "button", 257);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_div_96_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r84);
       const ctx_r3 = \u0275\u0275nextContext(2);
@@ -4709,12 +4766,12 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
   if (rf & 1) {
     const _r69 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 256)(2, "div", 257)(3, "span", 16);
+    \u0275\u0275elementStart(1, "div", 258)(2, "div", 259)(3, "span", 16);
     \u0275\u0275text(4, "add_circle");
     \u0275\u0275elementEnd();
     \u0275\u0275text(5, " Planifier une s\xE9ance de dialyse");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 179)(7, "div", 180)(8, "div", 120)(9, "label");
+    \u0275\u0275elementStart(6, "div", 180)(7, "div", 181)(8, "div", 121)(9, "label");
     \u0275\u0275text(10, "Patient ");
     \u0275\u0275elementStart(11, "span", 76);
     \u0275\u0275text(12, "*");
@@ -4731,7 +4788,7 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(16, AdminComponent_ng_container_75_option_16_Template, 2, 3, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(17, "div", 120)(18, "label");
+    \u0275\u0275elementStart(17, "div", 121)(18, "label");
     \u0275\u0275text(19, "Aide-soignant ");
     \u0275\u0275elementStart(20, "span", 76);
     \u0275\u0275text(21, "*");
@@ -4748,24 +4805,24 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.onNewSeanceAideSoignantChange());
     });
-    \u0275\u0275elementStart(23, "option", 284);
+    \u0275\u0275elementStart(23, "option", 286);
     \u0275\u0275text(24, "\u2014 S\xE9lectionner un aide-soignant \u2014");
     \u0275\u0275elementEnd();
     \u0275\u0275template(25, AdminComponent_ng_container_75_option_25_Template, 2, 4, "option", 85);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "div", 260)(27, "span", 16);
+    \u0275\u0275elementStart(26, "div", 262)(27, "span", 16);
     \u0275\u0275text(28, "schedule");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(29, "span");
     \u0275\u0275text(30, "Heures par d\xE9faut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(31, "span", 261);
+    \u0275\u0275elementStart(31, "span", 263);
     \u0275\u0275text(32, "Appliqu\xE9es aux nouvelles dates s\xE9lectionn\xE9es");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(33, "div", 262)(34, "div", 120)(35, "label");
+    \u0275\u0275elementStart(33, "div", 264)(34, "div", 121)(35, "label");
     \u0275\u0275text(36, "D\xE9but par d\xE9faut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(37, "input", 184);
+    \u0275\u0275elementStart(37, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_37_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4778,10 +4835,10 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(38, "div", 120)(39, "label");
+    \u0275\u0275elementStart(38, "div", 121)(39, "label");
     \u0275\u0275text(40, "Fin par d\xE9faut");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(41, "input", 184);
+    \u0275\u0275elementStart(41, "input", 185);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_41_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4794,7 +4851,7 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
       return \u0275\u0275resetView(ctx_r3.onNewSeanceScheduleChange());
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(42, "div", 120)(43, "label");
+    \u0275\u0275elementStart(42, "div", 121)(43, "label");
     \u0275\u0275text(44, "Machine par d\xE9faut");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(45, "select", 83);
@@ -4811,9 +4868,9 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275template(49, AdminComponent_ng_container_75_small_49_Template, 2, 0, "small", 33);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(50, AdminComponent_ng_container_75_div_50_Template, 5, 0, "div", 263)(51, AdminComponent_ng_container_75_ng_container_51_Template, 10, 2, "ng-container", 33)(52, AdminComponent_ng_container_75_div_52_Template, 5, 0, "div", 263);
+    \u0275\u0275template(50, AdminComponent_ng_container_75_div_50_Template, 5, 0, "div", 265)(51, AdminComponent_ng_container_75_ng_container_51_Template, 10, 2, "ng-container", 33)(52, AdminComponent_ng_container_75_div_52_Template, 5, 0, "div", 265);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(53, "div", 186)(54, "div", 187)(55, "div", 188)(56, "button", 189);
+    \u0275\u0275elementStart(53, "div", 187)(54, "div", 188)(55, "div", 189)(56, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_56_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4822,10 +4879,10 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275elementStart(57, "span", 16);
     \u0275\u0275text(58, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(59, "span", 190);
+    \u0275\u0275elementStart(59, "span", 191);
     \u0275\u0275text(60);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(61, "button", 189);
+    \u0275\u0275elementStart(61, "button", 190);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_61_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4834,10 +4891,10 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275elementStart(62, "span", 16);
     \u0275\u0275text(63, "chevron_right");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(64, "div", 191);
-    \u0275\u0275template(65, AdminComponent_ng_container_75_div_65_Template, 2, 1, "div", 192)(66, AdminComponent_ng_container_75_ng_container_66_Template, 3, 2, "ng-container", 193);
+    \u0275\u0275elementStart(64, "div", 192);
+    \u0275\u0275template(65, AdminComponent_ng_container_75_div_65_Template, 2, 1, "div", 193)(66, AdminComponent_ng_container_75_ng_container_66_Template, 3, 2, "ng-container", 194);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(67, "div", 264)(68, "button", 140);
+    \u0275\u0275elementStart(67, "div", 266)(68, "button", 141);
     \u0275\u0275listener("click", function AdminComponent_ng_container_75_Template_button_click_68_listener() {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4848,13 +4905,13 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(71);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(72, "div", 219)(73, "div", 220)(74, "h2");
+    \u0275\u0275elementStart(72, "div", 220)(73, "div", 221)(74, "h2");
     \u0275\u0275text(75, "S\xE9ances planifi\xE9es");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(76, "div", 227)(77, "span", 16);
+    \u0275\u0275elementStart(76, "div", 228)(77, "span", 16);
     \u0275\u0275text(78, "search");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(79, "input", 285);
+    \u0275\u0275elementStart(79, "input", 287);
     \u0275\u0275twoWayListener("ngModelChange", function AdminComponent_ng_container_75_Template_input_ngModelChange_79_listener($event) {
       \u0275\u0275restoreView(_r69);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -4862,9 +4919,9 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(80, AdminComponent_ng_container_75_button_80_Template, 3, 0, "button", 229);
+    \u0275\u0275template(80, AdminComponent_ng_container_75_button_80_Template, 3, 0, "button", 230);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(81, "div", 230)(82, "table", 231)(83, "thead")(84, "tr")(85, "th");
+    \u0275\u0275elementStart(81, "div", 231)(82, "table", 232)(83, "thead")(84, "tr")(85, "th");
     \u0275\u0275text(86, "Patient");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(87, "th");
@@ -4877,10 +4934,10 @@ function AdminComponent_ng_container_75_Template(rf, ctx) {
     \u0275\u0275text(92, "Actions");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(93, "tbody");
-    \u0275\u0275template(94, AdminComponent_ng_container_75_tr_94_Template, 17, 3, "tr", 193)(95, AdminComponent_ng_container_75_tr_95_Template, 5, 0, "tr", 33);
+    \u0275\u0275template(94, AdminComponent_ng_container_75_tr_94_Template, 17, 3, "tr", 194)(95, AdminComponent_ng_container_75_tr_95_Template, 5, 0, "tr", 33);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(96, AdminComponent_ng_container_75_div_96_Template, 18, 9, "div", 232);
-    \u0275\u0275elementStart(97, "div", 224);
+    \u0275\u0275template(96, AdminComponent_ng_container_75_div_96_Template, 18, 9, "div", 233);
+    \u0275\u0275elementStart(97, "div", 225);
     \u0275\u0275text(98);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementContainerEnd();
@@ -5617,7 +5674,7 @@ var AdminComponent = class _AdminComponent {
       dateNaissance: user.dateNaissance || "",
       groupeSanguin: user.groupeSanguin || "",
       patientStatut: user.patientStatut || "STABLE",
-      cin: "",
+      cin: user.cin || "",
       telephone: user.telephone || "",
       adresse: "",
       genre: ""
@@ -6634,7 +6691,8 @@ var AdminComponent = class _AdminComponent {
       service: dto.medecinReferent ? `Referent: ${dto.medecinReferent.prenom} ${dto.medecinReferent.nom}` : "",
       dateNaissance: dto.dateNaissance,
       groupeSanguin: dto.groupeSanguin,
-      patientStatut: dto.statut
+      patientStatut: dto.statut,
+      cin: dto.cin ?? null
     };
   }
   mapHoraireToRow(dto) {
@@ -7054,7 +7112,7 @@ var AdminComponent = class _AdminComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.adminMainRef = _t.first);
     }
-  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 76, vars: 30, consts: [["adminMain", ""], [1, "toast-container"], [3, "class", "click", 4, "ngFor", "ngForOf"], ["class", "wz-overlay", 3, "click", 4, "ngIf"], ["class", "modal-overlay", 3, "light", "click", 4, "ngIf"], [1, "admin-shell"], [1, "sidebar-backdrop", 3, "click"], [1, "sidebar"], [1, "sidebar__logo"], ["width", "28", "height", "28", "viewBox", "0 0 44 44", "fill", "none"], ["d", "M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z", "fill", "rgba(0,217,196,0.1)", "stroke", "var(--c-teal)", "stroke-width", "1.5"], ["d", "M22 12v8M18 16h8", "stroke", "var(--c-teal)", "stroke-width", "2.5", "stroke-linecap", "round"], ["d", "M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6", "stroke", "var(--c-teal)", "stroke-width", "2", "stroke-linecap", "round", "stroke-linejoin", "round", "fill", "none"], [1, "sidebar__nav"], [1, "nav-section-label"], [1, "nav-item", 3, "click"], [1, "material-icons"], [1, "nav-badge"], [1, "sidebar__user"], [1, "user-avatar", 2, "background", "rgba(255,87,87,.12)", "border-color", "rgba(255,87,87,.3)", "color", "var(--c-red)"], [1, "user-info"], [1, "user-name"], [1, "user-role"], [1, "logout-btn", 3, "click"], [1, "admin-main"], [1, "topbar"], [1, "topbar__left"], [1, "topbar__right"], [1, "hamburger-btn", 3, "click"], ["class", "btn-sm-primary", 3, "click", 4, "ngIf"], [1, "icon-btn", 3, "click", "title"], [1, "icon-btn", 3, "click"], ["class", "kpi-row", 4, "ngIf"], [4, "ngIf"], [3, "click"], [1, "toast-close"], [1, "wz-overlay", 3, "click"], [1, "wz-panel", 3, "click"], [1, "wz-head"], [1, "wz-head__icon"], [1, "wz-head__text"], [1, "wz-head__title"], [1, "wz-head__sub"], [1, "wz-close-btn", 3, "click"], [1, "wz-stepper"], [1, "wz-step"], [1, "wz-step__dot"], ["class", "material-icons", 4, "ngIf"], [1, "wz-step__label"], [1, "wz-step__line"], [1, "wz-body"], ["class", "wz-stage", 4, "ngIf"], [1, "wz-footer"], [1, "wz-footer__left"], ["class", "btn-outline-sm", 3, "click", 4, "ngIf"], [1, "wz-footer__center"], [1, "wz-step-counter"], [1, "wz-footer__right"], [1, "btn-sm-primary", 3, "click", "disabled"], [1, "wz-stage"], [1, "wz-hint"], [1, "wz-role-grid"], ["class", "wz-role-card", 3, "wz-role-card--selected", "click", 4, "ngFor", "ngForOf"], [1, "wz-role-card", 3, "click"], [1, "wz-role-card__accent"], [1, "wz-role-card__ico"], [1, "wz-role-card__body"], [1, "wz-role-card__name"], [1, "wz-role-card__desc"], ["class", "wz-role-card__check", 3, "color", 4, "ngIf"], [1, "wz-role-card__check"], ["class", "wz-role-badge", 3, "background", "border-color", "color", 4, "ngIf"], [1, "wz-role-badge"], [1, "wz-section-title"], [1, "wz-form-row"], [1, "wz-field"], [1, "req"], ["type", "text", "placeholder", "Nom de famille", 3, "ngModelChange", "ngModel"], ["class", "field-error", 4, "ngIf"], ["type", "text", "placeholder", "Pr\xE9nom", 3, "ngModelChange", "ngModel"], [1, "wz-section-title", 2, "margin-top", "14px"], ["type", "date", 3, "ngModelChange", "ngModel"], [1, "wz-field", "wz-field--black"], [3, "ngModelChange", "ngModel"], ["value", ""], [3, "value", 4, "ngFor", "ngForOf"], ["value", "Homme"], ["value", "Femme"], ["type", "tel", "placeholder", "0600000000", "inputmode", "numeric", "maxlength", "10", 3, "ngModelChange", "ngModel"], [1, "field-error"], [3, "value"], [1, "wz-field", "wz-field--readonly"], ["type", "text", "disabled", "", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.dz", 3, "ngModelChange", "ngModel"], ["value", "H\xE9modialyse"], ["value", "Permanence"], ["value", "Laboratoire"], ["class", "wz-form-row", 4, "ngIf"], [1, "wz-field", "wz-field--full"], ["value", "N\xE9phrologie"], ["value", "G\xE9n\xE9raliste"], [1, "wz-auth-note"], [1, "wz-recap"], [1, "wz-recap__title"], [1, "wz-recap__grid"], [1, "wz-recap__item"], [1, "wz-recap__key"], [1, "wz-recap__val"], [1, "btn-outline-sm", 3, "click"], [1, "modal-overlay", 3, "click"], [1, "modal-panel", "wizard-panel", "wizard-panel--lg", 3, "click"], [1, "wizard-header"], [1, "wizard-header__icon"], [2, "font-size", "17px", "font-weight", "700"], [1, "wizard-header__text"], [2, "margin-right", "8px"], [1, "modal-close-btn", 3, "click"], [1, "wizard-body", "wizard-body--form"], [1, "wizard-section-label"], [1, "form-grid"], [1, "form-field"], ["type", "text", 3, "ngModelChange", "ngModel"], ["type", "email", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "06 XX XX XX XX", 3, "ngModelChange", "ngModel"], [1, "wizard-section-label", 2, "margin-top", "16px"], [3, "ngModelChange", "change", "ngModel"], ["value", "actif"], ["value", "inactif"], ["value", "suspendu"], ["type", "text", "disabled", "", 2, "opacity", ".6", 3, "value"], [1, "toggle-row"], [1, "toggle-switch"], ["type", "checkbox", 3, "ngModelChange", "change", "ngModel"], [1, "toggle-track"], [1, "toggle-label"], [1, "wizard-footer"], [1, "wizard-footer__danger"], [1, "btn-delete", 3, "click"], ["class", "btn-outline-sm btn-warn", 3, "click", 4, "ngIf"], [1, "wizard-footer__actions"], [1, "btn-sm-primary", 3, "click"], [1, "btn-outline-sm", "btn-warn", 3, "click"], [1, "modal-panel", "wizard-panel", 3, "click"], [1, "wizard-header__icon", 2, "background", "rgba(48,209,88,.12)"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "20px"], [1, "form-field", "form-field--black"], [1, "wizard-footer__selected"], [1, "material-icons", 2, "color", "var(--c-green)"], [1, "modal-panel", "modal-panel--new-user", 3, "click"], [1, "modal-header", "modal-header--simple"], [1, "material-icons", 2, "color", "var(--c-teal)", "font-size", "22px"], [1, "modal-body"], [1, "form-section-label"], ["type", "text", "placeholder", "Ex : INF-2025-060", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.ma", 3, "ngModelChange", "ngModel"], [1, "form-section-label", 2, "margin-top", "8px"], ["type", "text", "placeholder", "Ex : p.nom", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "Auto-g\xE9n\xE9r\xE9 si vide", 3, "ngModelChange", "ngModel"], ["type", "password", "placeholder", "G\xE9n\xE9r\xE9 automatiquement si vide", "minlength", "8", 3, "ngModelChange", "ngModel"], [1, "form-field", "form-field--full"], ["type", "checkbox", 3, "ngModelChange", "ngModel"], [1, "modal-actions"], [1, "modal-panel", "modal-panel--settings", 3, "click"], [1, "settings-group"], [1, "settings-group-title"], [1, "settings-row"], [1, "settings-row__label"], [1, "form-field", 2, "margin", "0", "min-width", "120px"], [1, "form-field", 2, "margin", "0", "min-width", "130px"], ["value", "fr"], ["value", "ar"], ["value", "en"], ["value", "csv"], ["value", "xlsx"], ["value", "pdf"], [1, "modal-panel", "modal-panel--new-patient", 3, "click"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "22px"], ["class", "modal-body", 4, "ngIf"], [1, "modal-panel", "modal-panel--edit-horaire", 3, "click"], [1, "horaire-form-layout"], [1, "horaire-form-left"], ["value", "Infirmier(e)"], ["value", "Aide-Soignant"], [3, "ngModelChange", "ngModel", "disabled"], ["type", "time", 3, "ngModelChange", "ngModel"], ["class", "cal-selected-summary", 4, "ngIf"], [1, "horaire-form-right"], [1, "cal-inline"], [1, "cal-header"], [1, "cal-nav-btn", 3, "click"], [1, "cal-title"], [1, "cal-grid"], ["class", "cal-day-name", 4, "ngFor", "ngForOf"], [4, "ngFor", "ngForOf"], [1, "cal-selected-summary"], [1, "cal-clear-btn", 3, "click"], [1, "cal-day-name"], ["class", "cal-cell cal-cell--empty", 4, "ngIf"], ["type", "button", "class", "cal-cell", 3, "cal-cell--today", "cal-cell--selected", "click", 4, "ngIf"], [1, "cal-cell", "cal-cell--empty"], ["type", "button", 1, "cal-cell", 3, "click"], [3, "ngValue"], ["value", "PLANIFIEE"], ["value", "EN_COURS"], ["value", "TERMINEE"], ["value", "ANNULEE"], [1, "kpi-row"], [1, "kpi-card", "kpi-card--filter", "kpi-card--teal", 3, "click"], [1, "kpi-icon"], [1, "kpi-body"], [1, "kpi-val"], [1, "kpi-lbl"], ["class", "kpi-filter-dot", 4, "ngIf"], [1, "kpi-card", "kpi-card--filter", "kpi-card--purple", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--blue", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--amber", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--green", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--cyan", 3, "click"], [1, "kpi-filter-dot"], [1, "panel", "panel--full"], [1, "panel__head"], ["class", "kpi-active-badge", 4, "ngIf"], [1, "panel__actions"], [1, "filter-select", 3, "ngModelChange", "ngModel"], [1, "panel__footer"], [1, "kpi-active-badge"], [1, "kpi-badge-clear", 3, "click"], [1, "table-search-bar"], ["type", "text", "placeholder", "Rechercher par nom, pr\xE9nom, matricule, email", 3, "ngModelChange", "ngModel"], ["class", "table-search-clear", 3, "click", 4, "ngIf"], [1, "table-scroll"], [1, "data-table"], ["class", "pagination-bar", 4, "ngIf"], [1, "table-search-clear", 3, "click"], [1, "user-cell"], [1, "avatar-role"], [1, "mono"], [1, "row-actions"], ["title", "Modifier", 1, "row-btn", 3, "click"], ["title", "Supprimer", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "row-btn", 3, "click", "ngClass", "title"], ["colspan", "6", 1, "empty-row"], [1, "pagination-bar"], [1, "pg-rows-info"], [1, "pg-nav"], ["title", "Premi\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Pr\xE9c\xE9dent", 1, "pg-arrow", 3, "click", "disabled"], [1, "pg-label"], ["title", "Suivant", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Derni\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["type", "text", "placeholder", "Rechercher un patient par nom, pr\xE9nom, ID ou groupe sanguin", 3, "ngModelChange", "ngModel"], ["class", "badge info", 4, "ngIf"], ["class", "badge neutral", 4, "ngIf"], [1, "badge", "info"], [1, "badge", "neutral"], [1, "pg-arrow", 3, "click", "disabled"], [1, "action-form-card"], [1, "action-form-title"], ["value", "infirmier"], ["value", "aide-soignant"], [1, "per-day-section-header"], [1, "per-day-hint"], [1, "form-row-inline"], ["class", "per-day-empty", 4, "ngIf"], [1, "action-form-footer"], ["type", "text", "placeholder", "Rechercher par personnel, r\xF4le, date ou horaire\u2026", 3, "ngModelChange", "ngModel"], [1, "per-day-section-header", 2, "margin-top", "14px"], [1, "per-day-badge"], [1, "jour-horaire-list"], ["class", "jour-horaire-row", 4, "ngFor", "ngForOf"], [1, "jour-horaire-row"], [1, "jour-horaire-date"], [1, "jour-horaire-times"], ["type", "time", 1, "time-input-sm", 3, "ngModelChange", "ngModel"], [1, "jour-horaire-sep"], ["title", "Retirer ce jour", 1, "jour-remove-btn", 3, "click"], [1, "per-day-empty"], [1, "horaire-chips-row"], ["class", "horaire-chip", 4, "ngFor", "ngForOf"], ["title", "Supprimer tout", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "horaire-chip"], [1, "horaire-chip__date"], [1, "horaire-chip__time"], ["colspan", "4", 1, "empty-row"], ["value", "", "disabled", ""], ["type", "text", "placeholder", "Rechercher par patient, aide-soignant, date, machine\u2026", 3, "ngModelChange", "ngModel"], [1, "material-icons", 2, "color", "var(--c-amber)"], [1, "time-input-sm", 2, "min-width", "220px", 3, "ngModelChange", "ngModel"], ["disabled", "", 3, "ngValue"], [3, "ngValue", 4, "ngFor", "ngForOf"], [1, "time-input-sm", 2, "min-width", "140px", 3, "ngModelChange", "ngModel"], ["title", "Retirer cette date", 1, "jour-remove-btn", 3, "click"], ["class", "horaire-chip seance-chip", 4, "ngFor", "ngForOf"], [1, "horaire-chip", "seance-chip"], ["class", "seance-chip__machine", 4, "ngIf"], [2, "font-size", "10px", "padding", "1px 6px"], [1, "seance-chip__machine"]], template: function AdminComponent_Template(rf, ctx) {
+  }, standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 76, vars: 30, consts: [["adminMain", ""], [1, "toast-container"], [3, "class", "click", 4, "ngFor", "ngForOf"], ["class", "wz-overlay", 3, "click", 4, "ngIf"], ["class", "modal-overlay", 3, "light", "click", 4, "ngIf"], [1, "admin-shell"], [1, "sidebar-backdrop", 3, "click"], [1, "sidebar"], [1, "sidebar__logo"], ["width", "28", "height", "28", "viewBox", "0 0 44 44", "fill", "none"], ["d", "M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z", "fill", "rgba(0,217,196,0.1)", "stroke", "var(--c-teal)", "stroke-width", "1.5"], ["d", "M22 12v8M18 16h8", "stroke", "var(--c-teal)", "stroke-width", "2.5", "stroke-linecap", "round"], ["d", "M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6", "stroke", "var(--c-teal)", "stroke-width", "2", "stroke-linecap", "round", "stroke-linejoin", "round", "fill", "none"], [1, "sidebar__nav"], [1, "nav-section-label"], [1, "nav-item", 3, "click"], [1, "material-icons"], [1, "nav-badge"], [1, "sidebar__user"], [1, "user-avatar", 2, "background", "rgba(255,87,87,.12)", "border-color", "rgba(255,87,87,.3)", "color", "var(--c-red)"], [1, "user-info"], [1, "user-name"], [1, "user-role"], [1, "logout-btn", 3, "click"], [1, "admin-main"], [1, "topbar"], [1, "topbar__left"], [1, "topbar__right"], [1, "hamburger-btn", 3, "click"], ["class", "btn-sm-primary", 3, "click", 4, "ngIf"], [1, "icon-btn", 3, "click", "title"], [1, "icon-btn", 3, "click"], ["class", "kpi-row", 4, "ngIf"], [4, "ngIf"], [3, "click"], [1, "toast-close"], [1, "wz-overlay", 3, "click"], [1, "wz-panel", 3, "click"], [1, "wz-head"], [1, "wz-head__icon"], [1, "wz-head__text"], [1, "wz-head__title"], [1, "wz-head__sub"], [1, "wz-close-btn", 3, "click"], [1, "wz-stepper"], [1, "wz-step"], [1, "wz-step__dot"], ["class", "material-icons", 4, "ngIf"], [1, "wz-step__label"], [1, "wz-step__line"], [1, "wz-body"], ["class", "wz-stage", 4, "ngIf"], [1, "wz-footer"], [1, "wz-footer__left"], ["class", "btn-outline-sm", 3, "click", 4, "ngIf"], [1, "wz-footer__center"], [1, "wz-step-counter"], [1, "wz-footer__right"], [1, "btn-sm-primary", 3, "click", "disabled"], [1, "wz-stage"], [1, "wz-hint"], [1, "wz-role-grid"], ["class", "wz-role-card", 3, "wz-role-card--selected", "click", 4, "ngFor", "ngForOf"], [1, "wz-role-card", 3, "click"], [1, "wz-role-card__accent"], [1, "wz-role-card__ico"], [1, "wz-role-card__body"], [1, "wz-role-card__name"], [1, "wz-role-card__desc"], ["class", "wz-role-card__check", 3, "color", 4, "ngIf"], [1, "wz-role-card__check"], ["class", "wz-role-badge", 3, "background", "border-color", "color", 4, "ngIf"], [1, "wz-role-badge"], [1, "wz-section-title"], [1, "wz-form-row"], [1, "wz-field"], [1, "req"], ["type", "text", "placeholder", "Nom de famille", 3, "ngModelChange", "ngModel"], ["class", "field-error", 4, "ngIf"], ["type", "text", "placeholder", "Pr\xE9nom", 3, "ngModelChange", "ngModel"], [1, "wz-section-title", 2, "margin-top", "14px"], ["type", "date", 3, "ngModelChange", "ngModel"], [1, "wz-field", "wz-field--black"], [3, "ngModelChange", "ngModel"], ["value", ""], [3, "value", 4, "ngFor", "ngForOf"], ["value", "Homme"], ["value", "Femme"], ["type", "text", "placeholder", "Ex: AB123456", 3, "ngModelChange", "ngModel"], ["type", "tel", "placeholder", "0600000000", "inputmode", "numeric", "maxlength", "10", 3, "ngModelChange", "ngModel"], [1, "field-error"], [3, "value"], [1, "wz-field", "wz-field--readonly"], ["type", "text", "disabled", "", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.dz", 3, "ngModelChange", "ngModel"], ["value", "H\xE9modialyse"], ["value", "Permanence"], ["value", "Laboratoire"], ["class", "wz-form-row", 4, "ngIf"], [1, "wz-field", "wz-field--full"], ["value", "N\xE9phrologie"], ["value", "G\xE9n\xE9raliste"], [1, "wz-auth-note"], [1, "wz-recap"], [1, "wz-recap__title"], [1, "wz-recap__grid"], [1, "wz-recap__item"], [1, "wz-recap__key"], [1, "wz-recap__val"], [1, "btn-outline-sm", 3, "click"], [1, "modal-overlay", 3, "click"], [1, "modal-panel", "wizard-panel", "wizard-panel--lg", 3, "click"], [1, "wizard-header"], [1, "wizard-header__icon"], [2, "font-size", "17px", "font-weight", "700"], [1, "wizard-header__text"], [2, "margin-right", "8px"], [1, "modal-close-btn", 3, "click"], [1, "wizard-body", "wizard-body--form"], [1, "wizard-section-label"], [1, "form-grid"], [1, "form-field"], ["type", "text", 3, "ngModelChange", "ngModel"], ["type", "email", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "06 XX XX XX XX", 3, "ngModelChange", "ngModel"], [1, "wizard-section-label", 2, "margin-top", "16px"], [3, "ngModelChange", "change", "ngModel"], ["value", "actif"], ["value", "inactif"], ["value", "suspendu"], ["type", "text", "disabled", "", 2, "opacity", ".6", 3, "value"], [1, "toggle-row"], [1, "toggle-switch"], ["type", "checkbox", 3, "ngModelChange", "change", "ngModel"], [1, "toggle-track"], [1, "toggle-label"], [1, "wizard-footer"], [1, "wizard-footer__danger"], [1, "btn-delete", 3, "click"], ["class", "btn-outline-sm btn-warn", 3, "click", 4, "ngIf"], [1, "wizard-footer__actions"], [1, "btn-sm-primary", 3, "click"], [1, "btn-outline-sm", "btn-warn", 3, "click"], [1, "modal-panel", "wizard-panel", 3, "click"], [1, "wizard-header__icon", 2, "background", "rgba(48,209,88,.12)"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "20px"], [1, "form-field", "form-field--black"], [1, "wizard-footer__selected"], [1, "material-icons", 2, "color", "var(--c-green)"], [1, "modal-panel", "modal-panel--new-user", 3, "click"], [1, "modal-header", "modal-header--simple"], [1, "material-icons", 2, "color", "var(--c-teal)", "font-size", "22px"], [1, "modal-body"], [1, "form-section-label"], ["type", "text", "placeholder", "Ex : INF-2025-060", 3, "ngModelChange", "ngModel"], ["type", "email", "placeholder", "prenom.nom@dialysys.ma", 3, "ngModelChange", "ngModel"], [1, "form-section-label", 2, "margin-top", "8px"], ["type", "text", "placeholder", "Ex : p.nom", 3, "ngModelChange", "ngModel"], ["type", "text", "placeholder", "Auto-g\xE9n\xE9r\xE9 si vide", 3, "ngModelChange", "ngModel"], ["type", "password", "placeholder", "G\xE9n\xE9r\xE9 automatiquement si vide", "minlength", "8", 3, "ngModelChange", "ngModel"], [1, "form-field", "form-field--full"], ["type", "checkbox", 3, "ngModelChange", "ngModel"], [1, "modal-actions"], [1, "modal-panel", "modal-panel--settings", 3, "click"], [1, "settings-group"], [1, "settings-group-title"], [1, "settings-row"], [1, "settings-row__label"], [1, "form-field", 2, "margin", "0", "min-width", "120px"], [1, "form-field", 2, "margin", "0", "min-width", "130px"], ["value", "fr"], ["value", "ar"], ["value", "en"], ["value", "csv"], ["value", "xlsx"], ["value", "pdf"], [1, "modal-panel", "modal-panel--new-patient", 3, "click"], [1, "material-icons", 2, "color", "var(--c-green)", "font-size", "22px"], ["class", "modal-body", 4, "ngIf"], [1, "modal-panel", "modal-panel--edit-horaire", 3, "click"], [1, "horaire-form-layout"], [1, "horaire-form-left"], ["value", "Infirmier(e)"], ["value", "Aide-Soignant"], [3, "ngModelChange", "ngModel", "disabled"], ["type", "time", 3, "ngModelChange", "ngModel"], ["class", "cal-selected-summary", 4, "ngIf"], [1, "horaire-form-right"], [1, "cal-inline"], [1, "cal-header"], [1, "cal-nav-btn", 3, "click"], [1, "cal-title"], [1, "cal-grid"], ["class", "cal-day-name", 4, "ngFor", "ngForOf"], [4, "ngFor", "ngForOf"], [1, "cal-selected-summary"], [1, "cal-clear-btn", 3, "click"], [1, "cal-day-name"], ["class", "cal-cell cal-cell--empty", 4, "ngIf"], ["type", "button", "class", "cal-cell", 3, "cal-cell--today", "cal-cell--selected", "click", 4, "ngIf"], [1, "cal-cell", "cal-cell--empty"], ["type", "button", 1, "cal-cell", 3, "click"], [3, "ngValue"], ["value", "PLANIFIEE"], ["value", "EN_COURS"], ["value", "TERMINEE"], ["value", "ANNULEE"], [1, "kpi-row"], [1, "kpi-card", "kpi-card--filter", "kpi-card--teal", 3, "click"], [1, "kpi-icon"], [1, "kpi-body"], [1, "kpi-val"], [1, "kpi-lbl"], ["class", "kpi-filter-dot", 4, "ngIf"], [1, "kpi-card", "kpi-card--filter", "kpi-card--purple", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--blue", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--amber", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--green", 3, "click"], [1, "kpi-card", "kpi-card--filter", "kpi-card--cyan", 3, "click"], [1, "kpi-filter-dot"], [1, "panel", "panel--full"], [1, "panel__head"], ["class", "kpi-active-badge", 4, "ngIf"], [1, "panel__actions"], [1, "filter-select", 3, "ngModelChange", "ngModel"], [1, "panel__footer"], [1, "kpi-active-badge"], [1, "kpi-badge-clear", 3, "click"], [1, "table-search-bar"], ["type", "text", "placeholder", "Rechercher par nom, pr\xE9nom, matricule, email", 3, "ngModelChange", "ngModel"], ["class", "table-search-clear", 3, "click", 4, "ngIf"], [1, "table-scroll"], [1, "data-table"], ["class", "pagination-bar", 4, "ngIf"], [1, "table-search-clear", 3, "click"], [1, "user-cell"], [1, "avatar-role"], [1, "mono"], [1, "row-actions"], ["title", "Modifier", 1, "row-btn", 3, "click"], ["title", "Supprimer", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "row-btn", 3, "click", "ngClass", "title"], ["colspan", "6", 1, "empty-row"], [1, "pagination-bar"], [1, "pg-rows-info"], [1, "pg-nav"], ["title", "Premi\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Pr\xE9c\xE9dent", 1, "pg-arrow", 3, "click", "disabled"], [1, "pg-label"], ["title", "Suivant", 1, "pg-arrow", 3, "click", "disabled"], ["title", "Derni\xE8re page", 1, "pg-arrow", 3, "click", "disabled"], ["type", "text", "placeholder", "Rechercher un patient par nom, pr\xE9nom, ID ou groupe sanguin", 3, "ngModelChange", "ngModel"], ["class", "badge info", 4, "ngIf"], ["class", "badge neutral", 4, "ngIf"], [1, "badge", "info"], [1, "badge", "neutral"], ["colspan", "7", 1, "empty-row"], [1, "pg-arrow", 3, "click", "disabled"], [1, "action-form-card"], [1, "action-form-title"], ["value", "infirmier"], ["value", "aide-soignant"], [1, "per-day-section-header"], [1, "per-day-hint"], [1, "form-row-inline"], ["class", "per-day-empty", 4, "ngIf"], [1, "action-form-footer"], ["type", "text", "placeholder", "Rechercher par personnel, r\xF4le, date ou horaire\u2026", 3, "ngModelChange", "ngModel"], [1, "per-day-section-header", 2, "margin-top", "14px"], [1, "per-day-badge"], [1, "jour-horaire-list"], ["class", "jour-horaire-row", 4, "ngFor", "ngForOf"], [1, "jour-horaire-row"], [1, "jour-horaire-date"], [1, "jour-horaire-times"], ["type", "time", 1, "time-input-sm", 3, "ngModelChange", "ngModel"], [1, "jour-horaire-sep"], ["title", "Retirer ce jour", 1, "jour-remove-btn", 3, "click"], [1, "per-day-empty"], [1, "horaire-chips-row"], ["class", "horaire-chip", 4, "ngFor", "ngForOf"], ["title", "Supprimer tout", 1, "row-btn", "row-btn--warn", 3, "click"], [1, "horaire-chip"], [1, "horaire-chip__date"], [1, "horaire-chip__time"], ["colspan", "4", 1, "empty-row"], ["value", "", "disabled", ""], ["type", "text", "placeholder", "Rechercher par patient, aide-soignant, date, machine\u2026", 3, "ngModelChange", "ngModel"], [1, "material-icons", 2, "color", "var(--c-amber)"], [1, "time-input-sm", 2, "min-width", "220px", 3, "ngModelChange", "ngModel"], ["disabled", "", 3, "ngValue"], [3, "ngValue", 4, "ngFor", "ngForOf"], [1, "time-input-sm", 2, "min-width", "140px", 3, "ngModelChange", "ngModel"], ["title", "Retirer cette date", 1, "jour-remove-btn", 3, "click"], ["class", "horaire-chip seance-chip", 4, "ngFor", "ngForOf"], [1, "horaire-chip", "seance-chip"], ["class", "seance-chip__machine", 4, "ngIf"], [2, "font-size", "10px", "padding", "1px 6px"], [1, "seance-chip__machine"]], template: function AdminComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 1);
@@ -7227,4 +7285,4 @@ var AdminComponent = class _AdminComponent {
 export {
   AdminComponent
 };
-//# sourceMappingURL=chunk-4GDQQCCP.js.map
+//# sourceMappingURL=chunk-RVGVWOLY.js.map

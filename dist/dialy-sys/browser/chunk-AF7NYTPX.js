@@ -1,13 +1,13 @@
 import {
   FormsModule
-} from "./chunk-M52EQFS5.js";
+} from "./chunk-C2IOWBAM.js";
 import {
   CommonModule,
   NgClass,
   NgForOf,
   NgIf,
   Router
-} from "./chunk-CGTKSDI3.js";
+} from "./chunk-T6UPCRXA.js";
 import {
   ɵsetClassDebugInfo,
   ɵɵStandaloneFeature,
@@ -33,7 +33,7 @@ import {
   ɵɵtemplate,
   ɵɵtext,
   ɵɵtextInterpolate
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // src/app/pages/patient/patient.component.ts
 var _c0 = () => ({ nom: "\xC9rythropo\xEF\xE9tine (EPO)", detail: "4000 UI \xB7 Sous-cutan\xE9e \xB7 1\xD7/sem" });
@@ -886,4 +886,4 @@ var PatientComponent = class _PatientComponent {
 export {
   PatientComponent
 };
-//# sourceMappingURL=chunk-HUHT4GKI.js.map
+//# sourceMappingURL=chunk-AF7NYTPX.js.map

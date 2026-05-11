@@ -155,7 +155,7 @@ import {
   ɵɵqueryRefresh,
   ɵɵsanitizeUrlOrResourceUrl,
   ɵɵstyleProp
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // node_modules/@angular/common/fesm2022/common.mjs
 var _DOM = null;
@@ -14171,8 +14171,6 @@ export {
   NgForOf,
   NgIf,
   TitleCasePipe,
-  UpperCasePipe,
-  DatePipe,
   SlicePipe,
   CommonModule,
   HttpHeaders,
@@ -14215,4 +14213,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-CGTKSDI3.js.map
+//# sourceMappingURL=chunk-T6UPCRXA.js.map

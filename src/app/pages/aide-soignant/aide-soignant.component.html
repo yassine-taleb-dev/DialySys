@@ -1,4 +1,4 @@
-<!-- Toasts -->
+﻿<!-- Toasts -->
 <div class="toast-container">
   <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
     <span class="material-icons">{{ toastIcon(t.type) }}</span>
@@ -13,7 +13,7 @@
       <div class="pd-head__avatar">{{ selectedPatient.initials }}</div>
       <div class="pd-head__info">
         <h2>{{ selectedPatient.name }}</h2>
-        <span>Machine {{ selectedPatient.machine }} � {{ selectedPatient.heureDebut }} - {{ selectedPatient.heureFin }}</span>
+        <span>Machine {{ selectedPatient.machine }} &nbsp; {{ selectedPatient.heureDebut }} - {{ selectedPatient.heureFin }}</span>
       </div>
       <span class="badge pd-head__badge" [ngClass]="patientBadgeClass(selectedPatient.status)">
         {{ patientBadgeLabel(selectedPatient.status) }}
@@ -43,11 +43,13 @@
             <span class="material-icons">medication</span>
           </div>
           <div class="ord-card__body">
-            <div class="ord-card__name">{{ o.medicament }}</div>
-            <div class="ord-card__posologie">{{ o.posologie }}</div>
+            <div class="ord-card__row"><span class="ord-label">Medicaments :</span> {{ o.medicament }}</div>
+            <div class="ord-card__row" *ngIf="o.posologie"><span class="ord-label">Posologie :</span> {{ o.posologie }}</div>
+            <div class="ord-card__row" *ngIf="o.dateExpiration"><span class="ord-label">Date d'expiration :</span> {{ formatDate(o.dateExpiration) }}</div>
+            <div class="ord-card__row" *ngIf="o.instructions"><span class="ord-label">Instructions :</span> {{ o.instructions }}</div>
             <div class="ord-card__meta">
               <span class="material-icons">person</span> {{ o.medecin }}
-              <span class="ord-sep">�</span>
+              <span class="ord-sep"> &middot; </span>
               <span class="material-icons">calendar_today</span> {{ formatDate(o.date) }}
             </div>
           </div>
@@ -311,7 +313,6 @@
                 <div class="as-patient-card__name">{{ p.name }}</div>
                 <div class="as-patient-card__sub">
                   <span class="material-icons">medical_services</span> Machine {{ p.machine }}
-                  <span class="ord-sep">�</span>
                   <span class="material-icons">receipt_long</span> {{ p.ordonnances.length }} ordonnance(s)
                 </div>
                 <div class="as-patient-card__time">

@@ -733,7 +733,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.editPatient = {
       id: user.id, nom: user.nom, prenom: user.prenom,
       dateNaissance: user.dateNaissance || '', groupeSanguin: user.groupeSanguin || '',
-      patientStatut: user.patientStatut || 'STABLE', cin: '', telephone: user.telephone || '', adresse: '', genre: ''
+      patientStatut: user.patientStatut || 'STABLE', cin: user.cin || '', telephone: user.telephone || '', adresse: '', genre: ''
     };
     this.showEditPatientModal = true;
   }
@@ -1654,7 +1654,8 @@ export class AdminComponent implements OnInit, OnDestroy {
       actif: true, statut: 'actif', derniereConnexion: '—',
       telephone: dto.telephone ?? '',
       service: dto.medecinReferent ? `Referent: ${dto.medecinReferent.prenom} ${dto.medecinReferent.nom}` : '',
-      dateNaissance: dto.dateNaissance, groupeSanguin: dto.groupeSanguin, patientStatut: dto.statut
+      dateNaissance: dto.dateNaissance, groupeSanguin: dto.groupeSanguin, patientStatut: dto.statut,
+      cin: dto.cin ?? null
     };
   }
 

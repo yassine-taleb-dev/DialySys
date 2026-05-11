@@ -1,7 +1,7 @@
 import {
   AuthService,
   environment
-} from "./chunk-XKHRPCVX.js";
+} from "./chunk-KGRZ3KR2.js";
 import {
   CheckboxControlValueAccessor,
   DefaultValueAccessor,
@@ -12,13 +12,13 @@ import {
   NgForm,
   NgModel,
   ɵNgNoValidate
-} from "./chunk-M52EQFS5.js";
+} from "./chunk-C2IOWBAM.js";
 import {
   CommonModule,
   HttpClient,
   NgIf,
   Router
-} from "./chunk-CGTKSDI3.js";
+} from "./chunk-T6UPCRXA.js";
 import {
   ɵsetClassDebugInfo,
   ɵɵStandaloneFeature,
@@ -46,17 +46,17 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // src/app/pages/login/login.component.ts
 function LoginComponent_div_0_ng_container_2_span_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "span", 39);
+    \u0275\u0275element(0, "span", 34);
   }
 }
 function LoginComponent_div_0_ng_container_2_span_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span")(1, "span", 16);
+    \u0275\u0275elementStart(0, "span")(1, "span", 20);
     \u0275\u0275text(2, "send");
     \u0275\u0275elementEnd();
     \u0275\u0275text(3, " Envoyer le lien ");
@@ -65,7 +65,7 @@ function LoginComponent_div_0_ng_container_2_span_15_Template(rf, ctx) {
 }
 function LoginComponent_div_0_ng_container_2_div_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 40)(1, "span", 16);
+    \u0275\u0275elementStart(0, "div", 35)(1, "span", 20);
     \u0275\u0275text(2, "error_outline");
     \u0275\u0275elementEnd();
     \u0275\u0275text(3);
@@ -81,7 +81,7 @@ function LoginComponent_div_0_ng_container_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 29)(2, "span", 30);
+    \u0275\u0275elementStart(1, "div", 24)(2, "span", 25);
     \u0275\u0275text(3, "lock_reset");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "h3");
@@ -90,10 +90,10 @@ function LoginComponent_div_0_ng_container_2_Template(rf, ctx) {
     \u0275\u0275elementStart(6, "p");
     \u0275\u0275text(7, "Saisissez votre login ou votre e-mail. Un mot de passe temporaire sera envoy\xE9 si le compte existe.");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "div", 31)(9, "div", 32)(10, "span", 33);
+    \u0275\u0275elementStart(8, "div", 26)(9, "div", 27)(10, "span", 28);
     \u0275\u0275text(11, "badge");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "input", 34);
+    \u0275\u0275elementStart(12, "input", 29);
     \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_div_0_ng_container_2_Template_input_ngModelChange_12_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -101,16 +101,16 @@ function LoginComponent_div_0_ng_container_2_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(13, "button", 35);
+    \u0275\u0275elementStart(13, "button", 30);
     \u0275\u0275listener("click", function LoginComponent_div_0_ng_container_2_Template_button_click_13_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.envoyerReset());
     });
-    \u0275\u0275template(14, LoginComponent_div_0_ng_container_2_span_14_Template, 1, 0, "span", 36)(15, LoginComponent_div_0_ng_container_2_span_15_Template, 4, 0, "span", 28);
+    \u0275\u0275template(14, LoginComponent_div_0_ng_container_2_span_14_Template, 1, 0, "span", 31)(15, LoginComponent_div_0_ng_container_2_span_15_Template, 4, 0, "span", 23);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(16, LoginComponent_div_0_ng_container_2_div_16_Template, 4, 1, "div", 37);
-    \u0275\u0275elementStart(17, "button", 38);
+    \u0275\u0275template(16, LoginComponent_div_0_ng_container_2_div_16_Template, 4, 1, "div", 32);
+    \u0275\u0275elementStart(17, "button", 33);
     \u0275\u0275listener("click", function LoginComponent_div_0_ng_container_2_Template_button_click_17_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -138,7 +138,7 @@ function LoginComponent_div_0_ng_container_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementContainerStart(0);
-    \u0275\u0275elementStart(1, "div", 41)(2, "span", 42);
+    \u0275\u0275elementStart(1, "div", 36)(2, "span", 37);
     \u0275\u0275text(3, "check_circle");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "h3");
@@ -151,13 +151,13 @@ function LoginComponent_div_0_ng_container_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(10, ", un e-mail de r\xE9initialisation a \xE9t\xE9 envoy\xE9.");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "button", 43);
+    \u0275\u0275elementStart(11, "button", 38);
     \u0275\u0275listener("click", function LoginComponent_div_0_ng_container_3_Template_button_click_11_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.closeForgot());
     });
-    \u0275\u0275elementStart(12, "span", 16);
+    \u0275\u0275elementStart(12, "span", 20);
     \u0275\u0275text(13, "done");
     \u0275\u0275elementEnd();
     \u0275\u0275text(14, " Fermer ");
@@ -173,18 +173,18 @@ function LoginComponent_div_0_ng_container_3_Template(rf, ctx) {
 function LoginComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 26);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275listener("click", function LoginComponent_div_0_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.closeForgot());
     });
-    \u0275\u0275elementStart(1, "div", 27);
+    \u0275\u0275elementStart(1, "div", 22);
     \u0275\u0275listener("click", function LoginComponent_div_0_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275template(2, LoginComponent_div_0_ng_container_2_Template, 19, 5, "ng-container", 28)(3, LoginComponent_div_0_ng_container_3_Template, 15, 1, "ng-container", 28);
+    \u0275\u0275template(2, LoginComponent_div_0_ng_container_2_Template, 19, 5, "ng-container", 23)(3, LoginComponent_div_0_ng_container_3_Template, 15, 1, "ng-container", 23);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -195,9 +195,9 @@ function LoginComponent_div_0_Template(rf, ctx) {
     \u0275\u0275property("ngIf", ctx_r1.forgotSent);
   }
 }
-function LoginComponent_div_42_Template(rf, ctx) {
+function LoginComponent_div_24_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 44)(1, "span", 45);
+    \u0275\u0275elementStart(0, "div", 39)(1, "span", 40);
     \u0275\u0275text(2, "check_circle");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "span");
@@ -212,17 +212,17 @@ function LoginComponent_div_42_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r1.roleLabel);
   }
 }
-function LoginComponent_form_43_div_18_Template(rf, ctx) {
+function LoginComponent_form_25_div_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 47)(1, "label");
+    \u0275\u0275elementStart(0, "div", 42)(1, "label");
     \u0275\u0275text(2, "Code de v\xE9rification");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 48)(4, "span", 33);
+    \u0275\u0275elementStart(3, "div", 43)(4, "span", 28);
     \u0275\u0275text(5, "verified_user");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "input", 59);
-    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_43_div_18_Template_input_ngModelChange_6_listener($event) {
+    \u0275\u0275elementStart(6, "input", 54);
+    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_25_div_18_Template_input_ngModelChange_6_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(2);
       \u0275\u0275twoWayBindingSet(ctx_r1.twoFactorCode, $event) || (ctx_r1.twoFactorCode = $event);
@@ -238,9 +238,9 @@ function LoginComponent_form_43_div_18_Template(rf, ctx) {
     \u0275\u0275property("disabled", ctx_r1.isLoading);
   }
 }
-function LoginComponent_form_43_div_19_Template(rf, ctx) {
+function LoginComponent_form_25_div_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 60)(1, "span", 16);
+    \u0275\u0275elementStart(0, "div", 55)(1, "span", 20);
     \u0275\u0275text(2, "error_outline");
     \u0275\u0275elementEnd();
     \u0275\u0275text(3);
@@ -252,72 +252,72 @@ function LoginComponent_form_43_div_19_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r1.errorMessage, " ");
   }
 }
-function LoginComponent_form_43_span_28_Template(rf, ctx) {
+function LoginComponent_form_25_span_28_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "span", 39);
+    \u0275\u0275element(0, "span", 34);
   }
 }
-function LoginComponent_form_43_ng_container_29_Template(rf, ctx) {
+function LoginComponent_form_25_ng_container_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainerStart(0);
     \u0275\u0275elementStart(1, "span");
     \u0275\u0275text(2, "Se connecter");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "span", 16);
+    \u0275\u0275elementStart(3, "span", 20);
     \u0275\u0275text(4, "arrow_forward");
     \u0275\u0275elementEnd();
     \u0275\u0275elementContainerEnd();
   }
 }
-function LoginComponent_form_43_Template(rf, ctx) {
+function LoginComponent_form_25_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "form", 46);
-    \u0275\u0275listener("ngSubmit", function LoginComponent_form_43_Template_form_ngSubmit_0_listener() {
+    \u0275\u0275elementStart(0, "form", 41);
+    \u0275\u0275listener("ngSubmit", function LoginComponent_form_25_Template_form_ngSubmit_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.login());
     });
-    \u0275\u0275elementStart(1, "div", 47)(2, "label");
+    \u0275\u0275elementStart(1, "div", 42)(2, "label");
     \u0275\u0275text(3, "Login ou Gmail");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 48)(5, "span", 33);
+    \u0275\u0275elementStart(4, "div", 43)(5, "span", 28);
     \u0275\u0275text(6, "badge");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "input", 49);
-    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_43_Template_input_ngModelChange_7_listener($event) {
+    \u0275\u0275elementStart(7, "input", 44);
+    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_25_Template_input_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.identifiant, $event) || (ctx_r1.identifiant = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(8, "div", 47)(9, "label");
+    \u0275\u0275elementStart(8, "div", 42)(9, "label");
     \u0275\u0275text(10, "Mot de passe");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 48)(12, "span", 33);
+    \u0275\u0275elementStart(11, "div", 43)(12, "span", 28);
     \u0275\u0275text(13, "lock");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "input", 50);
-    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_43_Template_input_ngModelChange_14_listener($event) {
+    \u0275\u0275elementStart(14, "input", 45);
+    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_25_Template_input_ngModelChange_14_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.motDePasse, $event) || (ctx_r1.motDePasse = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "button", 51);
-    \u0275\u0275listener("click", function LoginComponent_form_43_Template_button_click_15_listener() {
+    \u0275\u0275elementStart(15, "button", 46);
+    \u0275\u0275listener("click", function LoginComponent_form_25_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.togglePassword());
     });
-    \u0275\u0275elementStart(16, "span", 16);
+    \u0275\u0275elementStart(16, "span", 20);
     \u0275\u0275text(17);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275template(18, LoginComponent_form_43_div_18_Template, 7, 4, "div", 52)(19, LoginComponent_form_43_div_19_Template, 4, 1, "div", 53);
-    \u0275\u0275elementStart(20, "div", 54)(21, "label", 55)(22, "input", 56);
-    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_43_Template_input_ngModelChange_22_listener($event) {
+    \u0275\u0275template(18, LoginComponent_form_25_div_18_Template, 7, 4, "div", 47)(19, LoginComponent_form_25_div_19_Template, 4, 1, "div", 48);
+    \u0275\u0275elementStart(20, "div", 49)(21, "label", 50)(22, "input", 51);
+    \u0275\u0275twoWayListener("ngModelChange", function LoginComponent_form_25_Template_input_ngModelChange_22_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.rememberMe, $event) || (ctx_r1.rememberMe = $event);
@@ -327,16 +327,16 @@ function LoginComponent_form_43_Template(rf, ctx) {
     \u0275\u0275elementStart(23, "span");
     \u0275\u0275text(24, "Se souvenir de moi");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "a", 57);
-    \u0275\u0275listener("click", function LoginComponent_form_43_Template_a_click_25_listener($event) {
+    \u0275\u0275elementStart(25, "a", 52);
+    \u0275\u0275listener("click", function LoginComponent_form_25_Template_a_click_25_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.openForgot($event));
     });
     \u0275\u0275text(26, " Mot de passe oubli\xE9 ? ");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(27, "button", 58);
-    \u0275\u0275template(28, LoginComponent_form_43_span_28_Template, 1, 0, "span", 36)(29, LoginComponent_form_43_ng_container_29_Template, 5, 0, "ng-container", 28);
+    \u0275\u0275elementStart(27, "button", 53);
+    \u0275\u0275template(28, LoginComponent_form_25_span_28_Template, 1, 0, "span", 31)(29, LoginComponent_form_25_ng_container_29_Template, 5, 0, "ng-container", 23);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -544,7 +544,7 @@ var LoginComponent = class _LoginComponent {
   static \u0275fac = function LoginComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LoginComponent)(\u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(HttpClient));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 49, vars: 5, consts: [["class", "modal-overlay", 3, "click", 4, "ngIf"], [1, "shell"], [1, "brand"], [1, "hex-bg"], [1, "brand__inner"], [1, "brand__emblem"], ["width", "52", "height", "52", "viewBox", "0 0 52 52", "fill", "none"], ["cx", "26", "cy", "26", "r", "24", "fill", "rgba(0,217,196,0.08)", "stroke", "rgba(0,217,196,0.3)", "stroke-width", "1.5"], ["d", "M26 13v10M21 18h10", "stroke", "#00D9C4", "stroke-width", "2.8", "stroke-linecap", "round"], ["d", "M14 33c0 0 3-9 6-9s4 6 6 6 3-9 6-9 6 9 6 9", "stroke", "#00D9C4", "stroke-width", "2.2", "stroke-linecap", "round", "stroke-linejoin", "round", "fill", "none"], [1, "brand__title"], [1, "brand__subtitle"], [1, "brand__divider"], [1, "brand__desc"], [1, "brand__tags"], [1, "brand__tag"], [1, "material-icons"], [1, "ecg-strip"], ["viewBox", "0 0 600 60", "preserveAspectRatio", "none", 1, "ecg-svg"], ["points", "0,30 30,30 35,30 38,28 40,8 43,52 46,30 50,30 55,30\n                  95,30 100,30 103,28 105,8 108,52 111,30 115,30 120,30\n                  160,30 165,30 168,28 170,8 173,52 176,30 180,30 185,30\n                  225,30 230,30 233,28 235,8 238,52 241,30 245,30 250,30\n                  290,30 295,30 298,28 300,8 303,52 306,30 310,30 315,30\n                  355,30 360,30 363,28 365,8 368,52 371,30 375,30 380,30\n                  420,30 425,30 428,28 430,8 433,52 436,30 440,30 445,30\n                  485,30 490,30 493,28 495,8 498,52 501,30 505,30 600,30", 1, "ecg-line"], [1, "form-area"], [1, "form-card"], [1, "form-card__head"], ["class", "success-overlay", 4, "ngIf"], ["class", "login-form", 3, "ngSubmit", 4, "ngIf"], [1, "ssl-badge"], [1, "modal-overlay", 3, "click"], [1, "forgot-modal", 3, "click"], [4, "ngIf"], [1, "forgot-modal__head"], [1, "material-icons", "forgot-icon"], [1, "forgot-modal__body"], [1, "input-wrap", 2, "margin-bottom", "16px"], [1, "material-icons", "prefix-icon"], ["type", "text", "placeholder", "Login ou adresse e-mail", 3, "ngModelChange", "ngModel"], [1, "btn-submit", "btn-submit--sm", 3, "click", "disabled"], ["class", "spinner", 4, "ngIf"], ["class", "forgot-error", 4, "ngIf"], [1, "forgot-cancel", 3, "click"], [1, "spinner"], [1, "forgot-error"], [1, "forgot-success"], [1, "material-icons", "forgot-check"], [1, "btn-submit", "btn-submit--sm", 3, "click"], [1, "success-overlay"], [1, "material-icons", "success-check"], [1, "login-form", 3, "ngSubmit"], [1, "field"], [1, "input-wrap"], ["type", "text", "placeholder", "Ex: medecin ou prenom.nom@gmail.com", "autocomplete", "username", "name", "identifiant", 3, "ngModelChange", "ngModel", "disabled"], ["placeholder", "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", "autocomplete", "current-password", "name", "motDePasse", 3, "ngModelChange", "type", "ngModel", "disabled"], ["type", "button", 1, "vis-btn", 3, "click"], ["class", "field", 3, "field--error", 4, "ngIf"], ["class", "error-msg", 4, "ngIf"], [1, "form-row"], [1, "remember-me"], ["type", "checkbox", "name", "rememberMe", 3, "ngModelChange", "ngModel"], ["href", "#", 1, "forgot-link", 3, "click"], ["type", "submit", 1, "btn-submit", 3, "disabled"], ["type", "text", "placeholder", "Code \xE0 6 chiffres", "autocomplete", "one-time-code", "inputmode", "numeric", "maxlength", "6", "name", "twoFactorCode", 3, "ngModelChange", "ngModel", "disabled"], [1, "error-msg"]], template: function LoginComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 31, vars: 5, consts: [["class", "modal-overlay", 3, "click", 4, "ngIf"], [1, "shell"], [1, "brand"], [1, "hex-bg"], [1, "brand__inner"], [1, "brand__emblem"], ["width", "52", "height", "52", "viewBox", "0 0 52 52", "fill", "none"], ["cx", "26", "cy", "26", "r", "24", "fill", "rgba(0,217,196,0.08)", "stroke", "rgba(0,217,196,0.3)", "stroke-width", "1.5"], ["d", "M26 13v10M21 18h10", "stroke", "#00D9C4", "stroke-width", "2.8", "stroke-linecap", "round"], ["d", "M14 33c0 0 3-9 6-9s4 6 6 6 3-9 6-9 6 9 6 9", "stroke", "#00D9C4", "stroke-width", "2.2", "stroke-linecap", "round", "stroke-linejoin", "round", "fill", "none"], [1, "brand__title"], [1, "ecg-strip"], ["viewBox", "0 0 600 60", "preserveAspectRatio", "none", 1, "ecg-svg"], ["points", "0,30 30,30 35,30 38,28 40,8 43,52 46,30 50,30 55,30\n                  95,30 100,30 103,28 105,8 108,52 111,30 115,30 120,30\n                  160,30 165,30 168,28 170,8 173,52 176,30 180,30 185,30\n                  225,30 230,30 233,28 235,8 238,52 241,30 245,30 250,30\n                  290,30 295,30 298,28 300,8 303,52 306,30 310,30 315,30\n                  355,30 360,30 363,28 365,8 368,52 371,30 375,30 380,30\n                  420,30 425,30 428,28 430,8 433,52 436,30 440,30 445,30\n                  485,30 490,30 493,28 495,8 498,52 501,30 505,30 600,30", 1, "ecg-line"], [1, "form-area"], [1, "form-card"], [1, "form-card__head"], ["class", "success-overlay", 4, "ngIf"], ["class", "login-form", 3, "ngSubmit", 4, "ngIf"], [1, "ssl-badge"], [1, "material-icons"], [1, "modal-overlay", 3, "click"], [1, "forgot-modal", 3, "click"], [4, "ngIf"], [1, "forgot-modal__head"], [1, "material-icons", "forgot-icon"], [1, "forgot-modal__body"], [1, "input-wrap", 2, "margin-bottom", "16px"], [1, "material-icons", "prefix-icon"], ["type", "text", "placeholder", "Login ou adresse e-mail", 3, "ngModelChange", "ngModel"], [1, "btn-submit", "btn-submit--sm", 3, "click", "disabled"], ["class", "spinner", 4, "ngIf"], ["class", "forgot-error", 4, "ngIf"], [1, "forgot-cancel", 3, "click"], [1, "spinner"], [1, "forgot-error"], [1, "forgot-success"], [1, "material-icons", "forgot-check"], [1, "btn-submit", "btn-submit--sm", 3, "click"], [1, "success-overlay"], [1, "material-icons", "success-check"], [1, "login-form", 3, "ngSubmit"], [1, "field"], [1, "input-wrap"], ["type", "text", "placeholder", "Ex: medecin ou prenom.nom@gmail.com", "autocomplete", "username", "name", "identifiant", 3, "ngModelChange", "ngModel", "disabled"], ["placeholder", "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", "autocomplete", "current-password", "name", "motDePasse", 3, "ngModelChange", "type", "ngModel", "disabled"], ["type", "button", 1, "vis-btn", 3, "click"], ["class", "field", 3, "field--error", 4, "ngIf"], ["class", "error-msg", 4, "ngIf"], [1, "form-row"], [1, "remember-me"], ["type", "checkbox", "name", "rememberMe", 3, "ngModelChange", "ngModel"], ["href", "#", 1, "forgot-link", 3, "click"], ["type", "submit", 1, "btn-submit", 3, "disabled"], ["type", "text", "placeholder", "Code \xE0 6 chiffres", "autocomplete", "one-time-code", "inputmode", "numeric", "maxlength", "6", "name", "twoFactorCode", 3, "ngModelChange", "ngModel", "disabled"], [1, "error-msg"]], template: function LoginComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275template(0, LoginComponent_div_0_Template, 4, 2, "div", 0);
       \u0275\u0275elementStart(1, "div", 1)(2, "aside", 2);
@@ -559,52 +559,30 @@ var LoginComponent = class _LoginComponent {
       \u0275\u0275text(11, "Dialy");
       \u0275\u0275elementStart(12, "span");
       \u0275\u0275text(13, "Sys");
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(14, "p", 11);
-      \u0275\u0275text(15, "Syst\xE8me de Gestion d'H\xE9modialyse");
-      \u0275\u0275elementEnd();
-      \u0275\u0275element(16, "div", 12);
-      \u0275\u0275elementStart(17, "p", 13);
-      \u0275\u0275text(18, " Plateforme m\xE9dicale d\xE9di\xE9e \xE0 la gestion compl\xE8te des patients en dialyse \u2014 suivi clinique, planification des s\xE9ances et coordination des \xE9quipes soignantes. ");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(19, "div", 14)(20, "span", 15)(21, "span", 16);
-      \u0275\u0275text(22, "verified_user");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(23, " S\xE9curis\xE9");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(24, "span", 15)(25, "span", 16);
-      \u0275\u0275text(26, "gpp_good");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(27, " RGPD");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(28, "span", 15)(29, "span", 16);
-      \u0275\u0275text(30, "local_hospital");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(31, " M\xE9dical");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(32, "div", 17);
+      \u0275\u0275elementStart(14, "div", 11);
       \u0275\u0275namespaceSVG();
-      \u0275\u0275elementStart(33, "svg", 18);
-      \u0275\u0275element(34, "polyline", 19);
+      \u0275\u0275elementStart(15, "svg", 12);
+      \u0275\u0275element(16, "polyline", 13);
       \u0275\u0275elementEnd()()();
       \u0275\u0275namespaceHTML();
-      \u0275\u0275elementStart(35, "main", 20)(36, "div", 21)(37, "div", 22)(38, "h2");
-      \u0275\u0275text(39, "Connexion");
+      \u0275\u0275elementStart(17, "main", 14)(18, "div", 15)(19, "div", 16)(20, "h2");
+      \u0275\u0275text(21, "Connexion");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(40, "p");
-      \u0275\u0275text(41, "Bienvenue \u2014 acc\xE9dez \xE0 votre espace m\xE9dical");
+      \u0275\u0275elementStart(22, "p");
+      \u0275\u0275text(23, "Bienvenue \u2014 acc\xE9dez \xE0 votre espace m\xE9dical");
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(42, LoginComponent_div_42_Template, 7, 1, "div", 23)(43, LoginComponent_form_43_Template, 30, 16, "form", 24);
-      \u0275\u0275elementStart(44, "div", 25)(45, "span", 16);
-      \u0275\u0275text(46, "verified_user");
+      \u0275\u0275template(24, LoginComponent_div_24_Template, 7, 1, "div", 17)(25, LoginComponent_form_25_Template, 30, 16, "form", 18);
+      \u0275\u0275elementStart(26, "div", 19)(27, "span", 20);
+      \u0275\u0275text(28, "verified_user");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(47, "span");
-      \u0275\u0275text(48, "Connexion chiffr\xE9e SSL \xB7 Conforme RGPD");
+      \u0275\u0275elementStart(29, "span");
+      \u0275\u0275text(30, "Connexion chiffr\xE9e SSL \xB7 Conforme RGPD");
       \u0275\u0275elementEnd()()()()();
     }
     if (rf & 2) {
       \u0275\u0275property("ngIf", ctx.showForgotModal);
-      \u0275\u0275advance(36);
+      \u0275\u0275advance(18);
       \u0275\u0275classProp("card--success", ctx.loginSuccess);
       \u0275\u0275advance(6);
       \u0275\u0275property("ngIf", ctx.loginSuccess);
@@ -821,7 +799,7 @@ var LoginComponent = class _LoginComponent {
 }
 .form-card__head[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {
   font-size: 13px;
-  color: var(--c-text-2);
+  color: #ffffff;
   margin: 0;
 }
 .role-tabs[_ngcontent-%COMP%] {
@@ -873,7 +851,7 @@ var LoginComponent = class _LoginComponent {
 .field[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] {
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--c-text-2);
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -942,7 +920,7 @@ var LoginComponent = class _LoginComponent {
   align-items: center;
   gap: 7px;
   font-size: 13px;
-  color: var(--c-text-2);
+  color: #ffffff;
   cursor: pointer;
 }
 .remember-me[_ngcontent-%COMP%]   input[_ngcontent-%COMP%] {
@@ -1329,4 +1307,4 @@ var LoginComponent = class _LoginComponent {
 export {
   LoginComponent
 };
-//# sourceMappingURL=chunk-3XRLHNG2.js.map
+//# sourceMappingURL=chunk-SSSVD37D.js.map

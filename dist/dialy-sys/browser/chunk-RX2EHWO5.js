@@ -1,15 +1,15 @@
 import {
   environment
-} from "./chunk-XKHRPCVX.js";
+} from "./chunk-KGRZ3KR2.js";
 import {
   HttpClient
-} from "./chunk-CGTKSDI3.js";
+} from "./chunk-T6UPCRXA.js";
 import {
   shareReplay,
   tap,
   ɵɵdefineInjectable,
   ɵɵinject
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // src/services/patient.service.ts
 var PatientService = class _PatientService {
@@ -24,7 +24,9 @@ var PatientService = class _PatientService {
   }
   getAll() {
     if (!this.cacheAll$) {
-      this.cacheAll$ = this.http.get(this.apiUrl).pipe(shareReplay(1));
+      this.cacheAll$ = this.http.get(this.apiUrl).pipe(tap({ error: () => {
+        this.cacheAll$ = null;
+      } }), shareReplay({ bufferSize: 1, refCount: true }));
     }
     return this.cacheAll$;
   }
@@ -58,4 +60,4 @@ var PatientService = class _PatientService {
 export {
   PatientService
 };
-//# sourceMappingURL=chunk-O7CSYSXH.js.map
+//# sourceMappingURL=chunk-RX2EHWO5.js.map

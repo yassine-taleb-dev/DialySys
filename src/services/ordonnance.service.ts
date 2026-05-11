@@ -16,7 +16,10 @@ private readonly api = `${environment.apiUrl}/ordonnances`;
 
   getAll(): Observable<OrdonnanceDto[]> {
     if (!this.cacheAll$) {
-      this.cacheAll$ = this.http.get<OrdonnanceDto[]>(this.api).pipe(shareReplay(1));
+      this.cacheAll$ = this.http.get<OrdonnanceDto[]>(this.api).pipe(
+        tap({ error: () => { this.cacheAll$ = null; } }),
+        shareReplay({ bufferSize: 1, refCount: true }),
+      );
     }
     return this.cacheAll$;
   }

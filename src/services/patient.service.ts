@@ -30,7 +30,10 @@ export class PatientService {
 
   getAll(): Observable<PatientDto[]> {
     if (!this.cacheAll$) {
-      this.cacheAll$ = this.http.get<PatientDto[]>(this.apiUrl).pipe(shareReplay(1));
+      this.cacheAll$ = this.http.get<PatientDto[]>(this.apiUrl).pipe(
+        tap({ error: () => { this.cacheAll$ = null; } }),
+        shareReplay({ bufferSize: 1, refCount: true }),
+      );
     }
     return this.cacheAll$;
   }

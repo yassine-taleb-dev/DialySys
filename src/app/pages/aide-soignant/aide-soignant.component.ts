@@ -30,7 +30,10 @@ interface Ordonnance {
   date: string;
   medicament: string;
   posologie: string;
+  instructions: string | null;
+  dateExpiration: string | null;
   medecin: string;
+  statut: string;
 }
 
 interface ScheduledDay { date: string; patients: AssignedPatient[]; }
@@ -172,7 +175,10 @@ export class AideSoignantComponent implements OnInit {
       date: String(o.dateEmission).slice(0, 10),
       medicament: o.medicaments,
       posologie: o.posologie,
-      medecin: `${o.utilisateur?.prenom ?? ''} ${o.utilisateur?.nom ?? ''}`.trim() || '-'
+      instructions: o.instructions ?? null,
+      dateExpiration: o.dateExpiration ?? null,
+      medecin: `${o.utilisateur?.prenom ?? ''} ${o.utilisateur?.nom ?? ''}`.trim() || '-',
+      statut: o.statut
     }));
   }
 
@@ -208,6 +214,11 @@ export class AideSoignantComponent implements OnInit {
     this.ordonnanceService.getByPatient(p.id).pipe(catchError(() => of([] as OrdonnanceDto[]))).subscribe((ordonnances) => {
       const mapped = this.mapOrdonnances(ordonnances);
       this.ordonnancesByPatient.set(p.id, mapped);
+      // update count in scheduledDays list
+      this.scheduledDays = this.scheduledDays.map(day => ({
+        ...day,
+        patients: day.patients.map(pt => pt.id === p.id ? { ...pt, ordonnances: mapped } : pt)
+      }));
       if (!this.selectedPatient || this.selectedPatient.id !== p.id) return;
       this.selectedPatient = { ...this.selectedPatient, ordonnances: mapped };
     });

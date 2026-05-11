@@ -28,6 +28,7 @@ export interface AppUser {
   dateNaissance?: string;
   groupeSanguin?: string;
   patientStatut?: string;
+  cin?: string | null;
 }
 
 export interface Permission {

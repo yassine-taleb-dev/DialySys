@@ -1,15 +1,15 @@
 import {
   environment
-} from "./chunk-XKHRPCVX.js";
+} from "./chunk-KGRZ3KR2.js";
 import {
   HttpClient
-} from "./chunk-CGTKSDI3.js";
+} from "./chunk-T6UPCRXA.js";
 import {
   shareReplay,
   tap,
   ɵɵdefineInjectable,
   ɵɵinject
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // src/services/ordonnance.service.ts
 var OrdonnanceService = class _OrdonnanceService {
@@ -24,7 +24,9 @@ var OrdonnanceService = class _OrdonnanceService {
   }
   getAll() {
     if (!this.cacheAll$) {
-      this.cacheAll$ = this.http.get(this.api).pipe(shareReplay(1));
+      this.cacheAll$ = this.http.get(this.api).pipe(tap({ error: () => {
+        this.cacheAll$ = null;
+      } }), shareReplay({ bufferSize: 1, refCount: true }));
     }
     return this.cacheAll$;
   }
@@ -61,7 +63,33 @@ var OrdonnanceService = class _OrdonnanceService {
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _OrdonnanceService, factory: _OrdonnanceService.\u0275fac, providedIn: "root" });
 };
 
-export {
-  OrdonnanceService
+// src/services/constantes-vitales.service.ts
+var ConstantesVitalesService = class _ConstantesVitalesService {
+  http;
+  api = `${environment.apiUrl}/constantes-vitales`;
+  constructor(http) {
+    this.http = http;
+  }
+  create(payload) {
+    return this.http.post(this.api, payload);
+  }
+  update(id, payload) {
+    return this.http.put(`${this.api}/${id}`, payload);
+  }
+  getMesSaisies() {
+    return this.http.get(`${this.api}/mes-saisies`);
+  }
+  getByPatient(patientId) {
+    return this.http.get(`${this.api}/patient/${patientId}`);
+  }
+  static \u0275fac = function ConstantesVitalesService_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ConstantesVitalesService)(\u0275\u0275inject(HttpClient));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ConstantesVitalesService, factory: _ConstantesVitalesService.\u0275fac, providedIn: "root" });
 };
-//# sourceMappingURL=chunk-ADRQN3WJ.js.map
+
+export {
+  OrdonnanceService,
+  ConstantesVitalesService
+};
+//# sourceMappingURL=chunk-UKAM7Y4F.js.map

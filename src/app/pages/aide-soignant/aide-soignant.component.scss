@@ -147,21 +147,21 @@
     .material-icons { font-size: 19px; }
   }
 
-  &__body { flex: 1; }
+  &__body { flex: 1; display: flex; flex-direction: column; gap: 5px; }
 
-  &__name {
-    font-size: 14px; font-weight: 600; color: var(--c-text-1); margin-bottom: 3px;
-  }
-
-  &__posologie {
-    font-size: 12px; color: var(--c-text-2); margin-bottom: 6px;
+  &__row {
+    font-size: 13px; color: var(--c-text-1); line-height: 1.5;
   }
 
   &__meta {
     display: flex; align-items: center; gap: 5px;
-    font-size: 11px; color: var(--c-text-3);
+    font-size: 11px; color: var(--c-text-3); margin-top: 4px;
     .material-icons { font-size: 12px; }
   }
+}
+
+.ord-label {
+  font-weight: 700; color: var(--c-text-2); font-size: 12px;
 }
 
 .ord-sep { margin: 0 4px; }

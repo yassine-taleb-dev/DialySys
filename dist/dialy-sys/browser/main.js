@@ -1,6 +1,6 @@
 import {
   AuthService
-} from "./chunk-XKHRPCVX.js";
+} from "./chunk-KGRZ3KR2.js";
 import {
   Router,
   RouterOutlet,
@@ -8,14 +8,14 @@ import {
   provideHttpClient,
   provideRouter,
   withInterceptors
-} from "./chunk-CGTKSDI3.js";
+} from "./chunk-T6UPCRXA.js";
 import {
   inject,
   ɵsetClassDebugInfo,
   ɵɵStandaloneFeature,
   ɵɵdefineComponent,
   ɵɵelement
-} from "./chunk-KZPRPR6G.js";
+} from "./chunk-MOKET3XK.js";
 
 // src/guards/auth.guard.ts
 var authGuard = (route) => {
@@ -42,53 +42,53 @@ var routes = [
   { path: "", redirectTo: "/login", pathMatch: "full" },
   {
     path: "login",
-    loadComponent: () => import("./chunk-3XRLHNG2.js").then((m) => m.LoginComponent)
+    loadComponent: () => import("./chunk-SSSVD37D.js").then((m) => m.LoginComponent)
   },
   {
     path: "medecin",
-    loadComponent: () => import("./chunk-JBNBX3SM.js").then((m) => m.MedecinComponent),
+    loadComponent: () => import("./chunk-G6ZDQO5P.js").then((m) => m.MedecinComponent),
     canActivate: [authGuard],
     data: { roles: ["MEDECIN"] }
   },
   {
     path: "infirmier",
-    loadComponent: () => import("./chunk-A3ALAT5A.js").then((m) => m.InfirmierComponent),
+    loadComponent: () => import("./chunk-TQUOSBE4.js").then((m) => m.InfirmierComponent),
     canActivate: [authGuard],
     data: { roles: ["INFIRMIER"] }
   },
   {
     path: "infirmier-majeur",
-    loadComponent: () => import("./chunk-L7KBOREB.js").then((m) => m.InfirmierMajeurComponent),
+    loadComponent: () => import("./chunk-V32M3DIC.js").then((m) => m.InfirmierMajeurComponent),
     canActivate: [authGuard],
     data: { roles: ["INFIRMIER_MAJEUR"] }
   },
   {
     path: "aide-soignant",
-    loadComponent: () => import("./chunk-H2PAYWXX.js").then((m) => m.AideSoignantComponent),
+    loadComponent: () => import("./chunk-HOBBSXPF.js").then((m) => m.AideSoignantComponent),
     canActivate: [authGuard],
     data: { roles: ["AIDE_SOIGNANT"] }
   },
   {
     path: "patient",
-    loadComponent: () => import("./chunk-HUHT4GKI.js").then((m) => m.PatientComponent),
+    loadComponent: () => import("./chunk-AF7NYTPX.js").then((m) => m.PatientComponent),
     canActivate: [authGuard],
     data: { roles: ["PATIENT"] }
   },
   {
     path: "planning",
-    loadComponent: () => import("./chunk-XIUCABZH.js").then((m) => m.PlanningComponent),
+    loadComponent: () => import("./chunk-6USKHAX7.js").then((m) => m.PlanningComponent),
     canActivate: [authGuard],
     data: { roles: ["MEDECIN", "INFIRMIER", "INFIRMIER_MAJEUR", "AIDE_SOIGNANT"] }
   },
   {
     path: "admin",
-    loadComponent: () => import("./chunk-4GDQQCCP.js").then((m) => m.AdminComponent),
+    loadComponent: () => import("./chunk-RVGVWOLY.js").then((m) => m.AdminComponent),
     canActivate: [authGuard],
     data: { roles: ["ADMIN"] }
   },
   {
     path: "unauthorized",
-    loadComponent: () => import("./chunk-MX4XYEEO.js").then((m) => m.UnauthorizedComponent)
+    loadComponent: () => import("./chunk-MFVZNEO7.js").then((m) => m.UnauthorizedComponent)
   },
   { path: "**", redirectTo: "/login" }
 ];
