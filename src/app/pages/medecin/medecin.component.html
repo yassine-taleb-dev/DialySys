@@ -92,7 +92,7 @@
       <section class="empty-detail" *ngIf="!selectedPatient">
         <span class="material-icons">clinical_notes</span>
         <h1>Selectionnez un patient</h1>
-        <p>Le dossier medical, les constantes saisies par l'aide-soignant et les ordonnances apparaitront ici.</p>
+        <p>Le dossier medical, les constantes saisies par l'infirmier et les ordonnances apparaitront ici.</p>
       </section>
 
       <ng-container *ngIf="selectedPatient">
@@ -142,7 +142,7 @@
               <strong>{{ fmtDateTime(latestConstantes.saisieAt) }}</strong>
             </div>
             <div>
-              <span>Aide-soignant</span>
+              <span>Infirmier</span>
               <strong *ngIf="latestConstantes.aideSoignant">{{ latestConstantes.aideSoignant.prenom }} {{ latestConstantes.aideSoignant.nom }}</strong>
               <strong *ngIf="!latestConstantes.aideSoignant">-</strong>
             </div>
@@ -159,7 +159,7 @@
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Aide-soignant</th>
+                  <th>Infirmier</th>
                   <th>Tension</th>
                   <th>Frequence</th>
                   <th>Poids</th>

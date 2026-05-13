@@ -6,6 +6,6 @@ export interface SeanceRequestDto {
   notes?: string | null;
   dureeHeures: number;
   patientId: number;
-  utilisateurId: number;
+  utilisateurId?: number | null;
   aideSoignantId?: number | null;
 }

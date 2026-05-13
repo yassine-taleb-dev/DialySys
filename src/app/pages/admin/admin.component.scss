@@ -1057,6 +1057,13 @@
   max-width: 520px;
 }
 
+::ng-deep .form-field--white select {
+  background: var(--c-surface, #ffffff) !important;
+  color: var(--c-text-1, #1a1a2e) !important;
+  border: 1px solid var(--c-border, #cbd5e1) !important;
+  option { background: var(--c-surface, #ffffff) !important; color: var(--c-text-1, #1a1a2e) !important; }
+}
+
 .modal-panel--edit-horaire {
   max-width: 820px;
   width: 96vw;
@@ -1085,7 +1092,8 @@
   
 }
 
-//  Form section label 
+
+//  Form section label
 .form-section-label {
   display: flex;
   align-items: center;
@@ -2648,6 +2656,26 @@
     }
   }
 
+  .form-field--white select {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border-color: #cbd5e1 !important;
+    color-scheme: light !important;
+    option { background: #ffffff !important; color: #111111 !important; }
+  }
+}
+
+.modal-overlay:not(.light) {
+  .form-field--white select {
+    background: #1e2535 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #2d3748 !important;
+    color-scheme: dark !important;
+    option { background: #1e2535 !important; color: #e2e8f0 !important; }
+  }
+}
+
+.modal-overlay.light {
   label { color: #334155 !important; }
 }
 

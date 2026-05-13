@@ -7,4 +7,5 @@
   date: string;
   patientId: number;
   seanceId: number | null;
+  aideSoignantId?: number | null;
 }

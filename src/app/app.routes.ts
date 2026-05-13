@@ -15,22 +15,16 @@ export const routes: Routes = [
     data: { roles: ['MEDECIN'] }
   },
   {
-    path: 'infirmier',
-    loadComponent: () => import('./pages/infirmier/infirmier.component').then(m => m.InfirmierComponent),
-    canActivate: [authGuard],
-    data: { roles: ['INFIRMIER'] }
-  },
-  {
     path: 'infirmier-majeur',
     loadComponent: () => import('./pages/infirmier-majeur/infirmier-majeur.component').then(m => m.InfirmierMajeurComponent),
     canActivate: [authGuard],
     data: { roles: ['INFIRMIER_MAJEUR'] }
   },
   {
-    path: 'aide-soignant',
-    loadComponent: () => import('./pages/aide-soignant/aide-soignant.component').then(m => m.AideSoignantComponent),
+    path: 'infirmier',
+    loadComponent: () => import('./pages/infirmier/infirmier.component').then(m => m.InfirmierComponent),
     canActivate: [authGuard],
-    data: { roles: ['AIDE_SOIGNANT'] }
+    data: { roles: ['AIDE_SOIGNANT', 'INFIRMIER'] }
   },
   {
     path: 'patient',
@@ -42,7 +36,7 @@ export const routes: Routes = [
     path: 'planning',
     loadComponent: () => import('./pages/planning/planning.component').then(m => m.PlanningComponent),
     canActivate: [authGuard],
-    data: { roles: ['MEDECIN', 'INFIRMIER', 'INFIRMIER_MAJEUR', 'AIDE_SOIGNANT'] }
+    data: { roles: ['MEDECIN', 'INFIRMIER_MAJEUR', 'AIDE_SOIGNANT', 'INFIRMIER'] }
   },
   {
     path: 'admin',

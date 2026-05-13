@@ -1,6 +1,6 @@
 import { Role } from './role';
 
-export type AdminTab = 'profils' | 'horaires' | 'seances';
+export type AdminTab = 'profils' | 'seances';
 export type RoleId = 'admin' | 'medecin' | 'infirmier-majeur' | 'infirmier' | 'aide-soignant' | 'patient';
 export type UserStatus = 'actif' | 'inactif' | 'suspendu';
 

@@ -144,7 +144,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
   }
 
-  activeTab: AdminTab = (localStorage.getItem('admin_activeTab') as AdminTab) || 'profils';
+  activeTab: AdminTab = (['profils', 'seances'].includes(localStorage.getItem('admin_activeTab') ?? '') ? localStorage.getItem('admin_activeTab') as AdminTab : 'profils');
   activeProfilRole: RoleId = 'medecin';
   loading = false;
   isLight = true;
@@ -247,7 +247,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly moisLabels = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
   roleIds: RoleId[] = ['admin', 'medecin', 'infirmier-majeur', 'infirmier', 'aide-soignant', 'patient'];
 
-  newPatient = { nom: '', prenom: '', dateNaissance: '', groupeSanguin: '', cin: '', telephone: '', adresse: '', genre: '', statut: 'STABLE' };
+  newPatient = { nom: '', prenom: '', dateNaissance: '', cin: '', telephone: '', adresse: '', genre: '', statut: 'STABLE' };
 
   editPatient: {
     id: number; nom: string; prenom: string; dateNaissance: string;
@@ -555,7 +555,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (this.wizardIsPatient) {
       this.newPatient = {
         nom: this.wizardData.nom, prenom: this.wizardData.prenom,
-        dateNaissance: this.wizardData.dateNaissance, groupeSanguin: this.wizardData.groupeSanguin,
+        dateNaissance: this.wizardData.dateNaissance,
         cin: this.wizardData.cin, telephone: this.wizardData.telephone,
         adresse: this.wizardData.adresse, genre: this.wizardData.genre, statut: 'STABLE',
       };
@@ -712,14 +712,13 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (!this.newPatient.nom.trim()) missingFields.push('nom');
     if (!this.newPatient.prenom.trim()) missingFields.push('prenom');
     if (!this.newPatient.dateNaissance) missingFields.push('date de naissance');
-    if (!this.newPatient.groupeSanguin) missingFields.push('groupe sanguin');
     if (!this.newPatient.genre) missingFields.push('genre');
     if (missingFields.length) { this.showToast(`Veuillez renseigner: ${missingFields.join(', ')}`, 'warning'); return; }
     const normalizedPhone = this.normalizePhone(this.newPatient.telephone);
     if (normalizedPhone && !this.isValidPhone(normalizedPhone)) { this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning'); return; }
     const payload: PatientRequestDto = {
       nom: this.newPatient.nom.trim(), prenom: this.newPatient.prenom.trim(),
-      dateNaissance: this.newPatient.dateNaissance, groupeSanguin: this.newPatient.groupeSanguin,
+      dateNaissance: this.newPatient.dateNaissance,
       statut: this.newPatient.statut || 'STABLE', cin: this.newPatient.cin || null,
       telephone: normalizedPhone || null, adresse: this.newPatient.adresse || null, genre: this.newPatient.genre || null
     };
@@ -744,7 +743,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (normalizedPhone && !this.isValidPhone(normalizedPhone)) { this.showToast('Le telephone doit contenir 10 chiffres et commencer par 0', 'warning'); return; }
     const payload: PatientRequestDto = {
       nom: this.editPatient.nom.trim(), prenom: this.editPatient.prenom.trim(),
-      dateNaissance: this.editPatient.dateNaissance, groupeSanguin: this.editPatient.groupeSanguin,
+      dateNaissance: this.editPatient.dateNaissance,
       statut: this.editPatient.patientStatut, cin: this.editPatient.cin || null,
       telephone: normalizedPhone || null, adresse: this.editPatient.adresse || null, genre: this.editPatient.genre || null
     };
@@ -1233,10 +1232,22 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   openEditPersonSeance(person: PersonSeance): void {
-    const firstEntry = person.entries[0];
-    if (!firstEntry) return;
-    const row = this.seancesAdmin.find(s => s.id === firstEntry.seanceId);
-    if (row) this.openEditSeance(row);
+    if (!person.entries.length) return;
+    const rows = person.entries
+      .map(e => this.seancesAdmin.find(s => s.id === e.seanceId))
+      .filter((r): r is SeanceAdminRow => !!r)
+      .sort((a, b) => this.displayToIsoDate(a.date).localeCompare(this.displayToIsoDate(b.date)));
+    if (!rows.length) return;
+    const first = rows[0];
+    const datesSeances = rows.map(s => ({ date: this.displayToIsoDate(s.date), heureDebut: s.heureDebut, heureFin: s.heureFin }));
+    this.editSeance = { ...first, datesSeances, sourceSeances: rows };
+    this.editSeanceDates = datesSeances.map(d => d.date);
+    const firstDate = new Date(datesSeances[0].date);
+    this.editSeanceCalYear = firstDate.getFullYear();
+    this.editSeanceCalMonth = firstDate.getMonth();
+    this.showEditSeanceModal = true;
+    this.syncSelectedAideSoignantForEdit();
+    this.refreshAvailableMachinesForEditSeance();
   }
 
   isSeanceDateMatchingFilter(displayDate: string): boolean {
@@ -1327,34 +1338,18 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit être après l'heure de début`, 'warning');
       return;
     }
-    const missingAide = this.newSeance.datesSeances.find(d => !d.aideSoignantId);
-    if (missingAide) {
-      this.showToast(`Veuillez sélectionner un aide-soignant pour le ${this.isoToDisplayDate(missingAide.date)}`, 'warning');
-      return;
-    }
-    const invalidAide = this.newSeance.datesSeances.find(d => !this.resolveAvailableAideSoignantIdForDate(d));
-    if (invalidAide) {
-      this.showToast(`Aucun aide-soignant disponible pour le ${this.isoToDisplayDate(invalidAide.date)}`, 'warning');
-      return;
-    }
-    const invalidMachine = this.newSeance.datesSeances.find(d => !this.resolveMachineForDate(d));
-    if (invalidMachine) {
-      this.showToast(`Aucune machine disponible pour le ${this.isoToDisplayDate(invalidMachine.date)}`, 'warning');
-      return;
-    }
+    const adminId = this.authService.utilisateurId;
     const requests = this.newSeance.datesSeances.map((d): SeanceRequestDto => {
-      const aideSoignantId = this.resolveAvailableAideSoignantIdForDate(d)!;
-      const machine = this.resolveMachineForDate(d)!;
+      const machine = this.resolveMachineForDate(d) ?? (this.newSeance.machine || '');
       return {
-      date: d.date,
-      heureDebut: d.heureDebut,
-      heureFin: d.heureFin,
-      machine,
-      notes: 'Planifiee depuis l administration',
-      dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
-      patientId: Number(this.newSeance.patientId),
-      utilisateurId: aideSoignantId,
-      aideSoignantId
+        date: d.date,
+        heureDebut: d.heureDebut,
+        heureFin: d.heureFin,
+        machine,
+        notes: 'Planifiee depuis l administration',
+        dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
+        patientId: Number(this.newSeance.patientId),
+        utilisateurId: adminId
       };
     });
     forkJoin(requests.map(r => this.seanceService.create(r))).subscribe({
@@ -1435,8 +1430,6 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   saveEditSeance(): void {
     if (!this.editSeance) return;
-    const aideSoignantId = this.resolveAvailableAideSoignantIdForEdit();
-    if (!aideSoignantId) { this.showToast('Aucun aide-soignant disponible pour cette plage horaire', 'warning'); return; }
     const invalid = this.editSeance.datesSeances.find(d => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
     if (invalid) {
       this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit ?tre apr?s l'heure de d?but`, 'warning');
@@ -1456,8 +1449,7 @@ export class AdminComponent implements OnInit, OnDestroy {
           heureFin: d.heureFin,
           machine: this.editSeance!.machine,
           statut: this.normalizeSeanceStatut(this.editSeance!.statut),
-          notes: 'Mise a jour depuis l administration',
-          aideSoignantId
+          notes: 'Mise a jour depuis l administration'
         };
         return this.seanceService.update(source.id, payload);
       });
@@ -1472,8 +1464,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         notes: 'Planifiee depuis l administration',
         dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
         patientId: this.editSeance!.patientId,
-        utilisateurId: aideSoignantId,
-        aideSoignantId
+        utilisateurId: this.authService.utilisateurId
       } as SeanceRequestDto));
 
     const deletions = this.editSeance.sourceSeances
@@ -1524,7 +1515,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   statusLabel(status: UserStatus): string { return status === 'actif' ? 'Actif' : status === 'suspendu' ? 'Suspendu' : 'Inactif'; }
   initials(user: AppUser): string { return `${user.prenom?.[0] ?? ''}${user.nom?.[0] ?? ''}`.toUpperCase(); }
   profilTabLabel(role: RoleId): string { return ({ admin: 'Admins', medecin: 'Medecins', 'infirmier-majeur': 'Inf. Majeurs', infirmier: 'Infirmiers', 'aide-soignant': 'Aides-Soignants', patient: 'Patients' } as Record<RoleId, string>)[role]; }
-  get activeTabTitle(): string { return ({ profils: 'Gestion des Profils', horaires: 'Planification des Horaires', seances: 'Planification des Seances' } as Record<AdminTab, string>)[this.activeTab]; }
+  get activeTabTitle(): string { return ({ profils: 'Gestion des Profils', seances: 'Planification des Seances' } as Record<AdminTab, string>)[this.activeTab]; }
 
   /** Expose isoToDisplayDate au template */
   isoToDisplayDate(value: string): string {
@@ -1597,7 +1588,6 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     if (this.wizardIsPatient) {
       if (!this.wizardData.dateNaissance) errors['dateNaissance'] = 'La date de naissance est obligatoire';
-      if (!this.wizardData.groupeSanguin) errors['groupeSanguin'] = 'Le groupe sanguin est obligatoire';
       if (!this.wizardData.genre) errors['genre'] = 'Le genre est obligatoire';
     } else {
       if (!this.wizardData.email.trim()) errors['email'] = "L'email professionnel est obligatoire";

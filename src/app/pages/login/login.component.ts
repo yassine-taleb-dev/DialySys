@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
     MEDECIN:          '/medecin',
     INFIRMIER:        '/infirmier',
     INFIRMIER_MAJEUR: '/infirmier-majeur',
-    AIDE_SOIGNANT:    '/aide-soignant',
+    AIDE_SOIGNANT:    '/infirmier',
     PATIENT:          '/patient',
     ADMIN:            '/admin',
   };
@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
     MEDECIN:          'Médecin',
     INFIRMIER:        'Infirmier',
     INFIRMIER_MAJEUR: 'Infirmier Majeur',
-    AIDE_SOIGNANT:    'Aide-soignant',
+    AIDE_SOIGNANT:    'Infirmier',
     PATIENT:          'Patient',
     ADMIN:            'Administrateur',
   };

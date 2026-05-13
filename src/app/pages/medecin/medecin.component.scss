@@ -1077,7 +1077,7 @@ table {
   gap: 7px;
   cursor: pointer;
   font-size: 13px;
-  color: #334155;
+  color: #94a3b8;
 
   input[type="checkbox"] {
     width: 16px;
@@ -1086,7 +1086,7 @@ table {
     cursor: pointer;
   }
 
-  &--bold span { font-weight: 700; font-size: 14px; color: #0f172a; }
+  &--bold span { font-weight: 700; font-size: 14px; color: #94a3b8; }
 }
 
 .instr-sub {
@@ -1130,8 +1130,9 @@ table {
     border-color: rgba(255,255,255,.08) !important;
     &__header { color: #e0eaf8 !important; border-color: rgba(255,255,255,.08) !important; }
   }
-  .instr-check-title, .instr-check, .instr-label-sm { color: #94a3b8 !important; }
-  .instr-field label { color: #94a3b8 !important; }
+  .instr-check-title, .instr-check, .instr-label-sm { color: #ffffff !important; }
+  .instr-check--bold span { color: #ffffff !important; }
+  .instr-field label { color: #ffffff !important; }
   .instr-field input, .instr-field textarea, .instr-field select, .instr-inline-input {
     background: rgba(255,255,255,.06) !important;
     border-color: rgba(255,255,255,.12) !important;
@@ -1142,6 +1143,16 @@ table {
     background: #1e293b !important;
     color: #e0eaf8 !important;
   }
+}
+
+/* light mode pour les blocs instructions et ordonnance */
+:host-context(body:not(.theme-dark)) {
+  .instr-check-title, .instr-check, .instr-label-sm { color: #111827 !important; }
+  .instr-check--bold span { color: #111827 !important; }
+  .instr-field label { color: #334155 !important; }
+  .field span { color: #111827 !important; }
+  .prescription-form header strong { color: #111827 !important; }
+  .prescription-form header small  { color: #475569 !important; }
 }
 
 .text-button {
@@ -1204,7 +1215,7 @@ table {
 :host-context(body.theme-dark) {
   .doctor-shell,
   .doctor-shell::before {
-    background: #0b111e !important;
+    background: #30384a !important;
   }
 
   .doctor-layout {
@@ -1298,11 +1309,14 @@ table {
     color: #94a3b8 !important;
   }
 
+  .field span { color: #ffffff !important; }
   .field input, .field textarea {
     background: rgba(255,255,255,.06) !important;
     border-color: rgba(255,255,255,.12) !important;
     color: #e0eaf8 !important;
   }
+  .prescription-form header strong { color: #ffffff !important; }
+  .prescription-form header small  { color: #94a3b8 !important; }
 
   .state-box, .detail-loading {
     background: rgba(255,255,255,.04) !important;
