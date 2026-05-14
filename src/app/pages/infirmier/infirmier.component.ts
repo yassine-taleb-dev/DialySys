@@ -5,10 +5,12 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { PatientService } from '../../../services/patient.service';
 import { OrdonnanceService } from '../../../services/ordonnance.service';
 import { ConstantesVitalesService } from '../../../services/constantes-vitales.service';
+import { PatientInstructionsService } from '../../../services/patient-instructions.service';
 import { AuthService } from '../../../services/auth.service';
 import { PatientDto } from '../../../models/patient-dto';
 import { OrdonnanceDto } from '../../../models/ordonnance-dto';
 import { ConstantesVitalesDto } from '../../../models/constantes-vitales-dto';
+import { PatientInstructionsDto } from '../../../models/patient-instructions-dto';
 import { Utilisateur } from '../../../models/utilisateur';
 
 type ToastType = 'success' | 'warning' | 'info' | 'error';
@@ -18,8 +20,6 @@ interface PatientVM extends PatientDto {
   age: number;
   initials: string;
   nomComplet: string;
-  statutLabel: string;
-  statutTone: 'stable' | 'warning' | 'critical';
 }
 
 @Component({
@@ -30,6 +30,7 @@ interface PatientVM extends PatientDto {
   styleUrl: './infirmier.component.scss'
 })
 export class InfirmierComponent implements OnInit {
+  isLight = true;
   isLoadingPatients = true;
   isLoadingDetails = false;
   loadError = '';
@@ -38,10 +39,11 @@ export class InfirmierComponent implements OnInit {
   patients: PatientVM[] = [];
   searchQuery = '';
   selectedPatient: PatientVM | null = null;
-  activeTab: 'constantes' | 'ordonnances' = 'constantes';
+  activeTab: 'constantes' | 'ordonnances' | 'instructions' = 'constantes';
 
   constantes: ConstantesVitalesDto[] = [];
   ordonnances: OrdonnanceDto[] = [];
+  instructions: PatientInstructionsDto | null = null;
 
   // Formulaire saisie constantes
   showForm = false;
@@ -55,7 +57,8 @@ export class InfirmierComponent implements OnInit {
     private authService: AuthService,
     private patientService: PatientService,
     private ordonnanceService: OrdonnanceService,
-    private constantesService: ConstantesVitalesService
+    private constantesService: ConstantesVitalesService,
+    private instructionsService: PatientInstructionsService
   ) {}
 
   ngOnInit(): void {
@@ -104,8 +107,7 @@ export class InfirmierComponent implements OnInit {
     if (!q) return this.patients;
     return this.patients.filter(p =>
       p.nomComplet.toLowerCase().includes(q) ||
-      (p.cin ?? '').toLowerCase().includes(q) ||
-      p.statutLabel.toLowerCase().includes(q)
+      (p.cin ?? '').toLowerCase().includes(q)
     );
   }
 
@@ -114,15 +116,18 @@ export class InfirmierComponent implements OnInit {
     this.activeTab = 'constantes';
     this.constantes = [];
     this.ordonnances = [];
+    this.instructions = null;
     this.isLoadingDetails = true;
 
     forkJoin({
       constantes: this.constantesService.getByPatient(p.id).pipe(catchError(() => of([] as ConstantesVitalesDto[]))),
-      ordonnances: this.ordonnanceService.getByPatient(p.id).pipe(catchError(() => of([] as OrdonnanceDto[])))
+      ordonnances: this.ordonnanceService.getByPatient(p.id).pipe(catchError(() => of([] as OrdonnanceDto[]))),
+      instructions: this.instructionsService.getByPatient(p.id).pipe(catchError(() => of(null)))
     }).subscribe({
-      next: ({ constantes, ordonnances }) => {
+      next: ({ constantes, ordonnances, instructions }) => {
         this.constantes = constantes.sort((a, b) => b.date.localeCompare(a.date));
         this.ordonnances = ordonnances.sort((a, b) => b.dateEmission.localeCompare(a.dateEmission));
+        this.instructions = instructions;
         this.isLoadingDetails = false;
       },
       error: () => { this.isLoadingDetails = false; }
@@ -166,16 +171,11 @@ export class InfirmierComponent implements OnInit {
   }
 
   private toVM(p: PatientDto): PatientVM {
-    const statut = (p.statut ?? 'STABLE').toUpperCase();
-    const tone: PatientVM['statutTone'] =
-      statut === 'CRITIQUE' ? 'critical' : statut === 'ATTENTION' ? 'warning' : 'stable';
     return {
       ...p,
       age: this.calcAge(p.dateNaissance),
       initials: `${p.prenom?.[0] ?? ''}${p.nom?.[0] ?? ''}`.toUpperCase(),
       nomComplet: `${p.prenom ?? ''} ${p.nom ?? ''}`.trim(),
-      statutLabel: tone === 'critical' ? 'Critique' : tone === 'warning' ? 'Attention' : 'Stable',
-      statutTone: tone,
     };
   }
 
@@ -228,5 +228,6 @@ export class InfirmierComponent implements OnInit {
     return ({ success: 'check_circle', warning: 'warning', error: 'error', info: 'info' } as Record<string,string>)[type] ?? 'info';
   }
 
+  toggleTheme(): void { this.isLight = !this.isLight; }
   logout(): void { this.authService.logout(); }
 }

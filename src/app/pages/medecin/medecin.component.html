@@ -53,7 +53,7 @@
 
       <label class="search-box">
         <span class="material-icons">search</span>
-        <input type="search" placeholder="Nom, CIN, statut..." [(ngModel)]="searchQuery" />
+        <input type="search" placeholder="Nom, CIN, pathologie..." [(ngModel)]="searchQuery" />
       </label>
 
       <div class="state-box" *ngIf="isLoadingPatients">
@@ -73,12 +73,11 @@
           type="button"
           [class.patient-row--active]="selectedPatient?.id === patient.id"
           (click)="selectPatient(patient)">
-          <span class="patient-row__avatar patient-row__avatar--{{ patient.statutTone }}">{{ patient.initials }}</span>
+          <span class="patient-row__avatar">{{ patient.initials }}</span>
           <span class="patient-row__body">
             <strong>{{ patient.nomComplet }}</strong>
             <small>{{ patient.age }} ans - {{ patient.pathologie }}</small>
           </span>
-          <span class="status-dot status-dot--{{ patient.statutTone }}"></span>
         </button>
 
         <div class="state-box" *ngIf="filteredPatients.length === 0">
@@ -97,7 +96,7 @@
 
       <ng-container *ngIf="selectedPatient">
         <section class="patient-hero">
-          <div class="hero-avatar hero-avatar--{{ selectedPatient.statutTone }}">{{ selectedPatient.initials }}</div>
+          <div class="hero-avatar">{{ selectedPatient.initials }}</div>
           <div class="hero-copy">
             <div class="eyebrow">Dossier patient</div>
             <h1>{{ selectedPatient.nomComplet }}</h1>
@@ -105,7 +104,6 @@
               {{ selectedPatient.age }} ans - CIN {{ selectedPatient.cin || '-' }} - Groupe {{ selectedPatient.groupeSanguin || '-' }}
             </p>
           </div>
-          <span class="pill pill--{{ selectedPatient.statutTone }}">{{ selectedPatient.statutLabel }}</span>
         </section>
 
         <div class="quick-actions" *ngIf="!isLoadingDetails">
@@ -225,27 +223,27 @@
             <div class="instr-check-group">
               <label class="instr-check-title">Abord vasculaire</label>
               <div class="instr-checks">
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.abordFav" /><span>FAV</span></label>
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.abordCatheter" /><span>Catheter</span></label>
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.abordGoretex" /><span>Goretex</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.abordVasculaire==='FAV'"      (change)="instructionsForm.abordVasculaire = instructionsForm.abordVasculaire==='FAV' ? '' : 'FAV'"           /><span>FAV</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.abordVasculaire==='Catheter'" (change)="instructionsForm.abordVasculaire = instructionsForm.abordVasculaire==='Catheter' ? '' : 'Catheter'" /><span>Catheter</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.abordVasculaire==='Goretex'"  (change)="instructionsForm.abordVasculaire = instructionsForm.abordVasculaire==='Goretex' ? '' : 'Goretex'"   /><span>Goretex</span></label>
               </div>
             </div>
 
             <div class="instr-check-group">
               <label class="instr-check-title">Localisation</label>
               <div class="instr-checks">
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.locBrasG" /><span>Bras G</span></label>
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.locBrasD" /><span>Bras D</span></label>
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.locJugulaire" /><span>Jugulaire</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.localisation==='Bras G'"    (change)="instructionsForm.localisation = instructionsForm.localisation==='Bras G' ? '' : 'Bras G'"         /><span>Bras G</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.localisation==='Bras D'"    (change)="instructionsForm.localisation = instructionsForm.localisation==='Bras D' ? '' : 'Bras D'"         /><span>Bras D</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.localisation==='Jugulaire'" (change)="instructionsForm.localisation = instructionsForm.localisation==='Jugulaire' ? '' : 'Jugulaire'"   /><span>Jugulaire</span></label>
               </div>
             </div>
 
             <div class="instr-check-group">
               <label class="instr-check-title">Type d'aiguilles habituel</label>
               <div class="instr-checks">
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.aiguilles15" /><span>15G</span></label>
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.aiguilles16" /><span>16G</span></label>
-                <label class="instr-check"><input type="checkbox" [(ngModel)]="instructionsForm.aiguilles17" /><span>17G</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.aiguilles==='15G'" (change)="instructionsForm.aiguilles = instructionsForm.aiguilles==='15G' ? '' : '15G'" /><span>15G</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.aiguilles==='16G'" (change)="instructionsForm.aiguilles = instructionsForm.aiguilles==='16G' ? '' : '16G'" /><span>16G</span></label>
+                <label class="instr-check"><input type="checkbox" [checked]="instructionsForm.aiguilles==='17G'" (change)="instructionsForm.aiguilles = instructionsForm.aiguilles==='17G' ? '' : '17G'" /><span>17G</span></label>
               </div>
             </div>
           </article>
@@ -282,11 +280,17 @@
               <div class="instr-sub" *ngIf="instructionsForm.epoActif">
                 <div class="instr-checks">
                   <label class="instr-check">
-                    <input type="checkbox" [(ngModel)]="instructionsForm.eprex" /><span>Eprex</span>
+                    <input type="checkbox"
+                      [checked]="instructionsForm.eprex"
+                      (change)="instructionsForm.eprex = !instructionsForm.eprex; instructionsForm.recormon = instructionsForm.eprex ? false : instructionsForm.recormon"
+                    /><span>Eprex</span>
                   </label>
                   <input class="instr-inline-input" type="number" [(ngModel)]="instructionsForm.eprexDose" placeholder="UI" *ngIf="instructionsForm.eprex" />
                   <label class="instr-check">
-                    <input type="checkbox" [(ngModel)]="instructionsForm.recormon" /><span>Recormon</span>
+                    <input type="checkbox"
+                      [checked]="instructionsForm.recormon"
+                      (change)="instructionsForm.recormon = !instructionsForm.recormon; instructionsForm.eprex = instructionsForm.recormon ? false : instructionsForm.eprex"
+                    /><span>Recormon</span>
                   </label>
                   <input class="instr-inline-input" type="number" [(ngModel)]="instructionsForm.recormonDose" placeholder="UI" *ngIf="instructionsForm.recormon" />
                 </div>

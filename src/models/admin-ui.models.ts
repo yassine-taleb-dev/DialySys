@@ -27,7 +27,6 @@ export interface AppUser {
   service?: string;
   dateNaissance?: string;
   groupeSanguin?: string;
-  patientStatut?: string;
   cin?: string | null;
 }
 

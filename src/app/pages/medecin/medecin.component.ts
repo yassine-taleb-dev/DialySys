@@ -32,8 +32,6 @@ interface PatientVM extends PatientDto {
   age: number;
   initials: string;
   nomComplet: string;
-  statutLabel: string;
-  statutTone: 'stable' | 'warning' | 'critical';
   pathologie: string;
   debutDialyse: string;
   poidsDossier: string;
@@ -58,15 +56,9 @@ interface InstructionsForm {
   poidsSec: string;
   taille: string;
   groupeSanguin: string;
-  abordFav: boolean;
-  abordCatheter: boolean;
-  abordGoretex: boolean;
-  locBrasG: boolean;
-  locBrasD: boolean;
-  locJugulaire: boolean;
-  aiguilles15: boolean;
-  aiguilles16: boolean;
-  aiguilles17: boolean;
+  abordVasculaire: string;
+  localisation: string;
+  aiguilles: string;
   taSystolique: string;
   taDiastolique: string;
   epoActif: boolean;
@@ -142,8 +134,7 @@ export class MedecinComponent implements OnInit {
     return this.patients.filter(patient =>
       patient.nomComplet.toLowerCase().includes(query) ||
       (patient.cin ?? '').toLowerCase().includes(query) ||
-      patient.pathologie.toLowerCase().includes(query) ||
-      patient.statutLabel.toLowerCase().includes(query)
+      patient.pathologie.toLowerCase().includes(query)
     );
   }
 
@@ -328,21 +319,9 @@ export class MedecinComponent implements OnInit {
       poidsSec: s(f.poidsSec),
       taille: s(f.taille),
       groupeSanguin: s(f.groupeSanguin),
-      abordVasculaire: this.joinSelected([
-        [f.abordFav, 'FAV'],
-        [f.abordCatheter, 'Catheter'],
-        [f.abordGoretex, 'Goretex'],
-      ]),
-      localisationAbord: this.joinSelected([
-        [f.locBrasG, 'Bras G'],
-        [f.locBrasD, 'Bras D'],
-        [f.locJugulaire, 'Jugulaire'],
-      ]),
-      aiguilles: this.joinSelected([
-        [f.aiguilles15, '15G'],
-        [f.aiguilles16, '16G'],
-        [f.aiguilles17, '17G'],
-      ]),
+      abordVasculaire: s(f.abordVasculaire),
+      localisationAbord: s(f.localisation),
+      aiguilles: s(f.aiguilles),
       taSystoliqueCible: s(f.taSystolique),
       taDiastoliqueCible: s(f.taDiastolique),
       epoActif: f.epoActif,
@@ -385,15 +364,9 @@ export class MedecinComponent implements OnInit {
       poidsSec: instructions?.poidsSec ?? '',
       taille: instructions?.taille ?? '',
       groupeSanguin: instructions?.groupeSanguin ?? groupeSanguin ?? '',
-      abordFav: this.containsValue(abord, 'FAV'),
-      abordCatheter: this.containsValue(abord, 'Catheter'),
-      abordGoretex: this.containsValue(abord, 'Goretex'),
-      locBrasG: this.containsValue(localisation, 'Bras G'),
-      locBrasD: this.containsValue(localisation, 'Bras D'),
-      locJugulaire: this.containsValue(localisation, 'Jugulaire'),
-      aiguilles15: this.containsValue(aiguilles, '15G'),
-      aiguilles16: this.containsValue(aiguilles, '16G'),
-      aiguilles17: this.containsValue(aiguilles, '17G'),
+      abordVasculaire: abord,
+      localisation: localisation,
+      aiguilles: aiguilles,
       taSystolique: instructions?.taSystoliqueCible ?? '',
       taDiastolique: instructions?.taDiastoliqueCible ?? '',
       epoActif: instructions?.epoActif ?? false,
@@ -419,14 +392,6 @@ export class MedecinComponent implements OnInit {
     const updated = this.toPatientVM(patient);
     this.selectedPatient = updated;
     this.patients = this.patients.map(item => item.id === updated.id ? updated : item);
-  }
-
-  private joinSelected(items: Array<[boolean, string]>): string {
-    return items.filter(([selected]) => selected).map(([, value]) => value).join(', ');
-  }
-
-  private containsValue(source: string, value: string): boolean {
-    return source.split(',').map(item => item.trim()).includes(value);
   }
 
   toggleTheme(): void {
@@ -492,16 +457,12 @@ export class MedecinComponent implements OnInit {
 
   private toPatientVM(patient: PatientDto): PatientVM {
     const dossier = patient.dossierPatient;
-    const statut = (patient.statut ?? 'STABLE').toUpperCase();
-    const tone = statut === 'CRITIQUE' ? 'critical' : statut === 'ATTENTION' ? 'warning' : 'stable';
 
     return {
       ...patient,
       age: this.calculateAge(patient.dateNaissance),
       initials: `${patient.prenom?.[0] ?? ''}${patient.nom?.[0] ?? ''}`.toUpperCase(),
       nomComplet: `${patient.prenom ?? ''} ${patient.nom ?? ''}`.trim(),
-      statutLabel: tone === 'critical' ? 'Critique' : tone === 'warning' ? 'Attention' : 'Stable',
-      statutTone: tone,
       pathologie: dossier?.pathologie || 'Non renseignee',
       debutDialyse: dossier?.debutDialyse ? formatDateFr(dossier.debutDialyse) : '-',
       poidsDossier: this.withUnit(dossier?.poids, 'kg'),
@@ -556,9 +517,7 @@ export class MedecinComponent implements OnInit {
   private emptyInstructionsForm(): InstructionsForm {
     return {
       poidsSec: '', taille: '', groupeSanguin: '',
-      abordFav: false, abordCatheter: false, abordGoretex: false,
-      locBrasG: false, locBrasD: false, locJugulaire: false,
-      aiguilles15: false, aiguilles16: false, aiguilles17: false,
+      abordVasculaire: '', localisation: '', aiguilles: '',
       taSystolique: '', taDiastolique: '',
       epoActif: false, eprex: false, eprexDose: '', recormon: false, recormonDose: '', epoFrequence: '',
       ferIvActif: false, venoferDose: '', ferIvFrequence: '',

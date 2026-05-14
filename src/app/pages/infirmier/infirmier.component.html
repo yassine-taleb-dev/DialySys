@@ -6,7 +6,7 @@
   </button>
 </div>
 
-<div class="inf-shell">
+<div class="inf-shell" [class.dark]="!isLight">
 
   <!-- TOPBAR -->
   <header class="inf-topbar">
@@ -30,6 +30,9 @@
         <strong>{{currentUserName}}</strong>
         <span>{{currentUser?.login}}</span>
       </div>
+      <button class="icon-button" type="button" [title]="isLight ? 'Mode sombre' : 'Mode clair'" (click)="toggleTheme()">
+        <span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span>
+      </button>
       <button class="icon-button icon-button--danger" type="button" title="Déconnexion" (click)="logout()">
         <span class="material-icons">logout</span>
       </button>
@@ -49,7 +52,7 @@
 
       <label class="search-box">
         <span class="material-icons">search</span>
-        <input type="search" placeholder="Nom, CIN, statut…" [(ngModel)]="searchQuery" />
+        <input type="search" placeholder="Nom, CIN…" [(ngModel)]="searchQuery" />
       </label>
 
       <div class="state-box" *ngIf="isLoadingPatients">
@@ -69,12 +72,11 @@
           type="button"
           [class.patient-row--active]="selectedPatient?.id === p.id"
           (click)="selectPatient(p)">
-          <span class="patient-row__avatar patient-row__avatar--{{p.statutTone}}">{{p.initials}}</span>
+          <span class="patient-row__avatar">{{p.initials}}</span>
           <span class="patient-row__body">
             <strong>{{p.nomComplet}}</strong>
-            <small>{{p.age}} ans · {{p.statutLabel}}</small>
+            <small>{{p.age}} ans</small>
           </span>
-          <span class="status-dot status-dot--{{p.statutTone}}"></span>
         </button>
 
         <div class="state-box" *ngIf="filteredPatients.length === 0">
@@ -98,13 +100,12 @@
 
         <!-- Hero patient -->
         <section class="patient-hero">
-          <div class="hero-avatar hero-avatar--{{selectedPatient.statutTone}}">{{selectedPatient.initials}}</div>
+          <div class="hero-avatar">{{selectedPatient.initials}}</div>
           <div class="hero-copy">
             <div class="eyebrow">Dossier patient</div>
             <h1>{{selectedPatient.nomComplet}}</h1>
             <p>{{selectedPatient.age}} ans · CIN {{selectedPatient.cin || '-'}} · Né(e) le {{fmtDate(selectedPatient.dateNaissance)}}</p>
           </div>
-          <span class="pill pill--{{selectedPatient.statutTone}}">{{selectedPatient.statutLabel}}</span>
           <button class="icon-button" type="button" title="Fermer" (click)="closePatient()">
             <span class="material-icons">close</span>
           </button>
@@ -125,6 +126,12 @@
             <span class="material-icons">receipt_long</span>
             <span>Ordonnances</span>
             <small>{{ordonnances.length}}</small>
+          </button>
+          <button class="quick-btn" type="button"
+            [class.quick-btn--active]="activeTab === 'instructions'"
+            (click)="activeTab='instructions'">
+            <span class="material-icons">assignment</span>
+            <span>Instructions</span>
           </button>
         </div>
 
@@ -172,7 +179,7 @@
                 </div>
               </div>
               <div class="cv-form-group">
-                <label>Pouls (BPM) <span class="req">*</span></label>
+                <label>BPM <span class="req">*</span></label>
                 <div class="cv-input-wrap">
                   <input type="number" placeholder="75" [(ngModel)]="cvForm.bpm" min="30" max="220" />
                   <span class="cv-unit">bpm</span>
@@ -227,7 +234,7 @@
                 <div class="cv-metric">
                   <span class="material-icons">speed</span>
                   <div>
-                    <span class="cv-metric__label">Pouls</span>
+                    <span class="cv-metric__label">BPM</span>
                     <span class="cv-metric__val">{{c.bpm}} <small>bpm</small></span>
                   </div>
                 </div>
@@ -279,6 +286,123 @@
               </div>
             </div>
           </div>
+        </section>
+
+        <!-- TAB INSTRUCTIONS -->
+        <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'instructions'">
+          <div class="empty-tab" *ngIf="!instructions">
+            <span class="material-icons">assignment</span>
+            <p>Aucune instruction définie pour ce patient.</p>
+          </div>
+
+          <ng-container *ngIf="instructions">
+
+            <!-- Paramètres dialyse -->
+            <div class="instr-card">
+              <div class="instr-card__head">
+                <span class="material-icons">settings</span>
+                <strong>Paramètres dialyse</strong>
+              </div>
+              <div class="instr-card__body">
+                <div class="instr-row" *ngIf="instructions.poidsSec">
+                  <span class="instr-label">Poids sec</span>
+                  <span>{{instructions.poidsSec}} kg</span>
+                </div>
+                <div class="instr-row" *ngIf="instructions.taille">
+                  <span class="instr-label">Taille</span>
+                  <span>{{instructions.taille}} cm</span>
+                </div>
+                <div class="instr-row" *ngIf="instructions.groupeSanguin">
+                  <span class="instr-label">Groupe sanguin</span>
+                  <span class="pill pill--stable">{{instructions.groupeSanguin}}</span>
+                </div>
+                <div class="instr-row" *ngIf="instructions.abordVasculaire">
+                  <span class="instr-label">Abord vasculaire</span>
+                  <span>{{instructions.abordVasculaire}}</span>
+                </div>
+                <div class="instr-row" *ngIf="instructions.localisationAbord">
+                  <span class="instr-label">Localisation</span>
+                  <span>{{instructions.localisationAbord}}</span>
+                </div>
+                <div class="instr-row" *ngIf="instructions.aiguilles">
+                  <span class="instr-label">Aiguilles</span>
+                  <span>{{instructions.aiguilles}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tensions cibles -->
+            <div class="instr-card" *ngIf="instructions.taSystoliqueCible || instructions.taDiastoliqueCible">
+              <div class="instr-card__head">
+                <span class="material-icons">favorite</span>
+                <strong>Tensions de référence</strong>
+              </div>
+              <div class="instr-card__body">
+                <div class="instr-row" *ngIf="instructions.taSystoliqueCible">
+                  <span class="instr-label">TA Systolique cible</span>
+                  <span>{{instructions.taSystoliqueCible}} mmHg</span>
+                </div>
+                <div class="instr-row" *ngIf="instructions.taDiastoliqueCible">
+                  <span class="instr-label">TA Diastolique cible</span>
+                  <span>{{instructions.taDiastoliqueCible}} mmHg</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Traitement anémie -->
+            <div class="instr-card" *ngIf="instructions.epoActif || instructions.ferIvActif">
+              <div class="instr-card__head">
+                <span class="material-icons">biotech</span>
+                <strong>Traitement anémie</strong>
+              </div>
+              <div class="instr-card__body">
+                <ng-container *ngIf="instructions.epoActif">
+                  <div class="instr-row">
+                    <span class="instr-label">EPO</span>
+                    <span class="pill pill--ok">Actif</span>
+                  </div>
+                  <div class="instr-row" *ngIf="instructions.eprex">
+                    <span class="instr-label">Eprex</span>
+                    <span>{{instructions.eprexDose || '-'}} UI</span>
+                  </div>
+                  <div class="instr-row" *ngIf="instructions.recormon">
+                    <span class="instr-label">Recormon</span>
+                    <span>{{instructions.recormonDose || '-'}} UI</span>
+                  </div>
+                  <div class="instr-row" *ngIf="instructions.epoFrequence">
+                    <span class="instr-label">Fréquence EPO</span>
+                    <span>{{instructions.epoFrequence}}x / semaine</span>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="instructions.ferIvActif">
+                  <div class="instr-row">
+                    <span class="instr-label">FER IV</span>
+                    <span class="pill pill--ok">Actif</span>
+                  </div>
+                  <div class="instr-row" *ngIf="instructions.venoferDose">
+                    <span class="instr-label">Venofer</span>
+                    <span>{{instructions.venoferDose}} mg</span>
+                  </div>
+                  <div class="instr-row" *ngIf="instructions.ferIvFrequence">
+                    <span class="instr-label">Fréquence FER IV</span>
+                    <span>{{instructions.ferIvFrequence}}x / semaine</span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+
+            <!-- Allergies -->
+            <div class="instr-card" *ngIf="instructions.allergies">
+              <div class="instr-card__head">
+                <span class="material-icons">warning_amber</span>
+                <strong>Allergies / Remarques</strong>
+              </div>
+              <div class="instr-card__body">
+                <p class="instr-allergies">{{instructions.allergies}}</p>
+              </div>
+            </div>
+
+          </ng-container>
         </section>
 
       </ng-container>

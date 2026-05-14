@@ -1,0 +1,55 @@
+
+> dialy-sys@0.0.0 start
+> ng serve --host 127.0.0.1 --port 4201
+
+[33m>[39m Building...
+[32m√[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                     [2m | [22m [1mRaw size[22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m                    [2m | [22m[36m123.31 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m                 [2m | [22m [36m90.20 kB[39m[2m | [22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m                      [2m | [22m  [36m4.12 kB[39m[2m | [22m
+[32mchunk-ODZI4JXH.js[39m  [2m | [22m[2m-[22m                         [2m | [22m  [36m2.95 kB[39m[2m | [22m
+[32mchunk-HFBNPKKE.js[39m  [2m | [22m[2m-[22m                         [2m | [22m  [36m1.45 kB[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m             [2m | [22m[1m222.03 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                     [2m | [22m [1mRaw size[22m
+[32mchunk-6TTLZYPO.js[39m  [2m | [22m[2madmin-component[22m           [2m | [22m[36m376.73 kB[39m[2m | [22m
+[32mchunk-E6FDX4RZ.js[39m  [2m | [22m[2minfirmier-majeur-component[22m[2m | [22m[36m181.41 kB[39m[2m | [22m
+[32mchunk-2EOV3NXL.js[39m  [2m | [22m[2mmedecin-component[22m         [2m | [22m[36m134.17 kB[39m[2m | [22m
+[32mchunk-STBVRJYE.js[39m  [2m | [22m[2minfirmier-component[22m       [2m | [22m [36m98.72 kB[39m[2m | [22m
+[32mchunk-26SVUW57.js[39m  [2m | [22m[2mpatient-component[22m         [2m | [22m [36m50.61 kB[39m[2m | [22m
+[32mchunk-JT77NX5P.js[39m  [2m | [22m[2mlogin-component[22m           [2m | [22m [36m43.48 kB[39m[2m | [22m
+[32mchunk-2XRVKKX7.js[39m  [2m | [22m[2mplanning-component[22m        [2m | [22m [36m37.31 kB[39m[2m | [22m
+[32mchunk-GPHKKMS7.js[39m  [2m | [22m[2m-[22m                         [2m | [22m  [36m4.20 kB[39m[2m | [22m
+[32mchunk-3S6XZ2TJ.js[39m  [2m | [22m[2m-[22m                         [2m | [22m  [36m2.44 kB[39m[2m | [22m
+[32mchunk-O4KI4JQS.js[39m  [2m | [22m[2m-[22m                         [2m | [22m  [36m1.90 kB[39m[2m | [22m
+[32mchunk-GX47NSDU.js[39m  [2m | [22m[2munauthorized-component[22m    [2m | [22m  [36m1.14 kB[39m[2m | [22m
+
+Application bundle generation complete. [16.629 seconds]
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4201[22m/[39m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m              [2m | [22m [36m4.12 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mchunk-I4LY2AEL.js[39m  [2m | [22m[2mplanning-component[22m[2m | [22m[36m33.00 kB[39m[2m | [22m
+
+Application bundle generation complete. [12.993 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m              [2m | [22m [36m4.12 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mchunk-MAJ3YRMR.js[39m  [2m | [22m[2mplanning-component[22m[2m | [22m[36m32.65 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.493 seconds]
+
+Page reload sent to client(s).

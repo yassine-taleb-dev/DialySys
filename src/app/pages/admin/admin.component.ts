@@ -242,16 +242,16 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   readonly groupesSanguins = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   machines: string[] = [];
-  private allMachineCodes: string[] = [];
+  allMachineCodes: string[] = [];
   readonly joursTitles = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   readonly moisLabels = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
   roleIds: RoleId[] = ['admin', 'medecin', 'infirmier-majeur', 'infirmier', 'aide-soignant', 'patient'];
 
-  newPatient = { nom: '', prenom: '', dateNaissance: '', cin: '', telephone: '', adresse: '', genre: '', statut: 'STABLE' };
+  newPatient = { nom: '', prenom: '', dateNaissance: '', cin: '', telephone: '', adresse: '', genre: '' };
 
   editPatient: {
     id: number; nom: string; prenom: string; dateNaissance: string;
-    groupeSanguin: string; patientStatut: string; cin: string;
+    groupeSanguin: string; cin: string;
     telephone: string; adresse: string; genre: string;
   } | null = null;
 
@@ -294,11 +294,31 @@ export class AdminComponent implements OnInit, OnDestroy {
       patientId: '',
       aideSoignantId: '',
       dates: [] as string[],
-      datesSeances: [] as JourSeance[],   // horaire spécifique par date sélectionnée
-      heureDebut: '07:30',   // valeur par défaut
+      datesSeances: [] as JourSeance[],
+      heureDebut: '07:30',
       heureFin:   '11:30',
-      machine: ''
+      machine: '',
+      // jours sélectionnés (0=Dim,1=Lun,...,6=Sam)
+      jours: [] as number[],
+      // abord vasculaire
+      abordFAV: false,
+      abordCatheter: false,
+      // shift
+      shiftMatin: false,
+      shiftApresMidi: false,
     };
+
+  readonly joursLabels = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+
+  toggleSeanceJour(j: number): void {
+    const idx = this.newSeance.jours.indexOf(j);
+    if (idx >= 0) this.newSeance.jours.splice(idx, 1);
+    else this.newSeance.jours.push(j);
+  }
+
+  isSeanceJourSelected(j: number): boolean {
+    return this.newSeance.jours.includes(j);
+  }
   newSeanceActiveDate: string | null = null;
 
   editSeance: {
@@ -557,7 +577,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         nom: this.wizardData.nom, prenom: this.wizardData.prenom,
         dateNaissance: this.wizardData.dateNaissance,
         cin: this.wizardData.cin, telephone: this.wizardData.telephone,
-        adresse: this.wizardData.adresse, genre: this.wizardData.genre, statut: 'STABLE',
+        adresse: this.wizardData.adresse, genre: this.wizardData.genre,
       };
       this.showWizardModal = false;
       this.saveNewPatient();
@@ -719,7 +739,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     const payload: PatientRequestDto = {
       nom: this.newPatient.nom.trim(), prenom: this.newPatient.prenom.trim(),
       dateNaissance: this.newPatient.dateNaissance,
-      statut: this.newPatient.statut || 'STABLE', cin: this.newPatient.cin || null,
+      cin: this.newPatient.cin || null,
       telephone: normalizedPhone || null, adresse: this.newPatient.adresse || null, genre: this.newPatient.genre || null
     };
     this.patientService.create(payload).subscribe({
@@ -732,7 +752,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.editPatient = {
       id: user.id, nom: user.nom, prenom: user.prenom,
       dateNaissance: user.dateNaissance || '', groupeSanguin: user.groupeSanguin || '',
-      patientStatut: user.patientStatut || 'STABLE', cin: user.cin || '', telephone: user.telephone || '', adresse: '', genre: ''
+      cin: user.cin || '', telephone: user.telephone || '', adresse: '', genre: ''
     };
     this.showEditPatientModal = true;
   }
@@ -744,7 +764,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     const payload: PatientRequestDto = {
       nom: this.editPatient.nom.trim(), prenom: this.editPatient.prenom.trim(),
       dateNaissance: this.editPatient.dateNaissance,
-      statut: this.editPatient.patientStatut, cin: this.editPatient.cin || null,
+      cin: this.editPatient.cin || null,
       telephone: normalizedPhone || null, adresse: this.editPatient.adresse || null, genre: this.editPatient.genre || null
     };
     this.patientService.update(this.editPatient.id, payload).subscribe({
@@ -1330,39 +1350,71 @@ export class AdminComponent implements OnInit, OnDestroy {
    * Valide que chaque date a des heures cohérentes avant d'envoyer.
    */
   ajouterSeance(): void {
-    if (!this.newSeance.patientId || !this.newSeance.datesSeances.length) {
-      this.showToast('Veuillez choisir un patient et au moins une date', 'warning'); return;
+    const creneaux = this.resolveSelectedCreneaux();
+    if (!this.newSeance.patientId || !this.newSeance.jours.length || !creneaux.length) {
+      this.showToast('Veuillez choisir un patient, au moins un jour et un créneau', 'warning'); return;
     }
-    const invalid = this.newSeance.datesSeances.find(d => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
-    if (invalid) {
-      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit être après l'heure de début`, 'warning');
-      return;
-    }
-    const adminId = this.authService.utilisateurId;
-    const requests = this.newSeance.datesSeances.map((d): SeanceRequestDto => {
-      const machine = this.resolveMachineForDate(d) ?? (this.newSeance.machine || '');
-      return {
-        date: d.date,
-        heureDebut: d.heureDebut,
-        heureFin: d.heureFin,
-        machine,
-        notes: 'Planifiee depuis l administration',
-        dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
-        patientId: Number(this.newSeance.patientId),
-        utilisateurId: adminId
-      };
-    });
-    forkJoin(requests.map(r => this.seanceService.create(r))).subscribe({
+
+    const payload = {
+      patientId: Number(this.newSeance.patientId),
+      jours: [...new Set(this.newSeance.jours)],
+      creneaux,
+      nombreSemaines: 1,
+      utilisateurId: this.authService.utilisateurId || null
+    };
+
+    this.seanceService.planifier(payload).subscribe({
       next: (createdSeances) => {
         this.insertSeances(createdSeances);
         this.resetNewSeanceForm();
-        this.showToast(`${requests.length} séance(s) planifiée(s) avec succès`, 'success');
+        this.showToast(`${createdSeances.length} séance(s) planifiée(s) avec succès`, 'success');
       },
       error: (err) => {
         const msg = err?.error?.message || err?.error?.detail || err?.error?.error || 'Impossible de planifier la séance';
         this.showToast(msg, 'error');
       }
     });
+  }
+
+  private resolveSelectedCreneaux(): Array<'MATIN' | 'APRES_MIDI'> {
+    const creneaux: Array<'MATIN' | 'APRES_MIDI'> = [];
+    if (this.newSeance.shiftMatin) creneaux.push('MATIN');
+    if (this.newSeance.shiftApresMidi) creneaux.push('APRES_MIDI');
+    return creneaux;
+  }
+
+  private resolveNewSeanceDates(): JourSeance[] {
+    if (this.newSeance.datesSeances.length) {
+      return this.newSeance.datesSeances;
+    }
+
+    const shifts: Array<{ heureDebut: string; heureFin: string }> = [];
+    if (this.newSeance.shiftMatin) shifts.push({ heureDebut: '07:30', heureFin: '11:30' });
+    if (this.newSeance.shiftApresMidi) shifts.push({ heureDebut: '13:30', heureFin: '17:30' });
+    if (!this.newSeance.jours.length || !shifts.length) {
+      return [];
+    }
+
+    const today = new Date();
+    return this.newSeance.jours
+      .flatMap(day => {
+        const date = this.nextDateForWeekday(today, day);
+        return shifts.map(shift => ({
+          date,
+          heureDebut: shift.heureDebut,
+          heureFin: shift.heureFin,
+          machine: this.newSeance.machine,
+          aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, shift.heureDebut, shift.heureFin)
+        }));
+      })
+      .sort((left, right) => `${left.date} ${left.heureDebut}`.localeCompare(`${right.date} ${right.heureDebut}`));
+  }
+
+  private nextDateForWeekday(from: Date, targetDay: number): string {
+    const date = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    const diff = (targetDay - date.getDay() + 7) % 7;
+    date.setDate(date.getDate() + diff);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   }
 
   supprimerSeance(id: number): void {
@@ -1644,7 +1696,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       actif: true, statut: 'actif', derniereConnexion: '—',
       telephone: dto.telephone ?? '',
       service: dto.medecinReferent ? `Referent: ${dto.medecinReferent.prenom} ${dto.medecinReferent.nom}` : '',
-      dateNaissance: dto.dateNaissance, groupeSanguin: dto.groupeSanguin, patientStatut: dto.statut,
+      dateNaissance: dto.dateNaissance, groupeSanguin: dto.groupeSanguin,
       cin: dto.cin ?? null
     };
   }
@@ -1661,7 +1713,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       responsableId: aideSoignant?.id ?? null, aideSoignantNom,
       date: this.isoToDisplayDate(String(dto.date)),
       heureDebut: this.timeOnly(String(dto.heureDebut)), heureFin: this.timeOnly(String(dto.heureFin)),
-      machine: dto.machine ?? '—', statut: this.normalizeSeanceStatut(dto.statut)
+      machine: '—', statut: this.normalizeSeanceStatut(dto.statut)
     };
   }
 
@@ -2055,7 +2107,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private resetNewSeanceForm(): void {
-    this.newSeance = { patientId: '', aideSoignantId: '', dates: [], datesSeances: [], heureDebut: '07:30', heureFin: '11:30', machine: this.allMachineCodes[0] ?? '' };
+    this.newSeance = { patientId: '', aideSoignantId: '', dates: [], datesSeances: [], heureDebut: '07:30', heureFin: '11:30', machine: this.allMachineCodes[0] ?? '', jours: [], abordFAV: false, abordCatheter: false, shiftMatin: false, shiftApresMidi: false };
     this.newSeanceActiveDate = null;
     this.machines = [...this.allMachineCodes];
   }

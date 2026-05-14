@@ -7,7 +7,6 @@ export interface PatientDto {
   prenom: string;
   dateNaissance: string;
   groupeSanguin: string;
-  statut: string;
   cin: string | null;
   telephone: string | null;
   adresse: string | null;

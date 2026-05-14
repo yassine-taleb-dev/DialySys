@@ -518,7 +518,7 @@
       <div class="panel panel--full">
         <table class="data-table">
           <thead>
-            <tr><th>Patient</th><th>Pathologie</th><th>Infirmier(e)</th><th>Machine</th><th>PA</th><th>FC</th><th>Progression</th><th>Statut</th></tr>
+            <tr><th>Patient</th><th>Pathologie</th><th>Infirmier(e)</th><th>Machine</th><th>PA</th><th>FC</th><th>Progression</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of filteredPatients">
@@ -531,13 +531,12 @@
               <td>
                 <div class="progress-mini" *ngIf="p.progress > 0">
                   <div class="progress-mini__bar">
-                    <div class="progress-mini__fill" [style.width.%]="p.progress" [class.warn]="p.statutClass === 'warn'"></div>
+                    <div class="progress-mini__fill" [style.width.%]="p.progress" [class.warn]="p.paClass === 'warn-val'"></div>
                   </div>
                   <span>{{ p.progress }}%</span>
                 </div>
                 <span *ngIf="p.progress === 0" style="color:var(--c-text-3);font-size:12px">—</span>
               </td>
-              <td><span class="badge {{ p.statutClass }}">{{ p.statut }}</span></td>
             </tr>
           </tbody>
         </table>
@@ -713,7 +712,7 @@
 
           <div class="sup-patients-list" *ngIf="sup.patients.length > 0">
             <div class="sup-patient-row" *ngFor="let p of sup.patients"
-              [class.sup-patient-row--warn]="p.statutClass === 'warn'">
+              [class.sup-patient-row--warn]="p.paClass === 'warn-val'">
               <div class="patient-cell">
                 <div class="avatar-sm">{{ p.init }}</div>
                 <div>
@@ -725,7 +724,6 @@
                 <span class="mono {{ p.paClass }}">{{ p.pa }}</span>
                 <span *ngIf="p.fc > 0" class="mono" style="font-size:11px;color:var(--c-text-3)">{{ p.fc }} bpm</span>
               </div>
-              <span class="badge {{ p.statutClass }}">{{ p.statut }}</span>
             </div>
           </div>
 

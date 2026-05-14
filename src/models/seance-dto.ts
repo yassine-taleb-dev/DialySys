@@ -6,7 +6,6 @@ export interface SeanceDto {
   heureDebut: string;
   heureFin: string;
   statut: string;
-  machine: string | null;
   notes: string | null;
   dureeHeures: number;
   patient: PatientSummaryDto;

@@ -4,6 +4,7 @@ import { Observable, shareReplay, tap } from 'rxjs';
 import { SeanceDto } from '../models/seance-dto';
 import { SeanceRequestDto } from '../models/seance-request-dto';
 import { SeanceUpdateRequestDto } from '../models/seance-update-request-dto';
+import { PlanificationSeancesRequestDto } from '../models/planification-seances-request-dto';
 import { AideSoignantDisponibiliteDto } from '../models/aide-soignant-disponibilite-dto';
 import { environment } from '../environments/environment';
 function todayLocalIso(): string {
@@ -70,6 +71,12 @@ export class SeanceService {
 
   create(payload: SeanceRequestDto): Observable<SeanceDto> {
     return this.http.post<SeanceDto>(this.api, payload).pipe(
+      tap(() => this.invalidateCache())
+    );
+  }
+
+  planifier(payload: PlanificationSeancesRequestDto): Observable<SeanceDto[]> {
+    return this.http.post<SeanceDto[]>(`${this.api}/planification`, payload).pipe(
       tap(() => this.invalidateCache())
     );
   }

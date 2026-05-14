@@ -24,7 +24,7 @@ interface StaffMember {
 
 interface Patient {
   init: string; nom: string; pathologie: string;
-  infirmier: string; machine: string; statut: string; statutClass: string;
+  infirmier: string; machine: string;
   pa: string; paClass: string; fc: number; progress: number;
 }
 
@@ -173,11 +173,11 @@ export class InfirmierMajeurComponent {
 
   // ── Patients ──
   allPatients: Patient[] = [
-    { init: 'AK', nom: 'Alaoui Khalid',      pathologie: 'DRC', infirmier: 'Inf. N. Tazi',     machine: 'M-03', statut: 'Terminé',   statutClass: 'ok',   pa: '138/88', paClass: 'ok',       fc: 72, progress: 100 },
-    { init: 'ME', nom: 'Moussaoui El Hassan', pathologie: 'DRC', infirmier: 'Inf. A. Haddad',   machine: 'M-02', statut: 'Alerte PA', statutClass: 'warn', pa: '172/98', paClass: 'warn-val', fc: 88, progress: 72  },
-    { init: 'OB', nom: 'Ouali Badreddine',    pathologie: 'IRC', infirmier: 'Inf. N. Tazi',     machine: 'M-05', statut: 'En cours',  statutClass: 'info', pa: '122/76', paClass: 'ok',       fc: 68, progress: 58  },
-    { init: 'SB', nom: 'Saidi Bouchra',       pathologie: 'IRC', infirmier: 'Inf. L. Mansouri', machine: 'M-07', statut: 'En cours',  statutClass: 'info', pa: '128/82', paClass: 'ok',       fc: 74, progress: 44  },
-    { init: 'FZ', nom: 'Filali Zineb',        pathologie: 'IRC', infirmier: 'Inf. R. Berrada',  machine: 'M-09', statut: 'Planifiée', statutClass: 'purple',pa: '—',     paClass: '',          fc: 0,  progress: 0   },
+    { init: 'AK', nom: 'Alaoui Khalid',      pathologie: 'DRC', infirmier: 'Inf. N. Tazi',     machine: 'M-03', pa: '138/88', paClass: 'ok',       fc: 72, progress: 100 },
+    { init: 'ME', nom: 'Moussaoui El Hassan', pathologie: 'DRC', infirmier: 'Inf. A. Haddad',   machine: 'M-02', pa: '172/98', paClass: 'warn-val', fc: 88, progress: 72  },
+    { init: 'OB', nom: 'Ouali Badreddine',    pathologie: 'IRC', infirmier: 'Inf. N. Tazi',     machine: 'M-05', pa: '122/76', paClass: 'ok',       fc: 68, progress: 58  },
+    { init: 'SB', nom: 'Saidi Bouchra',       pathologie: 'IRC', infirmier: 'Inf. L. Mansouri', machine: 'M-07', pa: '128/82', paClass: 'ok',       fc: 74, progress: 44  },
+    { init: 'FZ', nom: 'Filali Zineb',        pathologie: 'IRC', infirmier: 'Inf. R. Berrada',  machine: 'M-09', pa: '-',      paClass: '',          fc: 0,  progress: 0   },
   ];
 
   searchPatients = '';

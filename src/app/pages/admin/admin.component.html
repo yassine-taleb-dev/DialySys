@@ -575,114 +575,59 @@
     <ng-container *ngIf="activeTab === 'seances'">
       <div class="action-form-card">
         <div class="action-form-title"><span class="material-icons">add_circle</span> Planifier une séance de dialyse</div>
-        <div class="horaire-form-layout">
+        <div class="seance-form-grid">
 
-          <!-- ── Colonne gauche ── -->
-          <div class="horaire-form-left">
-            <div class="form-field">
-              <label>Patient <span class="req">*</span></label>
-              <select [(ngModel)]="newSeance.patientId">
-                <option value="">— Sélectionner —</option>
-                <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option>
-              </select>
-            </div>
+          <!-- Patient -->
+          <div class="form-field">
+            <label>Patient <span class="req">*</span></label>
+            <select [(ngModel)]="newSeance.patientId">
+              <option value="">— Sélectionner —</option>
+              <option *ngFor="let p of patientsUsers" [value]="p.id">{{ p.prenom }} {{ p.nom }}</option>
+            </select>
+          </div>
 
-            <!-- Heures par défaut -->
-            <div class="per-day-section-header">
-              <span class="material-icons">schedule</span>
-              <span>Heures par défaut</span>
-              <span class="per-day-hint">Appliquées aux nouvelles dates sélectionnées</span>
-            </div>
-            <div class="form-row-inline">
-              <div class="form-field">
-                <label>Début par défaut</label>
-                <input type="time" [(ngModel)]="newSeance.heureDebut" (ngModelChange)="onNewSeanceScheduleChange()" />
-              </div>
-              <div class="form-field">
-                <label>Fin par défaut</label>
-                <input type="time" [(ngModel)]="newSeance.heureFin" (ngModelChange)="onNewSeanceScheduleChange()" />
-              </div>
-            </div>
-
-              <div class="form-field">
-                <label>Machine par défaut</label>
-                <select [(ngModel)]="newSeance.machine">
-                  <option value="">— Sélectionner —</option>
-                  <option *ngFor="let m of machines" [value]="m">{{ m }}</option>
-                </select>
-                <small *ngIf="newSeance.dates.length">Utilisée comme préférence pour la date active, puis ajustée date par date.</small>
-              </div>
-
-            <!-- Liste des dates sélectionnées avec horaires individuels -->
-            <ng-container *ngIf="newSeance.datesSeances.length > 0">
-              <div class="per-day-section-header" style="margin-top:14px">
-                <span class="material-icons">event_note</span>
-                <span>Horaires par date</span>
-                <span class="per-day-badge">{{ newSeance.datesSeances.length }} date(s)</span>
-              </div>
-              <div class="jour-horaire-list">
-                <ng-container *ngFor="let ds of newSeance.datesSeances">
-                  <div class="jour-horaire-row">
-                    <span class="jour-horaire-date">{{ isoToDisplayDate(ds.date) }}</span>
-                    <div class="jour-horaire-times">
-                      <input type="time" [(ngModel)]="ds.heureDebut" class="time-input-sm"
-                             [class.time-input--error]="ds.heureDebut >= ds.heureFin"
-                             (ngModelChange)="onNewSeanceScheduleChange()" />
-                      <span class="jour-horaire-sep">→</span>
-                      <input type="time" [(ngModel)]="ds.heureFin" class="time-input-sm"
-                             [class.time-input--error]="ds.heureDebut >= ds.heureFin"
-                             (ngModelChange)="onNewSeanceScheduleChange()" />
-                    </div>
-                    <select [(ngModel)]="ds.machine" class="time-input-sm" style="min-width: 140px;">
-                      <option value="">Machine auto</option>
-                      <option *ngFor="let machine of getAvailableMachineCodesForDate(ds.date, ds.heureDebut, ds.heureFin)" [value]="machine">
-                        {{ machine }}
-                      </option>
-                    </select>
-                    <button class="jour-remove-btn" (click)="toggleSeanceCalDay(ds.date)" title="Retirer cette date">
-                      <span class="material-icons">close</span>
-                    </button>
-                  </div>
-                  <small *ngIf="getAvailableMachineCodesForDate(ds.date, ds.heureDebut, ds.heureFin).length === 0">
-                    Aucune machine disponible pour le {{ isoToDisplayDate(ds.date) }} sur ce créneau.
-                  </small>
-                </ng-container>
-              </div>
-            </ng-container>
-
-            <!-- État vide -->
-            <div class="per-day-empty" *ngIf="newSeance.datesSeances.length === 0">
-              <span class="material-icons">calendar_today</span>
-              <span>Sélectionnez des dates dans le calendrier</span>
+          <!-- Jours -->
+          <div class="seance-block">
+            <div class="seance-block__title"><span class="material-icons">calendar_today</span> Jours</div>
+            <div class="seance-days-row">
+              <button *ngFor="let j of [1,2,3,4,5,6,0]" type="button"
+                class="day-chip" [class.day-chip--active]="isSeanceJourSelected(j)"
+                (click)="toggleSeanceJour(j)">
+                {{ joursLabels[j] }}
+              </button>
             </div>
           </div>
 
-          <!-- ── Colonne droite : calendrier ── -->
-          <div class="horaire-form-right">
-            <div class="cal-inline">
-              <div class="cal-header">
-                <button class="cal-nav-btn" (click)="seanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button>
-                <span class="cal-title">{{ seanceCalTitle }}</span>
-                <button class="cal-nav-btn" (click)="seanceCalNextMonth()"><span class="material-icons">chevron_right</span></button>
+          <!-- Créneaux -->
+          <div class="seance-block">
+            <div class="seance-block__title"><span class="material-icons">schedule</span> Créneaux</div>
+            <div class="seance-options-grid">
+
+              <!-- Matin -->
+              <div class="seance-option-col">
+                <label class="seance-check">
+                  <input type="checkbox" [(ngModel)]="newSeance.shiftMatin" />
+                  <span>Matin</span>
+                </label>
               </div>
-              <div class="cal-grid">
-                <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
-                <ng-container *ngFor="let cell of seanceCalDays">
-                  <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                  <button *ngIf="cell !== null" type="button" class="cal-cell"
-                       [class.cal-cell--today]="cell.today"
-                       [class.cal-cell--selected]="isSeanceDaySelected(cell.date)"
-                       (click)="toggleSeanceCalDay(cell.date)">{{ cell.day }}</button>
-                </ng-container>
+
+              <!-- Cathéter -->
+              <div class="seance-option-col">
+                <label class="seance-check">
+                  <input type="checkbox" [(ngModel)]="newSeance.shiftApresMidi" />
+                  <span>Après-midi</span>
+                </label>
               </div>
+
             </div>
           </div>
+
         </div>
 
         <div class="action-form-footer">
           <button class="btn-sm-primary" (click)="ajouterSeance()">
             <span class="material-icons">event_available</span>
-            Planifier {{ newSeance.datesSeances.length > 1 ? 'les ' + newSeance.datesSeances.length + ' séances' : 'la séance' }}
+            Planifier la séance
           </button>
         </div>
       </div>

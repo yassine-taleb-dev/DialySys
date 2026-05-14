@@ -10,7 +10,6 @@ export interface PatientRequestDto {
   prenom: string;
   dateNaissance: string;
   groupeSanguin?: string | null;
-  statut: string;
   cin?: string | null;
   telephone?: string | null;
   adresse?: string | null;

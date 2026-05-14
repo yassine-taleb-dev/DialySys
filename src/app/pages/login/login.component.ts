@@ -73,9 +73,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.http.get<any[]>(`${environment.apiUrl}/patients`).subscribe({
       next: (patients) => {
-        const actifs = patients.filter(p =>
-          ['STABLE', 'ACTIF', 'EN_COURS'].includes(p.statut?.toUpperCase?.() ?? p.statut)
-        ).length;
+        const actifs = patients.length;
         const total = patients.length || 1;
         const efficacite = Math.round((actifs / total) * 1000) / 10;
         this.statsLoading = false;
