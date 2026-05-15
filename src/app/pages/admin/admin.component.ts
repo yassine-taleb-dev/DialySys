@@ -9,91 +9,55 @@ import { AuthService } from '../../../services/auth.service';
 import { UtilisateurCreateDto, UtilisateurService, UtilisateurUpdateDto } from '../../../services/utilisateur.service';
 import { PatientRequestDto, PatientService } from '../../../services/patient.service';
 import { SeanceService } from '../../../services/seance.service';
-import { HoraireTravailService } from '../../../services/horaire-travail.service';
 import { AdminSettingsService } from '../../../services/admin-settings.service';
 import { RolePermissionService } from '../../../services/role-permission.service';
 import { UtilisateurResponseDto } from '../../../models/utilisateur.model';
 import { PatientDto } from '../../../models/patient-dto';
 import { SeanceDto } from '../../../models/seance-dto';
-import { HoraireTravailDto } from '../../../models/horaire-travail-dto';
-import { HoraireTravailRequestDto } from '../../../models/horaire-travail-request-dto';
 import { AdminSettingsDto } from '../../../models/admin-settings-dto';
 import { RolePermissionsDto } from '../../../models/role-permissions-dto';
 import { SeanceRequestDto } from '../../../models/seance-request-dto';
 import { SeanceUpdateRequestDto } from '../../../models/seance-update-request-dto';
-import { MachineDto } from '../../../models/machine-dto';
 import { Subject } from 'rxjs';
-import { MachineService } from '../../../services/machine.service';
 import { takeUntil } from 'rxjs/operators';
-import { AdminTab, AppUser, HoraireRow, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
-
-/** Horaire d'un jour spécifique */
-export interface JourHoraire {
-  date: string;       // ISO yyyy-MM-dd
-  heureDebut: string;
-  heureFin: string;
-}
+import { AdminTab, AppUser, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
 
 /** Horaire d'une séance pour un jour spécifique */
 export interface JourSeance {
   date: string;       // ISO yyyy-MM-dd
   heureDebut: string;
   heureFin: string;
-  aideSoignantId?: number | null;
-  machine?: string;
+  infirmierId?: number | null;
 }
 
-/** Regroupement de séances identiques (même patient, aide-soignant, machine, statut) avec dates multiples */
+/** Regroupement de séances identiques avec dates multiples */
 export interface GroupedSeance {
   patientId: number;
   patientNom: string;
   responsableId: number | null;
-  aideSoignantNom: string;
+  infirmierNom: string;
   dates: string[];           // dates affichées dd/MM/yyyy
   heureDebut: string;
   heureFin: string;
-  machine: string;
   statut: string;
   seances: SeanceAdminRow[];
-}
-
-export interface GroupedHoraire {
-  utilisateurId: number;
-  staffNom: string;
-  staffRole: string;
-  dates: string[];
-  heureDebut: string;
-  heureFin: string;
-  horaires: HoraireRow[];
-}
-
-export interface PersonHoraireEntry {
-  date: string;
-  heureDebut: string;
-  heureFin: string;
-  horaireId: number;
-}
-
-export interface PersonHoraire {
-  utilisateurId: number;
-  staffNom: string;
-  staffRole: string;
-  entries: PersonHoraireEntry[];
 }
 
 export interface PersonSeanceEntry {
   date: string;
   heureDebut: string;
   heureFin: string;
-  machine: string;
   statut: string;
+  jourPlanifie?: number | null;
+  creneau?: string | null;
   seanceId: number;
+  seanceIds?: number[];
 }
 
 export interface PersonSeance {
   patientId: number;
   patientNom: string;
-  aideSoignantNom: string;
+  infirmierNom: string;
   entries: PersonSeanceEntry[];
 }
 
@@ -113,13 +77,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     private utilisateurService: UtilisateurService,
     private patientService: PatientService,
     private seanceService: SeanceService,
-    private machineService: MachineService,
-    private horaireTravailService: HoraireTravailService,
     private adminSettingsService: AdminSettingsService,
     private rolePermissionService: RolePermissionService
   ) {}
 
-  // ── Sidebar mobile ──
+  // -- Sidebar mobile --
   sidebarOpen = false;
 
   private destroy$ = new Subject<void>();
@@ -149,7 +111,6 @@ export class AdminComponent implements OnInit, OnDestroy {
   loading = false;
   isLight = true;
   private profilsLoaded = false;
-  private horairesLoaded = false;
   private seancesLoaded = false;
 
   // -- Wizard nouveau profil --
@@ -161,7 +122,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     { id: 'medecin',          label: 'Médecin',          icon: 'medical_services',   color: 'var(--c-teal)',   desc: 'Néphrologue, prescriptions, dossiers' },
     { id: 'infirmier-majeur', label: 'Infirmier Majeur',  icon: 'supervisor_account', color: 'var(--c-purple)', desc: 'Coordinateur, planification, équipes' },
     { id: 'infirmier',        label: 'Infirmier(e)',      icon: 'local_hospital',     color: 'var(--c-blue)',   desc: 'Soins, monitoring, constantes vitales' },
-    { id: 'aide-soignant',    label: 'Aide-Soignant',    icon: 'volunteer_activism', color: 'var(--c-amber)',  desc: 'Support aux soins, équipements' },
     { id: 'patient',          label: 'Patient',           icon: 'person',             color: 'var(--c-green)',  desc: 'Patient du centre de dialyse' },
   ];
 
@@ -169,7 +129,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     'medecin':          'Hémodialyse',
     'infirmier-majeur': 'Hémodialyse',
     'infirmier':        'Hémodialyse',
-    'aide-soignant':    'Hémodialyse',
     'patient':          '',
     'admin':            'Hémodialyse',
   };
@@ -178,7 +137,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     'medecin':          'Néphrologie',
     'infirmier-majeur': 'Hémodialyse',
     'infirmier':        'Hémodialyse',
-    'aide-soignant':    'Soins généraux',
     'patient':          '',
     'admin':            '',
   };
@@ -196,7 +154,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     { id: 'pl_delete', category: 'Planning',       label: 'Supprimer des seances',           description: 'Retirer une seance du planning' },
     { id: 'mo_view',   category: 'Monitoring',     label: 'Voir le monitoring',              description: 'Acces au suivi temps reel des patients en dialyse' },
     { id: 'mo_saisie', category: 'Monitoring',     label: 'Saisir les constantes vitales',   description: 'Enregistrer PA, FC, poids et autres parametres' },
-    { id: 'eq_view',   category: 'Equipement',     label: 'Voir les machines',               description: 'Consulter les disponibilites des machines' },
     { id: 'eq_stock',  category: 'Equipement',     label: 'Gerer les stocks',                description: 'Voir et commander les consommables' },
     { id: 'eq_maint',  category: 'Equipement',     label: 'Signaler une maintenance',        description: 'Declarer une panne ou une intervention technique' },
     { id: 'r_gen',     category: 'Rapports',       label: 'Generer des rapports',            description: 'Creer des rapports statistiques et medicaux' },
@@ -210,7 +167,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     { id: 'medecin',          label: 'Medecin',           icon: 'medical_services',    color: '#00D9C4', colorVar: 'var(--c-teal)',   description: 'Medecin nephrologue',          permissions: {} },
     { id: 'infirmier-majeur', label: 'Infirmier Majeur',  icon: 'supervisor_account',  color: '#A78BFA', colorVar: 'var(--c-purple)', description: 'Coordinateur du service',      permissions: {} },
     { id: 'infirmier',        label: 'Infirmier(e)',      icon: 'local_hospital',      color: '#4EA8F8', colorVar: 'var(--c-blue)',   description: 'Suivi des seances et soins',   permissions: {} },
-    { id: 'aide-soignant',    label: 'Aide-Soignant',    icon: 'volunteer_activism',  color: '#F5A623', colorVar: 'var(--c-amber)',  description: 'Support aux soins',            permissions: {} },
     { id: 'patient',          label: 'Patient',           icon: 'person',              color: '#22c55e', colorVar: 'var(--c-green)',  description: 'Patient du centre',            permissions: {} },
   ];
 
@@ -224,28 +180,22 @@ export class AdminComponent implements OnInit, OnDestroy {
   showNewUserModal = false;
   showSettingsModal = false;
   showEditPatientModal = false;
-  showEditHoraireModal = false;
   showEditSeanceModal = false;
 
   searchQuery = ''; filterRole: RoleId | '' = ''; filterStatus: UserStatus | '' = '';
   activeKpi: string = '';   // tracks which KPI card is highlighted
   searchPatient = '';
-  searchHoraire = '';
-  filterHoraireDate = '';
   searchSeance = '';
   filterSeanceDate = '';
   readonly pageSize = 4;
   staffPage = 1;
   patientPage = 1;
-  horairePage = 1;
   seancePage = 1;
 
   readonly groupesSanguins = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-  machines: string[] = [];
-  allMachineCodes: string[] = [];
   readonly joursTitles = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   readonly moisLabels = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
-  roleIds: RoleId[] = ['admin', 'medecin', 'infirmier-majeur', 'infirmier', 'aide-soignant', 'patient'];
+  roleIds: RoleId[] = ['admin', 'medecin', 'infirmier-majeur', 'infirmier', 'patient'];
 
   newPatient = { nom: '', prenom: '', dateNaissance: '', cin: '', telephone: '', adresse: '', genre: '' };
 
@@ -267,37 +217,17 @@ export class AdminComponent implements OnInit, OnDestroy {
     auditLog: true, doubleAuth: false
   };
 
-  // ─── HORAIRES ────────────────────────────────────────────────────────────────
-  horaires: HoraireRow[] = [];
-
-  /** Formulaire de création d'horaire avec heures individuelles par jour */
-  newHoraire = {
-    staffType: '',
-    staffNom: '',
-    heureDebut: '07:00',   // valeur par défaut appliquée aux nouveaux jours sélectionnés
-    heureFin:   '15:00',
-    jours: [] as string[],
-    joursHoraires: [] as JourHoraire[]  // horaire spécifique par jour sélectionné
-  };
-
-  editHoraire: {
-    id: number; utilisateurId: number; staffNom: string; staffRole: string;
-    jours: string[]; heureDebut: string; heureFin: string;
-    joursHoraires: JourHoraire[]; sourceHoraires: HoraireRow[];
-  } | null = null;
-
-  // ─── SÉANCES ─────────────────────────────────────────────────────────────────
+  // --- SÉANCES -----------------------------------------------------------------
   seancesAdmin: SeanceAdminRow[] = [];
 
   /** Formulaire de planification de séance avec heures individuelles par date */
   newSeance = {
       patientId: '',
-      aideSoignantId: '',
+      infirmierId: '',
       dates: [] as string[],
       datesSeances: [] as JourSeance[],
       heureDebut: '07:30',
       heureFin:   '11:30',
-      machine: '',
       // jours sélectionnés (0=Dim,1=Lun,...,6=Sam)
       jours: [] as number[],
       // abord vasculaire
@@ -316,6 +246,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     else this.newSeance.jours.push(j);
   }
 
+  setNewSeanceCreneau(creneau: 'MATIN' | 'APRES_MIDI'): void {
+    this.newSeance.shiftMatin = creneau === 'MATIN';
+    this.newSeance.shiftApresMidi = creneau === 'APRES_MIDI';
+  }
+
   isSeanceJourSelected(j: number): boolean {
     return this.newSeance.jours.includes(j);
   }
@@ -323,15 +258,14 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   editSeance: {
     id: number; patientId: number; patientNom: string;
-    responsableId: number | null; aideSoignantNom: string;
+    responsableId: number | null; infirmierNom: string;
     date: string; heureDebut: string; heureFin: string;
-    machine: string; statut: string;
+    statut: string;
     datesSeances: JourSeance[]; sourceSeances: SeanceAdminRow[];
   } | null = null;
   editSeanceDates: string[] = [];
+  editSeanceJours: number[] = [];
 
-  calYear = new Date().getFullYear(); calMonth = new Date().getMonth();
-  editCalYear = new Date().getFullYear(); editCalMonth = new Date().getMonth();
   seanceCalYear = new Date().getFullYear(); seanceCalMonth = new Date().getMonth();
   editSeanceCalYear = new Date().getFullYear(); editSeanceCalMonth = new Date().getMonth();
 
@@ -341,14 +275,13 @@ export class AdminComponent implements OnInit, OnDestroy {
   private pollingInterval: any = null;
   private readonly POLLING_INTERVAL_MS = 30000;
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  LIFECYCLE
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   ngOnInit(): void {
     if (this.isLight) document.body.classList.add('theme-light');
     this.loadSharedAdminData();
-    this.loadMachines();
     this.refreshAdminCollections();
     this.startPolling();
   }
@@ -393,20 +326,17 @@ export class AdminComponent implements OnInit, OnDestroy {
     forkJoin({
       users:    this.utilisateurService.getAll().pipe(catchError(() => of([] as any[]))),
       patients: this.patientService.getAll().pipe(catchError(() => of([] as any[]))),
-      horaires: this.horaireTravailService.getAll().pipe(catchError(() => of([] as any[]))),
       seances:  this.seanceService.getAll().pipe(catchError(() => of([] as any[])))
     }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: ({ users, patients, horaires, seances }) => {
+      next: ({ users, patients, seances }) => {
         this.staffUsers = users.map((u: any) => this.mapUtilisateurToAppUser(u));
         this.patientUsersData = patients.map((p: any) => this.mapPatientToAppUser(p));
         this.users = [...this.staffUsers, ...this.patientUsersData];
-        this.horaires = horaires.map((h: any) => this.mapHoraireToRow(h));
         this.seancesAdmin = seances.map((s: any) => this.mapSeanceToRow(s));
         this.profilsLoaded = true;
-        this.horairesLoaded = true;
         this.seancesLoaded = true;
         this.normalizeAllPages();
-        this.syncSelectedAideSoignant();
+        this.syncSelectedInfirmier();
 
         if (showLoader) {
           this.loading = false;
@@ -463,21 +393,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadHorairesData(): void {
-    this.loading = true;
-    this.horaireTravailService.getAll().subscribe({
-      next: (horaires) => {
-        this.horaires = horaires.map(h => this.mapHoraireToRow(h));
-        this.horairesLoaded = true;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.showToast(err?.error?.message ?? 'Erreur lors du chargement des horaires', 'error');
-      }
-    });
-  }
-
   loadSeancesData(): void {
     this.loading = true;
     this.seanceService.getAll().subscribe({
@@ -493,9 +408,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  WIZARD — création profil multi-étapes
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   wizardData = {
     nom: '', prenom: '', mat: '', email: '', telephone: '', service: '',
@@ -516,7 +431,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     'medecin':          'MED',
     'infirmier':        'INF',
     'infirmier-majeur': 'IMJ',
-    'aide-soignant':    'ASG',
     'admin':            'ADM',
     'patient':          'PAT',
   };
@@ -598,9 +512,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     return this.roles.filter(role => role.id !== 'patient');
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  PERMISSIONS
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   get permCategories(): string[] { return [...new Set(this.permissions.map(p => p.category))]; }
   permsByCategory(category: string): Permission[] { return this.permissions.filter(p => p.category === category); }
@@ -626,9 +540,9 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   permCount(role: RoleConfig): number { return Object.values(role.permissions ?? {}).filter(Boolean).length; }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  FILTRES — Profils
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   get filteredUsers(): AppUser[] {
     const q = this.searchQuery.toLowerCase();
@@ -660,9 +574,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   get paginatedPatients(): AppUser[] { return this.paginateArray(this.filteredPatients, 'patientPage'); }
   get totalPatientPages(): number { return this.getTotalPages(this.filteredPatients.length); }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  MODAL UTILISATEUR (édition)
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   openUser(user: AppUser): void { this.selectedUser = { ...user }; this.showUserModal = true; }
   closeUserModal(): void { this.showUserModal = false; this.selectedUser = null; }
@@ -723,9 +637,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  PATIENT — création & édition
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   saveNewPatient(): void {
     const missingFields: string[] = [];
@@ -773,9 +687,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  UTILISATEUR — création
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   saveNewUser(): void {
     this.wizardErrors = {};
@@ -815,310 +729,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  //  CALENDRIER — horaires  (avec heures individuelles par jour)
-  // ──────────────────────────────────────────────────────────────────────────────
-
-  get calTitle(): string { return `${this.moisLabels[this.calMonth]} ${this.calYear}`; }
-  calPrevMonth(): void { this.calMonth === 0 ? (this.calMonth = 11, this.calYear--) : this.calMonth--; }
-  calNextMonth(): void { this.calMonth === 11 ? (this.calMonth = 0, this.calYear++) : this.calMonth++; }
-  get calDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.calYear, this.calMonth); }
-  isDaySelected(date: string): boolean { return this.newHoraire.jours.includes(date); }
-
-  /**
-   * Sélectionne / désélectionne un jour dans le formulaire horaire.
-   * À l'ajout, pré-remplit les heures avec les valeurs par défaut du formulaire.
-   */
-  toggleCalDay(date: string): void {
-    const idx = this.newHoraire.jours.indexOf(date);
-    if (idx === -1) {
-      this.newHoraire.jours.push(date);
-      this.newHoraire.jours.sort();
-      this.newHoraire.joursHoraires.push({
-        date,
-        heureDebut: this.newHoraire.heureDebut,
-        heureFin: this.newHoraire.heureFin
-      });
-      this.newHoraire.joursHoraires.sort((a, b) => a.date.localeCompare(b.date));
-    } else {
-      this.newHoraire.jours.splice(idx, 1);
-      this.newHoraire.joursHoraires = this.newHoraire.joursHoraires.filter(j => j.date !== date);
-    }
-  }
-
-  /** Retourne l'entrée JourHoraire pour un jour donné */
-  getJourHoraire(date: string): JourHoraire | undefined {
-    return this.newHoraire.joursHoraires.find(j => j.date === date);
-  }
-
-  formatJours(jours: string[]): string {
-    if (!jours.length) return '—';
-    return jours.map(j => this.isoToDisplayDate(j)).join(', ');
-  }
-
-  private groupHoraires(horaires: HoraireRow[]): GroupedHoraire[] {
-    const map = new Map<string, GroupedHoraire>();
-    for (const horaire of horaires) {
-      const key = `${horaire.utilisateurId}|${horaire.staffRole}|${horaire.heureDebut}|${horaire.heureFin}`;
-      const existing = map.get(key);
-      if (existing) {
-        const combinedDates = [...existing.dates, ...horaire.jours];
-        existing.dates = [...new Set(combinedDates)].sort((a, b) => a.localeCompare(b));
-        existing.horaires.push(horaire);
-      } else {
-        map.set(key, {
-          utilisateurId: horaire.utilisateurId, staffNom: horaire.staffNom,
-          staffRole: horaire.staffRole,
-          dates: [...horaire.jours].sort((a, b) => a.localeCompare(b)),
-          heureDebut: horaire.heureDebut, heureFin: horaire.heureFin,
-          horaires: [horaire]
-        });
-      }
-    }
-    return Array.from(map.values());
-  }
-
-  get filteredHorairesFlat(): HoraireRow[] {
-    const q = this.searchHoraire.toLowerCase().trim();
-    let result = this.horaires;
-    if (this.filterHoraireDate) result = result.filter(h => h.jours.includes(this.filterHoraireDate));
-    if (!q) return result;
-    return result.filter(h => {
-      const datesDisplay = this.formatJours(h.jours).toLowerCase();
-      const datesIso = h.jours.join(' ').toLowerCase();
-      return h.staffNom.toLowerCase().includes(q) || h.staffRole.toLowerCase().includes(q) ||
-        datesDisplay.includes(q) || datesIso.includes(q) ||
-        h.heureDebut.includes(q) || h.heureFin.includes(q);
-    });
-  }
-
-  get filteredGroupedHoraires(): GroupedHoraire[] { return this.groupHoraires(this.filteredHorairesFlat); }
-
-  get filteredPersonHoraires(): PersonHoraire[] {
-    const map = new Map<number, PersonHoraire>();
-    for (const h of this.filteredHorairesFlat) {
-      let person = map.get(h.utilisateurId);
-      if (!person) {
-        person = { utilisateurId: h.utilisateurId, staffNom: h.staffNom, staffRole: h.staffRole, entries: [] };
-        map.set(h.utilisateurId, person);
-      }
-      for (const date of h.jours) {
-        if (this.filterHoraireDate && date !== this.filterHoraireDate) continue;
-        person.entries.push({ date, heureDebut: h.heureDebut, heureFin: h.heureFin, horaireId: h.id });
-      }
-    }
-    const persons = Array.from(map.values()).filter(p => p.entries.length > 0);
-    persons.forEach(p => p.entries.sort((a, b) => a.date.localeCompare(b.date)));
-    return persons;
-  }
-
-  get paginatedPersonHoraires(): PersonHoraire[] {
-    const items = this.filteredPersonHoraires;
-    const totalPages = Math.max(1, Math.ceil(items.length / this.pageSize));
-    if (this.horairePage > totalPages) this.horairePage = totalPages;
-    const start = (this.horairePage - 1) * this.pageSize;
-    return items.slice(start, start + this.pageSize);
-  }
-
-  get totalPersonHorairePages(): number { return Math.max(1, Math.ceil(this.filteredPersonHoraires.length / this.pageSize)); }
-
-  get paginatedHoraires(): HoraireRow[] { return this.paginateArray(this.filteredHorairesFlat, 'horairePage'); }
-
-  get paginatedGroupedHoraires(): GroupedHoraire[] {
-    const items = this.filteredGroupedHoraires;
-    const totalPages = this.getTotalPages(items.length);
-    if (this.horairePage > totalPages) this.horairePage = totalPages;
-    const start = (this.horairePage - 1) * this.pageSize;
-    return items.slice(start, start + this.pageSize);
-  }
-
-  get totalHorairePages(): number { return this.getTotalPages(this.filteredHorairesFlat.length); }
-
-  supprimerPersonHoraires(person: PersonHoraire): void {
-    const ids = [...new Set(person.entries.map(e => e.horaireId))];
-    forkJoin(ids.map(id => this.horaireTravailService.delete(id))).subscribe({
-      next: () => { this.showToast(`${ids.length} horaire(s) supprimé(s)`, 'warning'); this.refreshAfterMutation(); },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les horaires', 'error')
-    });
-  }
-
-  supprimerGroupedHoraires(group: GroupedHoraire): void {
-    const ids = group.horaires.map(h => h.id);
-    forkJoin(ids.map(id => this.horaireTravailService.delete(id))).subscribe({
-      next: () => { this.showToast(`${ids.length} horaire(s) supprimé(s)`, 'warning'); this.refreshAfterMutation(); },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les horaires', 'error')
-    });
-  }
-
-  getVisibleHoraireDates(dates: string[]): string[] {
-    const query = this.searchHoraire.trim().toLowerCase();
-    if (!query) return dates;
-    const matchedDates = dates.filter(date => {
-      const iso = date.toLowerCase();
-      const display = this.isoToDisplayDate(date).toLowerCase();
-      return iso.includes(query) || display.includes(query);
-    });
-    return matchedDates.length ? matchedDates : dates;
-  }
-
-  get staffSoignants(): AppUser[] { return this.users.filter(u => ['infirmier', 'aide-soignant', 'infirmier-majeur'].includes(u.role)); }
   get superviseurs(): AppUser[] { return this.users.filter(u => u.role === 'infirmier-majeur'); }
 
-  staffParType(type: string): AppUser[] {
-    if (!type) return [];
-    const normalized = type.toLowerCase();
-    if (normalized.includes('aide')) return this.users.filter(u => u.role === 'aide-soignant');
-    if (normalized.includes('majeur')) return this.users.filter(u => u.role === 'infirmier-majeur');
-    if (normalized.includes('infirmier')) return this.users.filter(u => u.role === 'infirmier');
-    return this.users.filter(u => u.role === this.toRoleId(type));
-  }
-
-  /**
-   * Enregistre les horaires : UNE requête par jour avec ses heures propres.
-   * Valide que chaque jour a des heures cohérentes avant d'envoyer.
-   */
-  ajouterHoraire(): void {
-    if (!this.newHoraire.staffNom || !this.newHoraire.joursHoraires.length) {
-      this.showToast('Veuillez sélectionner un personnel et au moins un jour', 'warning'); return;
-    }
-    const invalid = this.newHoraire.joursHoraires.find(j => !j.heureDebut || !j.heureFin || j.heureDebut >= j.heureFin);
-    if (invalid) {
-      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit être après l'heure de début`, 'warning');
-      return;
-    }
-    const requests = this.newHoraire.joursHoraires.map(j => ({
-      utilisateurId: Number(this.newHoraire.staffNom),
-      jours: [j.date],
-      heureDebut: j.heureDebut,
-      heureFin: j.heureFin
-    } as HoraireTravailRequestDto));
-
-    forkJoin(requests.map(r => this.horaireTravailService.create(r))).subscribe({
-      next: (createdHoraires) => {
-        this.newHoraire = { staffType: '', staffNom: '', heureDebut: '07:00', heureFin: '15:00', jours: [], joursHoraires: [] };
-        this.insertHoraires(createdHoraires);
-        this.showToast(`${requests.length} horaire(s) ajouté(s) avec succès`, 'success');
-      },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible d\'enregistrer les horaires', 'error')
-    });
-  }
-
-  supprimerHoraire(id: number): void {
-    if (!this.confirmDeletion('Supprimer cet horaire ?')) return;
-    this.horaireTravailService.delete(id).subscribe({
-      next: () => {
-        this.removeHoraireRows([id]);
-        this.showToast('Horaire supprime', 'warning');
-      },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer l horaire', 'error')
-    });
-  }
-
-  get editCalTitle(): string { return `${this.moisLabels[this.editCalMonth]} ${this.editCalYear}`; }
-  editCalPrevMonth(): void { this.editCalMonth === 0 ? (this.editCalMonth = 11, this.editCalYear--) : this.editCalMonth--; }
-  editCalNextMonth(): void { this.editCalMonth === 11 ? (this.editCalMonth = 0, this.editCalYear++) : this.editCalMonth++; }
-  get editCalDays(): ({ date: string; day: number; today: boolean } | null)[] { return this.buildCalendarDays(this.editCalYear, this.editCalMonth); }
-  toggleEditCalDay(date: string): void {
-    if (!this.editHoraire) return;
-    const idx = this.editHoraire.jours.indexOf(date);
-    if (idx === -1) {
-      this.editHoraire.jours.push(date);
-      this.editHoraire.jours.sort();
-      this.editHoraire.joursHoraires.push({ date, heureDebut: this.editHoraire.heureDebut, heureFin: this.editHoraire.heureFin });
-      this.editHoraire.joursHoraires.sort((a, b) => a.date.localeCompare(b.date));
-    } else {
-      this.editHoraire.jours.splice(idx, 1);
-      this.editHoraire.joursHoraires = this.editHoraire.joursHoraires.filter(j => j.date !== date);
-    }
-  }
-  isEditDaySelected(date: string): boolean { return !!this.editHoraire && this.editHoraire.jours.includes(date); }
-
-  openEditPersonHoraire(person: PersonHoraire): void {
-    const ids = [...new Set(person.entries.map(e => e.horaireId))];
-    const rows = this.horaires.filter(h => ids.includes(h.id));
-    if (!rows.length) return;
-    const group: GroupedHoraire = {
-      utilisateurId: person.utilisateurId,
-      staffNom: person.staffNom,
-      staffRole: person.staffRole,
-      dates: rows.flatMap(h => h.jours),
-      heureDebut: rows[0].heureDebut,
-      heureFin: rows[0].heureFin,
-      horaires: rows
-    };
-    this.openEditHoraire(group);
-  }
-
-  openEditHoraire(groupOrRow: GroupedHoraire | HoraireRow): void {
-    const group = 'horaires' in groupOrRow
-      ? groupOrRow
-      : {
-          utilisateurId: groupOrRow.utilisateurId,
-          staffNom: groupOrRow.staffNom,
-          staffRole: groupOrRow.staffRole,
-          dates: [...groupOrRow.jours],
-          heureDebut: groupOrRow.heureDebut,
-          heureFin: groupOrRow.heureFin,
-          horaires: [groupOrRow]
-        };
-
-    const sourceHoraires = [...group.horaires];
-    const joursHoraires = sourceHoraires
-      .flatMap(h => h.jours.map(date => ({ date, heureDebut: h.heureDebut, heureFin: h.heureFin })))
-      .sort((a, b) => a.date.localeCompare(b.date));
-
-    this.editHoraire = {
-      id: sourceHoraires[0]?.id ?? 0,
-      utilisateurId: group.utilisateurId,
-      staffNom: group.staffNom,
-      staffRole: group.staffRole,
-      jours: joursHoraires.map(j => j.date),
-      heureDebut: joursHoraires[0]?.heureDebut ?? '07:00',
-      heureFin: joursHoraires[0]?.heureFin ?? '15:00',
-      joursHoraires,
-      sourceHoraires
-    };
-    this.editCalYear = new Date().getFullYear();
-    this.editCalMonth = new Date().getMonth();
-    this.showEditHoraireModal = true;
-  }
-
-  saveEditHoraire(): void {
-    if (!this.editHoraire) return;
-    const staff = this.staffParType(this.editHoraire.staffRole).find(u =>
-      `${u.prenom} ${u.nom}` === this.editHoraire?.staffNom || `${u.nom} ${u.prenom}` === this.editHoraire?.staffNom
-    );
-    if (!staff) { this.showToast('Impossible d identifier le personnel pour cet horaire', 'warning'); return; }
-    const invalid = this.editHoraire.joursHoraires.find(j => !j.heureDebut || !j.heureFin || j.heureDebut >= j.heureFin);
-    if (invalid) {
-      this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit ?tre apr?s l'heure de d?but`, 'warning');
-      return;
-    }
-
-    const requests = this.editHoraire.joursHoraires.map(j => ({
-      utilisateurId: staff.id,
-      jours: [j.date],
-      heureDebut: j.heureDebut,
-      heureFin: j.heureFin
-    } as HoraireTravailRequestDto));
-
-    const sourceIds = this.editHoraire.sourceHoraires.map(h => h.id);
-    const deletions = this.editHoraire.sourceHoraires.map(h => this.horaireTravailService.delete(h.id));
-    forkJoin([...deletions, ...requests.map(r => this.horaireTravailService.create(r))]).subscribe({
-      next: (results) => {
-        const createdHoraires = results.slice(deletions.length) as HoraireTravailDto[];
-        this.replaceHoraireRows(sourceIds, createdHoraires);
-        this.showEditHoraireModal = false;
-        this.editHoraire = null;
-        this.showToast('Horaires modifies avec succes', 'success');
-      },
-      error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier les horaires', 'error')
-    });
-  }
-
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  CALENDRIER — séances  (avec heures individuelles par date)
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   get seanceCalTitle(): string { return `${this.moisLabels[this.seanceCalMonth]} ${this.seanceCalYear}`; }
   seanceCalPrevMonth(): void { this.seanceCalMonth === 0 ? (this.seanceCalMonth = 11, this.seanceCalYear--) : this.seanceCalMonth--; }
@@ -1139,10 +754,9 @@ export class AdminComponent implements OnInit, OnDestroy {
         date,
         heureDebut: this.newSeance.heureDebut,
         heureFin: this.newSeance.heureFin,
-        aideSoignantId: this.newSeance.aideSoignantId
-          ? Number(this.newSeance.aideSoignantId)
-          : this.resolveDefaultAideSoignantIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin),
-        machine: this.resolveDefaultMachineForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
+        infirmierId: this.newSeance.infirmierId
+          ? Number(this.newSeance.infirmierId)
+          : this.resolveDefaultInfirmierIdForDate(date, this.newSeance.heureDebut, this.newSeance.heureFin)
       });
       this.newSeance.datesSeances.sort((a, b) => a.date.localeCompare(b.date));
       this.newSeanceActiveDate = date;
@@ -1161,14 +775,14 @@ export class AdminComponent implements OnInit, OnDestroy {
     return this.newSeance.datesSeances.find(d => d.date === date);
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  SÉANCES — filtre, recherche, regroupement
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   private groupSeances(seances: SeanceAdminRow[]): GroupedSeance[] {
     const map = new Map<string, GroupedSeance>();
     for (const s of seances) {
-      const key = `${s.patientId}|${s.responsableId}|${s.heureDebut}|${s.heureFin}|${s.machine}|${s.statut}`;
+      const key = `${s.patientId}|${s.responsableId}|${s.heureDebut}|${s.heureFin}|${s.statut}`;
       const existing = map.get(key);
       if (existing) {
         if (!existing.dates.includes(s.date)) {
@@ -1179,9 +793,9 @@ export class AdminComponent implements OnInit, OnDestroy {
       } else {
         map.set(key, {
           patientId: s.patientId, patientNom: s.patientNom,
-          responsableId: s.responsableId, aideSoignantNom: s.aideSoignantNom,
+          responsableId: s.responsableId, infirmierNom: s.infirmierNom,
           dates: [s.date], heureDebut: s.heureDebut, heureFin: s.heureFin,
-          machine: s.machine, statut: s.statut, seances: [s]
+          statut: s.statut, seances: [s]
         });
       }
     }
@@ -1197,9 +811,10 @@ export class AdminComponent implements OnInit, OnDestroy {
     const q = this.searchSeance.toLowerCase().trim();
     if (q) {
       result = result.filter(s =>
-        s.patientNom.toLowerCase().includes(q) || s.aideSoignantNom.toLowerCase().includes(q) ||
-        s.date.toLowerCase().includes(q) || s.heureDebut.includes(q) ||
-        s.heureFin.includes(q) || s.machine.toLowerCase().includes(q) || s.statut.toLowerCase().includes(q)
+        s.patientNom.toLowerCase().includes(q) || s.infirmierNom.toLowerCase().includes(q) ||
+        this.seanceJourLabel(s).toLowerCase().includes(q) ||
+        this.seanceCreneauLabel(s).toLowerCase().includes(q) ||
+        s.statut.toLowerCase().includes(q)
       );
     }
     return result;
@@ -1223,10 +838,32 @@ export class AdminComponent implements OnInit, OnDestroy {
     for (const s of this.filteredSeances) {
       let person = map.get(s.patientId);
       if (!person) {
-        person = { patientId: s.patientId, patientNom: s.patientNom, aideSoignantNom: s.aideSoignantNom, entries: [] };
+        person = { patientId: s.patientId, patientNom: s.patientNom, infirmierNom: s.infirmierNom, entries: [] };
         map.set(s.patientId, person);
       }
-      person.entries.push({ date: s.date, heureDebut: s.heureDebut, heureFin: s.heureFin, machine: s.machine, statut: s.statut, seanceId: s.id });
+      const jourPlanifie = s.jourPlanifie ?? this.uiDayFromDisplayDate(s.date);
+      const existing = person.entries.find(entry => (entry.jourPlanifie ?? this.uiDayFromDisplayDate(entry.date)) === jourPlanifie);
+      if (existing) {
+        existing.seanceIds = [...(existing.seanceIds ?? [existing.seanceId]), s.id];
+        existing.seanceId = s.id;
+        existing.date = s.date;
+        existing.heureDebut = s.heureDebut;
+        existing.heureFin = s.heureFin;
+        existing.statut = s.statut;
+        existing.jourPlanifie = jourPlanifie;
+        existing.creneau = s.creneau;
+        continue;
+      }
+      person.entries.push({
+        date: s.date,
+        heureDebut: s.heureDebut,
+        heureFin: s.heureFin,
+        statut: s.statut,
+        jourPlanifie,
+        creneau: s.creneau,
+        seanceId: s.id,
+        seanceIds: [s.id]
+      });
     }
     const persons = Array.from(map.values());
     persons.forEach(p => p.entries.sort((a, b) => a.date.localeCompare(b.date)));
@@ -1244,7 +881,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   get totalPersonSeancePages(): number { return Math.max(1, Math.ceil(this.filteredPersonSeances.length / this.pageSize)); }
 
   supprimerPersonSeances(person: PersonSeance): void {
-    const ids = person.entries.map(e => e.seanceId);
+    const ids = [...new Set(person.entries.flatMap(e => e.seanceIds ?? [e.seanceId]))];
     forkJoin(ids.map(id => this.seanceService.delete(id))).subscribe({
       next: () => { this.showToast(`${ids.length} séance(s) supprimée(s)`, 'warning'); this.refreshAfterMutation(); },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de supprimer les séances', 'error')
@@ -1253,21 +890,22 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   openEditPersonSeance(person: PersonSeance): void {
     if (!person.entries.length) return;
-    const rows = person.entries
-      .map(e => this.seancesAdmin.find(s => s.id === e.seanceId))
+    const ids = [...new Set(person.entries.flatMap(e => e.seanceIds ?? [e.seanceId]))];
+    const rows = ids
+      .map(id => this.seancesAdmin.find(s => s.id === id))
       .filter((r): r is SeanceAdminRow => !!r)
       .sort((a, b) => this.displayToIsoDate(a.date).localeCompare(this.displayToIsoDate(b.date)));
     if (!rows.length) return;
     const first = rows[0];
-    const datesSeances = rows.map(s => ({ date: this.displayToIsoDate(s.date), heureDebut: s.heureDebut, heureFin: s.heureFin }));
+    const datesSeances = Array.from(new Map(rows.map(s => [
+      this.displayToIsoDate(s.date),
+      { date: this.displayToIsoDate(s.date), heureDebut: s.heureDebut, heureFin: s.heureFin }
+    ])).values());
     this.editSeance = { ...first, datesSeances, sourceSeances: rows };
     this.editSeanceDates = datesSeances.map(d => d.date);
-    const firstDate = new Date(datesSeances[0].date);
-    this.editSeanceCalYear = firstDate.getFullYear();
-    this.editSeanceCalMonth = firstDate.getMonth();
+    this.editSeanceJours = [...new Set(rows.map(row => row.jourPlanifie ?? this.uiDayFromDisplayDate(row.date)))].sort((a, b) => a - b);
     this.showEditSeanceModal = true;
-    this.syncSelectedAideSoignantForEdit();
-    this.refreshAvailableMachinesForEditSeance();
+    this.syncSelectedInfirmierForEdit();
   }
 
   isSeanceDateMatchingFilter(displayDate: string): boolean {
@@ -1286,29 +924,28 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   get infirmiers(): AppUser[] { return this.users.filter(u => u.role === 'infirmier'); }
-  get aidesSoignants(): AppUser[] { return this.users.filter(u => u.role === 'aide-soignant'); }
 
-  get availableAidesSoignants(): AppUser[] {
+  get availableInfirmiers(): AppUser[] {
     const activeDate = this.getActiveNewSeanceDateEntry();
     if (!activeDate) return [];
-    const candidates = this.aidesSoignants.filter(user => this.isAideSoignantAvailableForSelection(user.id));
+    const candidates = this.infirmiers.filter(user => this.isInfirmierAvailableForSelection(user.id));
     return [...candidates].sort((left, right) => {
-      const loadDiff = this.getAideSoignantLoadForSelection(left.id) - this.getAideSoignantLoadForSelection(right.id);
+      const loadDiff = this.getInfirmierLoadForSelection(left.id) - this.getInfirmierLoadForSelection(right.id);
       return loadDiff !== 0 ? loadDiff : `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
     });
   }
 
-  get availableAidesSoignantsForEdit(): AppUser[] {
-    const candidates = this.aidesSoignants.filter(user => this.isAideSoignantAvailableForEdit(user.id));
+  get availableInfirmiersForEdit(): AppUser[] {
+    const candidates = this.infirmiers.filter(user => this.isInfirmierAvailableForEdit(user.id));
     return [...candidates].sort((left, right) => {
-      const loadDiff = this.getAideSoignantLoadForEdit(left.id) - this.getAideSoignantLoadForEdit(right.id);
+      const loadDiff = this.getInfirmierLoadForEdit(left.id) - this.getInfirmierLoadForEdit(right.id);
       return loadDiff !== 0 ? loadDiff : `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
     });
   }
 
   get patientsUsers(): AppUser[] { return this.users.filter(u => u.role === 'patient'); }
 
-  getAideSoignantLoadForSelection(userId: number): number {
+  getInfirmierLoadForSelection(userId: number): number {
     const activeDate = this.getActiveNewSeanceDateEntry();
     const dates = activeDate ? [activeDate.date] : [];
     if (!dates.length) return 0;
@@ -1317,25 +954,24 @@ export class AdminComponent implements OnInit, OnDestroy {
     ).length;
   }
 
-  getAvailableAidesSoignantsForDate(date: string, start: string, end: string): AppUser[] {
-    const candidates = this.aidesSoignants.filter(user =>
-      this.hasHoraireCoverage(user.id, date, start, end) &&
+  getAvailableInfirmiersForDate(date: string, start: string, end: string): AppUser[] {
+    const candidates = this.infirmiers.filter(user =>
       !this.hasSeanceConflict(user.id, date, start, end)
     );
 
     return [...candidates].sort((left, right) => {
-      const loadDiff = this.getAideSoignantLoadForDate(left.id, date) - this.getAideSoignantLoadForDate(right.id, date);
+      const loadDiff = this.getInfirmierLoadForDate(left.id, date) - this.getInfirmierLoadForDate(right.id, date);
       return loadDiff !== 0 ? loadDiff : `${left.prenom} ${left.nom}`.localeCompare(`${right.prenom} ${right.nom}`, 'fr');
     });
   }
 
-  getAideSoignantLoadForDate(userId: number, date: string): number {
+  getInfirmierLoadForDate(userId: number, date: string): number {
     return this.seancesAdmin.filter(seance =>
       seance.responsableId === userId && this.displayToIsoDate(seance.date) === date
     ).length;
   }
 
-  getAideSoignantLoadForEdit(userId: number): number {
+  getInfirmierLoadForEdit(userId: number): number {
     const dates = this.editSeanceDates.length
       ? this.editSeanceDates
       : (this.editSeance ? [this.displayToIsoDate(this.editSeance.date)] : [this.todayLocalIso()]);
@@ -1403,8 +1039,7 @@ export class AdminComponent implements OnInit, OnDestroy {
           date,
           heureDebut: shift.heureDebut,
           heureFin: shift.heureFin,
-          machine: this.newSeance.machine,
-          aideSoignantId: this.resolveDefaultAideSoignantIdForDate(date, shift.heureDebut, shift.heureFin)
+          infirmierId: this.resolveDefaultInfirmierIdForDate(date, shift.heureDebut, shift.heureFin)
         }));
       })
       .sort((left, right) => `${left.date} ${left.heureDebut}`.localeCompare(`${right.date} ${right.heureDebut}`));
@@ -1444,10 +1079,50 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.editSeanceDates.splice(idx, 1);
       this.editSeance.datesSeances = this.editSeance.datesSeances.filter(d => d.date !== date);
     }
-    this.syncSelectedAideSoignantForEdit();
-    this.refreshAvailableMachinesForEditSeance();
+    this.syncSelectedInfirmierForEdit();
   }
   isEditSeanceDaySelected(date: string): boolean { return this.editSeanceDates.includes(date); }
+
+  isEditSeanceJourSelected(jour: number): boolean {
+    return this.editSeanceJours.includes(jour);
+  }
+
+  toggleEditSeanceJour(jour: number): void {
+    const index = this.editSeanceJours.indexOf(jour);
+    if (index >= 0) {
+      this.editSeanceJours.splice(index, 1);
+    } else {
+      this.editSeanceJours.push(jour);
+      this.editSeanceJours.sort((a, b) => a - b);
+    }
+    this.syncEditSeanceDatesFromJours();
+  }
+
+  setEditSeanceCreneau(creneau: 'MATIN' | 'APRES_MIDI'): void {
+    if (!this.editSeance) return;
+    const slot = creneau === 'MATIN'
+      ? { heureDebut: '07:30', heureFin: '11:30' }
+      : { heureDebut: '13:30', heureFin: '17:30' };
+    this.editSeance.heureDebut = slot.heureDebut;
+    this.editSeance.heureFin = slot.heureFin;
+    this.editSeance.datesSeances = this.editSeance.datesSeances.map(dateSeance => ({ ...dateSeance, ...slot }));
+    if (this.editSeanceJours.length) this.syncEditSeanceDatesFromJours();
+    this.onEditSeanceScheduleChange();
+  }
+
+  private syncEditSeanceDatesFromJours(): void {
+    if (!this.editSeance) return;
+    const baseDate = new Date();
+    this.editSeance.datesSeances = this.editSeanceJours
+      .map(jour => ({
+        date: this.nextDateForWeekday(baseDate, jour),
+        heureDebut: this.editSeance!.heureDebut,
+        heureFin: this.editSeance!.heureFin
+      }))
+      .sort((left, right) => left.date.localeCompare(right.date));
+    this.editSeanceDates = this.editSeance.datesSeances.map(dateSeance => dateSeance.date);
+    this.syncSelectedInfirmierForEdit();
+  }
 
   openEditSeance(groupOrRow: GroupedSeance | SeanceAdminRow): void {
     const group = 'seances' in groupOrRow
@@ -1456,11 +1131,10 @@ export class AdminComponent implements OnInit, OnDestroy {
           patientId: groupOrRow.patientId,
           patientNom: groupOrRow.patientNom,
           responsableId: groupOrRow.responsableId,
-          aideSoignantNom: groupOrRow.aideSoignantNom,
+          infirmierNom: groupOrRow.infirmierNom,
           dates: [groupOrRow.date],
           heureDebut: groupOrRow.heureDebut,
           heureFin: groupOrRow.heureFin,
-          machine: groupOrRow.machine,
           statut: groupOrRow.statut,
           seances: [groupOrRow]
         };
@@ -1469,26 +1143,40 @@ export class AdminComponent implements OnInit, OnDestroy {
     const first = sourceSeances[0];
     this.editSeance = {
       ...first,
-      datesSeances: sourceSeances.map(s => ({ date: this.displayToIsoDate(s.date), heureDebut: s.heureDebut, heureFin: s.heureFin })),
+      datesSeances: Array.from(new Map(sourceSeances.map(s => [
+        this.displayToIsoDate(s.date),
+        { date: this.displayToIsoDate(s.date), heureDebut: s.heureDebut, heureFin: s.heureFin }
+      ])).values()),
       sourceSeances
     };
     this.editSeanceDates = this.editSeance.datesSeances.map(d => d.date);
-    this.editSeanceCalYear = new Date().getFullYear();
-    this.editSeanceCalMonth = new Date().getMonth();
+    this.editSeanceJours = [...new Set(sourceSeances.map(row => row.jourPlanifie ?? this.uiDayFromDisplayDate(row.date)))].sort((a, b) => a - b);
     this.showEditSeanceModal = true;
-    this.syncSelectedAideSoignantForEdit();
-    this.refreshAvailableMachinesForEditSeance();
+    this.syncSelectedInfirmierForEdit();
   }
 
   saveEditSeance(): void {
     if (!this.editSeance) return;
+    if (!this.editSeance.datesSeances.length) {
+      this.showToast('Veuillez choisir au moins un jour', 'warning');
+      return;
+    }
     const invalid = this.editSeance.datesSeances.find(d => !d.heureDebut || !d.heureFin || d.heureDebut >= d.heureFin);
     if (invalid) {
       this.showToast(`Horaire invalide pour le ${this.isoToDisplayDate(invalid.date)} : l'heure de fin doit ?tre apr?s l'heure de d?but`, 'warning');
       return;
     }
 
-    const sourceByDate = new Map(this.editSeance.sourceSeances.map(s => [this.displayToIsoDate(s.date), s]));
+    const sourceByDate = new Map<string, SeanceAdminRow>();
+    const duplicateSources: SeanceAdminRow[] = [];
+    for (const source of this.editSeance.sourceSeances) {
+      const sourceDate = this.displayToIsoDate(source.date);
+      if (sourceByDate.has(sourceDate)) {
+        duplicateSources.push(source);
+      } else {
+        sourceByDate.set(sourceDate, source);
+      }
+    }
     const currentDates = new Set(this.editSeance.datesSeances.map(d => d.date));
 
     const updates = this.editSeance.datesSeances
@@ -1499,9 +1187,7 @@ export class AdminComponent implements OnInit, OnDestroy {
           date: d.date,
           heureDebut: d.heureDebut,
           heureFin: d.heureFin,
-          machine: this.editSeance!.machine,
-          statut: this.normalizeSeanceStatut(this.editSeance!.statut),
-          notes: 'Mise a jour depuis l administration'
+          infirmierId: this.editSeance!.responsableId
         };
         return this.seanceService.update(source.id, payload);
       });
@@ -1512,15 +1198,13 @@ export class AdminComponent implements OnInit, OnDestroy {
         date: d.date,
         heureDebut: d.heureDebut,
         heureFin: d.heureFin,
-        machine: this.editSeance!.machine,
-        notes: 'Planifiee depuis l administration',
-        dureeHeures: this.computeDuration(d.heureDebut, d.heureFin),
         patientId: this.editSeance!.patientId,
-        utilisateurId: this.authService.utilisateurId
+        utilisateurId: this.authService.utilisateurId,
+        infirmierId: this.editSeance!.responsableId
       } as SeanceRequestDto));
 
     const deletions = this.editSeance.sourceSeances
-      .filter(s => !currentDates.has(this.displayToIsoDate(s.date)))
+      .filter(s => !currentDates.has(this.displayToIsoDate(s.date)) || duplicateSources.some(duplicate => duplicate.id === s.id))
       .map(s => this.seanceService.delete(s.id));
 
     forkJoin([...updates, ...creations, ...deletions]).subscribe({
@@ -1528,45 +1212,57 @@ export class AdminComponent implements OnInit, OnDestroy {
         const updatedSeances = results.slice(0, updates.length) as SeanceDto[];
         const createdSeances = results.slice(updates.length, updates.length + creations.length) as SeanceDto[];
         const deletedIds = this.editSeance?.sourceSeances
-          .filter(s => !currentDates.has(this.displayToIsoDate(s.date)))
+          .filter(s => !currentDates.has(this.displayToIsoDate(s.date)) || duplicateSources.some(duplicate => duplicate.id === s.id))
           .map(s => s.id) ?? [];
 
         this.replaceSeanceRows(updatedSeances, createdSeances, deletedIds);
         this.showEditSeanceModal = false;
         this.editSeance = null;
         this.editSeanceDates = [];
+        this.editSeanceJours = [];
         this.showToast('Seances modifiees avec succes', 'success');
       },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier les seances', 'error')
     });
   }
 
+  seanceJourLabel(entry: Pick<PersonSeanceEntry, 'date' | 'jourPlanifie'>): string {
+    const jour = entry.jourPlanifie ?? this.uiDayFromDisplayDate(entry.date);
+    return this.joursLabels[jour] ?? '-';
+  }
+
+  seanceCreneauLabel(entry: Pick<PersonSeanceEntry, 'heureDebut' | 'heureFin' | 'creneau'>): string {
+    const creneau = String(entry.creneau ?? '').toUpperCase();
+    if (creneau === 'MATIN') return 'Matin';
+    if (creneau === 'APRES_MIDI' || creneau === 'APRES-MIDI') return 'Apres-midi';
+    return entry.heureDebut < '12:00' ? 'Matin' : 'Apres-midi';
+  }
+
   seanceStatutClass(statut: string): string { const v = this.normalizeSeanceStatut(statut); return v === 'TERMINEE' ? 'ok' : v === 'EN_COURS' ? 'info' : 'neutral'; }
   seanceStatutLabel(statut: string): string { const v = this.normalizeSeanceStatut(statut); return v === 'TERMINEE' ? 'Terminee' : v === 'EN_COURS' ? 'En cours' : v === 'ANNULEE' ? 'Annulee' : 'Planifiee'; }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  KPI
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   get totalUsers(): number { return this.users.length; }
   get activeUsers(): number { return this.users.filter(u => u.statut === 'actif').length; }
   get medecinCount(): number { return this.users.filter(u => u.role === 'medecin').length; }
   get infMajeurCount(): number { return this.users.filter(u => u.role === 'infirmier-majeur').length; }
   get infirmierCount(): number { return this.users.filter(u => u.role === 'infirmier').length; }
-  get aideSoignantCount(): number { return this.users.filter(u => u.role === 'aide-soignant').length; }
   get patientCount(): number { return this.users.filter(u => u.role === 'patient').length; }
   get suspendedCount(): number { return this.users.filter(u => u.statut === 'suspendu').length; }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  HELPERS UI
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   roleLabel(id: RoleId | string): string { return this.getRoleConfig(typeof id === 'string' ? this.toRoleId(id) : id)?.label ?? String(id); }
   roleColorVar(id: RoleId | string): string { return this.getRoleConfig(typeof id === 'string' ? this.toRoleId(id) : id)?.colorVar ?? 'var(--c-text-2)'; }
   statusClass(status: UserStatus): string { return status === 'actif' ? 'ok' : status === 'suspendu' ? 'crit' : 'neutral'; }
   statusLabel(status: UserStatus): string { return status === 'actif' ? 'Actif' : status === 'suspendu' ? 'Suspendu' : 'Inactif'; }
   initials(user: AppUser): string { return `${user.prenom?.[0] ?? ''}${user.nom?.[0] ?? ''}`.toUpperCase(); }
-  profilTabLabel(role: RoleId): string { return ({ admin: 'Admins', medecin: 'Medecins', 'infirmier-majeur': 'Inf. Majeurs', infirmier: 'Infirmiers', 'aide-soignant': 'Aides-Soignants', patient: 'Patients' } as Record<RoleId, string>)[role]; }
+  profilTabLabel(role: RoleId): string { return ({ admin: 'Admins', medecin: 'Medecins', 'infirmier-majeur': 'Inf. Majeurs', infirmier: 'Infirmiers', patient: 'Patients' } as Record<RoleId, string>)[role]; }
   get activeTabTitle(): string { return ({ profils: 'Gestion des Profils', seances: 'Planification des Seances' } as Record<AdminTab, string>)[this.activeTab]; }
 
   /** Expose isoToDisplayDate au template */
@@ -1607,9 +1303,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
   //  PRIVATE HELPERS
-  // ──────────────────────────────────────────────────────────────────────────────
+  // ------------------------------------------------------------------------------
 
   private normalizePhone(value: string | null | undefined): string { return String(value ?? '').replace(/\D/g, ''); }
   private isValidPhone(value: string): boolean { return /^0\d{9}$/.test(value); }
@@ -1701,19 +1397,21 @@ export class AdminComponent implements OnInit, OnDestroy {
     };
   }
 
-  private mapHoraireToRow(dto: HoraireTravailDto): HoraireRow {
-    return { id: dto.id, utilisateurId: dto.utilisateurId, staffNom: dto.utilisateurNom, staffRole: this.roleLabel(dto.role), jours: dto.jours, heureDebut: this.timeOnly(dto.heureDebut), heureFin: this.timeOnly(dto.heureFin) };
-  }
-
   private mapSeanceToRow(dto: SeanceDto): SeanceAdminRow {
-    const aideSoignant = dto.aideSoignant;
-    const aideSoignantNom = aideSoignant ? `${aideSoignant.prenom} ${aideSoignant.nom}` : '—';
+    const infirmier = dto.infirmier;
+    const infirmierNom = infirmier ? `${infirmier.prenom} ${infirmier.nom}` : '—';
+    const creneau = dto.creneau ?? 'MATIN';
+    const heureDebut = creneau === 'APRES_MIDI' ? '13:30' : '07:30';
+    const heureFin = creneau === 'APRES_MIDI' ? '17:30' : '11:30';
     return {
       id: dto.id, patientId: dto.patient.id, patientNom: `${dto.patient.prenom} ${dto.patient.nom}`,
-      responsableId: aideSoignant?.id ?? null, aideSoignantNom,
+      responsableId: infirmier?.id ?? null, infirmierNom,
       date: this.isoToDisplayDate(String(dto.date)),
-      heureDebut: this.timeOnly(String(dto.heureDebut)), heureFin: this.timeOnly(String(dto.heureFin)),
-      machine: '—', statut: this.normalizeSeanceStatut(dto.statut)
+      heureDebut,
+      heureFin,
+      statut: 'PLANIFIEE',
+      jourPlanifie: dto.jourPlanifie ?? this.uiDayFromIsoDate(String(dto.date)),
+      creneau
     };
   }
 
@@ -1730,7 +1428,6 @@ export class AdminComponent implements OnInit, OnDestroy {
       case 'MEDECIN': return 'medecin';
       case 'INFIRMIER_MAJEUR': return 'infirmier-majeur';
       case 'INFIRMIER': return 'infirmier';
-      case 'AIDE_SOIGNANT': return 'aide-soignant';
       default: return 'patient';
     }
   }
@@ -1738,7 +1435,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   private toBackendRole(role: RoleId): string {
     return role === 'admin' ? 'ADMIN' : role === 'medecin' ? 'MEDECIN' :
       role === 'infirmier-majeur' ? 'INFIRMIER_MAJEUR' : role === 'infirmier' ? 'INFIRMIER' :
-      role === 'aide-soignant' ? 'AIDE_SOIGNANT' : 'PATIENT';
+      'PATIENT';
   }
 
   private buildCalendarDays(year: number, month: number): ({ date: string; day: number; today: boolean } | null)[] {
@@ -1768,6 +1465,21 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private timeOnly(value: string): string { return value?.slice(0, 5) || '00:00'; }
 
+  private uiDayFromDisplayDate(value: string): number {
+    return this.uiDayFromIsoDate(this.displayToIsoDate(value));
+  }
+
+  private uiDayFromIsoDate(value: string): number {
+    const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+    return Number.isNaN(date.getTime()) ? 0 : date.getDay();
+  }
+
+  private creneauFromTime(heureDebut: string, heureFin: string): 'MATIN' | 'APRES_MIDI' | null {
+    if (heureDebut === '07:30' && heureFin === '11:30') return 'MATIN';
+    if (heureDebut === '13:30' && heureFin === '17:30') return 'APRES_MIDI';
+    return heureDebut < '12:00' ? 'MATIN' : 'APRES_MIDI';
+  }
+
   private displayToIsoDate(value: string): string {
     if (!value || !value.includes('/')) return value;
     const [d, m, y] = value.split('/');
@@ -1786,16 +1498,16 @@ export class AdminComponent implements OnInit, OnDestroy {
     return value === 'EN_COURS' || value === 'TERMINEE' || value === 'ANNULEE' ? value : 'PLANIFIEE';
   }
 
-  private syncSelectedAideSoignant(): void {
-    if (!this.newSeance.aideSoignantId) return;
-    const selectedId = Number(this.newSeance.aideSoignantId);
-    if (!this.availableAidesSoignants.some(user => user.id === selectedId)) this.newSeance.aideSoignantId = '';
+  private syncSelectedInfirmier(): void {
+    if (!this.newSeance.infirmierId) return;
+    const selectedId = Number(this.newSeance.infirmierId);
+    if (!this.availableInfirmiers.some(user => user.id === selectedId)) this.newSeance.infirmierId = '';
   }
 
-  private syncSelectedAideSoignantsByDate(): void {
+  private syncSelectedInfirmiersByDate(): void {
     this.newSeance.datesSeances = this.newSeance.datesSeances.map(dateSeance => {
-      const selectedId = dateSeance.aideSoignantId ? Number(dateSeance.aideSoignantId) : null;
-      const candidates = this.getAvailableAidesSoignantsForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
+      const selectedId = dateSeance.infirmierId ? Number(dateSeance.infirmierId) : null;
+      const candidates = this.getAvailableInfirmiersForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
 
       if (selectedId && candidates.some(user => user.id === selectedId)) {
         return dateSeance;
@@ -1803,76 +1515,36 @@ export class AdminComponent implements OnInit, OnDestroy {
 
       return {
         ...dateSeance,
-        aideSoignantId: this.resolveDefaultAideSoignantIdForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin)
+        infirmierId: this.resolveDefaultInfirmierIdForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin)
       };
     });
   }
 
-  private syncSelectedMachinesByDate(): void {
-    this.newSeance.datesSeances = this.newSeance.datesSeances.map(dateSeance => {
-      const selectedMachine = dateSeance.machine ?? '';
-      const candidates = this.getAvailableMachineCodesForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
-
-      if (selectedMachine && candidates.includes(selectedMachine)) {
-        return dateSeance;
-      }
-
-      return {
-        ...dateSeance,
-        machine: this.resolveDefaultMachineForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin)
-      };
-    });
-  }
-
-  private syncSelectedAideSoignantForEdit(): void {
+  private syncSelectedInfirmierForEdit(): void {
     if (!this.editSeance?.responsableId) return;
     const selectedId = Number(this.editSeance.responsableId);
-    if (!this.availableAidesSoignantsForEdit.some(user => user.id === selectedId))
-      this.editSeance.responsableId = this.availableAidesSoignantsForEdit[0]?.id ?? null;
+    if (!this.availableInfirmiersForEdit.some(user => user.id === selectedId))
+      this.editSeance.responsableId = this.availableInfirmiersForEdit[0]?.id ?? null;
   }
 
-  private resolveAvailableAideSoignantId(): number | null {
-    const selectedId = this.newSeance.aideSoignantId ? Number(this.newSeance.aideSoignantId) : null;
-    if (selectedId && this.availableAidesSoignants.some(user => user.id === selectedId)) return selectedId;
-    return this.availableAidesSoignants[0]?.id ?? null;
+  private resolveAvailableInfirmierId(): number | null {
+    const selectedId = this.newSeance.infirmierId ? Number(this.newSeance.infirmierId) : null;
+    if (selectedId && this.availableInfirmiers.some(user => user.id === selectedId)) return selectedId;
+    return this.availableInfirmiers[0]?.id ?? null;
   }
 
-  private resolveAvailableAideSoignantIdForDate(dateSeance: JourSeance): number | null {
-    const selectedId = dateSeance.aideSoignantId ? Number(dateSeance.aideSoignantId) : null;
-    const candidates = this.getAvailableAidesSoignantsForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
+  private resolveAvailableInfirmierIdForDate(dateSeance: JourSeance): number | null {
+    const selectedId = dateSeance.infirmierId ? Number(dateSeance.infirmierId) : null;
+    const candidates = this.getAvailableInfirmiersForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
     if (selectedId && candidates.some(user => user.id === selectedId)) return selectedId;
     return candidates[0]?.id ?? null;
   }
 
-  private resolveDefaultAideSoignantIdForDate(date: string, start: string, end: string): number | null {
-    const globalSelectedId = this.newSeance.aideSoignantId ? Number(this.newSeance.aideSoignantId) : null;
-    const candidates = this.getAvailableAidesSoignantsForDate(date, start, end);
+  private resolveDefaultInfirmierIdForDate(date: string, start: string, end: string): number | null {
+    const globalSelectedId = this.newSeance.infirmierId ? Number(this.newSeance.infirmierId) : null;
+    const candidates = this.getAvailableInfirmiersForDate(date, start, end);
     if (globalSelectedId && candidates.some(user => user.id === globalSelectedId)) return globalSelectedId;
     return candidates[0]?.id ?? null;
-  }
-
-  private resolveMachineForDate(dateSeance: JourSeance): string | null {
-    const selectedMachine = dateSeance.machine ?? '';
-    const candidates = this.getAvailableMachineCodesForDate(dateSeance.date, dateSeance.heureDebut, dateSeance.heureFin);
-    if (selectedMachine && candidates.includes(selectedMachine)) return selectedMachine;
-    return candidates[0] ?? null;
-  }
-
-  private resolveDefaultMachineForDate(date: string, start: string, end: string): string {
-    const globalSelectedMachine = this.newSeance.machine ?? '';
-    const candidates = this.getAvailableMachineCodesForDate(date, start, end);
-    if (globalSelectedMachine && candidates.includes(globalSelectedMachine)) return globalSelectedMachine;
-    return candidates[0] ?? '';
-  }
-
-  getAvailableMachineCodesForDate(date: string, start: string, end: string): string[] {
-    return this.allMachineCodes.filter(code =>
-      !this.seancesAdmin.some(seance =>
-        seance.machine === code &&
-        this.displayToIsoDate(seance.date) === date &&
-        this.rangesOverlap(start, end, seance.heureDebut, seance.heureFin)
-      )
-    );
   }
 
   private getActiveNewSeanceDateEntry(): JourSeance | null {
@@ -1883,34 +1555,25 @@ export class AdminComponent implements OnInit, OnDestroy {
     return this.newSeance.datesSeances[this.newSeance.datesSeances.length - 1];
   }
 
-  private resolveAvailableAideSoignantIdForEdit(): number | null {
+  private resolveAvailableInfirmierIdForEdit(): number | null {
     const selectedId = this.editSeance?.responsableId ? Number(this.editSeance.responsableId) : null;
-    if (selectedId && this.availableAidesSoignantsForEdit.some(user => user.id === selectedId)) return selectedId;
-    return this.availableAidesSoignantsForEdit[0]?.id ?? null;
+    if (selectedId && this.availableInfirmiersForEdit.some(user => user.id === selectedId)) return selectedId;
+    return this.availableInfirmiersForEdit[0]?.id ?? null;
   }
 
-  private isAideSoignantAvailableForSelection(userId: number): boolean {
+  private isInfirmierAvailableForSelection(userId: number): boolean {
     const selectedDate = this.getActiveNewSeanceDateEntry();
     if (!selectedDate) return false;
-    return this.hasHoraireCoverage(userId, selectedDate.date, selectedDate.heureDebut, selectedDate.heureFin) &&
-      !this.hasSeanceConflict(userId, selectedDate.date, selectedDate.heureDebut, selectedDate.heureFin);
+    return !this.hasSeanceConflict(userId, selectedDate.date, selectedDate.heureDebut, selectedDate.heureFin);
   }
 
-  private isAideSoignantAvailableForEdit(userId: number): boolean {
+  private isInfirmierAvailableForEdit(userId: number): boolean {
     if (!this.editSeance) return false;
     if (!this.editSeance.datesSeances.length) return false;
     return this.editSeance.datesSeances.every(ds => {
       const source = this.editSeance!.sourceSeances.find(s => this.displayToIsoDate(s.date) === ds.date);
-      return this.hasHoraireCoverage(userId, ds.date, ds.heureDebut, ds.heureFin) &&
-        !this.hasSeanceConflict(userId, ds.date, ds.heureDebut, ds.heureFin, source?.id);
+      return !this.hasSeanceConflict(userId, ds.date, ds.heureDebut, ds.heureFin, source?.id);
     });
-  }
-
-  private hasHoraireCoverage(userId: number, date: string, start: string, end: string): boolean {
-    return this.horaires.some(horaire =>
-      horaire.utilisateurId === userId && horaire.jours.includes(date) &&
-      horaire.heureDebut <= start && horaire.heureFin >= end
-    );
   }
 
   private hasSeanceConflict(userId: number, date: string, start: string, end: string, excludeSeanceId?: number): boolean {
@@ -1926,7 +1589,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   pageEnd(page: number, total: number): number { return Math.min(page * this.pageSize, total); }
 
-  goToPage(pageKey: 'staffPage' | 'patientPage' | 'horairePage' | 'seancePage', page: number, totalPages: number): void {
+  goToPage(pageKey: 'staffPage' | 'patientPage' | 'seancePage', page: number, totalPages: number): void {
     const safeTotal = Math.max(1, totalPages);
     this[pageKey] = Math.min(Math.max(1, page), safeTotal);
   }
@@ -1943,7 +1606,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     return pages;
   }
 
-  private paginateArray<T>(items: T[], pageKey: 'staffPage' | 'patientPage' | 'horairePage' | 'seancePage'): T[] {
+  private paginateArray<T>(items: T[], pageKey: 'staffPage' | 'patientPage' | 'seancePage'): T[] {
     const totalPages = this.getTotalPages(items.length);
     if (this[pageKey] > totalPages) this[pageKey] = totalPages;
     const start = (this[pageKey] - 1) * this.pageSize;
@@ -1955,34 +1618,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   private normalizeAllPages(): void {
     this.staffPage   = Math.min(this.staffPage,   this.totalStaffPages);
     this.patientPage = Math.min(this.patientPage, this.totalPatientPages);
-    this.horairePage = Math.min(this.horairePage, this.totalHorairePages);
     this.seancePage  = Math.min(this.seancePage,  this.totalSeancePages);
   }
 
   private scrollAdminToTop(): void { this.adminMainRef?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' }); }
   private confirmDeletion(message: string): boolean { return window.confirm(message); }
   private refreshAfterMutation(): void { this.refreshAdminCollections(false, true); }
-
-  private insertHoraires(createdHoraires: HoraireTravailDto[]): void {
-    this.horaires = this.sortHoraires([
-      ...createdHoraires.map(horaire => this.mapHoraireToRow(horaire)),
-      ...this.horaires
-    ]);
-    this.normalizeAllPages();
-  }
-
-  private replaceHoraireRows(sourceIds: number[], createdHoraires: HoraireTravailDto[]): void {
-    this.horaires = this.sortHoraires([
-      ...this.horaires.filter(horaire => !sourceIds.includes(horaire.id)),
-      ...createdHoraires.map(horaire => this.mapHoraireToRow(horaire))
-    ]);
-    this.normalizeAllPages();
-  }
-
-  private removeHoraireRows(ids: number[]): void {
-    this.horaires = this.horaires.filter(horaire => !ids.includes(horaire.id));
-    this.normalizeAllPages();
-  }
 
   private insertSeances(createdSeances: SeanceDto[]): void {
     this.seancesAdmin = this.sortSeances([
@@ -2007,16 +1648,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.normalizeAllPages();
   }
 
-  private sortHoraires(horaires: HoraireRow[]): HoraireRow[] {
-    return [...horaires].sort((left, right) => {
-      const dateDiff = (right.jours[0] ?? '').localeCompare(left.jours[0] ?? '');
-      if (dateDiff !== 0) return dateDiff;
-      const startDiff = right.heureDebut.localeCompare(left.heureDebut);
-      if (startDiff !== 0) return startDiff;
-      return left.staffNom.localeCompare(right.staffNom, 'fr');
-    });
-  }
-
   private sortSeances(seances: SeanceAdminRow[]): SeanceAdminRow[] {
     return [...seances].sort((left, right) => {
       const dateDiff = this.displayToIsoDate(right.date).localeCompare(this.displayToIsoDate(left.date));
@@ -2027,89 +1658,26 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  onNewSeanceAideSoignantChange(): void {
-    if (this.newSeance.aideSoignantId) {
-      const id = Number(this.newSeance.aideSoignantId);
-      this.newSeance.datesSeances = this.newSeance.datesSeances.map(d => ({ ...d, aideSoignantId: id }));
+  onNewSeanceInfirmierChange(): void {
+    if (this.newSeance.infirmierId) {
+      const id = Number(this.newSeance.infirmierId);
+      this.newSeance.datesSeances = this.newSeance.datesSeances.map(d => ({ ...d, infirmierId: id }));
     }
     this.onNewSeanceScheduleChange();
   }
 
   onNewSeanceScheduleChange(): void {
-    this.syncSelectedAideSoignant();
-    this.syncSelectedAideSoignantsByDate();
-    this.syncSelectedMachinesByDate();
-    this.refreshAvailableMachinesForNewSeance();
+    this.syncSelectedInfirmier();
+    this.syncSelectedInfirmiersByDate();
   }
 
   onEditSeanceScheduleChange(): void {
-    this.syncSelectedAideSoignantForEdit();
-    this.refreshAvailableMachinesForEditSeance();
-  }
-
-  private loadMachines(): void {
-    this.machineService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (machines) => {
-        const codes = machines.map(machine => machine.code).sort();
-        this.allMachineCodes = codes;
-        this.machines = [...codes];
-        if (!this.newSeance.machine) this.newSeance.machine = codes[0] ?? '';
-      },
-      error: () => { this.allMachineCodes = []; this.machines = []; this.showToast('Erreur lors du chargement des machines', 'error'); }
-    });
-  }
-
-  private refreshAvailableMachinesForNewSeance(): void {
-    const activeDate = this.getActiveNewSeanceDateEntry();
-    if (!activeDate || !activeDate.heureDebut || !activeDate.heureFin) {
-      this.machines = [...this.allMachineCodes];
-      if (!this.machines.includes(this.newSeance.machine)) this.newSeance.machine = this.machines[0] ?? '';
-      return;
-    }
-    this.machineService.getAvailable(activeDate.date, activeDate.heureDebut, activeDate.heureFin).pipe(
-      catchError(() => of([] as MachineDto[])),
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (machineGroup) => {
-        this.machines = machineGroup.map(machine => machine.code).sort();
-        if (!this.machines.includes(this.newSeance.machine)) this.newSeance.machine = this.machines[0] ?? '';
-        this.syncSelectedMachinesByDate();
-      },
-      error: () => { this.machines = [...this.allMachineCodes]; }
-    });
-  }
-
-  private refreshAvailableMachinesForEditSeance(): void {
-    if (!this.editSeance) return;
-    const datesSeances = this.editSeance.datesSeances;
-    if (!datesSeances.length) { this.machines = [...this.allMachineCodes]; return; }
-
-    forkJoin(
-      datesSeances.map(ds => {
-        const source = this.editSeance!.sourceSeances.find(s => this.displayToIsoDate(s.date) === ds.date);
-        return this.machineService.getAvailable(ds.date, ds.heureDebut, ds.heureFin, source?.id).pipe(catchError(() => of([] as MachineDto[])));
-      })
-    ).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (machineGroups) => {
-        this.machines = this.intersectMachineCodes(machineGroups);
-        if (!this.machines.includes(this.editSeance!.machine)) this.editSeance!.machine = this.machines[0] ?? '';
-      },
-      error: () => { this.machines = [...this.allMachineCodes]; }
-    });
-  }
-
-  private intersectMachineCodes(machineGroups: MachineDto[][]): string[] {
-    if (!machineGroups.length) return [...this.allMachineCodes];
-    const [firstGroup, ...restGroups] = machineGroups;
-    return firstGroup.map(machine => machine.code)
-      .filter(code => restGroups.every(group => group.some(machine => machine.code === code)))
-      .sort();
+    this.syncSelectedInfirmierForEdit();
   }
 
   private resetNewSeanceForm(): void {
-    this.newSeance = { patientId: '', aideSoignantId: '', dates: [], datesSeances: [], heureDebut: '07:30', heureFin: '11:30', machine: this.allMachineCodes[0] ?? '', jours: [], abordFAV: false, abordCatheter: false, shiftMatin: false, shiftApresMidi: false };
+    this.newSeance = { patientId: '', infirmierId: '', dates: [], datesSeances: [], heureDebut: '07:30', heureFin: '11:30', jours: [], abordFAV: false, abordCatheter: false, shiftMatin: false, shiftApresMidi: false };
     this.newSeanceActiveDate = null;
-    this.machines = [...this.allMachineCodes];
   }
 
   private todayLocalIso(): string {

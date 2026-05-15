@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -66,6 +66,11 @@ export class PlanningComponent implements OnInit {
     return this.form.jours.includes(j);
   }
 
+  setCreneau(creneau: 'MATIN' | 'APRES_MIDI'): void {
+    this.form.shiftMatin = creneau === 'MATIN';
+    this.form.shiftApresMidi = creneau === 'APRES_MIDI';
+  }
+
   //  Init 
   ngOnInit(): void {
     this.patientSvc.getAll().subscribe({ next: p => this.patients = p as PatientDto[] });
@@ -89,8 +94,8 @@ export class PlanningComponent implements OnInit {
     if (!q) return this.seances;
     return this.seances.filter(s =>
       this.patientNom(s).toLowerCase().includes(q) ||
-      s.date?.includes(q) ||
-      s.statut?.toLowerCase().includes(q)
+      this.jourLabel(s).toLowerCase().includes(q) ||
+      this.creneauLabel(s).toLowerCase().includes(q)
     );
   }
 
@@ -166,8 +171,22 @@ export class PlanningComponent implements OnInit {
     return ({ TERMINEE: 'TerminÃ©e', EN_COURS: 'En cours', PLANIFIEE: 'PlanifiÃ©e', ANNULEE: 'AnnulÃ©e' } as Record<string,string>)[statut] ?? statut;
   }
 
-  formatTime(s: SeanceDto):    string { return s.heureDebut?.substring(0, 5) ?? 'â€”'; }
-  formatTimeFin(s: SeanceDto): string { return s.heureFin?.substring(0, 5)   ?? 'â€”'; }
+  jourLabel(s: SeanceDto): string {
+    const jour = s.jourPlanifie ?? this.uiDayFromIsoDate(String(s.date));
+    return this.joursLabels[jour] ?? '-';
+  }
+
+  creneauLabel(s: SeanceDto): string {
+    const creneau = String(s.creneau ?? '').toUpperCase();
+    if (creneau === 'MATIN') return 'Matin';
+    if (creneau === 'APRES_MIDI' || creneau === 'APRES-MIDI') return 'Apres-midi';
+    return 'Matin';
+  }
+
+  private uiDayFromIsoDate(value: string): number {
+    const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+    return Number.isNaN(date.getTime()) ? 0 : date.getDay();
+  }
 
   //  Toast 
   private tid = 0;

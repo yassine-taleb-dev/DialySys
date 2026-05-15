@@ -1,4 +1,4 @@
-<div class="toast-stack">
+﻿<div class="toast-stack">
   <button
     *ngFor="let toast of toasts"
     class="toast toast--{{ toast.type }}"
@@ -141,8 +141,8 @@
             </div>
             <div>
               <span>Infirmier</span>
-              <strong *ngIf="latestConstantes.aideSoignant">{{ latestConstantes.aideSoignant.prenom }} {{ latestConstantes.aideSoignant.nom }}</strong>
-              <strong *ngIf="!latestConstantes.aideSoignant">-</strong>
+              <strong *ngIf="latestConstantes.saisiePar">{{ latestConstantes.saisiePar.prenom }} {{ latestConstantes.saisiePar.nom }}</strong>
+              <strong *ngIf="!latestConstantes.saisiePar">-</strong>
             </div>
             <div class="vital-strip">
               <span><b>{{ latestConstantes.tensionSys }}/{{ latestConstantes.tensionDia }}</b><br><small>mmHg</small></span>
@@ -168,8 +168,8 @@
                 <tr *ngFor="let constante of constantes">
                   <td>{{ fmtDateTime(constante.saisieAt) }}</td>
                   <td>
-                    <span *ngIf="constante.aideSoignant">{{ constante.aideSoignant.prenom }} {{ constante.aideSoignant.nom }}</span>
-                    <span *ngIf="!constante.aideSoignant">-</span>
+                    <span *ngIf="constante.saisiePar">{{ constante.saisiePar.prenom }} {{ constante.saisiePar.nom }}</span>
+                    <span *ngIf="!constante.saisiePar">-</span>
                   </td>
                   <td>{{ constante.tensionSys }}/{{ constante.tensionDia }}</td>
                   <td>{{ constante.bpm }} bpm</td>
@@ -188,7 +188,7 @@
 
         <section class="tab-content instr-content" *ngIf="!isLoadingDetails && activeTab === 'constantes'">
 
-          <!-- BLOC 1 : Paramètres dialyse -->
+          <!-- BLOC 1 : ParamÃ¨tres dialyse -->
           <article class="instr-bloc">
             <header class="instr-bloc__header">
               <span class="material-icons">settings</span>
@@ -248,7 +248,7 @@
             </div>
           </article>
 
-          <!-- BLOC 2 : Tensions de référence -->
+          <!-- BLOC 2 : Tensions de rÃ©fÃ©rence -->
           <article class="instr-bloc">
             <header class="instr-bloc__header">
               <span class="material-icons">favorite</span>
@@ -266,7 +266,7 @@
             </div>
           </article>
 
-          <!-- BLOC 3 : Traitement anémie -->
+          <!-- BLOC 3 : Traitement anÃ©mie -->
           <article class="instr-bloc">
             <header class="instr-bloc__header">
               <span class="material-icons">biotech</span>

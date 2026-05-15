@@ -24,7 +24,7 @@ export const routes: Routes = [
     path: 'infirmier',
     loadComponent: () => import('./pages/infirmier/infirmier.component').then(m => m.InfirmierComponent),
     canActivate: [authGuard],
-    data: { roles: ['AIDE_SOIGNANT', 'INFIRMIER'] }
+    data: { roles: ['INFIRMIER'] }
   },
   {
     path: 'patient',
@@ -36,7 +36,7 @@ export const routes: Routes = [
     path: 'planning',
     loadComponent: () => import('./pages/planning/planning.component').then(m => m.PlanningComponent),
     canActivate: [authGuard],
-    data: { roles: ['MEDECIN', 'INFIRMIER_MAJEUR', 'AIDE_SOIGNANT', 'INFIRMIER'] }
+    data: { roles: ['MEDECIN', 'INFIRMIER_MAJEUR', 'INFIRMIER'] }
   },
   {
     path: 'admin',

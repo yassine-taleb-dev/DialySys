@@ -7,9 +7,9 @@
   </div>
 </div>
 
-<!-- ─────────────────────────────────────────────────────────────────────────────
+<!-- -----------------------------------------------------------------------------
      WIZARD — Création de profil (multi-étapes)
-     ───────────────────────────────────────────────────────────────────────────── -->
+     ----------------------------------------------------------------------------- -->
 <div class="wz-overlay" *ngIf="showWizardModal" (click)="wizardCancel()">
   <div class="wz-panel" (click)="$event.stopPropagation()">
 
@@ -350,7 +350,7 @@
       </div>
       <div class="settings-group">
         <div class="settings-group-title"><span class="material-icons">tune</span> Préférences</div>
-        <div class="settings-row"><div class="settings-row__label"><b>Langue</b><span>Langue de l'interface</span></div><div class="form-field" style="margin:0;min-width:130px"><select [(ngModel)]="settings.langue"><option value="fr">Français</option><option value="ar">العربية</option><option value="en">English</option></select></div></div>
+        <div class="settings-row"><div class="settings-row__label"><b>Langue</b><span>Langue de l'interface</span></div><div class="form-field" style="margin:0;min-width:130px"><select [(ngModel)]="settings.langue"><option value="fr">Français</option><option value="ar">???????</option><option value="en">English</option></select></div></div>
         <div class="settings-row"><div class="settings-row__label"><b>Format d'export</b><span>Format par défaut pour les exports</span></div><div class="form-field" style="margin:0;min-width:130px"><select [(ngModel)]="settings.exportFormat"><option value="csv">CSV</option><option value="xlsx">Excel (XLSX)</option><option value="pdf">PDF</option></select></div></div>
       </div>
       <div class="modal-actions">
@@ -399,24 +399,32 @@
       <div class="horaire-form-layout">
         <div class="horaire-form-left">
           <div class="form-field form-field--white"><label>Patient</label><select [(ngModel)]="editSeance.patientId"><option [value]="p.id" *ngFor="let p of patientsUsers">{{ p.prenom }} {{ p.nom }}</option></select></div>
-          <div class="form-field"><label>Heure début</label><input type="time" [(ngModel)]="editSeance.heureDebut" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
-          <div class="form-field"><label>Heure fin</label><input type="time" [(ngModel)]="editSeance.heureFin" (ngModelChange)="onEditSeanceScheduleChange()" /></div>
-          <div class="form-field form-field--white"><label>Machine</label><select [(ngModel)]="editSeance.machine"><option value="">— Sélectionner —</option><option *ngFor="let m of machines" [value]="m">{{ m }}</option></select></div>
-
-          <div class="cal-selected-summary" *ngIf="editSeanceDates.length">
-            <span class="material-icons">event_available</span>{{ editSeanceDates.length }} date(s) sélectionnée(s)
-            <button class="cal-clear-btn" (click)="editSeanceDates = []"><span class="material-icons">close</span></button>
+          <div class="seance-block">
+            <div class="seance-block__title"><span class="material-icons">schedule</span> Créneau</div>
+            <div class="seance-options-grid">
+              <div class="seance-option-col">
+                <label class="seance-check">
+                  <input type="radio" name="editSeanceCreneau" [checked]="editSeance.heureDebut < '12:00'" (change)="setEditSeanceCreneau('MATIN')" />
+                  <span>Matin</span>
+                </label>
+              </div>
+              <div class="seance-option-col">
+                <label class="seance-check">
+                  <input type="radio" name="editSeanceCreneau" [checked]="editSeance.heureDebut >= '12:00'" (change)="setEditSeanceCreneau('APRES_MIDI')" />
+                  <span>Après-midi</span>
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="horaire-form-right">
-          <div class="cal-inline">
-            <div class="cal-header"><button class="cal-nav-btn" (click)="editSeanceCalPrevMonth()"><span class="material-icons">chevron_left</span></button><span class="cal-title">{{ editSeanceCalTitle }}</span><button class="cal-nav-btn" (click)="editSeanceCalNextMonth()"><span class="material-icons">chevron_right</span></button></div>
-            <div class="cal-grid">
-              <div class="cal-day-name" *ngFor="let j of joursTitles">{{ j }}</div>
-              <ng-container *ngFor="let cell of editSeanceCalDays">
-                <div *ngIf="cell === null" class="cal-cell cal-cell--empty"></div>
-                <button *ngIf="cell !== null" type="button" class="cal-cell" [class.cal-cell--today]="cell.today" [class.cal-cell--selected]="isEditSeanceDaySelected(cell.date)" (click)="toggleEditSeanceCalDay(cell.date)">{{ cell.day }}</button>
-              </ng-container>
+
+          <div class="seance-block">
+            <div class="seance-block__title"><span class="material-icons">calendar_today</span> Jours</div>
+            <div class="seance-days-row">
+              <button *ngFor="let j of [1,2,3,4,5,6,0]" type="button"
+                class="day-chip" [class.day-chip--active]="isEditSeanceJourSelected(j)"
+                (click)="toggleEditSeanceJour(j)">
+                {{ joursLabels[j] }}
+              </button>
             </div>
           </div>
         </div>
@@ -471,11 +479,6 @@
         <div class="kpi-body"><span class="kpi-val">{{ infirmierCount }}</span><span class="kpi-lbl">Infirmiers</span></div>
         <span class="kpi-filter-dot" *ngIf="activeKpi === 'infirmier'"><span class="material-icons">check_circle</span></span>
       </div>
-      <div class="kpi-card kpi-card--filter kpi-card--amber" [class.kpi-card--active]="activeKpi === 'aide-soignant'" (click)="selectKpi('aide-soignant')">
-        <div class="kpi-icon"><span class="material-icons">volunteer_activism</span></div>
-        <div class="kpi-body"><span class="kpi-val">{{ aideSoignantCount }}</span><span class="kpi-lbl">Aides-Soignants</span></div>
-        <span class="kpi-filter-dot" *ngIf="activeKpi === 'aide-soignant'"><span class="material-icons">check_circle</span></span>
-      </div>
       <div class="kpi-card kpi-card--filter kpi-card--green" [class.kpi-card--active]="activeKpi === 'patient'" (click)="selectKpi('patient')">
         <div class="kpi-icon"><span class="material-icons">person</span></div>
         <div class="kpi-body"><span class="kpi-val">{{ patientCount }}</span><span class="kpi-lbl">Patients</span></div>
@@ -487,7 +490,7 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════ TAB PROFILS -->
+    <!-- ------------------------------------------------------- TAB PROFILS -->
     <ng-container *ngIf="activeTab === 'profils'">
       <div class="panel panel--full">
         <div class="panel__head">
@@ -495,7 +498,7 @@
             Liste des Profils
             <span class="kpi-active-badge" *ngIf="activeKpi && activeKpi !== 'seances'">
               <span class="material-icons">filter_alt</span>
-              {{ activeKpi === 'medecin' ? 'Médecins' : activeKpi === 'infirmier-majeur' ? 'Inf. Majeurs' : activeKpi === 'infirmier' ? 'Infirmiers' : activeKpi === 'aide-soignant' ? 'Aides-Soignants' : 'Patients' }}
+              {{ activeKpi === 'medecin' ? 'Médecins' : activeKpi === 'infirmier-majeur' ? 'Inf. Majeurs' : activeKpi === 'infirmier' ? 'Infirmiers' : 'Patients' }}
               <button class="kpi-badge-clear" (click)="selectKpi(activeKpi)"><span class="material-icons">close</span></button>
             </span>
           </h2>
@@ -536,7 +539,7 @@
         </div>
         </div><!-- /activeKpi !== 'patient' -->
 
-        <div *ngIf="activeKpi !== 'medecin' && activeKpi !== 'infirmier-majeur' && activeKpi !== 'infirmier' && activeKpi !== 'aide-soignant'">
+        <div *ngIf="activeKpi !== 'medecin' && activeKpi !== 'infirmier-majeur' && activeKpi !== 'infirmier'">
         <div class="table-search-bar"><span class="material-icons">search</span><input type="text" placeholder="Rechercher un patient par nom, prénom, ID ou groupe sanguin" [(ngModel)]="searchPatient" /><button class="table-search-clear" *ngIf="searchPatient" (click)="searchPatient = ''"><span class="material-icons">close</span></button></div>
         <div class="table-scroll">
           <table class="data-table">
@@ -571,7 +574,7 @@
       </div>
     </ng-container>
 
-    <!-- ═══════════════════════════════════════════════════════ TAB SÉANCES -->
+    <!-- ------------------------------------------------------- TAB SÉANCES -->
     <ng-container *ngIf="activeTab === 'seances'">
       <div class="action-form-card">
         <div class="action-form-title"><span class="material-icons">add_circle</span> Planifier une séance de dialyse</div>
@@ -606,7 +609,7 @@
               <!-- Matin -->
               <div class="seance-option-col">
                 <label class="seance-check">
-                  <input type="checkbox" [(ngModel)]="newSeance.shiftMatin" />
+                  <input type="radio" name="newSeanceCreneau" [checked]="newSeance.shiftMatin" (change)="setNewSeanceCreneau('MATIN')" />
                   <span>Matin</span>
                 </label>
               </div>
@@ -614,7 +617,7 @@
               <!-- Cathéter -->
               <div class="seance-option-col">
                 <label class="seance-check">
-                  <input type="checkbox" [(ngModel)]="newSeance.shiftApresMidi" />
+                  <input type="radio" name="newSeanceCreneau" [checked]="newSeance.shiftApresMidi" (change)="setNewSeanceCreneau('APRES_MIDI')" />
                   <span>Après-midi</span>
                 </label>
               </div>
@@ -636,7 +639,7 @@
         <div class="panel__head"><h2>Séances planifiées</h2></div>
         <div class="table-search-bar">
           <span class="material-icons">search</span>
-          <input type="text" placeholder="Rechercher par patient, aide-soignant, date, machine…" [(ngModel)]="searchSeance" />
+          <input type="text" placeholder="Rechercher par patient, jour ou créneau…" [(ngModel)]="searchSeance" />
           <button class="table-search-clear" *ngIf="searchSeance" (click)="searchSeance = ''"><span class="material-icons">close</span></button>
         </div>
         <div class="table-scroll">
@@ -648,10 +651,8 @@
                 <td style="text-align:center">
                   <div class="horaire-chips-row" style="justify-content:center">
                     <div class="horaire-chip seance-chip" *ngFor="let e of p.entries">
-                      <span class="horaire-chip__date">{{ e.date }}</span>
-                      <span class="horaire-chip__time">{{ e.heureDebut }} → {{ e.heureFin }}</span>
-                      <span class="seance-chip__machine" *ngIf="e.machine">· {{ e.machine }}</span>
-                      <span class="badge {{ seanceStatutClass(e.statut) }}" style="font-size:10px;padding:1px 6px;">{{ seanceStatutLabel(e.statut) }}</span>
+                      <span class="horaire-chip__date">{{ seanceJourLabel(e) }}</span>
+                      <span class="horaire-chip__time">{{ seanceCreneauLabel(e) }}</span>
                     </div>
                   </div>
                 </td>
@@ -681,7 +682,7 @@
             <button class="pg-arrow" [disabled]="seancePage === totalPersonSeancePages" (click)="goToPage('seancePage', totalPersonSeancePages, totalPersonSeancePages)"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ filteredPersonSeances.length }} patient(s) · {{ seancesAdmin.length }} séance(s) au total</div>
+        <div class="panel__footer">{{ filteredPersonSeances.length }} patient(s) · {{ seancesAdmin.length }} créneau(x) au total</div>
       </div>
     </ng-container>
 

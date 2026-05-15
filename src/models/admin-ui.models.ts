@@ -1,7 +1,7 @@
 import { Role } from './role';
 
 export type AdminTab = 'profils' | 'seances';
-export type RoleId = 'admin' | 'medecin' | 'infirmier-majeur' | 'infirmier' | 'aide-soignant' | 'patient';
+export type RoleId = 'admin' | 'medecin' | 'infirmier-majeur' | 'infirmier' | 'patient';
 export type UserStatus = 'actif' | 'inactif' | 'suspendu';
 
 // View models dedicated to the admin screen.
@@ -53,25 +53,16 @@ export interface Toast {
   id: number;
 }
 
-export interface HoraireRow {
-  id: number;
-  utilisateurId: number;
-  staffNom: string;
-  staffRole: string;
-  jours: string[];
-  heureDebut: string;
-  heureFin: string;
-}
-
 export interface SeanceAdminRow {
   id: number;
   patientId: number;
   patientNom: string;
   responsableId: number | null;
-  aideSoignantNom: string;
+  infirmierNom: string;
   date: string;
   heureDebut: string;
   heureFin: string;
-  machine: string;
   statut: string;
+  jourPlanifie?: number | null;
+  creneau?: string | null;
 }

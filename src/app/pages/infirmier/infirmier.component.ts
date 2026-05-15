@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -86,13 +86,13 @@ export class InfirmierComponent implements OnInit {
         this.patients = patients.map(p => this.toVM(p));
         this.isLoadingPatients = false;
         if (patients.length === 0) {
-          this.loadError = 'Aucun patient enregistré dans le système.';
+          this.loadError = 'Aucun patient enregistrÃ© dans le systÃ¨me.';
         }
       },
       error: (err) => {
         this.isLoadingPatients = false;
         if (err?.status === 401 || err?.status === 403) {
-          this.loadError = 'Session expirée. Veuillez vous reconnecter.';
+          this.loadError = 'Session expirÃ©e. Veuillez vous reconnecter.';
         } else if (err?.status === 0) {
           this.loadError = 'Serveur inaccessible.';
         } else {
@@ -152,8 +152,7 @@ export class InfirmierComponent implements OnInit {
       notes: this.cvForm.notes.trim(),
       date: new Date().toISOString().slice(0, 10),
       patientId: this.selectedPatient.id,
-      seanceId: null,
-      aideSoignantId: this.authService.utilisateurId || null
+      seanceId: null
     };
     this.constantesService.create(payload).subscribe({
       next: (c) => {
@@ -161,7 +160,7 @@ export class InfirmierComponent implements OnInit {
         this.isSaving = false;
         this.showForm = false;
         this.cvForm = { tensionSys: '', tensionDia: '', poids: '', bpm: '', notes: '' };
-        this.showToast('Constantes enregistrées avec succès.', 'success');
+        this.showToast('Constantes enregistrées avec succés.', 'success');
       },
       error: (err) => {
         this.isSaving = false;
@@ -209,8 +208,8 @@ export class InfirmierComponent implements OnInit {
   }
 
   ordonnanceStatusLabel(s: string): string {
-    return ({ ACTIVE: 'Active', EXPIREE: 'Expirée', ANNULEE: 'Annulée',
-              EN_ATTENTE: 'En attente', VALIDEE: 'Validée' } as Record<string,string>)[s] ?? s;
+    return ({ ACTIVE: 'Active', EXPIREE: 'ExpirÃ©e', ANNULEE: 'AnnulÃ©e',
+              EN_ATTENTE: 'En attente', VALIDEE: 'ValidÃ©e' } as Record<string,string>)[s] ?? s;
   }
 
   ordonnanceStatusTone(s: string): string {

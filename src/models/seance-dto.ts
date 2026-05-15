@@ -3,12 +3,9 @@ import { UtilisateurSummaryDto } from './utilisateur-summary-dto';
 export interface SeanceDto {
   id: number;
   date: string;
-  heureDebut: string;
-  heureFin: string;
-  statut: string;
-  notes: string | null;
-  dureeHeures: number;
+  jourPlanifie?: number | null;
+  creneau?: 'MATIN' | 'APRES_MIDI' | string | null;
   patient: PatientSummaryDto;
   utilisateur: UtilisateurSummaryDto;
-  aideSoignant?: UtilisateurSummaryDto | null;
+  infirmier?: UtilisateurSummaryDto | null;
 }

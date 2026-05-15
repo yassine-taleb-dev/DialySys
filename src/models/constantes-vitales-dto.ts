@@ -8,5 +8,5 @@
   date: string;
   saisieAt: string;
   seanceId: number | null;
-  aideSoignant?: { id: number; nom: string; prenom: string } | null;
+  saisiePar?: { id: number; nom: string; prenom: string } | null;
 }

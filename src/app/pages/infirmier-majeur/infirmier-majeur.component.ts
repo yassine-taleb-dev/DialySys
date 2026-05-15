@@ -83,7 +83,7 @@ export class InfirmierMajeurComponent {
     const map: Record<string, string> = {
       dashboard:   'Supervision Générale',
       planning:    'Planning Global des Séances',
-      equipe:      'Équipe Aide-Soignante',
+      equipe:      'Équipe Infirmiere',
       supervision: 'Supervision des Infirmiers',
       patients:    'Tous les Patients',
       monitoring:  'Monitoring Global en Temps Réel',
@@ -158,8 +158,8 @@ export class InfirmierMajeurComponent {
     { init: 'AH', nom: 'Inf. Amine Haddad',         role: 'Infirmier(e)',   patients: 1, statut: 'Alerte',    statutClass: 'warn',   vacation: 'Matin 07:00–15:00',  telephone: '06 23 45 67 89' },
     { init: 'LM', nom: 'Inf. Leila Mansouri',        role: 'Infirmier(e)',   patients: 1, statut: 'En service', statutClass: 'ok',     vacation: 'Matin 07:00–15:00',  telephone: '06 34 56 78 90' },
     { init: 'RB', nom: 'Inf. Rachid Berrada',        role: 'Infirmier(e)',   patients: 1, statut: 'Préparation', statutClass: 'purple', vacation: 'Soir 15:00–23:00',   telephone: '06 45 67 89 01' },
-    { init: 'YK', nom: 'Aid. Youssef Kettani',       role: 'Aide-Soignant', patients: 0, statut: 'En service', statutClass: 'ok',     vacation: 'Matin 07:00–15:00',  telephone: '06 56 78 90 12' },
-    { init: 'SO', nom: 'Aid. Sara Oulmane',           role: 'Aide-Soignant', patients: 0, statut: 'Absent',    statutClass: 'danger', vacation: 'Congé',              telephone: '06 67 89 01 23' },
+    { init: 'YK', nom: 'Aid. Youssef Kettani',       role: 'Infirmier', patients: 0, statut: 'En service', statutClass: 'ok',     vacation: 'Matin 07:00–15:00',  telephone: '06 56 78 90 12' },
+    { init: 'SO', nom: 'Aid. Sara Oulmane',           role: 'Infirmier', patients: 0, statut: 'Absent',    statutClass: 'danger', vacation: 'Congé',              telephone: '06 67 89 01 23' },
   ];
 
   selectedStaff: StaffMember | null = null;

@@ -5,7 +5,6 @@ import { SeanceDto } from '../models/seance-dto';
 import { SeanceRequestDto } from '../models/seance-request-dto';
 import { SeanceUpdateRequestDto } from '../models/seance-update-request-dto';
 import { PlanificationSeancesRequestDto } from '../models/planification-seances-request-dto';
-import { AideSoignantDisponibiliteDto } from '../models/aide-soignant-disponibilite-dto';
 import { environment } from '../environments/environment';
 function todayLocalIso(): string {
   const d = new Date();
@@ -57,12 +56,6 @@ export class SeanceService {
 
   getMesSeances(): Observable<SeanceDto[]> {
     return this.http.get<SeanceDto[]>(`${this.api}/mes-seances`);
-  }
-
-  getAidesSoignantesDisponibles(date: string): Observable<AideSoignantDisponibiliteDto[]> {
-    return this.http.get<AideSoignantDisponibiliteDto[]>(
-      `${this.api}/planification/aides-soignantes-disponibles?date=${date}`
-    );
   }
 
   getById(id: number): Observable<SeanceDto> {

@@ -34,9 +34,9 @@ describe('LoginComponent', () => {
     expect(component.selectedRole).toBe('infirmier-majeur');
   });
 
-  it('should select aide-soignant role', () => {
-    component.selectRole('aide-soignant');
-    expect(component.selectedRole).toBe('aide-soignant');
+  it('should select infirmier role', () => {
+    component.selectRole('infirmier');
+    expect(component.selectedRole).toBe('infirmier');
   });
 
   it('should select patient role', () => {
@@ -77,13 +77,13 @@ describe('LoginComponent', () => {
     expect(spy).toHaveBeenCalledWith(['/medecin']);
   });
 
-  it('should navigate to /aide-soignant when role is aide-soignant', () => {
+  it('should navigate to /infirmier when role is infirmier', () => {
     component.identifiant = 'AS-2024-001';
     component.motDePasse = 'test1234';
-    component.selectedRole = 'aide-soignant';
+    component.selectedRole = 'infirmier';
     const spy = spyOn(component['router'], 'navigate');
     component.login();
-    expect(spy).toHaveBeenCalledWith(['/aide-soignant']);
+    expect(spy).toHaveBeenCalledWith(['/infirmier']);
   });
 
   it('should navigate to /patient when role is patient', () => {

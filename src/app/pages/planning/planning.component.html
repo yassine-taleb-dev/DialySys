@@ -1,4 +1,4 @@
-ï»¿<!-- Toasts -->
+<!-- Toasts -->
 <div class="toast-container">
   <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
     <span class="material-icons">{{ toastIcon(t.type) }}</span>
@@ -28,7 +28,7 @@
     <div class="pl-card">
       <div class="pl-card-title">
         <span class="material-icons">add_circle</span>
-        Planifier une sÃ©ance de dialyse
+        Planifier une séance de dialyse
       </div>
 
       <div class="pl-form">
@@ -37,7 +37,7 @@
         <div class="pf-field">
           <label>Patient <span class="req">*</span></label>
           <select [(ngModel)]="form.patientId">
-            <option [value]="0">SÃ©lectionner </option>
+            <option [value]="0">Sélectionner </option>
             <option *ngFor="let p of patients" [value]="p.id">{{ p.nom }} {{ p.prenom }}</option>
           </select>
         </div>
@@ -58,20 +58,20 @@
           </div>
         </div>
 
-        <!-- CrÃ©neaux -->
+        <!-- Créneaux -->
         <div class="pf-block">
           <div class="pf-block-title">
             <span class="material-icons">schedule</span> 
           </div>
           <div class="pf-creneaux-row">
             <label class="pf-check">
-              <input type="checkbox" [(ngModel)]="form.shiftMatin" />
+              <input type="radio" name="planningCreneau" [checked]="form.shiftMatin" (change)="setCreneau('MATIN')" />
               <span>Matin</span>
             </label>
             <div class="pf-creneaux-sep"></div>
             <label class="pf-check">
-              <input type="checkbox" [(ngModel)]="form.shiftApresMidi" />
-              <span>AprÃ¨s-midi</span>
+              <input type="radio" name="planningCreneau" [checked]="form.shiftApresMidi" (change)="setCreneau('APRES_MIDI')" />
+              <span>Après-midi</span>
             </label>
           </div>
         </div>
@@ -87,10 +87,10 @@
       </div>
     </div>
 
-    <!--  SÃ©ances planifiÃ©es  -->
+    <!--  Séances planifiées  -->
     <div class="pl-card">
       <div class="pl-list-header">
-        <h2 class="pl-list-title">SÃ©ances planifiÃ©es</h2>
+        <h2 class="pl-list-title">Séances planifiées</h2>
       </div>
 
       <!-- Search -->
@@ -99,7 +99,7 @@
         <input
           class="pl-search"
           type="text"
-          placeholder="Rechercher par patient, aide-soignant, date..."
+          placeholder="Rechercher par patient, jour ou créneau..."
           [(ngModel)]="searchQuery"
         />
       </div>
@@ -115,7 +115,7 @@
           <thead>
             <tr>
               <th>PATIENT</th>
-              <th>SÃ‰ANCES PLANIFIÃ‰ES</th>
+              <th>SÉANCES PLANIFIÉES</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
@@ -123,7 +123,7 @@
             <tr *ngIf="filteredSeances.length === 0">
               <td colspan="3" class="pl-empty">
                 <span class="material-icons">event_busy</span>
-                Aucune sÃ©ance trouvÃ©e
+                Aucune séance trouvée
               </td>
             </tr>
             <tr *ngFor="let s of filteredSeances" class="pl-row">
@@ -138,14 +138,13 @@
               </td>
               <td>
                 <div class="pl-seance-info">
-                  <span class="pl-date">{{ s.date | date:'dd/MM/yyyy' }}</span>
-                  <span class="pl-time">{{ formatTime(s) }} {{ formatTimeFin(s) }}</span>
-                  <span class="badge {{ statutClass(s.statut) }}">{{ statutLabel(s.statut) }}</span>
+                  <span class="pl-date">{{ jourLabel(s) }}</span>
+                  <span class="pl-time">{{ creneauLabel(s) }}</span>
                 </div>
               </td>
               <td>
                 <div class="pl-row-actions">
-                  <button class="act-btn" title="Voir dÃƒÂ©tails">
+                  <button class="act-btn" title="Voir dÃ©tails">
                     <span class="material-icons">visibility</span>
                   </button>
                 </div>

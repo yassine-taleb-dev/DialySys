@@ -1,4 +1,4 @@
-<!-- Toasts -->
+﻿<!-- Toasts -->
 <div class="toast-stack">
   <button *ngFor="let t of toasts" class="toast toast--{{t.type}}" type="button" (click)="removeToast(t.id)">
     <span class="material-icons">{{toastIcon(t.type)}}</span>
@@ -211,9 +211,9 @@
                 <span class="pill pill--{{tensionStatus(c.tensionSys, c.tensionDia)}}">
                   {{tensionLabel(c.tensionSys, c.tensionDia)}}
                 </span>
-                <span class="cv-author" *ngIf="c.aideSoignant">
+                <span class="cv-author" *ngIf="c.saisiePar">
                   <span class="material-icons">person</span>
-                  {{c.aideSoignant.prenom}} {{c.aideSoignant.nom}}
+                  {{c.saisiePar.prenom}} {{c.saisiePar.nom}}
                 </span>
               </div>
               <div class="cv-metrics">
