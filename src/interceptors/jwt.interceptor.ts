@@ -21,7 +21,9 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
 function isPublicAuthRequest(url: string): boolean {
   return url.includes('/api/auth/login')
+    || url.includes('/api/auth/register')
     || url.includes('/api/auth/reset-password')
     || url.endsWith('/login')
+    || url.endsWith('/register')
     || url.endsWith('/reset-password');
 }
