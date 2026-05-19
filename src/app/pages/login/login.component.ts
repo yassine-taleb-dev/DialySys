@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
-import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -56,7 +54,7 @@ export class LoginComponent implements OnInit {
     ADMIN:            'Administrateur',
   };
 
-  constructor(private router: Router, private authService: AuthService, private http: HttpClient) {
+  constructor(private router: Router, private authService: AuthService) {
     // Redirection automatique si déjà connecté
     if (this.authService.isLoggedIn()) {
       const role = this.authService.getRole();
@@ -69,21 +67,9 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>(`${environment.apiUrl}/patients`).subscribe({
-      next: (patients) => {
-        const actifs = patients.length;
-        const total = patients.length || 1;
-        const efficacite = Math.round((actifs / total) * 1000) / 10;
-        this.statsLoading = false;
-        this.animateCount('statPatients',   0, actifs,      1200);
-        this.animateCount('statEfficacite', 0, efficacite,  1400);
-      },
-      error: () => {
-        this.statsLoading = false;
-        this.animateCount('statPatients',   0, 0,    800);
-        this.animateCount('statEfficacite', 0, 0, 1000);
-      }
-    });
+    this.statsLoading = false;
+    this.animateCount('statPatients', 0, 0, 800);
+    this.animateCount('statEfficacite', 0, 0, 1000);
   }
 
   private animateCount(key: 'statPatients' | 'statEfficacite', from: number, to: number, duration: number): void {

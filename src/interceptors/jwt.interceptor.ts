@@ -6,7 +6,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  if (!token || req.url.includes('/api/auth/')) {
+  if (!token || isPublicAuthRequest(req.url)) {
     return next(req);
   }
 
@@ -18,3 +18,10 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq);
 };
+
+function isPublicAuthRequest(url: string): boolean {
+  return url.includes('/api/auth/login')
+    || url.includes('/api/auth/reset-password')
+    || url.endsWith('/login')
+    || url.endsWith('/reset-password');
+}
