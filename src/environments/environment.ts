@@ -1,4 +1,4 @@
 export const environment = {
  production: true,
- apiUrl: 'https://dialysys-1.onrender.com/api'
+ apiUrl: 'https://dialy-sys-xykg.vercel.app/api'
 };
