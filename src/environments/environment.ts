@@ -1,4 +1,4 @@
 export const environment = {
  production: true,
- apiUrl: 'https://dialysys.onrender.com/api'
+ apiUrl: 'https://dialysys-backend.onrender.com/api'
 };
