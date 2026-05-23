@@ -51,7 +51,7 @@ export class UtilisateurService {
   }
 
   create(payload: UtilisateurCreateDto): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.api}/utilisateurs`, payload);
+    return this.http.post<{ message: string }>(`${this.api}/auth/register`, payload);
   }
 
   update(id: number, payload: UtilisateurUpdateDto): Observable<UtilisateurResponseDto> {
