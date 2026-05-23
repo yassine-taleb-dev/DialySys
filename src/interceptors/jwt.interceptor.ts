@@ -2,28 +2,26 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
-export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.getToken();
+const PUBLIC_URLS = [
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+  '/api/auth/refresh'
+];
 
-  if (!token || isPublicAuthRequest(req.url)) {
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+  const isPublic = PUBLIC_URLS.some(url => req.url.includes(url));
+  if (isPublic) {
     return next(req);
   }
 
-  const authReq = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const token = inject(AuthService).getToken();
+  if (!token) {
+    return next(req);
+  }
 
-  return next(authReq);
+  return next(req.clone({
+    setHeaders: { Authorization: `Bearer ${token}` }
+  }));
 };
-
-function isPublicAuthRequest(url: string): boolean {
-  return url.includes('/api/auth/login')
-    || url.includes('/api/auth/register')
-    || url.includes('/api/auth/reset-password')
-    || url.endsWith('/login')
-    || url.endsWith('/register')
-    || url.endsWith('/reset-password');
-}

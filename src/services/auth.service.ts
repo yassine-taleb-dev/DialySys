@@ -12,8 +12,19 @@ import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly apiUrl = environment.apiUrl;
+  private keepAliveTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    this.startKeepAlive();
+  }
+
+  private startKeepAlive(): void {
+    // Ping every 10 minutes to prevent Render free-tier from sleeping
+    this.keepAliveTimer = setInterval(() => {
+      this.http.get(`${this.apiUrl}/auth/verify`, { observe: 'response' })
+        .subscribe({ error: () => {} });
+    }, 10 * 60 * 1000);
+  }
 
   login(login: string, motDePasse: string, rememberMe = false, twoFactorCode?: string): Observable<LoginResponseDto> {
     const body: LoginRequestDto = { login, motDePasse, twoFactorCode, rememberMe };
