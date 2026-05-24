@@ -19,10 +19,9 @@ export class AuthService {
   }
 
   private startKeepAlive(): void {
-    // Ping every 10 minutes to prevent Render free-tier from sleeping
+    const base = this.apiUrl.replace(/\/api$/, '');
     this.keepAliveTimer = setInterval(() => {
-      this.http.get(`${this.apiUrl}/auth/verify`, { observe: 'response' })
-        .subscribe({ error: () => {} });
+      this.http.get(`${base}/health`).subscribe({ error: () => {} });
     }, 10 * 60 * 1000);
   }
 
