@@ -1,4 +1,5 @@
 {
+  "outputDirectory": "dist/dialy-sys/browser",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
