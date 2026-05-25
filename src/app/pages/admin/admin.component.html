@@ -255,21 +255,6 @@
           </select>
         </div>
       </div>
-      <div class="wz-form-row" *ngIf="selectedUser!.role === 'infirmier'">
-        <div class="wz-field wz-field--full"><label>Superviseur</label>
-          <select [(ngModel)]="selectedUser!.superviseurId">
-            <option [ngValue]="null">-- Aucun --</option>
-            <option *ngFor="let s of superviseurs" [ngValue]="s.id">{{ s.prenom }} {{ s.nom }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Section Accès & Connexion -->
-      <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">lock</span> Accès &amp; Connexion</div>
-      <div class="wz-form-row">
-        <div class="wz-field"><label>Login</label><input type="text" [(ngModel)]="selectedUser!.login" /></div>
-        <div class="wz-field"><label>Username</label><input type="text" [(ngModel)]="selectedUser!.username" /></div>
-      </div>
       <div class="wz-form-row">
         <div class="wz-field"><label>Rôle</label>
           <select [(ngModel)]="selectedUser!.role">
