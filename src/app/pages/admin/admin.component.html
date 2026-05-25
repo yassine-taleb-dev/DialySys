@@ -221,15 +221,25 @@
       <span class="badge {{ statusClass(selectedUser!.statut) }}" style="margin-right:8px">{{ statusLabel(selectedUser!.statut) }}</span>
       <button class="modal-close-btn" (click)="closeUserModal()"><span class="material-icons">close</span></button>
     </div>
+
     <div class="wizard-body wizard-body--form">
-      <div class="wizard-section-label"><span class="material-icons">badge</span> Identité</div>
-      <div class="form-grid">
-        <div class="form-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="selectedUser!.nom" /></div>
-        <div class="form-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="selectedUser!.prenom" /></div>
-        <div class="form-field"><label>Matricule</label><input type="text" [(ngModel)]="selectedUser!.mat" /></div>
-        <div class="form-field"><label>Email</label><input type="email" [(ngModel)]="selectedUser!.email" /></div>
-        <div class="form-field"><label>Téléphone</label><input type="text" [(ngModel)]="selectedUser!.telephone" placeholder="06 XX XX XX XX" /></div>
-        <div class="form-field form-field--white"><label>Service</label>
+
+      <!-- Section Identité -->
+      <div class="wz-section-title"><span class="material-icons">badge</span> Identité</div>
+      <div class="wz-form-row">
+        <div class="wz-field"><label>Nom <span class="req">*</span></label><input type="text" [(ngModel)]="selectedUser!.nom" placeholder="Nom de famille" /></div>
+        <div class="wz-field"><label>Prénom <span class="req">*</span></label><input type="text" [(ngModel)]="selectedUser!.prenom" placeholder="Prénom" /></div>
+      </div>
+      <div class="wz-form-row">
+        <div class="wz-field wz-field--readonly"><label>Matricule</label><input type="text" [(ngModel)]="selectedUser!.mat" disabled /></div>
+        <div class="wz-field"><label>Email professionnel <span class="req">*</span></label><input type="email" [(ngModel)]="selectedUser!.email" placeholder="prenom.nom@dialysys.dz" /></div>
+      </div>
+
+      <!-- Section Poste & Service -->
+      <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">work</span> Poste &amp; Service</div>
+      <div class="wz-form-row">
+        <div class="wz-field"><label>Téléphone</label><input type="tel" [(ngModel)]="selectedUser!.telephone" placeholder="0600000000" inputmode="numeric" maxlength="10" /></div>
+        <div class="wz-field"><label>Service</label>
           <select [(ngModel)]="selectedUser!.service">
             <option value="Hémodialyse">Hémodialyse</option>
             <option value="Permanence">Permanence</option>
@@ -237,16 +247,57 @@
           </select>
         </div>
       </div>
-      <div class="wizard-section-label" style="margin-top:16px"><span class="material-icons">lock</span> Accès &amp; Connexion</div>
-      <div class="form-grid">
-        <div class="form-field"><label>Login</label><input type="text" [(ngModel)]="selectedUser!.login" /></div>
-        <div class="form-field"><label>Username</label><input type="text" [(ngModel)]="selectedUser!.username" /></div>
-        <div class="form-field form-field--white"><label>Rôle</label><select [(ngModel)]="selectedUser!.role"><option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option></select></div>
-        <div class="form-field form-field--white"><label>Statut</label><select [(ngModel)]="selectedUser!.statut" (change)="selectedUser!.actif = selectedUser!.statut === 'actif'"><option value="actif">Actif</option><option value="inactif">Inactif</option><option value="suspendu">Suspendu</option></select></div>
-        <div class="form-field"><label>Date de création</label><input type="text" [value]="selectedUser!.dateCreation" disabled style="opacity:.6" /></div>
-        <div class="form-field"><label>Compte actif</label><div class="toggle-row"><label class="toggle-switch"><input type="checkbox" [(ngModel)]="selectedUser!.actif" (change)="selectedUser!.statut = selectedUser!.actif ? 'actif' : 'inactif'" /><span class="toggle-track"></span></label><span class="toggle-label">{{ selectedUser!.actif ? 'Actif' : 'Inactif' }}</span></div></div>
+      <div class="wz-form-row" *ngIf="selectedUser!.role === 'medecin'">
+        <div class="wz-field wz-field--full"><label>Spécialité</label>
+          <select [(ngModel)]="selectedUser!.specialite">
+            <option value="Néphrologie">Néphrologie</option>
+            <option value="Généraliste">Généraliste</option>
+          </select>
+        </div>
+      </div>
+      <div class="wz-form-row" *ngIf="selectedUser!.role === 'infirmier'">
+        <div class="wz-field wz-field--full"><label>Superviseur</label>
+          <select [(ngModel)]="selectedUser!.superviseurId">
+            <option [ngValue]="null">-- Aucun --</option>
+            <option *ngFor="let s of superviseurs" [ngValue]="s.id">{{ s.prenom }} {{ s.nom }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section Accès & Connexion -->
+      <div class="wz-section-title" style="margin-top:14px"><span class="material-icons">lock</span> Accès &amp; Connexion</div>
+      <div class="wz-form-row">
+        <div class="wz-field"><label>Login</label><input type="text" [(ngModel)]="selectedUser!.login" /></div>
+        <div class="wz-field"><label>Username</label><input type="text" [(ngModel)]="selectedUser!.username" /></div>
+      </div>
+      <div class="wz-form-row">
+        <div class="wz-field"><label>Rôle</label>
+          <select [(ngModel)]="selectedUser!.role">
+            <option *ngFor="let r of staffRoleOptions" [value]="r.id">{{ r.label }}</option>
+          </select>
+        </div>
+        <div class="wz-field"><label>Statut</label>
+          <select [(ngModel)]="selectedUser!.statut" (change)="selectedUser!.actif = selectedUser!.statut === 'actif'">
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+            <option value="suspendu">Suspendu</option>
+          </select>
+        </div>
+      </div>
+      <div class="wz-form-row">
+        <div class="wz-field wz-field--readonly"><label>Date de création</label><input type="text" [value]="selectedUser!.dateCreation" disabled /></div>
+        <div class="wz-field"><label>Compte actif</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="selectedUser!.actif" (change)="selectedUser!.statut = selectedUser!.actif ? 'actif' : 'inactif'" />
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label">{{ selectedUser!.actif ? 'Actif' : 'Inactif' }}</span>
+          </div>
+        </div>
       </div>
     </div>
+
     <div class="wizard-footer">
       <div class="wizard-footer__danger">
         <button class="btn-delete" (click)="deleteUser(selectedUser!)"><span class="material-icons">delete_outline</span> Supprimer</button>
