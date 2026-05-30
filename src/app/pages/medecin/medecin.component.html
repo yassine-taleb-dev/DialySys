@@ -164,22 +164,42 @@
             Chargement des patients...
           </div>
 
-          <div class="patients-main-list__grid" *ngIf="!isLoadingPatients">
-            <button class="patient-card" *ngFor="let p of filteredDossierPatients"
-                    type="button" (click)="openDossierModal(p)">
-              <div class="patient-card__avatar">{{ p.initials }}</div>
-              <div class="patient-card__body">
-                <strong>{{ p.nomComplet }}</strong>
-                <span>{{ p.pathologie }}</span>
-                <small>{{ p.age }} ans · CIN {{ p.cin || '-' }}</small>
-              </div>
-              <span class="material-icons patient-card__arrow">chevron_right</span>
-            </button>
-
-            <div class="state-box" *ngIf="filteredDossierPatients.length === 0">
-              <span class="material-icons">person_search</span>
-              Aucun patient trouvé
-            </div>
+          <div class="patients-table-wrap" *ngIf="!isLoadingPatients">
+            <table class="patients-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Âge</th>
+                  <th>CIN</th>
+                  <th>Groupe sanguin</th>
+                  <th>Pathologie</th>
+                  <th>Genre</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of filteredDossierPatients" (click)="openDossierModal(p)" class="patients-table__row">
+                  <td>
+                    <div class="patients-table__name">
+                      <span class="patient-row__avatar">{{ p.initials }}</span>
+                      <strong>{{ p.nomComplet }}</strong>
+                    </div>
+                  </td>
+                  <td>{{ p.age > 0 ? p.age + ' ans' : '-' }}</td>
+                  <td>{{ p.cin || '-' }}</td>
+                  <td>{{ p.groupeSanguin || '-' }}</td>
+                  <td>{{ p.pathologie || '-' }}</td>
+                  <td>{{ p.genre || '-' }}</td>
+                  <td><span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span></td>
+                </tr>
+                <tr *ngIf="filteredDossierPatients.length === 0">
+                  <td colspan="7" style="text-align:center;padding:32px;color:#94a3b8">
+                    <span class="material-icons" style="display:block;font-size:36px;margin-bottom:8px">person_search</span>
+                    Aucun patient trouvé
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </ng-container>
