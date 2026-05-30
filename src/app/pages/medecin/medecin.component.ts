@@ -99,6 +99,10 @@ export class MedecinComponent implements OnInit {
   dossierPatient: PatientVM | null = null;
   dossierData: DossierPatientDto | null = null;
   isLoadingDossier = false;
+  modalTab: TabKey = 'resume';
+  modalOrdonnances: OrdonnanceDto[] = [];
+  modalConstantes: ConstantesVitalesDto[] = [];
+  modalSelectedOrdonnance: OrdonnanceDto | null = null;
 
   patients: PatientVM[] = [];
   selectedPatient: PatientVM | null = null;
@@ -240,13 +244,20 @@ export class MedecinComponent implements OnInit {
   openDossierModal(patient: PatientVM): void {
     this.dossierPatient = patient;
     this.dossierData = null;
+    this.modalOrdonnances = [];
+    this.modalConstantes = [];
+    this.modalTab = 'resume';
     this.showDossierModal = true;
     this.isLoadingDossier = true;
 
-    this.dossierService.getByPatient(patient.id).pipe(
-      catchError(() => of(null))
-    ).subscribe(dossier => {
+    forkJoin({
+      dossier: this.dossierService.getByPatient(patient.id).pipe(catchError(() => of(null))),
+      ordonnances: this.ordonnanceService.getByPatient(patient.id).pipe(catchError(() => of([] as OrdonnanceDto[]))),
+      constantes: this.constantesService.getByPatient(patient.id).pipe(catchError(() => of([] as ConstantesVitalesDto[]))),
+    }).subscribe(({ dossier, ordonnances, constantes }) => {
       this.dossierData = dossier;
+      this.modalOrdonnances = this.sortOrdonnances(ordonnances);
+      this.modalConstantes = this.sortConstantes(constantes);
       this.isLoadingDossier = false;
     });
   }
