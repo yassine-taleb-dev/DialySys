@@ -178,50 +178,6 @@
   </div>
 
   <div class="doctor-layout">
-    <aside class="patients-panel">
-      <div class="panel-heading">
-        <div>
-          <span>Patients</span>
-          <strong>{{ filteredPatients.length }}</strong>
-        </div>
-      </div>
-
-      <label class="search-box">
-        <span class="material-icons">search</span>
-        <input type="search" placeholder="Nom, CIN, pathologie..." [(ngModel)]="searchQuery" />
-      </label>
-
-      <div class="state-box" *ngIf="isLoadingPatients">
-        <span class="material-icons spin">progress_activity</span>
-        Chargement des patients
-      </div>
-
-      <div class="state-box state-box--error" *ngIf="!isLoadingPatients && loadError">
-        <span class="material-icons">cloud_off</span>
-        {{ loadError }}
-      </div>
-
-      <div class="patient-list" *ngIf="!isLoadingPatients && !loadError">
-        <button
-          *ngFor="let patient of filteredPatients"
-          class="patient-row"
-          type="button"
-          [class.patient-row--active]="selectedPatient?.id === patient.id"
-          (click)="selectPatient(patient)">
-          <span class="patient-row__avatar">{{ patient.initials }}</span>
-          <span class="patient-row__body">
-            <strong>{{ patient.nomComplet }}</strong>
-            <small>{{ patient.age }} ans - {{ patient.pathologie }}</small>
-          </span>
-        </button>
-
-        <div class="state-box" *ngIf="filteredPatients.length === 0">
-          <span class="material-icons">person_search</span>
-          Aucun patient trouve
-        </div>
-      </div>
-    </aside>
-
     <main class="patient-workspace">
       <section class="empty-detail" *ngIf="!selectedPatient">
         <span class="material-icons">clinical_notes</span>
