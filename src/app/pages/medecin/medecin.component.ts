@@ -102,7 +102,6 @@ export class MedecinComponent implements OnInit {
   modalTab: TabKey = 'resume';
   modalOrdonnances: OrdonnanceDto[] = [];
   modalConstantes: ConstantesVitalesDto[] = [];
-  modalSelectedOrdonnance: OrdonnanceDto | null = null;
 
   patients: PatientVM[] = [];
   selectedPatient: PatientVM | null = null;
@@ -266,6 +265,8 @@ export class MedecinComponent implements OnInit {
     this.showDossierModal = false;
     this.dossierPatient = null;
     this.dossierData = null;
+    this.modalOrdonnances = [];
+    this.modalConstantes = [];
   }
 
   openOrdonnance(ordonnance: OrdonnanceDto): void {

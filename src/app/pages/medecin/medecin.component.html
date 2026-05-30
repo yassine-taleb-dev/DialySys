@@ -43,130 +43,6 @@
   </header>
 
 
-  <!-- Dossier patient modal -->
-  <div class="modal-overlay" *ngIf="showDossierModal" (click)="closeDossierModal()">
-    <div class="modal-panel modal-panel--workspace" (click)="$event.stopPropagation()">
-
-      <!-- Close -->
-      <button class="modal-close-btn" (click)="closeDossierModal()">
-        <span class="material-icons">close</span>
-      </button>
-
-      <!-- Hero -->
-      <section class="dm-hero">
-        <div class="dm-hero__avatar">{{ dossierPatient?.initials }}</div>
-        <div class="dm-hero__copy">
-          <div class="dm-eyebrow">DOSSIER PATIENT</div>
-          <h2>{{ dossierPatient?.nomComplet }}</h2>
-          <p>{{ dossierPatient?.age }} ans - CIN {{ dossierPatient?.cin || '-' }} - Groupe {{ dossierPatient?.groupeSanguin || '-' }}</p>
-        </div>
-      </section>
-
-      <!-- Loading spinner -->
-      <div class="state-box" *ngIf="isLoadingDossier" style="margin:16px 0">
-        <span class="material-icons spin">progress_activity</span>
-        Chargement du dossier...
-      </div>
-
-      <ng-container *ngIf="!isLoadingDossier">
-        <!-- Quick-action tabs -->
-        <div class="dm-actions">
-          <button class="dm-btn" [class.dm-btn--active]="modalTab === 'resume'" (click)="modalTab = 'resume'">
-            <span class="material-icons">person</span>
-            <span>Consulter patient</span>
-          </button>
-          <button class="dm-btn" [class.dm-btn--active]="modalTab === 'ordonnances'" (click)="modalTab = 'ordonnances'">
-            <span class="material-icons">description</span>
-            <span>Ordonnances</span>
-            <small class="dm-badge">{{ modalOrdonnances.length }}</small>
-          </button>
-          <button class="dm-btn" [class.dm-btn--active]="modalTab === 'constantes'" (click)="modalTab = 'constantes'">
-            <span class="material-icons">monitor_heart</span>
-            <span>Instructions de patient</span>
-          </button>
-        </div>
-
-        <!-- Tab: Consulter patient -->
-        <div class="dm-tab-content" *ngIf="modalTab === 'resume'">
-          <ng-container *ngIf="modalConstantes.length && modalConstantes[0] as c">
-            <div class="dm-info-grid">
-              <div class="dm-info-card">
-                <span class="dm-info-label">Tension</span>
-                <span class="dm-info-value">{{ c.tensionSys }}/{{ c.tensionDia }} mmHg</span>
-              </div>
-              <div class="dm-info-card">
-                <span class="dm-info-label">Fréquence cardiaque</span>
-                <span class="dm-info-value">{{ c.bpm }} bpm</span>
-              </div>
-              <div class="dm-info-card">
-                <span class="dm-info-label">Poids</span>
-                <span class="dm-info-value">{{ c.poids }} kg</span>
-              </div>
-            </div>
-          </ng-container>
-          <div class="state-box" *ngIf="!modalConstantes.length">
-            <span class="material-icons">sensors_off</span>
-            Aucune constante vitale saisie pour ce patient.
-          </div>
-        </div>
-
-        <!-- Tab: Ordonnances -->
-        <div class="dm-tab-content" *ngIf="modalTab === 'ordonnances'">
-          <div class="ordonnance-list" *ngIf="modalOrdonnances.length">
-            <button class="ordonnance-card" type="button" *ngFor="let o of modalOrdonnances">
-              <span class="material-icons">description</span>
-              <span class="ordonnance-card__body">
-                <strong>Ordonnance #{{ o.id }}</strong>
-                <small>{{ fmtDate(o.dateEmission) }} - {{ o.medicaments }}</small>
-              </span>
-              <span class="pill pill--{{ ordonnanceStatusTone(o.statut) }}">{{ ordonnanceStatusLabel(o.statut) }}</span>
-            </button>
-          </div>
-          <div class="state-box" *ngIf="!modalOrdonnances.length">
-            <span class="material-icons">description_off</span>
-            Aucune ordonnance pour ce patient.
-          </div>
-        </div>
-
-        <!-- Tab: Instructions de patient -->
-        <div class="dm-tab-content" *ngIf="modalTab === 'constantes'">
-          <ng-container *ngIf="dossierData">
-            <div class="dm-info-grid">
-              <div class="dm-info-card">
-                <span class="dm-info-label">Pathologie</span>
-                <span class="dm-info-value">{{ dossierData.pathologie || '-' }}</span>
-              </div>
-              <div class="dm-info-card">
-                <span class="dm-info-label">Poids sec</span>
-                <span class="dm-info-value">{{ dossierData.poids ? dossierData.poids + ' kg' : '-' }}</span>
-              </div>
-              <div class="dm-info-card">
-                <span class="dm-info-label">Créatinine</span>
-                <span class="dm-info-value">{{ dossierData.creatinine || '-' }}</span>
-              </div>
-              <div class="dm-info-card">
-                <span class="dm-info-label">Urée</span>
-                <span class="dm-info-value">{{ dossierData.uree || '-' }}</span>
-              </div>
-              <div class="dm-info-card">
-                <span class="dm-info-label">Hémoglobine</span>
-                <span class="dm-info-value">{{ dossierData.hemoglobine || '-' }}</span>
-              </div>
-            </div>
-            <div class="dm-antecedents" *ngIf="dossierData.antecedents">
-              <div class="dm-sub-label"><span class="material-icons">history_edu</span> Antécédents</div>
-              <p>{{ dossierData.antecedents }}</p>
-            </div>
-          </ng-container>
-          <div class="state-box" *ngIf="!dossierData">
-            <span class="material-icons">folder_open</span>
-            Aucun dossier disponible pour ce patient.
-          </div>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-
   <div class="doctor-layout">
     <aside class="doctor-sidebar">
       <button class="doctor-sidebar__item" [class.doctor-sidebar__item--active]="showPatientsPanel"
@@ -568,6 +444,129 @@
         </section>
       </ng-container>
     </main>
+  </div>
+</div>
+
+<!-- Dossier patient modal — outside doctor-shell to avoid stacking context -->
+<div class="modal-overlay" *ngIf="showDossierModal" (click)="closeDossierModal()">
+  <div class="modal-panel modal-panel--workspace" (click)="$event.stopPropagation()">
+
+    <button class="modal-close-btn" (click)="closeDossierModal()">
+      <span class="material-icons">close</span>
+    </button>
+
+    <!-- Hero -->
+    <section class="dm-hero">
+      <div class="dm-hero__avatar">{{ dossierPatient?.initials }}</div>
+      <div class="dm-hero__copy">
+        <div class="dm-eyebrow">DOSSIER PATIENT</div>
+        <h2>{{ dossierPatient?.nomComplet }}</h2>
+        <p>{{ dossierPatient?.age }} ans - CIN {{ dossierPatient?.cin || '-' }} - Groupe {{ dossierPatient?.groupeSanguin || '-' }}</p>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <div class="state-box" *ngIf="isLoadingDossier" style="margin:16px 0">
+      <span class="material-icons spin">progress_activity</span>
+      Chargement du dossier...
+    </div>
+
+    <ng-container *ngIf="!isLoadingDossier">
+      <!-- Tab buttons -->
+      <div class="dm-actions">
+        <button class="dm-btn" [class.dm-btn--active]="modalTab === 'resume'" (click)="modalTab = 'resume'">
+          <span class="material-icons">person</span>
+          <span>Consulter patient</span>
+        </button>
+        <button class="dm-btn" [class.dm-btn--active]="modalTab === 'ordonnances'" (click)="modalTab = 'ordonnances'">
+          <span class="material-icons">description</span>
+          <span>Ordonnances</span>
+          <small class="dm-badge">{{ modalOrdonnances.length }}</small>
+        </button>
+        <button class="dm-btn" [class.dm-btn--active]="modalTab === 'constantes'" (click)="modalTab = 'constantes'">
+          <span class="material-icons">monitor_heart</span>
+          <span>Instructions de patient</span>
+        </button>
+      </div>
+
+      <!-- Consulter patient -->
+      <div class="dm-tab-content" *ngIf="modalTab === 'resume'">
+        <ng-container *ngIf="modalConstantes.length && modalConstantes[0] as c">
+          <div class="dm-info-grid">
+            <div class="dm-info-card">
+              <span class="dm-info-label">Tension</span>
+              <span class="dm-info-value">{{ c.tensionSys }}/{{ c.tensionDia }} mmHg</span>
+            </div>
+            <div class="dm-info-card">
+              <span class="dm-info-label">Fréquence cardiaque</span>
+              <span class="dm-info-value">{{ c.bpm }} bpm</span>
+            </div>
+            <div class="dm-info-card">
+              <span class="dm-info-label">Poids</span>
+              <span class="dm-info-value">{{ c.poids }} kg</span>
+            </div>
+          </div>
+        </ng-container>
+        <div class="state-box" *ngIf="!modalConstantes.length">
+          <span class="material-icons">sensors_off</span>
+          Aucune constante vitale saisie pour ce patient.
+        </div>
+      </div>
+
+      <!-- Ordonnances -->
+      <div class="dm-tab-content" *ngIf="modalTab === 'ordonnances'">
+        <div class="ordonnance-list" *ngIf="modalOrdonnances.length">
+          <button class="ordonnance-card" type="button" *ngFor="let o of modalOrdonnances">
+            <span class="material-icons">description</span>
+            <span class="ordonnance-card__body">
+              <strong>Ordonnance #{{ o.id }}</strong>
+              <small>{{ fmtDate(o.dateEmission) }} - {{ o.medicaments }}</small>
+            </span>
+            <span class="pill pill--{{ ordonnanceStatusTone(o.statut) }}">{{ ordonnanceStatusLabel(o.statut) }}</span>
+          </button>
+        </div>
+        <div class="state-box" *ngIf="!modalOrdonnances.length">
+          <span class="material-icons">description_off</span>
+          Aucune ordonnance pour ce patient.
+        </div>
+      </div>
+
+      <!-- Instructions de patient -->
+      <div class="dm-tab-content" *ngIf="modalTab === 'constantes'">
+        <ng-container *ngIf="dossierData">
+          <div class="dm-info-grid">
+            <div class="dm-info-card">
+              <span class="dm-info-label">Pathologie</span>
+              <span class="dm-info-value">{{ dossierData.pathologie || '-' }}</span>
+            </div>
+            <div class="dm-info-card">
+              <span class="dm-info-label">Poids sec</span>
+              <span class="dm-info-value">{{ dossierData.poids ? dossierData.poids + ' kg' : '-' }}</span>
+            </div>
+            <div class="dm-info-card">
+              <span class="dm-info-label">Créatinine</span>
+              <span class="dm-info-value">{{ dossierData.creatinine || '-' }}</span>
+            </div>
+            <div class="dm-info-card">
+              <span class="dm-info-label">Urée</span>
+              <span class="dm-info-value">{{ dossierData.uree || '-' }}</span>
+            </div>
+            <div class="dm-info-card">
+              <span class="dm-info-label">Hémoglobine</span>
+              <span class="dm-info-value">{{ dossierData.hemoglobine || '-' }}</span>
+            </div>
+          </div>
+          <div class="dm-antecedents" *ngIf="dossierData.antecedents">
+            <div class="dm-sub-label"><span class="material-icons">history_edu</span> Antécédents</div>
+            <p>{{ dossierData.antecedents }}</p>
+          </div>
+        </ng-container>
+        <div class="state-box" *ngIf="!dossierData">
+          <span class="material-icons">folder_open</span>
+          Aucun dossier disponible pour ce patient.
+        </div>
+      </div>
+    </ng-container>
   </div>
 </div>
 
