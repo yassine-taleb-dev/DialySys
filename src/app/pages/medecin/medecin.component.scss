@@ -65,6 +65,11 @@
   background: var(--c-topbar-bg);
   border-bottom: 1px solid var(--c-border);
   backdrop-filter: blur(14px);
+  color: var(--c-text-1);
+
+  strong, span, p, small, a {
+    color: inherit;
+  }
 }
 
 .brand,
