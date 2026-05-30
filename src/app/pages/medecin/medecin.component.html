@@ -51,41 +51,6 @@
     </button>
   </nav>
 
-  <!-- Patients drawer -->
-  <div class="patients-drawer" [class.patients-drawer--open]="showPatientsPanel">
-    <div class="patients-drawer__header">
-      <span class="material-icons">group</span>
-      <strong>Liste de patients</strong>
-      <span class="patients-drawer__count">{{ filteredDossierPatients.length }}</span>
-      <button class="icon-button" (click)="showPatientsPanel = false">
-        <span class="material-icons">close</span>
-      </button>
-    </div>
-    <label class="search-box" style="margin:12px 16px;width:calc(100% - 32px)">
-      <span class="material-icons">search</span>
-      <input type="search" placeholder="Rechercher..." [(ngModel)]="dossierSearchQuery" />
-    </label>
-    <div class="state-box" *ngIf="isLoadingPatients">
-      <span class="material-icons spin">progress_activity</span>
-      Chargement...
-    </div>
-    <div class="patients-drawer__list" *ngIf="!isLoadingPatients">
-      <button class="patient-row" *ngFor="let p of filteredDossierPatients"
-              type="button" (click)="openDossierModal(p)">
-        <span class="patient-row__avatar">{{ p.initials }}</span>
-        <span class="patient-row__body">
-          <strong>{{ p.nomComplet }}</strong>
-          <small>{{ p.age }} ans · {{ p.pathologie }}</small>
-        </span>
-        <span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span>
-      </button>
-      <div class="state-box" *ngIf="filteredDossierPatients.length === 0">
-        <span class="material-icons">person_search</span>
-        Aucun résultat
-      </div>
-    </div>
-  </div>
-
   <!-- Dossier patient modal -->
   <div class="modal-overlay" *ngIf="showDossierModal" (click)="closeDossierModal()">
     <div class="modal-panel modal-panel--dossier" (click)="$event.stopPropagation()">
@@ -169,7 +134,7 @@
       <div class="wizard-footer">
         <div class="wizard-footer__actions">
           <button class="btn-outline-sm" (click)="closeDossierModal()">Fermer</button>
-          <button class="btn-sm-primary" (click)="selectPatient(dossierPatient!); closeDossierModal()">
+          <button class="btn-sm-primary" (click)="selectPatient(dossierPatient!); closeDossierModal(); showPatientsPanel = false">
             <span class="material-icons">open_in_new</span> Ouvrir le dossier complet
           </button>
         </div>
@@ -179,11 +144,54 @@
 
   <div class="doctor-layout">
     <main class="patient-workspace">
-      <section class="empty-detail" *ngIf="!selectedPatient">
-        <span class="material-icons">clinical_notes</span>
-        <h1>Selectionnez un patient</h1>
-        <p>Le dossier medical, les constantes saisies par l'infirmier et les ordonnances apparaitront ici.</p>
-      </section>
+
+      <!-- Vue : Liste de patients -->
+      <ng-container *ngIf="showPatientsPanel">
+        <div class="patients-main-list">
+          <div class="patients-main-list__header">
+            <div>
+              <h2><span class="material-icons">group</span> Liste de patients</h2>
+              <span class="patients-drawer__count">{{ filteredDossierPatients.length }} patient(s)</span>
+            </div>
+            <label class="search-box" style="width:280px">
+              <span class="material-icons">search</span>
+              <input type="search" placeholder="Nom, CIN, pathologie..." [(ngModel)]="dossierSearchQuery" />
+            </label>
+          </div>
+
+          <div class="state-box" *ngIf="isLoadingPatients">
+            <span class="material-icons spin">progress_activity</span>
+            Chargement des patients...
+          </div>
+
+          <div class="patients-main-list__grid" *ngIf="!isLoadingPatients">
+            <button class="patient-card" *ngFor="let p of filteredDossierPatients"
+                    type="button" (click)="openDossierModal(p)">
+              <div class="patient-card__avatar">{{ p.initials }}</div>
+              <div class="patient-card__body">
+                <strong>{{ p.nomComplet }}</strong>
+                <span>{{ p.pathologie }}</span>
+                <small>{{ p.age }} ans · CIN {{ p.cin || '-' }}</small>
+              </div>
+              <span class="material-icons patient-card__arrow">chevron_right</span>
+            </button>
+
+            <div class="state-box" *ngIf="filteredDossierPatients.length === 0">
+              <span class="material-icons">person_search</span>
+              Aucun patient trouvé
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Vue : Dossier workspace -->
+      <ng-container *ngIf="!showPatientsPanel">
+        <section class="empty-detail" *ngIf="!selectedPatient">
+          <span class="material-icons">clinical_notes</span>
+          <h1>Selectionnez un patient</h1>
+          <p>Le dossier medical, les constantes saisies par l'infirmier et les ordonnances apparaitront ici.</p>
+        </section>
+      </ng-container>
 
       <ng-container *ngIf="selectedPatient">
         <section class="patient-hero">
