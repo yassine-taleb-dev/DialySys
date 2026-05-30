@@ -42,6 +42,141 @@
     </div>
   </header>
 
+  <!-- Navigation sidebar -->
+  <nav class="doctor-nav">
+    <button class="doctor-nav__item" [class.doctor-nav__item--active]="showPatientsPanel"
+            (click)="showPatientsPanel = !showPatientsPanel" title="Liste de patients">
+      <span class="material-icons">group</span>
+      <span>Liste de patients</span>
+    </button>
+  </nav>
+
+  <!-- Patients drawer -->
+  <div class="patients-drawer" [class.patients-drawer--open]="showPatientsPanel">
+    <div class="patients-drawer__header">
+      <span class="material-icons">group</span>
+      <strong>Liste de patients</strong>
+      <span class="patients-drawer__count">{{ filteredDossierPatients.length }}</span>
+      <button class="icon-button" (click)="showPatientsPanel = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <label class="search-box" style="margin:12px 16px;width:calc(100% - 32px)">
+      <span class="material-icons">search</span>
+      <input type="search" placeholder="Rechercher..." [(ngModel)]="dossierSearchQuery" />
+    </label>
+    <div class="state-box" *ngIf="isLoadingPatients">
+      <span class="material-icons spin">progress_activity</span>
+      Chargement...
+    </div>
+    <div class="patients-drawer__list" *ngIf="!isLoadingPatients">
+      <button class="patient-row" *ngFor="let p of filteredDossierPatients"
+              type="button" (click)="openDossierModal(p)">
+        <span class="patient-row__avatar">{{ p.initials }}</span>
+        <span class="patient-row__body">
+          <strong>{{ p.nomComplet }}</strong>
+          <small>{{ p.age }} ans · {{ p.pathologie }}</small>
+        </span>
+        <span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span>
+      </button>
+      <div class="state-box" *ngIf="filteredDossierPatients.length === 0">
+        <span class="material-icons">person_search</span>
+        Aucun résultat
+      </div>
+    </div>
+  </div>
+
+  <!-- Dossier patient modal -->
+  <div class="modal-overlay" *ngIf="showDossierModal" (click)="closeDossierModal()">
+    <div class="modal-panel modal-panel--dossier" (click)="$event.stopPropagation()">
+      <div class="wizard-header">
+        <div class="wizard-header__icon" style="background:rgba(0,217,196,0.12)">
+          <span class="material-icons" style="color:var(--c-teal)">folder_shared</span>
+        </div>
+        <div class="wizard-header__text">
+          <h2>{{ dossierPatient?.nomComplet }}</h2>
+          <p>{{ dossierPatient?.age }} ans · {{ dossierPatient?.pathologie }}</p>
+        </div>
+        <button class="modal-close-btn" (click)="closeDossierModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="wizard-body wizard-body--form" style="padding:20px 24px">
+        <div class="state-box" *ngIf="isLoadingDossier">
+          <span class="material-icons spin">progress_activity</span>
+          Chargement du dossier...
+        </div>
+
+        <ng-container *ngIf="!isLoadingDossier">
+          <!-- Identité -->
+          <div class="wz-section-title"><span class="material-icons">badge</span> Identité</div>
+          <div class="wz-form-row">
+            <div class="wz-field wz-field--readonly"><label>CIN</label><input disabled [value]="dossierPatient?.cin || '-'" /></div>
+            <div class="wz-field wz-field--readonly"><label>Groupe sanguin</label><input disabled [value]="dossierPatient?.groupeSanguin || '-'" /></div>
+          </div>
+          <div class="wz-form-row">
+            <div class="wz-field wz-field--readonly"><label>Date de naissance</label><input disabled [value]="dossierPatient?.dateNaissance || '-'" /></div>
+            <div class="wz-field wz-field--readonly"><label>Genre</label><input disabled [value]="dossierPatient?.genre || '-'" /></div>
+          </div>
+
+          <ng-container *ngIf="dossierData">
+            <!-- Dialyse -->
+            <div class="wz-section-title" style="margin-top:16px"><span class="material-icons">water_drop</span> Dialyse</div>
+            <div class="wz-form-row">
+              <div class="wz-field wz-field--readonly"><label>Pathologie</label><input disabled [value]="dossierData.pathologie || '-'" /></div>
+              <div class="wz-field wz-field--readonly"><label>Début dialyse</label><input disabled [value]="dossierData.debutDialyse || '-'" /></div>
+            </div>
+            <div class="wz-form-row">
+              <div class="wz-field wz-field--readonly"><label>Poids sec (kg)</label><input disabled [value]="dossierData.poids || '-'" /></div>
+              <div class="wz-field wz-field--readonly"><label>Taille (cm)</label><input disabled [value]="dossierData.taille || '-'" /></div>
+            </div>
+
+            <!-- Biologie -->
+            <div class="wz-section-title" style="margin-top:16px"><span class="material-icons">biotech</span> Biologie</div>
+            <div class="wz-form-row">
+              <div class="wz-field wz-field--readonly"><label>Créatinine</label><input disabled [value]="dossierData.creatinine || '-'" /></div>
+              <div class="wz-field wz-field--readonly"><label>Urée</label><input disabled [value]="dossierData.uree || '-'" /></div>
+            </div>
+            <div class="wz-form-row">
+              <div class="wz-field wz-field--readonly"><label>Hémoglobine</label><input disabled [value]="dossierData.hemoglobine || '-'" /></div>
+              <div class="wz-field wz-field--readonly"><label>Saturation</label><input disabled [value]="dossierData.saturation != null ? dossierData.saturation + ' %' : '-'" /></div>
+            </div>
+
+            <!-- Antécédents -->
+            <div class="wz-section-title" style="margin-top:16px"><span class="material-icons">history_edu</span> Antécédents &amp; Instructions</div>
+            <div class="wz-form-row">
+              <div class="wz-field wz-field--readonly wz-field--full">
+                <label>Antécédents</label>
+                <textarea disabled rows="3" style="resize:none;width:100%;padding:8px;border-radius:8px;border:1px solid var(--c-border);background:var(--c-input-bg);color:var(--c-text)">{{ dossierData.antecedents || 'Aucun antécédent renseigné' }}</textarea>
+              </div>
+            </div>
+            <div class="wz-form-row">
+              <div class="wz-field wz-field--readonly wz-field--full">
+                <label>Instructions</label>
+                <textarea disabled rows="3" style="resize:none;width:100%;padding:8px;border-radius:8px;border:1px solid var(--c-border);background:var(--c-input-bg);color:var(--c-text)">{{ dossierData.instructions || 'Aucune instruction renseignée' }}</textarea>
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="state-box" *ngIf="!dossierData">
+            <span class="material-icons">folder_open</span>
+            Aucun dossier disponible pour ce patient
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="wizard-footer">
+        <div class="wizard-footer__actions">
+          <button class="btn-outline-sm" (click)="closeDossierModal()">Fermer</button>
+          <button class="btn-sm-primary" (click)="selectPatient(dossierPatient!); closeDossierModal()">
+            <span class="material-icons">open_in_new</span> Ouvrir le dossier complet
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="doctor-layout">
     <aside class="patients-panel">
       <div class="panel-heading">

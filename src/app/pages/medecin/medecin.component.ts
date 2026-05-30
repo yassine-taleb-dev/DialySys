@@ -90,6 +90,16 @@ export class MedecinComponent implements OnInit {
   searchQuery = '';
   activeTab: TabKey = 'resume';
 
+  // Sidebar nav
+  showPatientsPanel = false;
+  dossierSearchQuery = '';
+
+  // Dossier modal
+  showDossierModal = false;
+  dossierPatient: PatientVM | null = null;
+  dossierData: DossierPatientDto | null = null;
+  isLoadingDossier = false;
+
   patients: PatientVM[] = [];
   selectedPatient: PatientVM | null = null;
   ordonnances: OrdonnanceDto[] = [];
@@ -215,6 +225,36 @@ export class MedecinComponent implements OnInit {
 
   setTab(tab: TabKey): void {
     this.activeTab = tab;
+  }
+
+  get filteredDossierPatients(): PatientVM[] {
+    const q = this.dossierSearchQuery.trim().toLowerCase();
+    if (!q) return this.patients;
+    return this.patients.filter(p =>
+      p.nomComplet.toLowerCase().includes(q) ||
+      (p.cin ?? '').toLowerCase().includes(q) ||
+      p.pathologie.toLowerCase().includes(q)
+    );
+  }
+
+  openDossierModal(patient: PatientVM): void {
+    this.dossierPatient = patient;
+    this.dossierData = null;
+    this.showDossierModal = true;
+    this.isLoadingDossier = true;
+
+    this.dossierService.getByPatient(patient.id).pipe(
+      catchError(() => of(null))
+    ).subscribe(dossier => {
+      this.dossierData = dossier;
+      this.isLoadingDossier = false;
+    });
+  }
+
+  closeDossierModal(): void {
+    this.showDossierModal = false;
+    this.dossierPatient = null;
+    this.dossierData = null;
   }
 
   openOrdonnance(ordonnance: OrdonnanceDto): void {
