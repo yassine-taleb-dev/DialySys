@@ -648,7 +648,7 @@
     padding: 14px;
     border-radius: 8px;
     color: var(--c-text-2);
-    background: #f8fafc;
+    background: var(--c-surface-3);
     text-align: center;
   }
 
@@ -660,7 +660,7 @@
 
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid rgba(148, 163, 184, .26);
+  border: 1px solid var(--c-border);
   border-radius: 8px;
   background: var(--c-card);
   color: var(--c-text-1) !important;
@@ -674,7 +674,7 @@ table {
   th,
   td {
     padding: 13px 16px;
-    border-bottom: 1px solid #e8edf2;
+    border-bottom: 1px solid var(--c-border);
     text-align: left;
     white-space: nowrap;
   }
@@ -683,7 +683,7 @@ table {
     color: var(--c-text-2) !important;
     font-size: 12px;
     text-transform: uppercase;
-    background: #f8fafc !important;
+    background: var(--c-surface-3) !important;
   }
 
   td {
@@ -692,7 +692,7 @@ table {
   }
 
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #f8fafc; }
+  tr:hover td { background: var(--c-surface-3); }
 }
 
 .ordonnance-toolbar {
@@ -712,7 +712,7 @@ table {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  border: 1px solid rgba(148, 163, 184, .26);
+  border: 1px solid var(--c-border);
   border-radius: 8px;
   color: var(--c-text-1) !important;
   background: var(--c-card);
@@ -802,12 +802,12 @@ table {
   input,
   textarea {
     width: 100%;
-    border: 1px solid rgba(148, 163, 184, .36);
+    border: 1px solid var(--c-border);
     border-radius: 8px;
     padding: 11px 12px;
     resize: vertical;
     color: var(--c-text-1);
-    background: #f8fafc;
+    background: var(--c-surface-2);
     font: inherit;
     outline: none;
 
@@ -1025,7 +1025,7 @@ table {
 
 .instr-bloc {
   background: var(--c-card);
-  border: 1px solid rgba(148,163,184,.26);
+  border: 1px solid var(--c-border);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(15,23,42,.05);
@@ -1059,18 +1059,18 @@ table {
   label { font-size: 12px; font-weight: 700; color: var(--c-text-2); }
 
   input, textarea, select {
-    border: 1px solid rgba(148,163,184,.36);
+    border: 1px solid var(--c-border);
     border-radius: 8px;
     padding: 9px 12px;
     font: inherit;
     font-size: 13px;
     color: var(--c-text-1);
-    background: #f8fafc;
+    background: var(--c-surface-2);
     outline: none;
     resize: vertical;
     appearance: none;
     width: 100%;
-    &:focus { border-color: var(--c-teal); background: #fff; box-shadow: 0 0 0 3px rgba(20,124,117,.1); }
+    &:focus { border-color: var(--c-teal); background: var(--c-card); box-shadow: 0 0 0 3px var(--c-teal-soft); }
   }
 
   &--sm { max-width: 200px; }
@@ -1102,7 +1102,7 @@ table {
   gap: 7px;
   cursor: pointer;
   font-size: 13px;
-  color: var(--c-text-3);
+  color: var(--c-text-1);
 
   input[type="checkbox"] {
     width: 16px;
@@ -1111,7 +1111,7 @@ table {
     cursor: pointer;
   }
 
-  &--bold span { font-weight: 700; font-size: 14px; color: var(--c-text-3); }
+  &--bold span { font-weight: 700; font-size: 14px; color: var(--c-text-1); }
 }
 
 .instr-sub {
@@ -1124,21 +1124,21 @@ table {
 
 .instr-inline-input {
   width: 90px;
-  border: 1px solid rgba(148,163,184,.36);
+  border: 1px solid var(--c-border);
   border-radius: 6px;
   padding: 6px 10px;
   font: inherit;
   font-size: 13px;
   color: var(--c-text-1);
-  background: #f8fafc;
+  background: var(--c-surface-2);
   outline: none;
-  &:focus { border-color: var(--c-teal); background: #fff; }
+  &:focus { border-color: var(--c-teal); background: var(--c-card); }
 }
 
 .instr-label-sm {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--c-text-1);
 }
 
 .instr-actions {
@@ -1148,36 +1148,13 @@ table {
   padding-top: 4px;
 }
 
-/* dark mode pour les blocs instructions */
-:host-context(body.theme-dark) {
-  .instr-bloc {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.08) !important;
-    &__header { color: #e0eaf8 !important; border-color: rgba(255,255,255,.08) !important; }
-  }
-  .instr-check-title, .instr-check, .instr-label-sm { color: var(--c-card); }
-  .instr-check--bold span { color: var(--c-card); }
-  .instr-field label { color: var(--c-card); }
-  .instr-field input, .instr-field textarea, .instr-field select, .instr-inline-input {
-    background: rgba(255,255,255,.06) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: #e0eaf8 !important;
-  }
-
-  .instr-field select option {
-    background: #1e293b !important;
-    color: #e0eaf8 !important;
-  }
-}
-
-/* light mode pour les blocs instructions et ordonnance */
-:host-context(body:not(.theme-dark)) {
-  .instr-check-title, .instr-check, .instr-label-sm { color: #111827 !important; }
-  .instr-check--bold span { color: #111827 !important; }
-  .instr-field label { color: #334155 !important; }
-  .field span { color: #111827 !important; }
-  .prescription-form header strong { color: #111827 !important; }
-  .prescription-form header small  { color: var(--c-text-2) !important; }
+/* light mode overrides for instructions */
+.doctor-shell.light {
+  .instr-check-title, .instr-label-sm { color: #334155; }
+  .instr-check { color: #111827; }
+  .instr-check--bold span { color: #111827; }
+  .field span { color: #111827; }
+  .prescription-form header strong { color: #111827; }
 }
 
 .text-button {
@@ -1203,19 +1180,19 @@ table {
 
   textarea {
     width: 100%;
-    border: 1px solid rgba(148, 163, 184, .36);
+    border: 1px solid var(--c-border);
     border-radius: 8px;
     padding: 11px 12px;
     resize: vertical;
     color: var(--c-text-1);
-    background: #f8fafc;
+    background: var(--c-surface-2);
     font: inherit;
     outline: none;
 
     &:focus {
       border-color: var(--c-teal);
       background: var(--c-card);
-      box-shadow: 0 0 0 3px rgba(20, 124, 117, .12);
+      box-shadow: 0 0 0 3px var(--c-teal-soft);
     }
   }
 
@@ -1236,129 +1213,6 @@ table {
   }
 }
 
-/* ─── Dark mode ─── */
-:host-context(body.theme-dark) {
-  .doctor-shell,
-  .doctor-shell::before {
-    background: #30384a !important;
-  }
-
-  .doctor-layout {
-    background: #0b111e !important;
-  }
-
-  .doctor-topbar {
-    background: rgba(15, 23, 42, .92) !important;
-    border-bottom-color: rgba(255,255,255,.08) !important;
-    color: var(--c-card);
-  }
-
-  .brand strong, .brand span { color: var(--c-card); }
-
-  .doctor-profile strong, .doctor-profile span { color: var(--c-card); }
-  .doctor-profile__avatar { color: var(--c-teal) !important; background: rgba(20,124,117,.25) !important; }
-
-  .patients-panel {
-    background: rgba(15, 23, 42, .82) !important;
-    border-right-color: rgba(255,255,255,.08) !important;
-    color: #e0eaf8 !important;
-  }
-
-  .panel-heading span { color: var(--c-text-3) !important; }
-  .panel-heading strong { color: var(--c-teal) !important; }
-
-  .patient-workspace {
-    background: #0b111e !important;
-    color: #e0eaf8 !important;
-  }
-
-  .patient-row {
-    color: #e0eaf8 !important;
-    &:hover, &--active {
-      background: rgba(255,255,255,.06) !important;
-    }
-    small { color: var(--c-text-3) !important; }
-  }
-
-  .search-box {
-    background: rgba(255,255,255,.06) !important;
-    border-color: rgba(255,255,255,.1) !important;
-    input { color: #e0eaf8 !important; }
-  }
-
-  .patient-hero {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.1) !important;
-  }
-
-  .tabs {
-    background: rgba(255,255,255,.04) !important;
-    border-color: rgba(255,255,255,.08) !important;
-    &__item { color: var(--c-text-3) !important; }
-    &__item--active { color: var(--c-card); background: var(--c-teal) !important; }
-  }
-
-  .metric-card,
-  .info-panel,
-  .latest-vitals,
-  .prescription-form,
-  .ordonnance-card,
-  .patient-hero {
-    background: rgba(255,255,255,.05) !important;
-    color: #e0eaf8 !important;
-    border-color: rgba(255,255,255,.08) !important;
-  }
-
-  .metric-card span { color: var(--c-text-3) !important; }
-  .metric-card strong { color: #e0eaf8 !important; }
-  .info-panel dt { color: var(--c-text-3) !important; }
-
-  .table-wrap { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.08) !important; }
-  table { background: transparent !important; }
-  table th { background: rgba(255,255,255,.04) !important; color: var(--c-text-3) !important; }
-  table td { color: #e0eaf8 !important; border-color: rgba(255,255,255,.06) !important; }
-  table tr:hover td { background: rgba(255,255,255,.04) !important; }
-
-  .ordonnance-card { color: #e0eaf8 !important; }
-  .ordonnance-card small { color: var(--c-text-3) !important; }
-
-  .icon-button {
-    background: rgba(255,255,255,.06) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: var(--c-text-3) !important;
-  }
-
-  .ghost-button {
-    background: rgba(255,255,255,.06) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: var(--c-text-3) !important;
-  }
-
-  .field span { color: var(--c-card); }
-  .field input, .field textarea {
-    background: rgba(255,255,255,.06) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: #e0eaf8 !important;
-  }
-  .prescription-form header strong { color: var(--c-card); }
-  .prescription-form header small  { color: var(--c-text-3) !important; }
-
-  .state-box, .detail-loading {
-    background: rgba(255,255,255,.04) !important;
-    border-color: rgba(255,255,255,.1) !important;
-  }
-
-  .quick-btn {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.1) !important;
-    color: var(--c-text-3) !important;
-    &--active {
-      background: var(--c-teal) !important;
-      border-color: var(--c-teal) !important;
-      color: var(--c-card);
-    }
-  }
-}
 
 @media (max-width: 1080px) {
   .doctor-layout {
