@@ -137,7 +137,7 @@
   <div class="doctor-layout">
     <aside class="doctor-sidebar">
       <button class="doctor-sidebar__item" [class.doctor-sidebar__item--active]="showPatientsPanel"
-              (click)="showPatientsPanel = !showPatientsPanel">
+              (click)="showPatientsPanel = true; selectedPatient = null">
         <span class="material-icons">group</span>
         <span>Liste de patients</span>
       </button>
