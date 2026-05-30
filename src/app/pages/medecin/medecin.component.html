@@ -42,14 +42,6 @@
     </div>
   </header>
 
-  <!-- Navigation sidebar -->
-  <nav class="doctor-nav">
-    <button class="doctor-nav__item" [class.doctor-nav__item--active]="showPatientsPanel"
-            (click)="showPatientsPanel = !showPatientsPanel" title="Liste de patients">
-      <span class="material-icons">group</span>
-      <span>Liste de patients</span>
-    </button>
-  </nav>
 
   <!-- Dossier patient modal -->
   <div class="modal-overlay" *ngIf="showDossierModal" (click)="closeDossierModal()">
@@ -143,6 +135,14 @@
   </div>
 
   <div class="doctor-layout">
+    <aside class="doctor-sidebar">
+      <button class="doctor-sidebar__item" [class.doctor-sidebar__item--active]="showPatientsPanel"
+              (click)="showPatientsPanel = !showPatientsPanel">
+        <span class="material-icons">group</span>
+        <span>Liste de patients</span>
+      </button>
+    </aside>
+
     <main class="patient-workspace">
 
       <!-- Vue : Liste de patients -->
