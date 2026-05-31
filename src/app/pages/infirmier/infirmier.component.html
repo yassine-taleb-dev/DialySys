@@ -76,7 +76,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of patients" (click)="selectPatient(p); showPatientsPanel = false" class="patients-table__row">
+              <tr *ngFor="let p of filteredPatients" (click)="selectPatient(p); showPatientsPanel = false" class="patients-table__row">
                 <td>
                   <div class="patients-table__name">
                     <span class="patient-row__avatar">{{ p.initials }}</span>
@@ -89,7 +89,7 @@
                 <td>{{ p.genre || '-' }}</td>
                 <td><span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span></td>
               </tr>
-              <tr *ngIf="patients.length === 0">
+              <tr *ngIf="filteredPatients.length === 0">
                 <td colspan="6" style="text-align:center;padding:32px;color:var(--c-text-3)">
                   <span class="material-icons" style="display:block;font-size:36px;margin-bottom:8px">person_search</span>
                   Aucun patient trouvé
