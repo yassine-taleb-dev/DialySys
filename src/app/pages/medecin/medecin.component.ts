@@ -81,7 +81,7 @@ interface InstructionsForm {
   styleUrl: './medecin.component.scss',
 })
 export class MedecinComponent implements OnInit {
-  isLight = true;
+  isLight = false;
   isLoadingPatients = true;
   isLoadingDetails = false;
   isSaving = false;
@@ -91,7 +91,7 @@ export class MedecinComponent implements OnInit {
   activeTab: TabKey = 'resume';
 
   // Sidebar nav
-  showPatientsPanel = false;
+  showPatientsPanel = true;
   dossierSearchQuery = '';
 
   // Dossier modal

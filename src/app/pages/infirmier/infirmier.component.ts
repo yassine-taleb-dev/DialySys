@@ -30,7 +30,7 @@ interface PatientVM extends PatientDto {
   styleUrl: './infirmier.component.scss'
 })
 export class InfirmierComponent implements OnInit {
-  isLight = true;
+  isLight = false;
   isLoadingPatients = true;
   isLoadingDetails = false;
   loadError = '';
@@ -38,7 +38,7 @@ export class InfirmierComponent implements OnInit {
 
   patients: PatientVM[] = [];
   searchQuery = '';
-  showPatientsPanel = false;
+  showPatientsPanel = true;
   selectedPatient: PatientVM | null = null;
   activeTab: 'constantes' | 'ordonnances' | 'instructions' = 'constantes';
 
