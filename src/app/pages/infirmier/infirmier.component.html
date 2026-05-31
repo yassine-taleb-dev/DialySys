@@ -1,4 +1,4 @@
-﻿<!-- Toasts -->
+<!-- Toasts -->
 <div class="toast-stack">
   <button *ngFor="let t of toasts" class="toast toast--{{t.type}}" type="button" (click)="removeToast(t.id)">
     <span class="material-icons">{{toastIcon(t.type)}}</span>
@@ -41,62 +41,75 @@
 
   <div class="inf-layout">
 
-    <!-- SIDEBAR PATIENTS -->
-    <aside class="patients-panel">
-      <div class="panel-heading">
-        <div>
-          <span>Patients</span>
-          <strong>{{filteredPatients.length}}</strong>
-        </div>
-      </div>
-
-      <label class="search-box">
-        <span class="material-icons">search</span>
-        <input type="search" placeholder="Nom, CIN…" [(ngModel)]="searchQuery" />
-      </label>
-
-      <div class="state-box" *ngIf="isLoadingPatients">
-        <span class="material-icons spin">progress_activity</span>
-        Chargement des patients
-      </div>
-
-      <div class="state-box state-box--error" *ngIf="!isLoadingPatients && loadError">
-        <span class="material-icons">cloud_off</span>
-        {{loadError}}
-      </div>
-
-      <div class="patient-list" *ngIf="!isLoadingPatients && !loadError">
-        <button
-          *ngFor="let p of filteredPatients"
-          class="patient-row"
-          type="button"
-          [class.patient-row--active]="selectedPatient?.id === p.id"
-          (click)="selectPatient(p)">
-          <span class="patient-row__avatar">{{p.initials}}</span>
-          <span class="patient-row__body">
-            <strong>{{p.nomComplet}}</strong>
-            <small>{{p.age}} ans</small>
-          </span>
-        </button>
-
-        <div class="state-box" *ngIf="filteredPatients.length === 0">
-          <span class="material-icons">person_search</span>
-          Aucun patient trouvé
-        </div>
-      </div>
+    <!-- SIDEBAR -->
+    <aside class="inf-sidebar">
+      <button class="inf-sidebar__item" [class.inf-sidebar__item--active]="showPatientsPanel"
+              (click)="showPatientsPanel = true; selectedPatient = null">
+        <span class="material-icons">group</span>
+        <span>Liste de patients</span>
+      </button>
     </aside>
 
     <!-- MAIN WORKSPACE -->
     <main class="patient-workspace">
 
-      <!-- Vide -->
-      <section class="empty-detail" *ngIf="!selectedPatient">
-        <span class="material-icons">medical_services</span>
-        <h1>Sélectionnez un patient</h1>
-        <p>Les constantes vitales et les ordonnances apparaîtront ici.</p>
-      </section>
+      <!-- Vue : Liste de patients -->
+      <ng-container *ngIf="showPatientsPanel">
+        <div class="state-box" *ngIf="isLoadingPatients">
+          <span class="material-icons spin">progress_activity</span>
+          Chargement des patients...
+        </div>
+        <div class="state-box state-box--error" *ngIf="!isLoadingPatients && loadError">
+          <span class="material-icons">cloud_off</span>
+          {{loadError}}
+        </div>
+        <div class="patients-table-wrap" *ngIf="!isLoadingPatients && !loadError">
+          <table class="patients-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Âge</th>
+                <th>CIN</th>
+                <th>Groupe sanguin</th>
+                <th>Genre</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of patients" (click)="selectPatient(p); showPatientsPanel = false" class="patients-table__row">
+                <td>
+                  <div class="patients-table__name">
+                    <span class="patient-row__avatar">{{ p.initials }}</span>
+                    <strong>{{ p.nomComplet }}</strong>
+                  </div>
+                </td>
+                <td>{{ p.age > 0 ? p.age + ' ans' : '-' }}</td>
+                <td>{{ p.cin || '-' }}</td>
+                <td>{{ p.groupeSanguin || '-' }}</td>
+                <td>{{ p.genre || '-' }}</td>
+                <td><span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span></td>
+              </tr>
+              <tr *ngIf="patients.length === 0">
+                <td colspan="6" style="text-align:center;padding:32px;color:var(--c-text-3)">
+                  <span class="material-icons" style="display:block;font-size:36px;margin-bottom:8px">person_search</span>
+                  Aucun patient trouvé
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
 
-      <ng-container *ngIf="selectedPatient">
+      <!-- Vue : Dossier workspace -->
+      <ng-container *ngIf="!showPatientsPanel">
+        <section class="empty-detail" *ngIf="!selectedPatient">
+          <span class="material-icons">medical_services</span>
+          <h1>Sélectionnez un patient</h1>
+          <p>Les constantes vitales et les ordonnances apparaîtront ici.</p>
+        </section>
+      </ng-container>
+
+      <ng-container *ngIf="selectedPatient && !showPatientsPanel">
 
         <!-- Hero patient -->
         <section class="patient-hero">
@@ -144,13 +157,11 @@
         <!-- TAB CONSTANTES -->
         <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'constantes'">
 
-          <!-- Bouton ouvrir formulaire -->
           <button class="cv-add-btn" type="button" (click)="toggleForm()">
             <span class="material-icons">{{showForm ? 'close' : 'add'}}</span>
             {{showForm ? 'Annuler' : 'Saisir des constantes'}}
           </button>
 
-          <!-- Formulaire saisie -->
           <div class="cv-form-card" *ngIf="showForm">
             <div class="cv-form-title">
               <span class="material-icons">monitor_heart</span>
@@ -296,8 +307,6 @@
           </div>
 
           <ng-container *ngIf="instructions">
-
-            <!-- Paramètres dialyse -->
             <div class="instr-card">
               <div class="instr-card__head">
                 <span class="material-icons">settings</span>
@@ -331,7 +340,6 @@
               </div>
             </div>
 
-            <!-- Tensions cibles -->
             <div class="instr-card" *ngIf="instructions.taSystoliqueCible || instructions.taDiastoliqueCible">
               <div class="instr-card__head">
                 <span class="material-icons">favorite</span>
@@ -349,7 +357,6 @@
               </div>
             </div>
 
-            <!-- Traitement anémie -->
             <div class="instr-card" *ngIf="instructions.epoActif || instructions.ferIvActif">
               <div class="instr-card__head">
                 <span class="material-icons">biotech</span>
@@ -391,7 +398,6 @@
               </div>
             </div>
 
-            <!-- Allergies -->
             <div class="instr-card" *ngIf="instructions.allergies">
               <div class="instr-card__head">
                 <span class="material-icons">warning_amber</span>
@@ -401,7 +407,6 @@
                 <p class="instr-allergies">{{instructions.allergies}}</p>
               </div>
             </div>
-
           </ng-container>
         </section>
 

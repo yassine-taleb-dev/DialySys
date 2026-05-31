@@ -216,11 +216,62 @@
 // ── Layout ────────────────────────────────────────────────────────────────────
 .inf-layout {
   min-height: 0; flex: 1;
-  display: grid; grid-template-columns: 320px minmax(0,1fr);
+  display: grid; grid-template-columns: 220px minmax(0,1fr);
   background: var(--c-bg);
 }
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
+.inf-sidebar {
+  background: var(--c-card);
+  border-right: 1px solid var(--c-border);
+  display: flex; flex-direction: column;
+  padding: 16px 12px; gap: 4px;
+
+  &__item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 8px;
+    border: none; background: transparent;
+    color: var(--c-text-3); cursor: pointer;
+    font-size: 14px; font-weight: 500;
+    transition: background .15s, color .15s;
+    width: 100%; text-align: left;
+    .material-icons { font-size: 20px; }
+    &:hover { background: var(--c-teal-soft); color: var(--c-teal); }
+  }
+
+  &__item--active {
+    background: var(--c-teal-soft); color: var(--c-teal);
+  }
+}
+
+// ── Patients Table ────────────────────────────────────────────────────────────
+.patients-table-wrap {
+  padding: 28px 32px;
+  overflow-x: auto;
+}
+
+.patients-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 14px; color: var(--c-text-1);
+
+  th {
+    text-align: left; padding: 10px 14px;
+    color: var(--c-text-3); font-weight: 600;
+    font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+    border-bottom: 1px solid var(--c-border);
+  }
+
+  td {
+    padding: 12px 14px; border-bottom: 1px solid var(--c-border);
+    color: var(--c-text-1);
+  }
+
+  tbody tr {
+    cursor: pointer; transition: background .12s;
+    &:hover { background: var(--c-teal-soft); }
+  }
+}
+
 .patients-panel {
   min-height: 0; display: flex; flex-direction: column;
   background: var(--c-surface-2); border-right: 1px solid var(--c-border);

@@ -38,6 +38,7 @@ export class InfirmierComponent implements OnInit {
 
   patients: PatientVM[] = [];
   searchQuery = '';
+  showPatientsPanel = false;
   selectedPatient: PatientVM | null = null;
   activeTab: 'constantes' | 'ordonnances' | 'instructions' = 'constantes';
 
