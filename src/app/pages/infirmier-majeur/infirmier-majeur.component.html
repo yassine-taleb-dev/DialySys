@@ -1,953 +1,702 @@
-<!-- Toast -->
-<div class="toast-container">
-  <div *ngFor="let t of toasts" class="toast toast--{{ t.type }}" (click)="removeToast(t.id)">
-    <span class="material-icons">{{ toastIcon(t.type) }}</span>
-    <span>{{ t.message }}</span>
-    <button class="toast-close"><span class="material-icons">close</span></button>
-  </div>
+<!-- Toasts -->
+<div class="toast-stack">
+  <button *ngFor="let t of toasts" class="toast toast--{{t.type}}" type="button" (click)="dismissToast(t.id)">
+    <span class="material-icons">{{toastIcon(t.type)}}</span>
+    <span>{{t.message}}</span>
+  </button>
 </div>
 
-<!-- Notif backdrop -->
-<div class="notif-backdrop" *ngIf="showNotifPanel" (click)="showNotifPanel = false"></div>
+<div class="im-shell" [class.light]="isLight">
 
-<!-- ══ MODAL — Session detail ══ -->
-<div class="modal-overlay" *ngIf="showSessionModal && selectedSession" (click)="closeSession()">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <div class="avatar-lg">{{ selectedSession!.patientInit }}</div>
-      <div style="flex:1">
-        <h2>{{ selectedSession!.patientNom }}</h2>
-        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedSession!.heure }} · {{ selectedSession!.duree }} · Machine {{ selectedSession!.machine }}</span>
-      </div>
-      <span class="badge {{ selectedSession!.statusClass }}">{{ selectedSession!.statusLabel }}</span>
-      <button class="modal-close-btn" (click)="closeSession()"><span class="material-icons">close</span></button>
+  <!-- ═══ TOPBAR ═══ -->
+  <header class="im-topbar">
+    <div class="brand">
+      <img src="dialisys.png" alt="DialySys" class="brand__logo-img" />
+      <span class="brand__space-label">Espace Infirmier Majeur</span>
     </div>
-    <div class="modal-body">
-      <div class="modal-stat-row">
-        <div class="modal-stat"><span class="modal-stat-lbl">Infirmier(e)</span><span class="modal-stat-val">{{ selectedSession!.infirmier }}</span></div>
-        <div class="modal-stat"><span class="modal-stat-lbl">Machine</span><span class="modal-stat-val mono">{{ selectedSession!.machine }}</span></div>
-        <div class="modal-stat"><span class="modal-stat-lbl">Durée</span><span class="modal-stat-val mono">{{ selectedSession!.duree }}</span></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="showToast('Séance mise à jour', 'success'); closeSession()">
-          <span class="material-icons">edit</span> Modifier
-        </button>
-        <button class="btn-outline-sm" (click)="showToast('Rapport généré', 'info'); closeSession()">
-          <span class="material-icons">summarize</span> Rapport
-        </button>
-        <button class="btn-outline-sm" (click)="showToast('Infirmier(e) réassigné(e)', 'info'); closeSession()">
-          <span class="material-icons">swap_horiz</span> Réassigner
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- ══ MODAL — Nouvelle Séance ══ -->
-<div class="modal-overlay" *ngIf="showNouvelleSeanceModal" (click)="showNouvelleSeanceModal = false">
-  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
-    <div class="modal-header modal-header--simple">
-      <h2>Nouvelle Séance</h2>
-      <button class="modal-close-btn" (click)="showNouvelleSeanceModal = false"><span class="material-icons">close</span></button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-field form-field--full">
-          <label>Patient <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="newSeance.patient" placeholder="Nom du patient" />
-        </div>
-        <div class="form-field">
-          <label>Heure <span class="req">*</span></label>
-          <input type="time" [(ngModel)]="newSeance.heure" />
-        </div>
-        <div class="form-field">
-          <label>Durée</label>
-          <select [(ngModel)]="newSeance.duree">
-            <option value="3h">3 heures</option>
-            <option value="3.5h">3h30</option>
-            <option value="4h">4 heures</option>
-            <option value="4.5h">4h30</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Infirmier(e)</label>
-          <select [(ngModel)]="newSeance.infirmier">
-            <option value="">— Sélectionner —</option>
-            <option *ngFor="let s of staff" [value]="s.nom">{{ s.nom }}</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Machine</label>
-          <input type="text" [(ngModel)]="newSeance.machine" placeholder="Ex: M-09" />
-        </div>
+    <div class="im-profile">
+      <div class="im-profile__avatar">{{userInitials}}</div>
+      <div class="im-profile__text">
+        <strong>{{userName}}</strong>
+        <span>Infirmier Majeur</span>
       </div>
-      <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="ajouterSeance()">
-          <span class="material-icons">add</span> Créer la séance
-        </button>
-        <button class="btn-outline-sm" (click)="showNouvelleSeanceModal = false">Annuler</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MODAL — Staff ══ -->
-<div class="modal-overlay" *ngIf="showStaffModal && selectedStaff" (click)="closeStaff()">
-  <div class="modal-panel modal-panel--form" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <div class="avatar-lg">{{ selectedStaff!.init }}</div>
-      <div style="flex:1">
-        <h2>{{ selectedStaff!.nom }}</h2>
-        <span style="font-size:12px;color:var(--c-text-3)">{{ selectedStaff!.role }} · {{ selectedStaff!.vacation }}</span>
-      </div>
-      <span class="badge {{ selectedStaff!.statutClass }}">{{ selectedStaff!.statut }}</span>
-      <button class="modal-close-btn" (click)="closeStaff()"><span class="material-icons">close</span></button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-stat-row">
-        <div class="modal-stat"><span class="modal-stat-lbl">Patients assignés</span><span class="modal-stat-val mono">{{ selectedStaff!.patients }}</span></div>
-        <div class="modal-stat"><span class="modal-stat-lbl">Vacation</span><span class="modal-stat-val" style="font-size:12px">{{ selectedStaff!.vacation }}</span></div>
-        <div class="modal-stat"><span class="modal-stat-lbl">Téléphone</span><span class="modal-stat-val mono" style="font-size:12px">{{ selectedStaff!.telephone }}</span></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-sm-primary" (click)="showToast('Message envoyé à ' + selectedStaff!.nom, 'info'); closeStaff()">
-          <span class="material-icons">message</span> Contacter
-        </button>
-        <button class="btn-outline-sm" (click)="showToast('Planning de ' + selectedStaff!.nom + ' ouvert', 'info'); closeStaff()">
-          <span class="material-icons">calendar_month</span> Planning
-        </button>
-        <button class="btn-outline-sm" (click)="showToast('Tâche assignée', 'success'); closeStaff()">
-          <span class="material-icons">assignment</span> Assigner tâche
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MODAL — Détail Séance Planning ══ -->
-<div class="modal-overlay" *ngIf="showPlanningDetailModal && selectedPlanning" (click)="closePlanningDetail()">
-  <div class="modal-panel modal-panel--planning-detail" (click)="$event.stopPropagation()">
-
-    <div class="modal-header">
-      <div class="avatar-lg"
-        [style.background]="selectedPlanning!.statut === 'en-cours' ? 'var(--c-blue-soft)' :
-                            selectedPlanning!.statut === 'terminee'  ? 'var(--c-teal-soft)' :
-                            'rgba(167,139,250,.1)'">
-        <span [style.color]="selectedPlanning!.statut === 'en-cours' ? 'var(--c-blue)' :
-                              selectedPlanning!.statut === 'terminee'  ? 'var(--c-teal)' :
-                              'var(--c-purple)'">{{ selectedPlanning!.patientInit }}</span>
-      </div>
-      <div class="modal-patient-info">
-        <h2>{{ selectedPlanning!.patient }}</h2>
-        <span>{{ selectedPlanning!.pathologie }} · Groupe <b>{{ selectedPlanning!.groupeSanguin }}</b></span>
-      </div>
-      <span class="badge {{ planningStatutClass(selectedPlanning!.statut) }}">
-        {{ planningStatutLabel(selectedPlanning!.statut) }}
-      </span>
-      <button class="modal-close-btn" (click)="closePlanningDetail()">
-        <span class="material-icons">close</span>
+      <button class="icon-button" type="button" [title]="isLight ? 'Mode sombre' : 'Mode clair'" (click)="toggleTheme()">
+        <span class="material-icons">{{isLight ? 'dark_mode' : 'light_mode'}}</span>
+      </button>
+      <button class="icon-button icon-button--danger" type="button" title="Déconnexion" (click)="logout()">
+        <span class="material-icons">logout</span>
       </button>
     </div>
+  </header>
 
-    <div class="modal-body">
+  <!-- ═══ LAYOUT ═══ -->
+  <div class="im-layout">
 
-      <!-- Infos séance -->
-      <div class="pld-section-label"><span class="material-icons">event</span> Informations Séance</div>
-      <div class="pld-info-grid">
-        <div class="pld-info-item">
-          <span class="pld-lbl">Heure début</span>
-          <span class="pld-val mono">{{ selectedPlanning!.heure }}</span>
-        </div>
-        <div class="pld-info-item">
-          <span class="pld-lbl">Heure fin</span>
-          <span class="pld-val mono">{{ selectedPlanning!.heureEnd }}</span>
-        </div>
-        <div class="pld-info-item">
-          <span class="pld-lbl">Durée</span>
-          <span class="pld-val mono">{{ selectedPlanning!.duree }}</span>
-        </div>
-        <div class="pld-info-item">
-          <span class="pld-lbl">Machine</span>
-          <span class="pld-val mono">{{ selectedPlanning!.machine }}</span>
-        </div>
-        <div class="pld-info-item">
-          <span class="pld-lbl">Infirmier(e)</span>
-          <span class="pld-val">{{ selectedPlanning!.infirmier }}</span>
-        </div>
-        <div class="pld-info-item">
-          <span class="pld-lbl">Poids</span>
-          <span class="pld-val">{{ selectedPlanning!.poids }}</span>
-        </div>
+    <!-- SIDEBAR -->
+    <aside class="im-sidebar">
+      <div class="im-sidebar__group-label">Supervision</div>
+      <button class="im-sidebar__item" [class.im-sidebar__item--active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
+        <span class="material-icons">dashboard</span>
+        <span>Tableau de Bord</span>
+      </button>
+      <button class="im-sidebar__item" [class.im-sidebar__item--active]="activeSection==='equipe'" (click)="setSection('equipe')">
+        <span class="material-icons">group</span>
+        <span>Équipe</span>
+        <span class="im-sidebar__badge im-sidebar__badge--warn" *ngIf="staffAbsents > 0">{{staffAbsents}}</span>
+      </button>
+      <button class="im-sidebar__item" [class.im-sidebar__item--active]="activeSection==='planning'" (click)="setSection('planning')">
+        <span class="material-icons">calendar_month</span>
+        <span>Planning</span>
+        <span class="im-sidebar__badge im-sidebar__badge--crit" *ngIf="seancesSansInfirmierCount > 0">{{seancesSansInfirmierCount}}</span>
+      </button>
+
+      <div class="im-sidebar__group-label">Centre</div>
+      <button class="im-sidebar__item" [class.im-sidebar__item--active]="activeSection==='alertes'" (click)="setSection('alertes')">
+        <span class="material-icons">notifications_active</span>
+        <span>Alertes</span>
+        <span class="im-sidebar__badge im-sidebar__badge--crit" *ngIf="alertesActivesCount > 0">{{alertesActivesCount}}</span>
+      </button>
+      <button class="im-sidebar__item" [class.im-sidebar__item--active]="activeSection==='patients'" (click)="setSection('patients')">
+        <span class="material-icons">people</span>
+        <span>Patients</span>
+      </button>
+      <button class="im-sidebar__item" [class.im-sidebar__item--active]="activeSection==='constantes'" (click)="setSection('constantes')">
+        <span class="material-icons">monitor_heart</span>
+        <span>Constantes</span>
+        <span class="im-sidebar__badge im-sidebar__badge--warn" *ngIf="constantesManquantesCount > 0">{{constantesManquantesCount}}</span>
+      </button>
+    </aside>
+
+    <!-- WORKSPACE -->
+    <main class="im-workspace">
+
+      <!-- Loading global -->
+      <div class="state-box" *ngIf="loading">
+        <span class="material-icons spin">progress_activity</span>
+        Chargement des données de supervision…
       </div>
 
-      <!-- Constantes vitales (si disponibles) -->
-      <ng-container *ngIf="selectedPlanning!.statut !== 'planifiee'">
-        <div class="pld-section-label"><span class="material-icons">monitor_heart</span> Constantes Vitales</div>
-        <div class="pld-vitals-grid">
-          <div class="pld-vital" [class.pld-vital--warn]="selectedPlanning!.statut === 'en-cours' && selectedPlanning!.pa !== '—' && selectedPlanning!.pa!.startsWith('17')">
-            <span class="pld-v-lbl">Pression Artérielle</span>
-            <span class="pld-v-val mono">{{ selectedPlanning!.pa }}</span>
+      <!-- Erreur API -->
+      <div class="state-box state-box--error" *ngIf="!loading && apiError">
+        <span class="material-icons">cloud_off</span>
+        {{apiError}}
+      </div>
+
+      <!-- ══════════════════ DASHBOARD ══════════════════ -->
+      <ng-container *ngIf="!loading && activeSection==='dashboard'">
+
+        <div class="im-kpi-row">
+          <div class="im-kpi im-kpi--teal">
+            <span class="material-icons">wb_sunny</span>
+            <div><strong>{{sessionsMatin}}</strong><small>Matin</small></div>
           </div>
-          <div class="pld-vital" *ngIf="selectedPlanning!.fc! > 0">
-            <span class="pld-v-lbl">Fréq. Cardiaque</span>
-            <span class="pld-v-val mono">{{ selectedPlanning!.fc }} bpm</span>
+          <div class="im-kpi im-kpi--blue">
+            <span class="material-icons">wb_cloudy</span>
+            <div><strong>{{sessionsApresMidi}}</strong><small>Après-midi</small></div>
           </div>
-          <div class="pld-vital" *ngIf="selectedPlanning!.saturation! > 0">
-            <span class="pld-v-lbl">SpO₂</span>
-            <span class="pld-v-val mono">{{ selectedPlanning!.saturation }}%</span>
+          <div class="im-kpi im-kpi--purple">
+            <span class="material-icons">nightlight</span>
+            <div><strong>{{sessionsSoir}}</strong><small>Soir</small></div>
           </div>
-          <div class="pld-vital" *ngIf="selectedPlanning!.debit! > 0">
-            <span class="pld-v-lbl">Débit dialyse</span>
-            <span class="pld-v-val mono">{{ selectedPlanning!.debit }} mL/min</span>
+          <div class="im-kpi im-kpi--green">
+            <span class="material-icons">play_circle</span>
+            <div><strong>{{sessionsEnCours}}</strong><small>En Cours</small></div>
+          </div>
+          <div class="im-kpi" [class.im-kpi--amber]="constantesManquantes > 0" [class.im-kpi--teal]="constantesManquantes === 0">
+            <span class="material-icons">{{constantesManquantes > 0 ? 'warning' : 'check_circle'}}</span>
+            <div><strong>{{constantesManquantes}}</strong><small>Constantes Manquantes</small></div>
+          </div>
+        </div>
+
+        <div class="im-charts-row">
+          <!-- Bar chart -->
+          <div class="im-card">
+            <div class="im-card__head">
+              <span class="material-icons">bar_chart</span>
+              <strong>Charge par Infirmier</strong>
+            </div>
+            <div class="im-bar-chart">
+              <div class="im-bar-row" *ngFor="let b of chargeParInfirmier">
+                <span class="im-bar-label">{{b.label}}</span>
+                <div class="im-bar-track">
+                  <div class="im-bar-fill"
+                    [style.width.%]="b.pct * 100"
+                    [class.im-bar-fill--red]="b.pct > 0.85"
+                    [class.im-bar-fill--amber]="b.pct > 0.6 && b.pct <= 0.85"
+                    [class.im-bar-fill--teal]="b.pct <= 0.6">
+                  </div>
+                </div>
+                <span class="im-bar-count">{{b.count}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Donut alertes -->
+          <div class="im-card">
+            <div class="im-card__head">
+              <span class="material-icons">donut_large</span>
+              <strong>Alertes par Niveau</strong>
+            </div>
+            <div class="im-donut-wrap">
+              <svg viewBox="0 0 100 100" class="im-donut-svg">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="11"/>
+                <circle *ngFor="let s of alertesDonut" cx="50" cy="50" r="45"
+                  fill="none" [attr.stroke]="s.color" stroke-width="11"
+                  [attr.stroke-dasharray]="s.dasharray"
+                  [attr.transform]="'rotate('+s.rotate+',50,50)'"/>
+                <text x="50" y="47" text-anchor="middle" class="im-donut-val">{{totalAlertes}}</text>
+                <text x="50" y="59" text-anchor="middle" class="im-donut-sub">alertes</text>
+              </svg>
+              <div class="im-donut-legend">
+                <div class="im-legend-row"><span class="im-legend-dot" style="background:#ef4444"></span><span>Critique</span><b>{{alertesCritiquesTotal}}</b></div>
+                <div class="im-legend-row"><span class="im-legend-dot" style="background:#f59e0b"></span><span>Élevée</span><b>{{alertesEleveeTotal}}</b></div>
+                <div class="im-legend-row"><span class="im-legend-dot" style="background:#4EA8F8"></span><span>Normale</span><b>{{alertesNormaleTotal}}</b></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gauge complétion -->
+          <div class="im-card">
+            <div class="im-card__head">
+              <span class="material-icons">speed</span>
+              <strong>Taux de Complétion</strong>
+            </div>
+            <div class="im-gauge-wrap">
+              <svg viewBox="0 0 120 72" class="im-gauge-svg">
+                <path d="M12,66 A46,46 0 0,1 108,66" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10" stroke-linecap="round"/>
+                <path d="M12,66 A46,46 0 0,1 108,66" fill="none" [attr.stroke]="gaugeColor" stroke-width="10"
+                  stroke-linecap="round" stroke-dasharray="144.5 144.5"
+                  [attr.stroke-dashoffset]="144.5 - tauxCompletion / 100 * 144.5"/>
+                <text x="60" y="60" text-anchor="middle" class="im-gauge-val">{{tauxCompletion}}%</text>
+              </svg>
+              <p class="im-gauge-sub">{{seancesTerminees}} / {{seancesActives}} séances</p>
+            </div>
           </div>
         </div>
       </ng-container>
 
-      <!-- Ordonnance -->
-      <div class="pld-section-label"><span class="material-icons">description</span> Ordonnance Active</div>
-      <div class="pld-text-block pld-text-block--ord">
-        <span class="material-icons">medication</span>
-        <span>{{ selectedPlanning!.ordonnance }}</span>
+      <!-- ══════════════════ ÉQUIPE ══════════════════ -->
+      <ng-container *ngIf="!loading && activeSection==='equipe'">
+        <div class="im-section-header">
+          <div class="im-section-header__stats">
+            <span class="pill pill--ok"><span class="material-icons">check_circle</span>{{staffEnService}} en service</span>
+            <span class="pill pill--crit" *ngIf="staffAbsents > 0"><span class="material-icons">person_off</span>{{staffAbsents}} absent(s)</span>
+            <span class="pill pill--warning" *ngIf="staffConge > 0"><span class="material-icons">beach_access</span>{{staffConge}} en congé</span>
+          </div>
+          <select class="im-select" [(ngModel)]="filterEquipeStatut">
+            <option value="">Tous les statuts</option>
+            <option value="en-service">En service</option>
+            <option value="absent">Absents</option>
+            <option value="conge">En congé</option>
+          </select>
+        </div>
+
+        <div class="im-team-grid">
+          <div class="im-team-card" *ngFor="let inf of filteredEquipe" [class.im-team-card--inactive]="inf.statut !== 'en-service'">
+            <div class="im-team-card__top">
+              <div class="im-team-avatar" [class.im-team-avatar--absent]="inf.statut !== 'en-service'">{{inf.init}}</div>
+              <div class="im-team-info">
+                <strong>{{inf.nom}}</strong>
+                <span>{{inf.role}}</span>
+              </div>
+              <span class="pill" [class.pill--ok]="inf.statut==='en-service'" [class.pill--crit]="inf.statut==='absent'" [class.pill--warning]="inf.statut==='conge'">
+                {{statutLabel(inf.statut)}}
+              </span>
+            </div>
+            <div class="im-team-workload">
+              <div class="im-team-workload__label">
+                <span>Charge hebdomadaire</span>
+                <span>{{inf.seancesSemaine}}/{{inf.maxSemaine}}</span>
+              </div>
+              <div class="im-wl-track">
+                <div class="im-wl-bar" [style.width.%]="workloadPct(inf)" [style.background]="workloadColor(inf)"></div>
+              </div>
+            </div>
+            <div class="im-team-meta">
+              <span *ngIf="inf.creneaux.length"><span class="material-icons">schedule</span>{{inf.creneaux.join(' · ')}}</span>
+              <span><span class="material-icons">call</span>{{inf.telephone}}</span>
+            </div>
+            <div class="im-team-card__footer" *ngIf="inf.statut !== 'en-service'">
+              <button class="quick-btn quick-btn--sm" type="button" (click)="openReaffect(inf)">
+                <span class="material-icons">swap_horiz</span>Réaffecter les séances
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ══════════════════ PLANNING ══════════════════ -->
+      <ng-container *ngIf="!loading && activeSection==='planning'">
+        <div class="im-section-header">
+          <div class="im-section-header__stats">
+            <span class="pill pill--ok">{{planningTerminees}} terminée(s)</span>
+            <span class="pill pill--stable">{{planningEnCours}} en cours</span>
+            <span class="pill pill--neutral">{{planningPlanifiees}} planifiée(s)</span>
+            <span class="pill pill--crit" *ngIf="seancesSansInfirmierCount > 0">{{seancesSansInfirmierCount}} sans infirmier</span>
+          </div>
+          <div class="im-section-header__filters">
+            <select class="im-select" [(ngModel)]="filterPlanningPeriode">
+              <option value="">Tous créneaux</option>
+              <option value="matin">Matin</option>
+              <option value="apres-midi">Après-midi</option>
+              <option value="soir">Soir</option>
+            </select>
+            <div class="im-search-mini">
+              <span class="material-icons">search</span>
+              <input type="text" placeholder="Patient, infirmier…" [(ngModel)]="searchPlanning"/>
+            </div>
+            <label class="im-toggle">
+              <input type="checkbox" [(ngModel)]="sansInfirmierOnly"/>
+              <span>Sans infirmier</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="patients-table-wrap">
+          <table class="patients-table">
+            <thead>
+              <tr>
+                <th>Patient</th><th>Infirmier</th>
+                <th>Créneau</th><th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of filteredSeances" [class.im-tr-absent]="isAbsentInfirmier(s.infirmier)">
+                <td>
+                  <div class="patients-table__name">
+                    <span class="patient-row__avatar">{{s.patientInit}}</span>
+                    <strong>{{s.patient}}</strong>
+                  </div>
+                </td>
+                <td>
+                  <span *ngIf="s.infirmier; else noInf">
+                    <span class="material-icons im-warn-icon" *ngIf="isAbsentInfirmier(s.infirmier)">warning</span>
+                    {{s.infirmier}}
+                  </span>
+                  <ng-template #noInf><span class="pill pill--crit">Non assigné</span></ng-template>
+                </td>
+                <td><span class="pill pill--stable">{{periodeLabel(s.periode)}}</span></td>
+                <td>
+                  <span class="pill"
+                    [class.pill--ok]="s.statut==='terminee'"
+                    [class.pill--stable]="s.statut==='en-cours'"
+                    [class.pill--neutral]="s.statut==='planifiee'">
+                    {{seanceStatutLabel(s.statut)}}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="filteredSeances.length === 0">
+                <td colspan="4" class="im-empty-row">
+                  <span class="material-icons">search_off</span>
+                  Aucune séance correspondante
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+
+      <!-- ══════════════════ ALERTES ══════════════════ -->
+      <ng-container *ngIf="!loading && activeSection==='alertes'">
+        <div class="im-section-header">
+          <div class="im-section-header__stats">
+            <span class="pill pill--crit">{{alertesCritiquesCount}} critique(s)</span>
+            <span class="pill pill--warning">{{alertesActivesCount}} active(s)</span>
+            <span class="pill pill--ok">{{alertesTraiteesCount}} traitée(s)</span>
+          </div>
+          <select class="im-select" [(ngModel)]="filterAlertePriorite">
+            <option value="">Toutes priorités</option>
+            <option value="critique">Critique</option>
+            <option value="elevee">Élevée</option>
+            <option value="normale">Normale</option>
+          </select>
+        </div>
+
+        <div class="im-info-banner">
+          <span class="material-icons">lock</span>
+          Les alertes <strong>critiques</strong> sont réservées au médecin — lecture seule pour l'infirmier majeur.
+        </div>
+
+        <div class="im-alerte-list">
+          <div class="im-alerte-card" *ngFor="let a of filteredAlertes"
+            [class.im-alerte-card--traitee]="a.statut==='traitee'"
+            [class.im-alerte-card--crit]="a.priorite==='critique'"
+            [class.im-alerte-card--warn]="a.priorite==='elevee'">
+            <div class="im-alerte-stripe"
+              [class.im-alerte-stripe--crit]="a.priorite==='critique'"
+              [class.im-alerte-stripe--warn]="a.priorite==='elevee'"
+              [class.im-alerte-stripe--info]="a.priorite==='normale'">
+            </div>
+            <span class="material-icons im-alerte-icon"
+              [class.im-alerte-icon--crit]="a.priorite==='critique'"
+              [class.im-alerte-icon--warn]="a.priorite==='elevee'"
+              [class.im-alerte-icon--info]="a.priorite==='normale'">
+              {{alertePrioriteIcon(a.priorite)}}
+            </span>
+            <div class="im-alerte-body">
+              <div class="im-alerte-top">
+                <strong>{{a.type}}</strong>
+                <span class="pill pill--crit" *ngIf="a.priorite==='critique'">Critique</span>
+                <span class="pill pill--warning" *ngIf="a.priorite==='elevee'">Élevée</span>
+                <span class="pill pill--neutral" *ngIf="a.priorite==='normale'">Normale</span>
+                <span class="pill pill--ok" *ngIf="a.statut==='traitee'">Traitée</span>
+                <span class="im-lock-badge" *ngIf="a.priorite==='critique'"><span class="material-icons">lock</span>Médecin</span>
+              </div>
+              <p class="im-alerte-msg">{{a.message}}</p>
+              <div class="im-alerte-meta">
+                <span><span class="material-icons">person</span>{{a.patient}}</span>
+                <span><span class="material-icons">precision_manufacturing</span>{{a.machine}}</span>
+                <span><span class="material-icons">schedule</span>{{a.heure}}</span>
+              </div>
+            </div>
+            <div class="im-alerte-action">
+              <button class="quick-btn quick-btn--xs" type="button"
+                *ngIf="a.statut==='active' && a.priorite!=='critique'"
+                (click)="traiterAlerte(a)">
+                <span class="material-icons">check</span>Traiter
+              </button>
+            </div>
+          </div>
+          <div class="im-empty-row" *ngIf="filteredAlertes.length === 0">
+            <span class="material-icons">notifications_none</span>
+            Aucune alerte correspondante
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ══════════════════ PATIENTS ══════════════════ -->
+      <ng-container *ngIf="!loading && activeSection==='patients'">
+        <div class="im-section-header">
+          <div class="im-section-header__stats">
+            <span class="pill pill--stable">{{patientsEnCours}} en séance</span>
+            <span class="pill pill--neutral">{{patientsPlanifies}} planifié(s)</span>
+            <span class="pill pill--ok">{{patientsTermines}} terminé(s)</span>
+          </div>
+          <div class="im-search-mini">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Nom, pathologie…" [(ngModel)]="searchPatients"/>
+          </div>
+        </div>
+
+        <div class="im-info-banner im-info-banner--blue">
+          <span class="material-icons">visibility</span>
+          Section <strong>lecture seule</strong> — les modifications sont réservées aux infirmiers assignés.
+        </div>
+
+        <div class="patients-table-wrap">
+          <table class="patients-table">
+            <thead>
+              <tr>
+                <th>Patient</th><th>Âge</th>
+                <th>Infirmier</th><th>Séance</th><th>Fiche</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of filteredPatients" class="patients-table__row" (click)="openPatient(p)">
+                <td>
+                  <div class="patients-table__name">
+                    <span class="patient-row__avatar">{{p.init}}</span>
+                    <div>
+                      <strong>{{p.nom}}</strong>
+                      <small>Gr. {{p.groupeSanguin}}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{p.age > 0 ? p.age + ' ans' : '—'}}</td>
+                <td>{{p.infirmier}}</td>
+                <td>
+                  <span class="pill"
+                    [class.pill--stable]="p.statutSeance==='en-cours'"
+                    [class.pill--ok]="p.statutSeance==='terminee'"
+                    [class.pill--neutral]="p.statutSeance==='planifiee'"
+                    [class.pill--warning]="p.statutSeance==='aucune'">
+                    {{patientStatutLabel(p.statutSeance)}}
+                  </span>
+                </td>
+                <td>
+                  <span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span>
+                </td>
+              </tr>
+              <tr *ngIf="filteredPatients.length === 0">
+                <td colspan="7" class="im-empty-row">
+                  <span class="material-icons">person_search</span>Aucun patient trouvé
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+
+      <!-- ══════════════════ CONSTANTES ══════════════════ -->
+      <ng-container *ngIf="!loading && activeSection==='constantes'">
+        <div class="im-section-header">
+          <div class="im-section-header__stats">
+            <span class="pill pill--ok">{{constantesSaisiesCount}} saisie(s)</span>
+            <span class="pill pill--crit" *ngIf="constantesManquantesCount > 0">{{constantesManquantesCount}} manquante(s)</span>
+          </div>
+          <select class="im-select" [(ngModel)]="filterConstantesStatut">
+            <option value="">Toutes</option>
+            <option value="saisie">Saisies</option>
+            <option value="manquante">Manquantes</option>
+          </select>
+        </div>
+
+        <div class="im-info-banner">
+          <span class="material-icons">lock</span>
+          Lecture seule — la saisie des constantes est <strong>réservée aux infirmiers</strong> assignés.
+        </div>
+
+        <div class="patients-table-wrap">
+          <table class="patients-table">
+            <thead>
+              <tr><th>Heure</th><th>Patient</th><th>Infirmier</th><th>Tension Sys.</th><th>Tension Dia.</th><th>Poids</th><th>BPM</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of filteredConstantes">
+                <td><code class="im-time-main">{{c.heure}}</code></td>
+                <td>{{c.patient}}</td>
+                <td>{{c.infirmier}}</td>
+                <td [class.im-crit-val]="!c.saisie">{{c.tensionSys !== null ? c.tensionSys + ' mmHg' : '—'}}</td>
+                <td [class.im-crit-val]="!c.saisie">{{c.tensionDia !== null ? c.tensionDia + ' mmHg' : '—'}}</td>
+                <td [class.im-crit-val]="!c.saisie">{{c.poids !== null ? c.poids + ' kg' : '—'}}</td>
+                <td [class.im-crit-val]="!c.saisie">{{c.bpm !== null ? c.bpm + ' bpm' : '—'}}</td>
+                <td>
+                  <span class="pill pill--ok" *ngIf="c.saisie"><span class="material-icons">check</span>Saisie</span>
+                  <span class="pill pill--crit" *ngIf="!c.saisie"><span class="material-icons">warning</span>Manquante</span>
+                </td>
+              </tr>
+              <tr *ngIf="filteredConstantes.length === 0">
+                <td colspan="8" class="im-empty-row">
+                  <span class="material-icons">monitor_heart</span>Aucune constante correspondante
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+
+    </main><!-- /workspace -->
+  </div><!-- /layout -->
+
+</div><!-- /im-shell -->
+
+<!-- ═══ MODAL — Réaffectation ═══ -->
+<div class="modal-overlay" *ngIf="showReaffectModal" (click)="showReaffectModal=false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="wizard-header">
+      <div class="wizard-header__icon" style="background:rgba(245,166,35,.15)">
+        <span class="material-icons" style="color:#f59e0b">swap_horiz</span>
+      </div>
+      <div class="wizard-header__text">
+        <h2>Réaffecter les Séances</h2>
+        <p *ngIf="infirmierAbsent">{{infirmierAbsent.nom}} — {{seancesAbsent.length}} séance(s)</p>
+      </div>
+      <button class="modal-close-btn" (click)="showReaffectModal=false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="wizard-body wizard-body--form" *ngIf="infirmierAbsent">
+      <div class="modal-note">
+        <span class="material-icons">info</span>
+        <p><strong>{{infirmierAbsent.nom}}</strong> est <span class="pill pill--crit" style="display:inline-flex">{{statutLabel(infirmierAbsent.statut)}}</span>. {{seancesAbsent.length}} séance(s) lui sont assignées aujourd'hui.</p>
       </div>
 
-      <!-- Observations -->
-      <div class="pld-section-label"><span class="material-icons">notes</span> Observations</div>
-      <div class="pld-text-block">{{ selectedPlanning!.observations }}</div>
-
-      <div class="modal-actions">
-        <button class="btn-sm-primary" *ngIf="selectedPlanning!.statut === 'en-cours'"
-          (click)="showToast('Infirmier(e) alerté(e) — ' + selectedPlanning!.infirmier, 'warning'); closePlanningDetail()">
-          <span class="material-icons">notification_important</span> Alerter infirmier
-        </button>
-        <button class="btn-outline-sm"
-          (click)="showToast('Rapport de ' + selectedPlanning!.patient + ' généré', 'info'); closePlanningDetail()">
-          <span class="material-icons">summarize</span> Rapport
-        </button>
-        <button class="btn-outline-sm" (click)="closePlanningDetail()">Fermer</button>
+      <div class="im-reaffect-list" *ngIf="seancesAbsent.length">
+        <div class="im-reaffect-row" *ngFor="let s of seancesAbsent">
+          <code class="im-time-main">{{s.heure}}</code>
+          <div class="patients-table__name" style="flex:1">
+            <span class="patient-row__avatar">{{s.patientInit}}</span>
+            <strong>{{s.patient}}</strong>
+          </div>
+          <span class="pill pill--stable">{{periodeLabel(s.periode)}}</span>
+        </div>
       </div>
 
+      <div class="wz-field" style="margin-top:16px" *ngIf="seancesAbsent.length">
+        <label>Infirmier(ère) remplaçant(e) <span class="req">*</span></label>
+        <select [(ngModel)]="remplacantId">
+          <option *ngFor="let inf of infirmiersDisponibles" [ngValue]="inf.id">
+            {{inf.nom}} — {{inf.seancesSemaine}}/{{inf.maxSemaine}} séances
+          </option>
+        </select>
+      </div>
+
+      <div class="im-empty-row" *ngIf="!seancesAbsent.length">
+        <span class="material-icons">check_circle</span>
+        Aucune séance assignée à cet infirmier.
+      </div>
+    </div>
+
+    <div class="wizard-footer">
+      <div class="wizard-footer__actions">
+        <button class="btn-outline-sm" (click)="showReaffectModal=false">Annuler</button>
+        <button class="btn-sm-primary" *ngIf="seancesAbsent.length" (click)="confirmerReaffect()">
+          <span class="material-icons">check</span>Confirmer la réaffectation
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══ SHELL ══ -->
-<div class="dashboard" [class.sidebar-open]="sidebarOpen">
+<!-- ═══ MODAL — Fiche Patient ═══ -->
+<div class="modal-overlay" *ngIf="showPatientModal" (click)="closePatient()">
+  <div class="im-fiche-panel" (click)="$event.stopPropagation()" *ngIf="selectedPatient">
 
-  <!-- Mobile backdrop -->
-  <div class="sidebar-backdrop" (click)="sidebarOpen = false"></div>
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar__logo">
-      <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
-        <path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/>
-        <path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-      <span>DialySys</span>
+    <!-- Hero -->
+    <div class="im-fiche-hero">
+      <div class="im-fiche-avatar">{{selectedPatient.init}}</div>
+      <div class="im-fiche-hero__info">
+        <span class="im-fiche-eyebrow">Fiche Patient</span>
+        <h2 class="im-fiche-name">{{selectedPatient.nom}}</h2>
+        <div class="im-fiche-meta">
+          <span><span class="material-icons">cake</span>{{selectedPatient.age > 0 ? selectedPatient.age + ' ans' : '—'}}</span>
+          <span><span class="material-icons">biotech</span>{{selectedPatient.pathologie}}</span>
+          <span class="pill"
+            [class.pill--stable]="selectedPatient.statutSeance==='en-cours'"
+            [class.pill--ok]="selectedPatient.statutSeance==='terminee'"
+            [class.pill--neutral]="selectedPatient.statutSeance==='planifiee'"
+            [class.pill--warning]="selectedPatient.statutSeance==='aucune'">
+            {{patientStatutLabel(selectedPatient.statutSeance)}}
+          </span>
+        </div>
+      </div>
+      <button class="im-fiche-close" (click)="closePatient()">
+        <span class="material-icons">close</span>
+      </button>
     </div>
-    <nav class="sidebar__nav">
-      <div class="nav-section-label">Gestion</div>
-      <a class="nav-item" [class.active]="activeSection==='dashboard'" (click)="setSection('dashboard')">
-        <span class="material-icons">dashboard</span><span>Tableau de bord</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='planning'" (click)="setSection('planning')">
-        <span class="material-icons">calendar_month</span><span>Planning Global</span>
-        <span class="nav-badge">{{ planningSeances.length }}</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='equipe'" (click)="setSection('equipe')">
-        <span class="material-icons">supervisor_account</span><span>Équipe Infirmiere</span>
-        <span class="nav-badge">{{ staff.length }}</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='patients'" (click)="setSection('patients')">
-        <span class="material-icons">people</span><span>Tous les Patients</span>
-        <span class="nav-badge">{{ allPatients.length }}</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='supervision'" (click)="setSection('supervision')">
-        <span class="material-icons">manage_accounts</span><span>Supervision Infirmiers</span>
-      </a>
-      <div class="nav-section-label">Supervision</div>
-      <a class="nav-item" [class.active]="activeSection==='monitoring'" (click)="setSection('monitoring')">
-        <span class="material-icons">monitor_heart</span><span>Monitoring Global</span>
-        <span class="nav-badge warn" *ngIf="monitorsEnAlerte > 0">{{ monitorsEnAlerte }}</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='rapports'" (click)="setSection('rapports')">
-        <span class="material-icons">assessment</span><span>Rapports & Stats</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='incidents'" (click)="setSection('incidents')">
-        <span class="material-icons">report_problem</span><span>Incidents</span>
-        <span class="nav-badge crit" *ngIf="incidentsOuverts.length > 0">{{ incidentsOuverts.length }}</span>
-      </a>
-      <a class="nav-item" [class.active]="activeSection==='stocks'" (click)="setSection('stocks')">
-        <span class="material-icons">inventory_2</span><span>Stocks & Consommables</span>
-        <span class="nav-badge warn" *ngIf="criticalStocksCount > 0">{{ criticalStocksCount }}</span>
-      </a>
-    </nav>
-    <div class="sidebar__user">
-      <div class="user-avatar">IM</div>
-      <div class="user-info">
-        <span class="user-name">Inf. Maj. F. Chraibi</span>
-        <span class="user-role">Infirmier·ère Major</span>
+
+    <!-- Info grid -->
+    <div class="im-fiche-body">
+      <div class="im-fiche-grid">
+        <div class="im-fiche-item">
+          <div class="im-fiche-item__icon im-fiche-item__icon--red">
+            <span class="material-icons">bloodtype</span>
+          </div>
+          <div>
+            <span class="im-fiche-item__label">Groupe sanguin</span>
+            <strong class="im-fiche-item__val">{{selectedPatient.groupeSanguin || '—'}}</strong>
+          </div>
+        </div>
+
+        <div class="im-fiche-item">
+          <div class="im-fiche-item__icon im-fiche-item__icon--teal">
+            <span class="material-icons">medical_services</span>
+          </div>
+          <div>
+            <span class="im-fiche-item__label">Infirmier assigné</span>
+            <strong class="im-fiche-item__val">{{selectedPatient.infirmier || '—'}}</strong>
+          </div>
+        </div>
+
+<div class="im-fiche-item">
+          <div class="im-fiche-item__icon im-fiche-item__icon--purple">
+            <span class="material-icons">call</span>
+          </div>
+          <div>
+            <span class="im-fiche-item__label">Téléphone</span>
+            <strong class="im-fiche-item__val">{{selectedPatient.telephone || '—'}}</strong>
+          </div>
+        </div>
       </div>
-      <button class="logout-btn" (click)="logout()"><span class="material-icons">logout</span></button>
+
+      <div class="im-fiche-readonly">
+        <span class="material-icons">visibility</span>
+        Fiche en <strong>lecture seule</strong> — modifications réservées aux infirmiers assignés
+      </div>
     </div>
-  </aside>
 
-  <!-- Main -->
-  <div class="main">
+    <!-- Footer -->
+    <div class="im-fiche-footer">
+      <button class="quick-btn" (click)="closePatient()">
+        <span class="material-icons">close</span>Fermer
+      </button>
+    </div>
 
-    <!-- Topbar -->
-    <header class="topbar">
-      <div class="topbar__left">
-        <h1>{{ sectionTitle }}</h1>
-        <span class="topbar__date">Service Hémodialyse — 3 Avril 2026</span>
+  </div>
+</div>
+
+<!-- ═══ MODAL — Démarrer Séance ═══ -->
+<div class="modal-overlay" *ngIf="showDemarrerModal" (click)="closeDemarrerModal()">
+  <div class="im-fiche-panel im-demarrer-panel" (click)="$event.stopPropagation()" *ngIf="seanceADemarrer">
+
+    <!-- Hero -->
+    <div class="im-fiche-hero">
+      <div class="im-fiche-avatar" style="background:linear-gradient(135deg,#00D9C4,#4EA8F8)">
+        <span class="material-icons" style="font-size:24px;color:#fff">play_circle</span>
       </div>
-      <div class="topbar__right">
-        <button class="hamburger-btn" (click)="sidebarOpen = !sidebarOpen"><span class="material-icons">menu</span></button>
-        <button class="btn-sm-primary" (click)="showNouvelleSeanceModal = true">
-          <span class="material-icons">add</span> Nouvelle Séance
-        </button>
-        <div class="notif-wrapper">
-          <button class="icon-btn notif-btn" (click)="toggleNotifPanel()">
-            <span class="material-icons">notifications</span>
-            <span class="notif-dot" *ngIf="unreadCount > 0"></span>
-          </button>
-          <div class="notif-panel" *ngIf="showNotifPanel">
-            <div class="notif-panel__head">
-              <span>Notifications</span>
-              <button class="notif-read-all" (click)="markAllRead()">Tout marquer lu</button>
-            </div>
-            <div class="notif-list">
-              <div *ngFor="let n of notifications" class="notif-item"
-                [class.notif-item--unread]="!n.read" (click)="markRead(n)">
-                <span class="material-icons notif-icon notif-icon--{{ n.type }}">{{ n.icon }}</span>
-                <div class="notif-content"><p>{{ n.text }}</p><span>{{ n.time }}</span></div>
-                <span class="notif-unread-dot" *ngIf="!n.read"></span>
-              </div>
-            </div>
-          </div>
+      <div class="im-fiche-hero__info">
+        <span class="im-fiche-eyebrow">Démarrer une séance</span>
+        <h2 class="im-fiche-name">{{seanceADemarrer.patient}}</h2>
+        <div class="im-fiche-meta">
+          <span><span class="material-icons">schedule</span>Début : {{seanceADemarrer.heure}}</span>
+          <span class="pill pill--stable">{{periodeLabel(seanceADemarrer.periode)}}</span>
         </div>
       </div>
-    </header>
+      <button class="im-fiche-close" (click)="closeDemarrerModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
 
-    <!-- ════ DASHBOARD ════ -->
-    <ng-container *ngIf="activeSection === 'dashboard'">
-
-      <div class="kpi-row">
-        <div class="kpi-card" style="cursor:pointer" (click)="setSection('dashboard')">
-          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">event_available</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ sessions.length }}</span><span class="kpi-lbl">Séances programmées</span></div>
-          <span class="kpi-trend up">aujourd'hui</span>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ sessionsEnCours }}</span><span class="kpi-lbl">En dialyse (live)</span></div>
-          <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
-        </div>
-        <div class="kpi-card" style="cursor:pointer" (click)="setSection('equipe')">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">people</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ staffEnService }}</span><span class="kpi-lbl">Infirmiers en service</span></div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer" (click)="setSection('incidents')">
-          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">report_problem</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ incidentsOuverts.length }}</span><span class="kpi-lbl">Incidents ouverts</span></div>
-          <span class="kpi-trend crit" *ngIf="incidentsOuverts.length > 0">À traiter</span>
-          <span class="kpi-trend up" *ngIf="incidentsOuverts.length === 0">Tout résolu</span>
-        </div>
-        <div class="kpi-card" style="cursor:pointer" (click)="setSection('stocks')">
-          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">inventory_2</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ criticalStocksCount }}</span><span class="kpi-lbl">Stocks critiques</span></div>
-          <span class="kpi-trend warn" *ngIf="criticalStocksCount > 0">Commande urgente</span>
-        </div>
+    <!-- Body -->
+    <div class="im-fiche-body">
+      <div class="im-demarrer-note">
+        <span class="material-icons">info</span>
+        Choisissez la <strong>durée prévue</strong> de la séance. L'heure de fin sera calculée automatiquement.
       </div>
 
-      <div class="content-grid">
-
-        <!-- Planning table -->
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Planning des Séances</h2>
-            <div class="panel__actions">
-              <div class="search-mini">
-                <span class="material-icons">search</span>
-                <input type="text" placeholder="Rechercher..." [(ngModel)]="searchQuery" />
-              </div>
-            </div>
-          </div>
-          <table class="data-table">
-            <thead>
-              <tr><th>Heure</th><th>Patient</th><th>Infirmier(e)</th><th>Machine</th><th>Durée</th><th>Statut</th><th></th></tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let s of filteredSessions">
-                <td><span class="mono">{{ s.heure }}</span></td>
-                <td><div class="patient-cell"><div class="avatar-sm">{{ s.patientInit }}</div><span>{{ s.patientNom }}</span></div></td>
-                <td>{{ s.infirmier }}</td>
-                <td><span class="mono">{{ s.machine }}</span></td>
-                <td>{{ s.duree }}</td>
-                <td><span class="badge {{ s.statusClass }}">{{ s.statusLabel }}</span></td>
-                <td><button class="row-btn" (click)="openSession(s)"><span class="material-icons">chevron_right</span></button></td>
-              </tr>
-              <tr *ngIf="filteredSessions.length === 0">
-                <td colspan="7" class="empty-row"><span class="material-icons">search_off</span>Aucune séance trouvée</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="panel__footer">{{ filteredSessions.length }} sur {{ sessions.length }} séances</div>
-        </div>
-
-        <div class="right-col">
-
-          <!-- Staff quick -->
-          <div class="panel">
-            <div class="panel__head">
-              <h2>Équipe en Service</h2>
-              <span class="badge ok">{{ staffEnService }} présents</span>
-            </div>
-            <div class="staff-list">
-              <div class="staff-row" *ngFor="let s of staff" (click)="openStaff(s)" style="cursor:pointer">
-                <div class="avatar-sm">{{ s.init }}</div>
-                <div class="staff-info"><b>{{ s.nom }}</b><span>{{ s.role }} · {{ s.patients }} patient(s)</span></div>
-                <span class="badge {{ s.statutClass }}">{{ s.statut }}</span>
-              </div>
-            </div>
-            <div class="panel__footer"><a style="cursor:pointer" (click)="setSection('equipe')">Gérer l'équipe →</a></div>
-          </div>
-
-          <!-- Stocks quick -->
-          <div class="panel">
-            <div class="panel__head">
-              <h2>Stocks Critiques</h2>
-              <span class="badge warn">{{ criticalStocksCount }} alertes</span>
-            </div>
-            <div class="stock-list">
-              <div class="stock-item" *ngFor="let item of stocks | slice:0:4" [class.ok-item]="item.statusClass === 'ok'">
-                <span class="material-icons" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.icon }}</span>
-                <div><b>{{ item.nom }}</b><span>{{ item.quantite }} / {{ item.seuil * 2 }} unités</span></div>
-                <button class="btn-outline-sm" *ngIf="item.statusClass !== 'ok'" (click)="commanderStock(item)"
-                  [disabled]="item.ordered" [class.btn-done-rx]="item.ordered">
-                  {{ item.ordered ? 'Commandé ✓' : 'Commander' }}
-                </button>
-                <span class="badge ok" *ngIf="item.statusClass === 'ok'">OK</span>
-              </div>
-            </div>
-            <div class="panel__footer"><a style="cursor:pointer" (click)="setSection('stocks')">Gérer les stocks →</a></div>
-          </div>
-
-          <!-- Incidents quick -->
-          <div class="panel">
-            <div class="panel__head">
-              <h2>Incidents</h2>
-              <span class="badge" [ngClass]="incidentsOuverts.length > 0 ? 'crit' : 'ok'">
-                {{ incidentsOuverts.length > 0 ? incidentsOuverts.length + ' ouverts' : 'Tout résolu' }}
-              </span>
-            </div>
-            <div class="alerts-list">
-              <div class="alert-item" *ngFor="let i of incidents | slice:0:2"
-                [class.alert-item--crit]="i.priorite === 'critique'"
-                [class.alert-item--warn]="i.priorite === 'elevee'">
-                <span class="material-icons">{{ i.statut === 'resolu' ? 'check_circle' : 'report_problem' }}</span>
-                <div><b>{{ i.type }} — {{ i.machine }}</b><span>{{ i.description | slice:0:60 }}…</span></div>
-                <button class="btn-teal-xs" *ngIf="i.statut === 'ouvert'" (click)="prendreEnCharge(i)">Traiter</button>
-                <span class="badge ok" *ngIf="i.statut === 'resolu'">Résolu</span>
-              </div>
-            </div>
-            <div class="panel__footer"><a style="cursor:pointer" (click)="setSection('incidents')">Voir tous les incidents →</a></div>
-          </div>
-
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ════ ÉQUIPE ════ -->
-    <ng-container *ngIf="activeSection === 'equipe'">
-
-      <div class="kpi-row" style="margin-bottom:16px">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ staffEnService }}</span><span class="kpi-lbl">En service</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">person_off</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ staffAbsents }}</span><span class="kpi-lbl">Absents</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">people</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ staff.length }}</span><span class="kpi-lbl">Total équipe</span></div>
-        </div>
-      </div>
-
-      <div class="staff-cards-grid">
-        <div class="staff-card" *ngFor="let s of staff"
-          [class.staff-card--warn]="s.statut === 'Absent'"
-          [class.staff-card--alert]="s.statut === 'Alerte'"
-          (click)="openStaff(s)" style="cursor:pointer">
-          <div class="staff-card__head">
-            <div class="staff-avatar">{{ s.init }}</div>
-            <span class="badge {{ s.statutClass }}">{{ s.statut }}</span>
-          </div>
-          <div class="staff-card__name">{{ s.nom }}</div>
-          <div class="staff-card__role">{{ s.role }}</div>
-          <div class="staff-card__meta">
-            <div><span class="material-icons">people</span> {{ s.patients }} patient(s)</div>
-            <div><span class="material-icons">schedule</span> {{ s.vacation }}</div>
-            <div><span class="material-icons">phone</span> {{ s.telephone }}</div>
-          </div>
-          <div class="staff-card__actions" (click)="$event.stopPropagation()">
-            <button class="btn-outline-sm" (click)="showToast('Message envoyé à ' + s.nom, 'info')">
-              <span class="material-icons">message</span> Contacter
-            </button>
-            <button class="btn-outline-sm" (click)="showToast('Planning ouvert', 'info')">
-              <span class="material-icons">calendar_month</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ════ PATIENTS ════ -->
-    <ng-container *ngIf="activeSection === 'patients'">
-
-      <div class="section-bar">
-        <div class="search-mini">
-          <span class="material-icons">search</span>
-          <input type="text" placeholder="Nom, infirmier, machine…" [(ngModel)]="searchPatients" />
-        </div>
-      </div>
-
-      <div class="panel panel--full">
-        <table class="data-table">
-          <thead>
-            <tr><th>Patient</th><th>Pathologie</th><th>Infirmier(e)</th><th>Machine</th><th>PA</th><th>FC</th><th>Progression</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of filteredPatients">
-              <td><div class="patient-cell"><div class="avatar-sm">{{ p.init }}</div><b>{{ p.nom }}</b></div></td>
-              <td><span class="patho-tag">{{ p.pathologie }}</span></td>
-              <td>{{ p.infirmier }}</td>
-              <td><span class="mono">{{ p.machine }}</span></td>
-              <td><span class="mono {{ p.paClass }}">{{ p.pa }}</span></td>
-              <td><span class="mono" *ngIf="p.fc > 0">{{ p.fc }} bpm</span><span *ngIf="p.fc === 0">—</span></td>
-              <td>
-                <div class="progress-mini" *ngIf="p.progress > 0">
-                  <div class="progress-mini__bar">
-                    <div class="progress-mini__fill" [style.width.%]="p.progress" [class.warn]="p.paClass === 'warn-val'"></div>
-                  </div>
-                  <span>{{ p.progress }}%</span>
-                </div>
-                <span *ngIf="p.progress === 0" style="color:var(--c-text-3);font-size:12px">—</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="panel__footer">{{ filteredPatients.length }} patient(s)</div>
-      </div>
-    </ng-container>
-
-    <!-- ════ STOCKS ════ -->
-    <ng-container *ngIf="activeSection === 'stocks'">
-
-      <div class="section-bar">
-        <div class="section-bar__filters">
-          <select class="filter-select" [(ngModel)]="filterStockStatus">
-            <option value="">Tous</option>
-            <option value="warn">Critiques</option>
-            <option value="ok">OK</option>
-          </select>
-        </div>
-        <button class="btn-sm-primary" *ngIf="criticalStocksCount > 0" (click)="commanderTout()">
-          <span class="material-icons">shopping_cart</span> Commander tout ({{ criticalStocksCount }})
+      <label style="font-size:10.5px;font-weight:700;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px">
+        Durée de la séance <span class="req">*</span>
+      </label>
+      <div class="im-duree-grid">
+        <button *ngFor="let opt of dureeOptions"
+          class="im-duree-btn"
+          [class.im-duree-btn--active]="selectedDureeMin === opt.minutes"
+          (click)="selectedDureeMin = opt.minutes; demarrerError = false">
+          {{opt.label}}
         </button>
       </div>
+      <span class="im-field-error" *ngIf="demarrerError">Veuillez sélectionner une durée.</span>
 
-      <div class="stocks-grid">
-        <div class="stock-card" *ngFor="let item of filteredStocks"
-          [class.stock-card--crit]="item.statusClass === 'warn'">
-          <div class="stock-card__head">
-            <span class="material-icons stock-icon" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.icon }}</span>
-            <span class="badge" [ngClass]="item.statusClass === 'ok' ? 'ok' : 'warn'">
-              {{ item.statusClass === 'ok' ? 'Suffisant' : 'Critique' }}
-            </span>
-          </div>
-          <div class="stock-card__nom">{{ item.nom }}</div>
-          <div class="stock-card__detail">{{ item.detail }}</div>
+      <div class="im-duree-preview" *ngIf="selectedDureeMin && seanceADemarrer">
+        <span class="material-icons">schedule</span>
+        <span>Début <strong>{{seanceADemarrer.heure}}</strong></span>
+        <span class="material-icons" style="font-size:15px">arrow_forward</span>
+        <span>Fin prévue <strong>{{calcHeureFinPreview(seanceADemarrer.heure, selectedDureeMin)}}</strong></span>
+      </div>
 
-          <div class="stock-card__quantities">
-            <div class="stock-qty">
-              <span class="stock-qty__lbl">Stock actuel</span>
-              <span class="stock-qty__val" [style.color]="item.statusClass === 'ok' ? 'var(--c-green)' : 'var(--c-amber)'">{{ item.quantite }}</span>
-            </div>
-            <div class="stock-qty">
-              <span class="stock-qty__lbl">Seuil minimum</span>
-              <span class="stock-qty__val">{{ item.seuil }}</span>
-            </div>
+      <div class="im-fiche-grid" style="margin-top:4px">
+        <div class="im-fiche-item">
+          <div class="im-fiche-item__icon im-fiche-item__icon--teal">
+            <span class="material-icons">person</span>
           </div>
-
-          <div class="stock-card__bar">
-            <div class="stock-bar">
-              <div class="stock-bar__fill" [class.ok]="item.statusClass === 'ok'" [style.width.%]="stockPct(item)"></div>
-            </div>
-            <span>{{ stockPct(item) }}%</span>
+          <div>
+            <span class="im-fiche-item__label">Infirmier</span>
+            <strong class="im-fiche-item__val">{{seanceADemarrer.infirmier || 'Non assigné'}}</strong>
           </div>
-
-          <button class="btn-sm-primary stock-btn" *ngIf="item.statusClass === 'warn' && !item.ordered" (click)="commanderStock(item)">
-            <span class="material-icons">shopping_cart</span> Commander
-          </button>
-          <div class="stock-ordered" *ngIf="item.ordered">
-            <span class="material-icons">check_circle</span> Commande envoyée
+        </div>
+        <div class="im-fiche-item">
+          <div class="im-fiche-item__icon im-fiche-item__icon--purple">
+            <span class="material-icons">wb_sunny</span>
           </div>
-          <div class="stock-ok-msg" *ngIf="item.statusClass === 'ok' && !item.ordered">
-            <span class="material-icons">check_circle</span> Stock suffisant
+          <div>
+            <span class="im-fiche-item__label">Créneau</span>
+            <strong class="im-fiche-item__val">{{periodeLabel(seanceADemarrer.periode)}}</strong>
           </div>
         </div>
       </div>
-    </ng-container>
+    </div>
 
-    <!-- ════ INCIDENTS ════ -->
-    <ng-container *ngIf="activeSection === 'incidents'">
-
-      <div class="kpi-row" style="margin-bottom:16px">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-red-soft)"><span class="material-icons" style="color:var(--c-red)">report_problem</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ incidentsOuverts.length }}</span><span class="kpi-lbl">Incidents ouverts</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ incidentsResolus.length }}</span><span class="kpi-lbl">Résolus aujourd'hui</span></div>
-        </div>
-      </div>
-
-      <div class="incidents-list">
-        <div class="incident-card" *ngFor="let i of incidents"
-          [class.incident-card--crit]="i.priorite === 'critique' && i.statut !== 'resolu'"
-          [class.incident-card--warn]="i.priorite === 'elevee'   && i.statut !== 'resolu'"
-          [class.incident-card--done]="i.statut === 'resolu'">
-
-          <div class="incident-card__side">
-            <div class="incident-icon" [ngClass]="'incident-icon--' + incidentPrioriteClass(i.priorite)">
-              <span class="material-icons">{{ i.statut === 'resolu' ? 'check_circle' : 'report_problem' }}</span>
-            </div>
-            <span class="mono" style="font-size:11px;color:var(--c-text-3)">{{ i.heure }}</span>
-          </div>
-
-          <div class="incident-card__body">
-            <div class="incident-card__head">
-              <div>
-                <span class="incident-machine">{{ i.machine }}</span>
-                <b class="incident-type">{{ i.type }}</b>
-              </div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <span class="badge {{ incidentPrioriteClass(i.priorite) }}">{{ i.priorite | titlecase }}</span>
-                <span class="badge {{ incidentStatutClass(i.statut) }}">{{ incidentStatutLabel(i.statut) }}</span>
-              </div>
-            </div>
-            <p class="incident-desc">{{ i.description }}</p>
-            <div class="incident-meta">
-              <span class="material-icons">person</span> Signalé par {{ i.signalePar }}
-            </div>
-            <div class="incident-card__actions">
-              <button class="btn-sm-primary" *ngIf="i.statut === 'ouvert'" (click)="prendreEnCharge(i)">
-                <span class="material-icons">engineering</span> Prendre en charge
-              </button>
-              <button class="btn-sm-primary" *ngIf="i.statut === 'en-cours'" (click)="resoudreIncident(i)">
-                <span class="material-icons">check</span> Marquer résolu
-              </button>
-              <button class="btn-outline-sm" (click)="showToast('Rapport incident généré', 'info')">
-                <span class="material-icons">summarize</span> Rapport
-              </button>
-              <button class="btn-outline-sm" (click)="showToast('Technicien alerté', 'warning')">
-                <span class="material-icons">engineering</span> Alerter technicien
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ════ SUPERVISION INFIRMIERS ════ -->
-    <ng-container *ngIf="activeSection === 'supervision'">
-
-      <div class="kpi-row" style="margin-bottom:16px">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ staffEnService }}</span><span class="kpi-lbl">En service</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">warning</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ monitorsEnAlerte }}</span><span class="kpi-lbl">Patients en alerte</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ sessionsEnCours }}</span><span class="kpi-lbl">Séances en cours</span></div>
-        </div>
-      </div>
-
-      <div class="supervision-grid">
-        <div class="supervision-card" *ngFor="let sup of supervisionInfirmiers"
-          [class.supervision-card--alert]="sup.membre.statut === 'Alerte'"
-          [class.supervision-card--absent]="sup.membre.statut === 'Absent'">
-
-          <div class="sup-header">
-            <div class="sup-avatar">{{ sup.membre.init }}</div>
-            <div class="sup-identity">
-              <b>{{ sup.membre.nom }}</b>
-              <span>{{ sup.membre.vacation }}</span>
-            </div>
-            <span class="badge {{ sup.membre.statutClass }}">{{ sup.membre.statut }}</span>
-          </div>
-
-          <div class="sup-contact">
-            <span class="material-icons">phone</span>
-            <span>{{ sup.membre.telephone }}</span>
-            <button class="btn-teal-xs" style="margin-left:auto"
-              (click)="showToast('Message envoyé à ' + sup.membre.nom, 'info')">
-              <span class="material-icons">message</span> Contacter
-            </button>
-          </div>
-
-          <div class="sup-patients-label">
-            <span class="material-icons">people</span>
-            {{ sup.patients.length }} patient(s) assigné(s)
-          </div>
-
-          <div class="sup-patients-list" *ngIf="sup.patients.length > 0">
-            <div class="sup-patient-row" *ngFor="let p of sup.patients"
-              [class.sup-patient-row--warn]="p.paClass === 'warn-val'">
-              <div class="patient-cell">
-                <div class="avatar-sm">{{ p.init }}</div>
-                <div>
-                  <b>{{ p.nom }}</b>
-                  <span class="mono" style="font-size:11px;color:var(--c-text-3)">{{ p.machine }}</span>
-                </div>
-              </div>
-              <div class="sup-patient-vitals">
-                <span class="mono {{ p.paClass }}">{{ p.pa }}</span>
-                <span *ngIf="p.fc > 0" class="mono" style="font-size:11px;color:var(--c-text-3)">{{ p.fc }} bpm</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="sup-empty" *ngIf="sup.patients.length === 0">
-            <span class="material-icons">inbox</span> Aucun patient en cours
-          </div>
-
-          <div class="sup-actions">
-            <button class="btn-outline-sm" (click)="showToast('Planning de ' + sup.membre.nom + ' ouvert', 'info')">
-              <span class="material-icons">calendar_month</span> Planning
-            </button>
-            <button class="btn-outline-sm" (click)="showToast('Tâche assignée à ' + sup.membre.nom, 'success')">
-              <span class="material-icons">assignment</span> Assigner
-            </button>
-          </div>
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ════ MONITORING GLOBAL ════ -->
-    <ng-container *ngIf="activeSection === 'monitoring'">
-
-      <div class="kpi-row" style="margin-bottom:16px">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ monitorCards.length }}</span><span class="kpi-lbl">Patients en dialyse</span></div>
-          <span class="kpi-trend" style="color:var(--c-blue)">Live</span>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">warning</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ monitorsEnAlerte }}</span><span class="kpi-lbl">Alertes actives</span></div>
-          <span class="kpi-trend warn" *ngIf="monitorsEnAlerte > 0">Vérifier</span>
-          <span class="kpi-trend up" *ngIf="monitorsEnAlerte === 0">Tout stable</span>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ monitorCards.length - monitorsEnAlerte }}</span><span class="kpi-lbl">Stables</span></div>
-        </div>
-      </div>
-
-      <div class="monitor-global-grid">
-        <div class="monitor-global-card" *ngFor="let m of monitorCards"
-          [class.monitor-global-card--warn]="m.statut === 'warn'"
-          [class.monitor-global-card--crit]="m.statut === 'crit'">
-
-          <div class="mgc-header">
-            <div class="avatar-lg"
-              [style.background]="m.statut !== 'ok' ? 'rgba(245,166,35,.12)' : 'var(--c-teal-soft)'">
-              <span [style.color]="m.statut !== 'ok' ? 'var(--c-amber)' : 'var(--c-teal)'">{{ m.init }}</span>
-            </div>
-            <div class="mgc-identity">
-              <b>{{ m.nom }}</b>
-              <span>{{ m.infirmier }} · Machine <span class="mono">{{ m.machine }}</span></span>
-            </div>
-            <span class="badge"
-              [ngClass]="m.statut === 'warn' ? 'warn' : m.statut === 'crit' ? 'crit' : 'ok'">
-              {{ m.statutLabel }}
-            </span>
-          </div>
-
-          <div class="mgc-vitals">
-            <div class="mgc-vital" [class.mgc-vital--alert]="m.statut !== 'ok'">
-              <span class="mgc-lbl">Pression Artérielle</span>
-              <span class="mgc-val mono {{ m.paClass }}">{{ m.pa }}</span>
-            </div>
-            <div class="mgc-vital">
-              <span class="mgc-lbl">Fréq. Cardiaque</span>
-              <span class="mgc-val mono">{{ m.fc }} bpm</span>
-            </div>
-            <div class="mgc-vital">
-              <span class="mgc-lbl">SpO₂</span>
-              <span class="mgc-val mono">{{ m.saturation }}%</span>
-            </div>
-            <div class="mgc-vital">
-              <span class="mgc-lbl">Débit dialyse</span>
-              <span class="mgc-val mono">{{ m.debit }} mL/min</span>
-            </div>
-          </div>
-
-          <div class="mgc-footer">
-            <span class="material-icons" style="font-size:14px;color:var(--c-text-3)">timer</span>
-            <span style="font-size:12px;color:var(--c-text-2)">
-              Durée restante : <b>{{ m.dureeRestante }}</b>
-            </span>
-            <button class="btn-outline-sm" style="margin-left:auto" *ngIf="m.statut !== 'ok'"
-              (click)="alerterInfirmier(m)">
-              <span class="material-icons">notification_important</span> Alerter infirmier
-            </button>
-          </div>
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ════ RAPPORTS & STATS ════ -->
-    <ng-container *ngIf="activeSection === 'rapports'">
-
-      <div class="kpi-row" style="margin-bottom:16px">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-teal-soft)"><span class="material-icons" style="color:var(--c-teal)">summarize</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ seancesTotal }}</span><span class="kpi-lbl">Séances enregistrées</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ seancesCompletes }}</span><span class="kpi-lbl">Rapports complets</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-amber-soft)"><span class="material-icons" style="color:var(--c-amber)">pending</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ seancesTotal - seancesCompletes }}</span><span class="kpi-lbl">Incomplets</span></div>
-        </div>
-      </div>
-
-      <div class="section-bar">
-        <div class="search-mini">
-          <span class="material-icons">search</span>
-          <input type="text" placeholder="Patient, infirmier…" [(ngModel)]="searchRapports" />
-        </div>
-        <button class="btn-outline-sm" (click)="showToast('Export global en cours…', 'info')">
-          <span class="material-icons">download</span> Exporter tout
-        </button>
-      </div>
-
-      <div class="panel panel--full">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Date</th><th>Patient</th><th>Infirmier(e)</th><th>Machine</th>
-              <th>Durée</th><th>PA fin</th><th>FC fin</th><th>Incidents</th>
-              <th>Statut</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let r of filteredRapports">
-              <td class="mono">{{ r.date }}</td>
-              <td><b>{{ r.patient }}</b></td>
-              <td>{{ r.infirmier }}</td>
-              <td class="mono">{{ r.machine }}</td>
-              <td class="mono">{{ r.duree }}</td>
-              <td class="mono">{{ r.pa }}</td>
-              <td class="mono" *ngIf="r.fc > 0">{{ r.fc }} bpm</td>
-              <td *ngIf="r.fc === 0">—</td>
-              <td [style.color]="r.incidents !== 'Aucun' ? 'var(--c-amber)' : 'var(--c-text-3)'"
-                  style="font-size:12px">{{ r.incidents }}</td>
-              <td><span class="badge" [ngClass]="r.statut === 'complet' ? 'ok' : 'warn'">{{ r.statut }}</span></td>
-              <td>
-                <div style="display:flex;gap:4px">
-                  <button class="row-btn" (click)="voirRapport(r)"><span class="material-icons">visibility</span></button>
-                  <button class="row-btn" (click)="exporterRapport(r)"><span class="material-icons">download</span></button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="filteredRapports.length === 0">
-              <td colspan="10" class="empty-row">
-                <span class="material-icons">search_off</span> Aucun rapport trouvé
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="panel__footer">{{ filteredRapports.length }} rapport(s) — 2 derniers jours</div>
-      </div>
-    </ng-container>
-
-    <!-- ════ PLANNING GLOBAL ════ -->
-    <ng-container *ngIf="activeSection === 'planning'">
-
-      <div class="kpi-row" style="margin-bottom:16px">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-green-soft)"><span class="material-icons" style="color:var(--c-green)">check_circle</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ planningTerminees }}</span><span class="kpi-lbl">Terminées</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:var(--c-blue-soft)"><span class="material-icons" style="color:var(--c-blue)">water_drop</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ planningEnCours }}</span><span class="kpi-lbl">En cours</span></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:rgba(167,139,250,.1)"><span class="material-icons" style="color:var(--c-purple)">event</span></div>
-          <div class="kpi-body"><span class="kpi-val">{{ planningPlanifiees }}</span><span class="kpi-lbl">Planifiées</span></div>
-        </div>
-      </div>
-
-      <div class="section-bar">
-        <select class="filter-select" [(ngModel)]="filterPlanningStatut">
-          <option value="">Tous les statuts</option>
-          <option value="en-cours">En cours</option>
-          <option value="planifiee">Planifiées</option>
-          <option value="terminee">Terminées</option>
-        </select>
-        <button class="btn-sm-primary" (click)="showNouvelleSeanceModal = true">
-          <span class="material-icons">add</span> Nouvelle Séance
-        </button>
-      </div>
-
-      <div class="panel panel--full">
-        <table class="data-table">
-          <thead>
-            <tr><th>Heure</th><th>Patient</th><th>Fin</th><th>Infirmier(e)</th><th>Machine</th><th>Durée</th><th>Statut</th><th></th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of filteredPlanning">
-              <td><span class="mono">{{ s.heure }}</span></td>
-              <td>
-                <div class="patient-cell">
-                  <div class="avatar-sm">{{ s.patientInit }}</div>
-                  <span>{{ s.patient }}</span>
-                </div>
-              </td>
-              <td><span class="mono">{{ s.heureEnd }}</span></td>
-              <td>{{ s.infirmier }}</td>
-              <td><span class="mono">{{ s.machine }}</span></td>
-              <td>{{ s.duree }}</td>
-              <td><span class="badge {{ planningStatutClass(s.statut) }}">{{ planningStatutLabel(s.statut) }}</span></td>
-              <td>
-                <button class="row-btn" (click)="openPlanningDetail(s)">
-                  <span class="material-icons">chevron_right</span>
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="filteredPlanning.length === 0">
-              <td colspan="8" class="empty-row"><span class="material-icons">event_busy</span> Aucune séance</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="panel__footer">{{ filteredPlanning.length }} séance(s) — 12 Avril 2026</div>
-      </div>
-    </ng-container>
+    <!-- Footer -->
+    <div class="im-fiche-footer" style="gap:10px">
+      <button class="quick-btn" (click)="closeDemarrerModal()">
+        <span class="material-icons">close</span>Annuler
+      </button>
+      <button class="quick-btn quick-btn--primary" (click)="confirmerDemarrer()">
+        <span class="material-icons">play_arrow</span>Démarrer la séance
+      </button>
+    </div>
 
   </div>
 </div>

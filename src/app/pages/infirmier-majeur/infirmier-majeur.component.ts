@@ -1,67 +1,49 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { catchError, forkJoin, of } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
+import { SupervisionService } from '../../../services/supervision.service';
+import { AlerteService } from '../../../services/alerte.service';
+import { PatientService } from '../../../services/patient.service';
+import { ConstantesVitalesService } from '../../../services/constantes-vitales.service';
+import { Utilisateur } from '../../../models/utilisateur';
+import { SeanceDto } from '../../../models/seance-dto';
+import { AlerteDto } from '../../../models/alerte-dto';
+import { PatientDto } from '../../../models/patient-dto';
+import { ConstantesVitalesDto } from '../../../models/constantes-vitales-dto';
+import { InfirmierChargeDto, SupervisionDashboardDto } from '../../../models/supervision.models';
 
-// ── Interfaces ────────────────────────────────────────────────────────────────
-
-interface Session {
-  heure: string; patientInit: string; patientNom: string;
-  infirmier: string; machine: string; duree: string;
-  statusClass: string; statusLabel: string;
-}
-
-interface StockItem {
-  icon: string; nom: string; detail: string; quantite: number;
-  seuil: number; statusClass: string; ordered: boolean;
-}
-
-interface StaffMember {
-  init: string; nom: string; role: string;
-  patients: number; statut: string; statutClass: string;
+interface Infirmier {
+  id: number; init: string; nom: string; role: string;
+  statut: 'en-service' | 'absent' | 'conge';
   vacation: string; telephone: string;
+  seancesSemaine: number; maxSemaine: number; creneaux: string[];
 }
-
-interface Patient {
-  init: string; nom: string; pathologie: string;
-  infirmier: string; machine: string;
-  pa: string; paClass: string; fc: number; progress: number;
-}
-
-interface Incident {
-  id: number; heure: string; machine: string; type: string;
-  description: string; signalePar: string;
-  priorite: 'critique' | 'elevee' | 'normale';
-  statut: 'ouvert' | 'en-cours' | 'resolu';
-}
-
-interface MonitorCard {
-  init: string; nom: string; machine: string; infirmier: string;
-  pa: string; paClass: string; fc: number; saturation: number;
-  poids: string; debit: number; dureeRestante: string;
-  statut: 'ok' | 'warn' | 'crit'; statutLabel: string;
-}
-
-interface RapportStat {
-  id: number; date: string; infirmier: string;
-  patient: string; machine: string; duree: string;
-  pa: string; fc: number; incidents: string; statut: 'complet' | 'incomplet';
-}
-
-interface PlanningSeanceIM {
-  heure: string; heureEnd: string; patient: string; patientInit: string;
-  infirmier: string; machine: string; duree: string;
+interface Seance {
+  id: number; heure: string; heureEnd: string;
+  patient: string; patientInit: string;
+  infirmier: string | null; machine: string; duree: string;
   statut: 'en-cours' | 'planifiee' | 'terminee';
-  // détail
-  pathologie?: string; groupeSanguin?: string;
-  pa?: string; fc?: number; poids?: string; saturation?: number;
-  debit?: number; observations?: string; ordonnance?: string;
+  periode: 'matin' | 'apres-midi' | 'soir';
 }
-
-interface Toast { message: string; type: 'success'|'warning'|'info'|'error'; id: number; }
-interface Notif  { icon: string; text: string; time: string; type: string; read: boolean; }
-
-// ── Component ─────────────────────────────────────────────────────────────────
+interface Patient {
+  id: number; init: string; nom: string; age: number;
+  pathologie: string; infirmier: string; machine: string;
+  statutSeance: 'en-cours' | 'planifiee' | 'terminee' | 'aucune';
+  groupeSanguin: string; telephone: string;
+}
+interface Alerte {
+  id: number; heure: string; patient: string; machine: string;
+  type: string; message: string;
+  priorite: 'critique' | 'elevee' | 'normale'; statut: 'active' | 'traitee';
+}
+interface Constante {
+  id: number; heure: string; patient: string; infirmier: string;
+  tensionSys: number | null; tensionDia: number | null;
+  poids: number | null; bpm: number | null; saisie: boolean;
+}
+interface Toast { id: number; message: string; type: 'success' | 'warning' | 'info' | 'error'; }
 
 @Component({
   selector: 'app-infirmier-majeur',
@@ -70,339 +52,588 @@ interface Notif  { icon: string; text: string; time: string; type: string; read:
   templateUrl: './infirmier-majeur.component.html',
   styleUrl: './infirmier-majeur.component.scss',
 })
-export class InfirmierMajeurComponent {
-  constructor(private router: Router) {}
+export class InfirmierMajeurComponent implements OnInit {
 
-  // ── Sidebar mobile ──
-  sidebarOpen = false;
-
-  // ── Navigation ──
+  isLight       = false;
+  sidebarOpen   = false;
   activeSection = 'dashboard';
+  currentUser: Utilisateur | null = null;
+  loading = false;
+  apiError = '';
+  dashboard: SupervisionDashboardDto | null = null;
 
+  constructor(
+    private authService: AuthService,
+    private supervisionService: SupervisionService,
+    private alerteService: AlerteService,
+    private patientService: PatientService,
+    private constantesVitalesService: ConstantesVitalesService,
+  ) {}
+  ngOnInit(): void {
+    this.currentUser = this.authService.getUtilisateur();
+    this.loadBackendData();
+  }
+
+  get userInitials(): string {
+    const u = this.currentUser;
+    return `${u?.prenom?.[0] ?? ''}${u?.nom?.[0] ?? ''}`.toUpperCase() || 'IM';
+  }
+  get userName(): string {
+    const u = this.currentUser;
+    return u ? `${u.prenom} ${u.nom}`.trim() : 'Infirmier Major';
+  }
+  toggleTheme(): void { this.isLight = !this.isLight; }
+  logout():      void { this.authService.logout(); }
+  setSection(s: string): void { this.activeSection = s; this.sidebarOpen = false; }
   get sectionTitle(): string {
-    const map: Record<string, string> = {
-      dashboard:   'Supervision Générale',
-      planning:    'Planning Global des Séances',
-      equipe:      'Équipe Infirmiere',
-      supervision: 'Supervision des Infirmiers',
-      patients:    'Tous les Patients',
-      monitoring:  'Monitoring Global en Temps Réel',
-      rapports:    'Rapports & Statistiques',
-      stocks:      'Stocks & Consommables',
-      incidents:   'Incidents Signalés',
+    const m: Record<string, string> = {
+      dashboard:  'Tableau de Bord',      equipe:     'Équipe Infirmière',
+      planning:   'Planning des Séances', alertes:    'Alertes du Centre',
+      patients:   'Liste des Patients',   constantes: 'Constantes Vitales',
     };
-    return map[this.activeSection] ?? 'Tableau de Bord';
+    return m[this.activeSection] ?? 'Tableau de Bord';
   }
 
-  setSection(s: string): void {
-    this.activeSection = s;
-    this.showNotifPanel = false;
-  }
+  private loadBackendData(): void {
+    this.loading = true;
+    this.apiError = '';
+    const today = this.todayIso();
 
-  // ── Sessions ──
-  searchQuery = '';
-  filterStatut = '';
-
-  sessions: Session[] = [
-    { heure: '08:00', patientInit: 'AK', patientNom: 'Alaoui Khalid',      infirmier: 'Inf. N. Tazi',     machine: 'M-03', duree: '4h',   statusClass: 'ok',     statusLabel: 'Terminé'   },
-    { heure: '09:00', patientInit: 'ME', patientNom: 'Moussaoui El Hassan', infirmier: 'Inf. A. Haddad',   machine: 'M-02', duree: '4h',   statusClass: 'warn',   statusLabel: 'Alerte PA' },
-    { heure: '09:30', patientInit: 'OB', patientNom: 'Ouali Badreddine',    infirmier: 'Inf. N. Tazi',     machine: 'M-05', duree: '4h',   statusClass: 'info',   statusLabel: 'En cours'  },
-    { heure: '10:30', patientInit: 'SB', patientNom: 'Saidi Bouchra',       infirmier: 'Inf. L. Mansouri', machine: 'M-07', duree: '4h',   statusClass: 'info',   statusLabel: 'En cours'  },
-    { heure: '14:00', patientInit: 'FZ', patientNom: 'Filali Zineb',        infirmier: 'Inf. R. Berrada',  machine: 'M-09', duree: '3.5h', statusClass: 'purple', statusLabel: 'Planifiée' },
-    { heure: '16:30', patientInit: 'OB', patientNom: 'Ouali Badreddine',    infirmier: 'Inf. N. Tazi',     machine: 'M-05', duree: '4h',   statusClass: 'purple', statusLabel: 'Planifiée' },
-  ];
-
-  get filteredSessions(): Session[] {
-    const q = this.searchQuery.trim().toLowerCase();
-    return this.sessions.filter(s =>
-      (!this.filterStatut || s.statusLabel === this.filterStatut) &&
-      (!q || s.patientNom.toLowerCase().includes(q) || s.infirmier.toLowerCase().includes(q) || s.machine.toLowerCase().includes(q))
-    );
-  }
-
-  get sessionsEnCours():    number { return this.sessions.filter(s => s.statusClass === 'info').length; }
-  get sessionsTerminees():  number { return this.sessions.filter(s => s.statusClass === 'ok').length; }
-  get sessionsPlanifiees(): number { return this.sessions.filter(s => s.statusClass === 'purple').length; }
-
-  selectedSession: Session | null = null;
-  showSessionModal = false;
-  openSession(s: Session): void { this.selectedSession = s; this.showSessionModal = true; this.showNotifPanel = false; }
-  closeSession(): void { this.showSessionModal = false; this.selectedSession = null; }
-
-  // ── Nouvelle Séance modal ──
-  showNouvelleSeanceModal = false;
-  newSeance = { patient: '', infirmier: '', machine: '', heure: '', duree: '4h' };
-
-  ajouterSeance(): void {
-    if (!this.newSeance.patient.trim() || !this.newSeance.heure) {
-      this.showToast('Patient et heure sont obligatoires', 'warning'); return;
-    }
-    this.sessions.push({
-      heure:       this.newSeance.heure,
-      patientInit: this.newSeance.patient.slice(0, 2).toUpperCase(),
-      patientNom:  this.newSeance.patient,
-      infirmier:   this.newSeance.infirmier || 'À assigner',
-      machine:     this.newSeance.machine   || 'À assigner',
-      duree:       this.newSeance.duree,
-      statusClass: 'purple', statusLabel: 'Planifiée',
+    forkJoin({
+      dashboard: this.supervisionService.getDashboard().pipe(catchError(() => of(null))),
+      charge: this.supervisionService.getChargeHebdomadaire(today).pipe(catchError(() => of([]))),
+      planning: this.supervisionService.getPlanning(today, today).pipe(catchError(() => of([]))),
+      alertes: this.alerteService.getAll().pipe(catchError(() => of([]))),
+      patients: this.patientService.getAll().pipe(catchError(() => of([]))),
+      constantesManquantes: this.supervisionService.getConstantesManquantes(today).pipe(catchError(() => of([]))),
+    }).subscribe({
+      next: data => {
+        this.dashboard = data.dashboard;
+        this.applyInfirmiers(data.charge);
+        this.seances = data.planning.map(s => this.mapSeance(s));
+        this.alertes = data.alertes.map(a => this.mapAlerte(a));
+        this.patients = data.patients.map(p => this.mapPatient(p));
+        this.applyConstantes(data.patients, data.constantesManquantes);
+        this.syncPatientSeanceStatus();
+        this.loading = false;
+      },
+      error: () => {
+        this.apiError = 'Impossible de charger les données de supervision.';
+        this.loading = false;
+      },
     });
-    this.sessions.sort((a, b) => a.heure.localeCompare(b.heure));
-    this.newSeance = { patient: '', infirmier: '', machine: '', heure: '', duree: '4h' };
-    this.showNouvelleSeanceModal = false;
-    this.showToast('Séance ajoutée au planning', 'success');
   }
 
-  // ── Staff ──
-  staff: StaffMember[] = [
-    { init: 'NT', nom: 'Inf. Nadia Tazi',          role: 'Infirmier(e)',   patients: 2, statut: 'En service', statutClass: 'ok',     vacation: 'Matin 07:00–15:00',  telephone: '06 12 34 56 78' },
-    { init: 'AH', nom: 'Inf. Amine Haddad',         role: 'Infirmier(e)',   patients: 1, statut: 'Alerte',    statutClass: 'warn',   vacation: 'Matin 07:00–15:00',  telephone: '06 23 45 67 89' },
-    { init: 'LM', nom: 'Inf. Leila Mansouri',        role: 'Infirmier(e)',   patients: 1, statut: 'En service', statutClass: 'ok',     vacation: 'Matin 07:00–15:00',  telephone: '06 34 56 78 90' },
-    { init: 'RB', nom: 'Inf. Rachid Berrada',        role: 'Infirmier(e)',   patients: 1, statut: 'Préparation', statutClass: 'purple', vacation: 'Soir 15:00–23:00',   telephone: '06 45 67 89 01' },
-    { init: 'YK', nom: 'Aid. Youssef Kettani',       role: 'Infirmier', patients: 0, statut: 'En service', statutClass: 'ok',     vacation: 'Matin 07:00–15:00',  telephone: '06 56 78 90 12' },
-    { init: 'SO', nom: 'Aid. Sara Oulmane',           role: 'Infirmier', patients: 0, statut: 'Absent',    statutClass: 'danger', vacation: 'Congé',              telephone: '06 67 89 01 23' },
+  private applyInfirmiers(charges: InfirmierChargeDto[]): void {
+    if (!charges.length) return;
+    this.infirmiers = charges.map(item => {
+      const u = item.infirmier;
+      const fullName = this.fullName(u.prenom, u.nom);
+      return {
+        id: u.id,
+        init: this.initials(fullName),
+        nom: fullName,
+        role: 'Infirmier(e)',
+        statut: 'en-service',
+        vacation: u.service || 'Service',
+        telephone: u.telephone || '-',
+        seancesSemaine: item.nombreSeancesCetteSemaine,
+        maxSemaine: 10,
+        creneaux: [],
+      };
+    });
+  }
+
+  private applyConstantes(patients: PatientDto[], manquantes: SeanceDto[]): void {
+    const missingRows = manquantes.map(s => ({
+      id: s.id,
+      heure: this.heureByCreneau(s.creneau),
+      patient: this.fullName(s.patient?.prenom, s.patient?.nom),
+      infirmier: s.infirmier ? this.fullName(s.infirmier.prenom, s.infirmier.nom) : 'A assigner',
+      tensionSys: null, tensionDia: null, poids: null, bpm: null,
+      saisie: false,
+    }));
+
+    if (!patients.length) {
+      this.constantes = missingRows;
+      return;
+    }
+
+    forkJoin(
+      patients.map(patient =>
+        this.constantesVitalesService.getByPatient(patient.id).pipe(catchError(() => of([] as ConstantesVitalesDto[])))
+      )
+    ).subscribe(rows => {
+      const saisies = rows.flatMap((constantes, i) => {
+        const patient = patients[i];
+        return constantes
+          .filter(c => c.date === this.todayIso())
+          .map(c => ({
+            id: c.id,
+            heure: this.timeFromIso(c.saisieAt),
+            patient: this.fullName(patient.prenom, patient.nom),
+            infirmier: c.saisiePar ? this.fullName(c.saisiePar.prenom, c.saisiePar.nom) : '-',
+            tensionSys: c.tensionSys,
+            tensionDia: c.tensionDia,
+            poids: c.poids,
+            bpm: c.bpm,
+            saisie: true,
+          }));
+      });
+      this.constantes = [...saisies, ...missingRows];
+    });
+  }
+
+  private mapSeance(s: SeanceDto): Seance {
+    const patient = this.fullName(s.patient?.prenom, s.patient?.nom);
+    return {
+      id: s.id,
+      heure: this.heureByCreneau(s.creneau),
+      heureEnd: this.heureFinByCreneau(s.creneau),
+      patient,
+      patientInit: this.initials(patient),
+      infirmier: s.infirmier ? this.shortName(s.infirmier.prenom, s.infirmier.nom) : null,
+      machine: '-',
+      duree: '4h',
+      statut: this.mapStatutSeance(s.statut),
+      periode: this.mapPeriode(s.creneau),
+    };
+  }
+
+  private mapAlerte(a: AlerteDto): Alerte {
+    const patient = this.fullName(a.patient?.prenom, a.patient?.nom);
+    return {
+      id: a.id,
+      heure: this.timeFromIso(a.dateCreation),
+      patient,
+      machine: '-',
+      type: a.type,
+      message: this.cleanAlertMessage(a),
+      priorite: this.mapPriorite(a.type),
+      statut: a.lue ? 'traitee' : 'active',
+    };
+  }
+
+  private cleanAlertMessage(a: AlerteDto): string {
+    let msg = a.message ?? '';
+    // Replace "séance #N" or "seance #N" with meaningful context
+    if (/s[eé]ance\s*#?\d+/i.test(msg)) {
+      const patientNom = this.fullName(a.patient?.prenom, a.patient?.nom);
+      const dateSeance = a.dateCreation ? new Date(a.dateCreation).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
+      msg = msg.replace(/s[eé]ance\s*#?\d+/gi, `séance de ${patientNom}${dateSeance ? ' du ' + dateSeance : ''}`);
+    }
+    return msg;
+  }
+
+  private mapPatient(p: PatientDto): Patient {
+    const nom = this.fullName(p.prenom, p.nom);
+    return {
+      id: p.id,
+      init: this.initials(nom),
+      nom,
+      age: this.ageFromDate(p.dateNaissance),
+      pathologie: p.dossierPatient?.pathologie || '-',
+      infirmier: 'A assigner',
+      machine: '-',
+      statutSeance: 'aucune',
+      groupeSanguin: p.groupeSanguin || '-',
+      telephone: p.telephone || '-',
+    };
+  }
+
+  private syncPatientSeanceStatus(): void {
+    this.patients = this.patients.map(patient => {
+      const seance = this.seances.find(s => s.patient === patient.nom);
+      return seance
+        ? { ...patient, statutSeance: seance.statut, infirmier: seance.infirmier || 'A assigner', machine: seance.machine }
+        : patient;
+    });
+  }
+
+  private todayIso(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  private fullName(prenom?: string | null, nom?: string | null): string {
+    return [prenom, nom].filter(Boolean).join(' ').trim() || '-';
+  }
+
+  private initials(name: string): string {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || '?';
+  }
+
+  private shortName(prenom?: string | null, nom?: string | null): string {
+    return `${prenom?.[0] ? prenom[0] + '. ' : ''}${nom ?? ''}`.trim() || '-';
+  }
+
+  private mapPeriode(creneau?: string | null): Seance['periode'] {
+    const value = String(creneau || '').toUpperCase();
+    if (value === 'SOIR') return 'soir';
+    if (value === 'APRES_MIDI' || value === 'APRES-MIDI') return 'apres-midi';
+    return 'matin';
+  }
+
+  private mapStatutSeance(statut?: string | null): Seance['statut'] {
+    const value = String(statut || '').toUpperCase();
+    if (value === 'EN_COURS') return 'en-cours';
+    if (value === 'TERMINEE') return 'terminee';
+    return 'planifiee';
+  }
+
+  private mapPriorite(type?: string | null): Alerte['priorite'] {
+    const value = String(type || '').toUpperCase();
+    if (['CRITIQUE', 'CRITICAL', 'ROUGE'].includes(value)) return 'critique';
+    if (['ATTENTION', 'ORANGE', 'WARNING'].includes(value)) return 'elevee';
+    return 'normale';
+  }
+
+  private heureByCreneau(creneau?: string | null): string {
+    const p = this.mapPeriode(creneau);
+    return p === 'soir' ? '18:00' : p === 'apres-midi' ? '13:30' : '07:30';
+  }
+
+  private heureFinByCreneau(creneau?: string | null): string {
+    const p = this.mapPeriode(creneau);
+    return p === 'soir' ? '22:00' : p === 'apres-midi' ? '17:30' : '11:30';
+  }
+
+  private timeFromIso(value?: string | null): string {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value.slice(11, 16) || '-';
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  }
+
+  private ageFromDate(value?: string | null): number {
+    if (!value) return 0;
+    const birth = new Date(value);
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const m = now.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+    return Math.max(age, 0);
+  }
+
+  // ── Data ─────────────────────────────────────────────────────────────────
+  infirmiers: Infirmier[] = [
+    { id:1, init:'NT', nom:'Nadia Tazi',      role:'Infirmier(e)',  statut:'en-service', vacation:'Matin',       telephone:'06 12 34 56 78', seancesSemaine:8, maxSemaine:10, creneaux:['Matin'] },
+    { id:2, init:'AH', nom:'Amine Haddad',    role:'Infirmier(e)',  statut:'absent',     vacation:'Matin',       telephone:'06 23 45 67 89', seancesSemaine:0, maxSemaine:10, creneaux:['Matin'] },
+    { id:3, init:'LM', nom:'Leila Mansouri',  role:'Infirmier(e)',  statut:'en-service', vacation:'Matin',       telephone:'06 34 56 78 90', seancesSemaine:6, maxSemaine:10, creneaux:['Matin','Après-midi'] },
+    { id:4, init:'RB', nom:'Rachid Berrada',  role:'Infirmier(e)',  statut:'en-service', vacation:'Soir',        telephone:'06 45 67 89 01', seancesSemaine:7, maxSemaine:10, creneaux:['Après-midi','Soir'] },
+    { id:5, init:'YK', nom:'Youssef Kettani', role:'Aide-soignant', statut:'en-service', vacation:'Après-midi',  telephone:'06 56 78 90 12', seancesSemaine:5, maxSemaine:10, creneaux:['Après-midi'] },
+    { id:6, init:'SO', nom:'Sara Oulmane',    role:'Infirmier(e)',  statut:'conge',      vacation:'Congé',       telephone:'06 67 89 01 23', seancesSemaine:0, maxSemaine:10, creneaux:[] },
   ];
 
-  selectedStaff: StaffMember | null = null;
-  showStaffModal = false;
-  openStaff(s: StaffMember): void { this.selectedStaff = s; this.showStaffModal = true; }
-  closeStaff(): void { this.showStaffModal = false; this.selectedStaff = null; }
-  staffAction(nom: string): void { this.showToast(`Fiche de ${nom} ouverte`, 'info'); }
-
-  get staffEnService(): number { return this.staff.filter(s => s.statut === 'En service').length; }
-  get staffAbsents():   number { return this.staff.filter(s => s.statut === 'Absent').length; }
-
-  // ── Patients ──
-  allPatients: Patient[] = [
-    { init: 'AK', nom: 'Alaoui Khalid',      pathologie: 'DRC', infirmier: 'Inf. N. Tazi',     machine: 'M-03', pa: '138/88', paClass: 'ok',       fc: 72, progress: 100 },
-    { init: 'ME', nom: 'Moussaoui El Hassan', pathologie: 'DRC', infirmier: 'Inf. A. Haddad',   machine: 'M-02', pa: '172/98', paClass: 'warn-val', fc: 88, progress: 72  },
-    { init: 'OB', nom: 'Ouali Badreddine',    pathologie: 'IRC', infirmier: 'Inf. N. Tazi',     machine: 'M-05', pa: '122/76', paClass: 'ok',       fc: 68, progress: 58  },
-    { init: 'SB', nom: 'Saidi Bouchra',       pathologie: 'IRC', infirmier: 'Inf. L. Mansouri', machine: 'M-07', pa: '128/82', paClass: 'ok',       fc: 74, progress: 44  },
-    { init: 'FZ', nom: 'Filali Zineb',        pathologie: 'IRC', infirmier: 'Inf. R. Berrada',  machine: 'M-09', pa: '-',      paClass: '',          fc: 0,  progress: 0   },
+  seances: Seance[] = [
+    { id:1,  heure:'07:30', heureEnd:'11:30', patient:'Alaoui K.',      patientInit:'AK', infirmier:'N. Tazi',     machine:'M-03', duree:'4h',   statut:'terminee',  periode:'matin'      },
+    { id:2,  heure:'08:00', heureEnd:'12:00', patient:'Saidi B.',       patientInit:'SB', infirmier:'L. Mansouri', machine:'M-07', duree:'4h',   statut:'terminee',  periode:'matin'      },
+    { id:3,  heure:'09:00', heureEnd:'13:00', patient:'Moussaoui H.',  patientInit:'MH', infirmier:'A. Haddad',   machine:'M-02', duree:'4h',   statut:'planifiee', periode:'matin'      },
+    { id:4,  heure:'09:30', heureEnd:'13:30', patient:'Ouali B.',       patientInit:'OB', infirmier:'N. Tazi',     machine:'M-05', duree:'4h',   statut:'en-cours',  periode:'matin'      },
+    { id:5,  heure:'10:30', heureEnd:'14:30', patient:'Benali M.',      patientInit:'BM', infirmier:'L. Mansouri', machine:'M-08', duree:'4h',   statut:'en-cours',  periode:'matin'      },
+    { id:6,  heure:'14:00', heureEnd:'17:30', patient:'Filali Z.',      patientInit:'FZ', infirmier:'R. Berrada',  machine:'M-09', duree:'3.5h', statut:'planifiee', periode:'apres-midi' },
+    { id:7,  heure:'15:30', heureEnd:'19:30', patient:'El Idrissi F.', patientInit:'EI', infirmier:'Y. Kettani',  machine:'M-11', duree:'4h',   statut:'planifiee', periode:'apres-midi' },
+    { id:8,  heure:'16:30', heureEnd:'20:30', patient:'Chraibi A.',    patientInit:'CA', infirmier:null,           machine:'M-04', duree:'4h',   statut:'planifiee', periode:'apres-midi' },
+    { id:9,  heure:'18:00', heureEnd:'22:00', patient:'Kettani S.',    patientInit:'KS', infirmier:'R. Berrada',  machine:'M-06', duree:'4h',   statut:'planifiee', periode:'soir'       },
+    { id:10, heure:'19:30', heureEnd:'23:30', patient:'Oulmane Y.',    patientInit:'OY', infirmier:'N. Tazi',     machine:'M-10', duree:'4h',   statut:'planifiee', periode:'soir'       },
   ];
 
+  patients: Patient[] = [
+    { id:1, init:'AK', nom:'Alaoui Khalid',       age:58, pathologie:'IRC terminale', infirmier:'N. Tazi',     machine:'M-03', statutSeance:'terminee',  groupeSanguin:'B+',  telephone:'06 11 22 33 44' },
+    { id:2, init:'MH', nom:'Moussaoui El Hassan', age:62, pathologie:'DRC avancée',  infirmier:'A. Haddad',   machine:'M-02', statutSeance:'planifiee', groupeSanguin:'A+',  telephone:'06 22 33 44 55' },
+    { id:3, init:'OB', nom:'Ouali Badreddine',    age:45, pathologie:'IRC',           infirmier:'N. Tazi',     machine:'M-05', statutSeance:'en-cours',  groupeSanguin:'O+',  telephone:'06 33 44 55 66' },
+    { id:4, init:'SB', nom:'Saidi Bouchra',       age:51, pathologie:'IRC',           infirmier:'L. Mansouri', machine:'M-07', statutSeance:'terminee',  groupeSanguin:'A+',  telephone:'06 44 55 66 77' },
+    { id:5, init:'FZ', nom:'Filali Zineb',        age:67, pathologie:'DRC',           infirmier:'R. Berrada',  machine:'M-09', statutSeance:'planifiee', groupeSanguin:'AB+', telephone:'06 55 66 77 88' },
+    { id:6, init:'BM', nom:'Benali Mohammed',     age:55, pathologie:'IRC terminale', infirmier:'L. Mansouri', machine:'M-08', statutSeance:'en-cours',  groupeSanguin:'O-',  telephone:'06 66 77 88 99' },
+    { id:7, init:'EI', nom:'El Idrissi Fatima',   age:49, pathologie:'IRC',           infirmier:'Y. Kettani',  machine:'M-11', statutSeance:'planifiee', groupeSanguin:'B-',  telephone:'06 77 88 99 00' },
+    { id:8, init:'CA', nom:'Chraibi Ahmed',       age:71, pathologie:'DRC',           infirmier:'À assigner',  machine:'M-04', statutSeance:'planifiee', groupeSanguin:'A-',  telephone:'06 88 99 00 11' },
+  ];
+
+  alertes: Alerte[] = [
+    { id:1, heure:'09:45', patient:'Moussaoui El Hassan', machine:'M-02', type:'PA critique',           message:'Pression artérielle 180/110 — dépasse le seuil critique. Intervention médicale requise.',  priorite:'critique', statut:'active'  },
+    { id:2, heure:'11:05', patient:'Ouali Badreddine',    machine:'M-05', type:'Alarme pression',       message:'Alarme pression veineuse déclenchée — débit réduit automatiquement à 200 mL/min.',          priorite:'elevee',   statut:'active'  },
+    { id:3, heure:'08:30', patient:'Benali Mohammed',     machine:'M-08', type:'Constantes manquantes', message:'Constantes vitales non saisies depuis le début de séance (30 min écoulées).',               priorite:'elevee',   statut:'active'  },
+    { id:4, heure:'10:15', patient:'Saidi Bouchra',       machine:'M-07', type:'Rapport incomplet',     message:'Séance terminée — rapport de fin non complété. Constantes de fin à saisir.',                priorite:'normale',  statut:'active'  },
+    { id:5, heure:'07:50', patient:'Alaoui Khalid',       machine:'M-03', type:'Poids hors cible',      message:'Poids avant séance (74.2 kg) dépasse le poids cible de 1.2 kg. Situation surveillée.',     priorite:'normale',  statut:'traitee' },
+  ];
+
+  constantes: Constante[] = [
+    { id:1, heure:'07:30', patient:'Alaoui Khalid',       infirmier:'N. Tazi',     tensionSys:138, tensionDia:88, poids:72, bpm:72, saisie:true  },
+    { id:2, heure:'08:00', patient:'Saidi Bouchra',       infirmier:'L. Mansouri', tensionSys:128, tensionDia:82, poids:65, bpm:74, saisie:true  },
+    { id:3, heure:'09:30', patient:'Ouali Badreddine',    infirmier:'N. Tazi',     tensionSys:122, tensionDia:76, poids:80, bpm:68, saisie:true  },
+    { id:4, heure:'10:30', patient:'Benali Mohammed',     infirmier:'L. Mansouri', tensionSys:null, tensionDia:null, poids:null, bpm:null, saisie:false },
+    { id:5, heure:'09:00', patient:'Moussaoui El Hassan', infirmier:'À assigner',  tensionSys:null, tensionDia:null, poids:null, bpm:null, saisie:false },
+    { id:6, heure:'16:30', patient:'Chraibi Ahmed',       infirmier:'À assigner',  tensionSys:null, tensionDia:null, poids:null, bpm:null, saisie:false },
+  ];
+
+  // ── Dashboard ─────────────────────────────────────────────────────────────
+  get sessionsMatin():        number { return this.seances.filter(s => s.periode === 'matin').length; }
+  get sessionsApresMidi():    number { return this.seances.filter(s => s.periode === 'apres-midi').length; }
+  get sessionsSoir():         number { return this.seances.filter(s => s.periode === 'soir').length; }
+  get sessionsEnCours():      number { return this.seances.filter(s => s.statut === 'en-cours').length; }
+  get constantesManquantes(): number { return this.constantes.filter(c => !c.saisie).length; }
+  get seancesTerminees():     number { return this.seances.filter(s => s.statut === 'terminee').length; }
+  get seancesActives():       number { return this.seances.filter(s => s.statut !== 'planifiee').length; }
+  get tauxCompletion(): number {
+    return this.seancesActives ? Math.round(this.seancesTerminees / this.seancesActives * 100) : 0;
+  }
+  get chargeParInfirmier(): { label: string; count: number; pct: number }[] {
+    const map = new Map<string, number>();
+    this.seances.forEach(s => { const k = s.infirmier ?? 'Non assigné'; map.set(k, (map.get(k) ?? 0) + 1); });
+    const items = Array.from(map.entries()).map(([label, count]) => ({ label, count, pct: 0 }));
+    const max = Math.max(...items.map(i => i.count), 1);
+    return items.sort((a, b) => b.count - a.count).map(i => ({ ...i, pct: i.count / max }));
+  }
+  private readonly CIRC = 282.74;
+  get alertesDonut(): { label: string; count: number; color: string; dasharray: string; rotate: number }[] {
+    const raw = [
+      { label:'Critique', count:this.alertes.filter(a => a.priorite==='critique').length, color:'#ef4444' },
+      { label:'Élevée',   count:this.alertes.filter(a => a.priorite==='elevee').length,   color:'#f59e0b' },
+      { label:'Normale',  count:this.alertes.filter(a => a.priorite==='normale').length,  color:'#4EA8F8' },
+    ].filter(d => d.count > 0);
+    const total = raw.reduce((s, d) => s + d.count, 0) || 1;
+    let rot = -90;
+    return raw.map(d => {
+      const pct = d.count / total;
+      const seg = { ...d, dasharray:`${Math.max(0, pct*this.CIRC-1).toFixed(1)} ${this.CIRC}`, rotate:rot };
+      rot += pct * 360; return seg;
+    });
+  }
+  get totalAlertes(): number { return this.alertes.length; }
+  get gaugeDash():    string { return `${(this.tauxCompletion / 100 * 251.3).toFixed(1)} 251.3`; }
+  get gaugeColor():   string {
+    return this.tauxCompletion >= 80 ? 'var(--c-teal)' : this.tauxCompletion >= 50 ? 'var(--c-amber)' : 'var(--c-red)';
+  }
+
+  // ── Équipe ────────────────────────────────────────────────────────────────
+  filterEquipeStatut = '';
+  get filteredEquipe(): Infirmier[] {
+    return this.infirmiers.filter(i => !this.filterEquipeStatut || i.statut === this.filterEquipeStatut);
+  }
+  get staffEnService(): number { return this.infirmiers.filter(i => i.statut === 'en-service').length; }
+  get staffAbsents():   number { return this.infirmiers.filter(i => i.statut === 'absent').length; }
+  get staffConge():     number { return this.infirmiers.filter(i => i.statut === 'conge').length; }
+
+  statutClass(s: string): string { return s === 'en-service' ? 'ok' : s === 'absent' ? 'crit' : 'warn'; }
+  statutLabel(s: string): string {
+    return ({'en-service':'En service', absent:'Absent', conge:'Congé'} as Record<string,string>)[s] ?? s;
+  }
+  workloadPct(inf: Infirmier): number { return Math.min(100, Math.round(inf.seancesSemaine / inf.maxSemaine * 100)); }
+  workloadColor(inf: Infirmier): string {
+    const p = this.workloadPct(inf);
+    return p >= 90 ? 'var(--c-red)' : p >= 70 ? 'var(--c-amber)' : 'var(--c-teal)';
+  }
+
+  showReaffectModal = false;
+  infirmierAbsent: Infirmier | null = null;
+  remplacantId = 0;
+
+  private toInitials(nom: string): string {
+    const p = nom.split(' '); return `${p[0][0]}. ${p.slice(1).join(' ')}`;
+  }
+  get seancesAbsent(): Seance[] {
+    if (!this.infirmierAbsent) return [];
+    return this.seances.filter(s => s.infirmier === this.toInitials(this.infirmierAbsent!.nom));
+  }
+  get infirmiersDisponibles(): Infirmier[] { return this.infirmiers.filter(i => i.statut === 'en-service'); }
+
+  openReaffect(inf: Infirmier): void {
+    this.infirmierAbsent = inf;
+    this.remplacantId = this.infirmiersDisponibles[0]?.id ?? 0;
+    this.showReaffectModal = true;
+  }
+  confirmerReaffect(): void {
+    if (!this.infirmierAbsent || !this.remplacantId) return;
+    const remplacant = this.infirmiers.find(i => i.id === +this.remplacantId);
+    if (!remplacant) return;
+    this.supervisionService.reaffecterSeances({
+      infirmierAbsentId: this.infirmierAbsent.id,
+      infirmierRemplacantId: +this.remplacantId,
+      debut: this.todayIso(),
+      fin: this.todayIso(),
+    }).subscribe({
+      next: response => {
+        this.showToast(
+          response.nombreSeancesReaffectees > 0
+            ? `${response.nombreSeancesReaffectees} séance(s) réaffectée(s) à ${remplacant.nom}`
+            : 'Aucune séance à réaffecter',
+          response.nombreSeancesReaffectees > 0 ? 'success' : 'info',
+        );
+        this.showReaffectModal = false;
+        this.infirmierAbsent = null;
+        this.loadBackendData();
+      },
+      error: () => this.showToast('Réaffectation impossible: vérifiez la disponibilité du remplaçant', 'error'),
+    });
+  }
+  isAbsentInfirmier(name: string | null): boolean {
+    if (!name) return false;
+    return this.infirmiers.some(i => this.toInitials(i.nom) === name && i.statut !== 'en-service');
+  }
+
+  // ── Planning ──────────────────────────────────────────────────────────────
+  filterPlanningPeriode = '';
+  sansInfirmierOnly     = false;
+  searchPlanning        = '';
+
+  get filteredSeances(): Seance[] {
+    const q = this.searchPlanning.trim().toLowerCase();
+    return this.seances.filter(s => {
+      if (this.filterPlanningPeriode && s.periode !== this.filterPlanningPeriode) return false;
+      if (this.sansInfirmierOnly && s.infirmier !== null) return false;
+      if (q && !s.patient.toLowerCase().includes(q) && !(s.infirmier ?? '').toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+  get seancesSansInfirmierCount(): number { return this.seances.filter(s => s.infirmier === null).length; }
+  get planningTerminees():  number { return this.seances.filter(s => s.statut === 'terminee').length; }
+  get planningEnCours():    number { return this.seances.filter(s => s.statut === 'en-cours').length; }
+  get planningPlanifiees(): number { return this.seances.filter(s => s.statut === 'planifiee').length; }
+
+  readonly dureeOptions = [
+    { label: '30 min', minutes: 30  },
+    { label: '1h',     minutes: 60  },
+    { label: '1h 30',  minutes: 90  },
+    { label: '2h',     minutes: 120 },
+    { label: '2h 30',  minutes: 150 },
+    { label: '3h',     minutes: 180 },
+    { label: '3h 30',  minutes: 210 },
+    { label: '4h',     minutes: 240 },
+    { label: '4h 30',  minutes: 270 },
+    { label: '5h',     minutes: 300 },
+  ];
+  showDemarrerModal = false;
+  seanceADemarrer: Seance | null = null;
+  selectedDureeMin = 240;
+  demarrerError = false;
+
+  openDemarrerModal(s: Seance): void {
+    this.seanceADemarrer = s;
+    this.selectedDureeMin = 240;
+    this.demarrerError = false;
+    this.showDemarrerModal = true;
+  }
+  closeDemarrerModal(): void {
+    this.showDemarrerModal = false;
+    this.seanceADemarrer = null;
+    this.demarrerError = false;
+  }
+  confirmerDemarrer(): void {
+    if (!this.selectedDureeMin) { this.demarrerError = true; return; }
+    const s = this.seanceADemarrer!;
+    const fin = this.addMinutesToTime(s.heure, this.selectedDureeMin);
+    s.heureEnd = fin;
+    this.closeDemarrerModal();
+    this.demarrerSeance(s, fin);
+  }
+
+  calcHeureFinPreview(heureDebut: string, dureeMin: number): string {
+    return this.addMinutesToTime(heureDebut, dureeMin);
+  }
+
+  private addMinutesToTime(hhmm: string, minutes: number): string {
+    const [h, m] = (hhmm || '07:30').split(':').map(Number);
+    const total = h * 60 + m + minutes;
+    return `${String(Math.floor(total / 60) % 24).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
+  }
+
+  demarrerSeance(s: Seance, heureFinPrevue?: string): void {
+    this.supervisionService.demarrerSeance(s.id, heureFinPrevue, this.selectedDureeMin).subscribe({
+      next: updated => {
+        Object.assign(s, this.mapSeance(updated));
+        if (heureFinPrevue) s.heureEnd = heureFinPrevue;
+        this.syncPatientSeanceStatus();
+        this.showToast(`Séance ${s.patient} démarrée — fin prévue à ${s.heureEnd}`, 'success');
+      },
+      error: () => this.showToast('Impossible de démarrer la séance', 'error'),
+    });
+  }
+  terminerSeance(s: Seance): void {
+    this.supervisionService.terminerSeance(s.id).subscribe({
+      next: updated => {
+        Object.assign(s, this.mapSeance(updated));
+        this.syncPatientSeanceStatus();
+        this.showToast(`Séance ${s.patient} terminée`, 'success');
+      },
+      error: () => this.showToast('Impossible de terminer la séance', 'error'),
+    });
+  }
+
+  periodeLabel(p: string): string {
+    return ({matin:'Matin','apres-midi':'Après-midi',soir:'Soir'} as Record<string,string>)[p] ?? p;
+  }
+  seanceStatutClass(s: string): string { return s === 'terminee' ? 'ok' : s === 'en-cours' ? 'info' : 'purple'; }
+  seanceStatutLabel(s: string): string {
+    return ({terminee:'Terminée','en-cours':'En cours',planifiee:'Planifiée'} as Record<string,string>)[s] ?? s;
+  }
+
+  // ── Alertes ───────────────────────────────────────────────────────────────
+  filterAlertePriorite = '';
+  get filteredAlertes(): Alerte[] {
+    return this.alertes.filter(a => !this.filterAlertePriorite || a.priorite === this.filterAlertePriorite);
+  }
+  get alertesActivesCount():   number { return this.alertes.filter(a => a.statut === 'active').length; }
+  get alertesCritiquesCount(): number { return this.alertes.filter(a => a.priorite === 'critique' && a.statut === 'active').length; }
+  get alertesTraiteesCount():  number { return this.alertes.filter(a => a.statut === 'traitee').length; }
+  get alertesCritiquesTotal(): number { return this.alertes.filter(a => a.priorite === 'critique').length; }
+  get alertesEleveeTotal():    number { return this.alertes.filter(a => a.priorite === 'elevee').length; }
+  get alertesNormaleTotal():   number { return this.alertes.filter(a => a.priorite === 'normale').length; }
+
+  traiterAlerte(a: Alerte): void {
+    if (a.priorite === 'critique') { this.showToast('Alertes critiques — traitement réservé au médecin', 'warning'); return; }
+    this.alerteService.marquerLue(a.id).subscribe({
+      next: () => {
+        a.statut = 'traitee';
+        this.showToast(`"${a.type}" marquée comme traitée`, 'success');
+      },
+      error: () => this.showToast('Impossible de traiter cette alerte', 'error'),
+    });
+  }
+  alertePrioriteClass(p: string): string { return p === 'critique' ? 'crit' : p === 'elevee' ? 'warn' : 'info'; }
+  alertePrioriteIcon(p: string):  string { return p === 'critique' ? 'crisis_alert' : p === 'elevee' ? 'warning' : 'info'; }
+
+  // ── Patients ──────────────────────────────────────────────────────────────
   searchPatients = '';
+  selectedPatient: Patient | null = null;
+  showPatientModal = false;
   get filteredPatients(): Patient[] {
     const q = this.searchPatients.trim().toLowerCase();
-    return this.allPatients.filter(p => !q || p.nom.toLowerCase().includes(q) || p.infirmier.toLowerCase().includes(q) || p.machine.toLowerCase().includes(q));
+    return this.patients.filter(p => !q || p.nom.toLowerCase().includes(q) || p.pathologie.toLowerCase().includes(q));
+  }
+  openPatient(p: Patient): void { this.selectedPatient = p; this.showPatientModal = true; }
+  closePatient(): void          { this.showPatientModal = false; this.selectedPatient = null; }
+  patientStatutClass(s: string): string { return s === 'en-cours' ? 'info' : s === 'terminee' ? 'ok' : s === 'planifiee' ? 'purple' : ''; }
+  patientStatutLabel(s: string): string {
+    return ({'en-cours':'En cours',terminee:'Terminée',planifiee:'Planifiée',aucune:'Aucune'} as Record<string,string>)[s] ?? s;
   }
 
-  // ── Stocks ──
-  stocks: StockItem[] = [
-    { icon: 'inventory_2', nom: 'Bicarbonate 8.4% — 500mL', detail: 'Lot BIC-2024-112',       quantite: 12, seuil: 20, statusClass: 'warn', ordered: false },
-    { icon: 'inventory_2', nom: 'Dialyseurs FX80',            detail: 'Lot DIA-2024-088',       quantite: 8,  seuil: 15, statusClass: 'warn', ordered: false },
-    { icon: 'inventory_2', nom: 'Lignes artérielles',         detail: 'Lot LIG-2024-200',       quantite: 45, seuil: 30, statusClass: 'ok',   ordered: false },
-    { icon: 'inventory_2', nom: 'Poches NaCl 0.9% — 500mL',  detail: 'Lot NAC-2024-055',       quantite: 30, seuil: 40, statusClass: 'warn', ordered: false },
-    { icon: 'inventory_2', nom: 'Épinéphrine 1mg/mL',         detail: 'Urgence — Lot EPI-2024', quantite: 5,  seuil: 10, statusClass: 'warn', ordered: false },
-    { icon: 'inventory_2', nom: 'Gants nitrile — L',          detail: 'Boîtes de 100',          quantite: 22, seuil: 15, statusClass: 'ok',   ordered: false },
-  ];
-
-  filterStockStatus = '';
-  get filteredStocks(): StockItem[] {
-    return this.stocks.filter(s => !this.filterStockStatus || s.statusClass === this.filterStockStatus);
+  // ── Constantes ────────────────────────────────────────────────────────────
+  filterConstantesStatut = '';
+  get filteredConstantes(): Constante[] {
+    return this.constantes.filter(c => {
+      if (this.filterConstantesStatut === 'saisie')    return  c.saisie;
+      if (this.filterConstantesStatut === 'manquante') return !c.saisie;
+      return true;
+    });
   }
-  get criticalStocksCount(): number { return this.stocks.filter(s => s.statusClass === 'warn').length; }
+  get constantesSaisiesCount():    number { return this.constantes.filter(c =>  c.saisie).length; }
+  get constantesManquantesCount(): number { return this.constantes.filter(c => !c.saisie).length; }
 
-  commanderStock(item: StockItem): void {
-    if (item.ordered) { this.showToast(`Commande de "${item.nom}" déjà envoyée`, 'info'); return; }
-    item.ordered = true;
-    this.showToast(`Commande de "${item.nom}" envoyée au fournisseur`, 'success');
-  }
+  // ── Patient counts ────────────────────────────────────────────────────────
+  get patientsEnCours():  number { return this.patients.filter(p => p.statutSeance === 'en-cours').length; }
+  get patientsPlanifies():number { return this.patients.filter(p => p.statutSeance === 'planifiee').length; }
+  get patientsTermines(): number { return this.patients.filter(p => p.statutSeance === 'terminee').length; }
 
-  commanderTout(): void {
-    const nonCommandes = this.stocks.filter(s => s.statusClass === 'warn' && !s.ordered);
-    nonCommandes.forEach(s => s.ordered = true);
-    this.showToast(`${nonCommandes.length} commande(s) urgentes envoyées`, 'success');
-  }
-
-  stockPct(item: StockItem): number {
-    return Math.min(100, Math.round((item.quantite / (item.seuil * 2)) * 100));
-  }
-
-  // ── Incidents ──
-  incidents: Incident[] = [
-    { id: 1, heure: '11:05', machine: 'M-02', type: 'Alarme pression',   description: 'Alarme pression veineuse — seuil dépassé pendant séance Moussaoui H. Technicien contacté.',           signalePar: 'Inf. A. Haddad', priorite: 'critique', statut: 'en-cours' },
-    { id: 2, heure: '09:40', machine: 'M-11', type: 'Panne mécanique',   description: 'Machine M-11 hors service — pompe défectueuse. Maintenance préventive programmée demain matin.',       signalePar: 'Inf. N. Tazi',   priorite: 'elevee',  statut: 'ouvert'   },
-    { id: 3, heure: '08:15', machine: 'M-03', type: 'Fuite circuit',     description: 'Petite fuite détectée sur le circuit de retour. Séance Alaoui K. terminée normalement. Machine OK.', signalePar: 'Inf. N. Tazi',   priorite: 'normale', statut: 'resolu'   },
-  ];
-
-  get incidentsOuverts():   Incident[] { return this.incidents.filter(i => i.statut !== 'resolu'); }
-  get incidentsResolus():   Incident[] { return this.incidents.filter(i => i.statut === 'resolu'); }
-
-  resoudreIncident(i: Incident): void {
-    i.statut = 'resolu';
-    this.showToast(`Incident ${i.machine} — marqué comme résolu`, 'success');
-  }
-
-  prendreEnCharge(i: Incident): void {
-    i.statut = 'en-cours';
-    this.showToast(`Incident ${i.machine} — pris en charge`, 'info');
-  }
-
-  incidentPrioriteClass(p: string): string {
-    return p === 'critique' ? 'crit' : p === 'elevee' ? 'warn' : 'info';
-  }
-
-  incidentStatutClass(s: string): string {
-    return s === 'resolu' ? 'ok' : s === 'en-cours' ? 'warn' : 'crit';
-  }
-
-  incidentStatutLabel(s: string): string {
-    return ({ ouvert: 'Ouvert', 'en-cours': 'En charge', resolu: 'Résolu' } as Record<string,string>)[s] ?? s;
-  }
-
-  // ── Monitoring Global ──
-  monitorCards: MonitorCard[] = [
-    { init: 'ME', nom: 'Moussaoui El Hassan', machine: 'M-02', infirmier: 'Inf. A. Haddad',   pa: '172/98', paClass: 'warn-val', fc: 88, saturation: 95, poids: '68 kg', debit: 250, dureeRestante: '1h 10min', statut: 'warn', statutLabel: 'Alerte PA'  },
-    { init: 'OB', nom: 'Ouali Badreddine',    machine: 'M-05', infirmier: 'Inf. N. Tazi',     pa: '122/76', paClass: 'ok',       fc: 68, saturation: 98, poids: '74 kg', debit: 300, dureeRestante: '1h 42min', statut: 'ok',   statutLabel: 'En cours'   },
-    { init: 'SB', nom: 'Saidi Bouchra',       machine: 'M-07', infirmier: 'Inf. L. Mansouri', pa: '128/82', paClass: 'ok',       fc: 74, saturation: 97, poids: '57 kg', debit: 280, dureeRestante: '2h 16min', statut: 'ok',   statutLabel: 'En cours'   },
-  ];
-
-  get monitorsEnAlerte(): number { return this.monitorCards.filter(m => m.statut !== 'ok').length; }
-
-  alerterInfirmier(m: MonitorCard): void {
-    this.showToast(`${m.infirmier} alerté(e) pour ${m.nom} — PA ${m.pa}`, 'warning');
-  }
-
-  // ── Rapports ──
-  rapports: RapportStat[] = [
-    { id: 1, date: '12/04/2026', infirmier: 'Inf. N. Tazi',     patient: 'Alaoui Khalid',      machine: 'M-03', duree: '4h',   pa: '138/88', fc: 72, incidents: 'Aucun',               statut: 'complet'   },
-    { id: 2, date: '12/04/2026', infirmier: 'Inf. A. Haddad',   patient: 'Moussaoui El Hassan', machine: 'M-02', duree: '4h',   pa: '172/98', fc: 88, incidents: 'Alarme pression veineuse', statut: 'complet' },
-    { id: 3, date: '12/04/2026', infirmier: 'Inf. L. Mansouri', patient: 'Saidi Bouchra',       machine: 'M-07', duree: '4h',   pa: '128/82', fc: 74, incidents: 'Aucun',               statut: 'complet'   },
-    { id: 4, date: '11/04/2026', infirmier: 'Inf. N. Tazi',     patient: 'Ouali Badreddine',    machine: 'M-05', duree: '4h',   pa: '120/74', fc: 70, incidents: 'Aucun',               statut: 'complet'   },
-    { id: 5, date: '11/04/2026', infirmier: 'Inf. R. Berrada',  patient: 'Filali Zineb',        machine: 'M-09', duree: '3.5h', pa: '126/80', fc: 72, incidents: 'Aucun',               statut: 'incomplet' },
-  ];
-
-  searchRapports = '';
-  filterRapportDate = '';
-
-  get filteredRapports(): RapportStat[] {
-    const q = this.searchRapports.trim().toLowerCase();
-    return this.rapports.filter(r =>
-      (!q || r.patient.toLowerCase().includes(q) || r.infirmier.toLowerCase().includes(q)) &&
-      (!this.filterRapportDate || r.date === this.filterRapportDate)
-    );
-  }
-
-  get seancesTotal():    number { return this.rapports.length; }
-  get seancesCompletes(): number { return this.rapports.filter(r => r.statut === 'complet').length; }
-
-  voirRapport(r: RapportStat): void {
-    this.showToast(`Rapport de ${r.patient} — ${r.date} ouvert`, 'info');
-  }
-  exporterRapport(r: RapportStat): void {
-    this.showToast(`Rapport exporté en PDF — ${r.patient}`, 'success');
-  }
-
-  // ── Planning Global (interne) ──
-  planningSeances: PlanningSeanceIM[] = [
-    {
-      heure: '08:00', heureEnd: '12:00', patient: 'Alaoui Khalid',      patientInit: 'AK',
-      machine: 'M-03', duree: '4h',   infirmier: 'Inf. N. Tazi',     statut: 'terminee',
-      pathologie: 'DRC', groupeSanguin: 'B+', pa: '138/88', fc: 72, poids: '72 kg',
-      saturation: 97, debit: 300,
-      observations: 'Séance bien tolérée. Pas de complication. PA stable tout au long de la séance.',
-      ordonnance: 'Amlodipine 5 mg, Furosémide 40 mg, EPO 4000 UI',
-    },
-    {
-      heure: '09:00', heureEnd: '13:00', patient: 'Moussaoui El Hassan', patientInit: 'ME',
-      machine: 'M-02', duree: '4h',   infirmier: 'Inf. A. Haddad',   statut: 'en-cours',
-      pathologie: 'DRC', groupeSanguin: 'A+', pa: '172/98', fc: 88, poids: '68 kg',
-      saturation: 95, debit: 250,
-      observations: 'Alarme pression veineuse déclenchée à 11h05. Débit réduit. Médecin informé.',
-      ordonnance: 'Amlodipine 10 mg, Bisoprolol 5 mg',
-    },
-    {
-      heure: '09:30', heureEnd: '13:30', patient: 'Ouali Badreddine',    patientInit: 'OB',
-      machine: 'M-05', duree: '4h',   infirmier: 'Inf. N. Tazi',     statut: 'en-cours',
-      pathologie: 'IRC', groupeSanguin: 'O+', pa: '122/76', fc: 68, poids: '74 kg',
-      saturation: 98, debit: 300,
-      observations: 'Séance en cours, constantes stables.',
-      ordonnance: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
-    },
-    {
-      heure: '10:30', heureEnd: '14:30', patient: 'Saidi Bouchra',       patientInit: 'SB',
-      machine: 'M-07', duree: '4h',   infirmier: 'Inf. L. Mansouri', statut: 'en-cours',
-      pathologie: 'IRC', groupeSanguin: 'A+', pa: '128/82', fc: 74, poids: '57 kg',
-      saturation: 97, debit: 280,
-      observations: 'Séance en cours, aucun incident signalé.',
-      ordonnance: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
-    },
-    {
-      heure: '14:00', heureEnd: '17:30', patient: 'Filali Zineb',        patientInit: 'FZ',
-      machine: 'M-09', duree: '3.5h', infirmier: 'Inf. R. Berrada',  statut: 'planifiee',
-      pathologie: 'IRC', groupeSanguin: 'AB+', pa: '—', fc: 0, poids: '62 kg',
-      saturation: 0, debit: 0,
-      observations: 'Séance planifiée — patient attendu à 13h45.',
-      ordonnance: 'Lévothyroxine 50 µg, Calcium carbonate 500 mg',
-    },
-    {
-      heure: '16:30', heureEnd: '20:30', patient: 'Ouali Badreddine',    patientInit: 'OB',
-      machine: 'M-05', duree: '4h',   infirmier: 'Inf. N. Tazi',     statut: 'planifiee',
-      pathologie: 'IRC', groupeSanguin: 'O+', pa: '—', fc: 0, poids: '74 kg',
-      saturation: 0, debit: 0,
-      observations: 'Deuxième séance de la journée — surveillance renforcée recommandée.',
-      ordonnance: 'Bicarbonate de sodium 1 g, Fer IV 100 mg',
-    },
-  ];
-
-  filterPlanningStatut = '';
-  selectedPlanning: PlanningSeanceIM | null = null;
-  showPlanningDetailModal = false;
-
-  get filteredPlanning(): PlanningSeanceIM[] {
-    return this.planningSeances.filter(s => !this.filterPlanningStatut || s.statut === this.filterPlanningStatut);
-  }
-
-  openPlanningDetail(s: PlanningSeanceIM): void {
-    this.selectedPlanning = s;
-    this.showPlanningDetailModal = true;
-  }
-  closePlanningDetail(): void {
-    this.showPlanningDetailModal = false;
-    this.selectedPlanning = null;
-  }
-
-  planningStatutClass(s: string): string { return s === 'terminee' ? 'ok' : s === 'en-cours' ? 'info' : 'purple'; }
-  planningStatutLabel(s: string): string { return ({ terminee: 'Terminée', 'en-cours': 'En cours', planifiee: 'Planifiée' } as Record<string,string>)[s] ?? s; }
-
-  get planningTerminees():  number { return this.planningSeances.filter(s => s.statut === 'terminee').length; }
-  get planningEnCours():    number { return this.planningSeances.filter(s => s.statut === 'en-cours').length; }
-  get planningPlanifiees(): number { return this.planningSeances.filter(s => s.statut === 'planifiee').length; }
-
-  // ── Supervision des infirmiers ──
-  get supervisionInfirmiers(): { membre: StaffMember; patients: Patient[] }[] {
-    return this.staff
-      .filter(s => s.role === 'Infirmier(e)')
-      .map(s => ({
-        membre: s,
-        patients: this.allPatients.filter(p => p.infirmier === s.nom),
-      }));
-  }
-
-  // ── Notifications ──
-  showNotifPanel = false;
-  notifications: Notif[] = [
-    { icon: 'report_problem', text: 'Alarme pression veineuse — M-02',          time: 'il y a 15min', type: 'warn', read: false },
-    { icon: 'inventory_2',    text: 'Bicarbonate — stock critique (12 flacons)', time: 'il y a 1h',    type: 'warn', read: false },
-    { icon: 'event',          text: '6 séances programmées aujourd\'hui',        time: 'il y a 3h',    type: 'info', read: true  },
-  ];
-  get unreadCount(): number { return this.notifications.filter(n => !n.read).length; }
-  toggleNotifPanel(): void { this.showNotifPanel = !this.showNotifPanel; }
-  markAllRead(): void { this.notifications.forEach(n => n.read = true); this.showToast('Notifications marquées comme lues', 'info'); }
-  markRead(n: Notif): void { n.read = true; }
-
-  // ── Toast ──
-  private tid = 0;
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  private toastId = 0;
   toasts: Toast[] = [];
   showToast(message: string, type: Toast['type'] = 'info'): void {
-    const id = ++this.tid;
-    this.toasts.push({ message, type, id });
+    const id = ++this.toastId;
+    this.toasts.push({ id, message, type });
     setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 3500);
   }
-  removeToast(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }
-  toastIcon(type: string): string {
-    return ({ success: 'check_circle', warning: 'warning', error: 'error', info: 'info' } as Record<string,string>)[type] ?? 'info';
+  dismissToast(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }
+  toastIcon(t: string): string {
+    return ({success:'check_circle',warning:'warning',error:'error',info:'info'} as Record<string,string>)[t] ?? 'info';
   }
-
-  logout(): void { this.router.navigate(['/login']); }
 }

@@ -11,17 +11,8 @@
   <!-- TOPBAR -->
   <header class="inf-topbar">
     <div class="brand">
-      <div class="brand__mark">
-        <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
-          <circle cx="26" cy="26" r="24" fill="rgba(0,217,196,0.15)" stroke="rgba(0,217,196,0.5)" stroke-width="1.5"/>
-          <path d="M26 13v10M21 18h10" stroke="#00D9C4" stroke-width="2.8" stroke-linecap="round"/>
-          <path d="M14 33c0 0 3-9 6-9s4 6 6 6 3-9 6-9 6 9 6 9" stroke="#00D9C4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-      </div>
-      <div>
-        <strong>DialySys</strong>
-        <span>Espace Infirmier</span>
-      </div>
+      <img src="dialisys.png" alt="DialySys" class="brand__logo-img" />
+      <span class="brand__space-label">Espace Infirmier</span>
     </div>
 
     <div class="inf-profile">
@@ -29,6 +20,12 @@
       <div class="inf-profile__text">
         <strong>{{currentUserName}}</strong>
         <span>{{currentUser?.login}}</span>
+      </div>
+      <div class="notif-wrapper">
+        <button class="notif-btn" type="button" title="Alertes" (click)="notifOpen = !notifOpen; $event.stopPropagation()">
+          <span class="material-icons">notifications</span>
+          <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+        </button>
       </div>
       <button class="icon-button" type="button" [title]="isLight ? 'Mode sombre' : 'Mode clair'" (click)="toggleTheme()">
         <span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span>
@@ -39,22 +36,186 @@
     </div>
   </header>
 
+  <!-- Notification backdrop & panel -->
+  <div class="notif-backdrop" *ngIf="notifOpen" (click)="notifOpen = false"></div>
+  <div class="notif-panel" *ngIf="notifOpen" (click)="$event.stopPropagation()">
+    <div class="notif-panel__head">
+      <span class="material-icons">notifications</span>
+      <strong>Alertes</strong>
+      <span class="notif-badge-count" *ngIf="unreadCount > 0">{{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}</span>
+      <span class="notif-empty-label" *ngIf="unreadCount === 0">Tout lu</span>
+    </div>
+    <div class="notif-loading" *ngIf="isLoadingNotif">
+      <span class="material-icons spin">progress_activity</span>
+    </div>
+    <div class="notif-empty" *ngIf="!isLoadingNotif && allAlertes.length === 0">
+      <span class="material-icons">check_circle</span>
+      Aucune alerte
+    </div>
+    <div class="notif-list" *ngIf="!isLoadingNotif && allAlertes.length > 0">
+      <div *ngFor="let a of allAlertes"
+           class="notif-card {{ alerteTypeClass(a.type) }}"
+           [class.notif-card--read]="a.lue"
+           (click)="openPatientFromNotif(a)">
+        <span class="notif-card__icon material-icons">{{ alerteTypeIcon(a.type) }}</span>
+        <div class="notif-card__body">
+          <span class="notif-card__patient">{{ a.patient.prenom }} {{ a.patient.nom }}</span>
+          <span class="notif-card__msg">{{ a.message }}</span>
+          <span class="notif-card__time">{{ alerteTimeLabel(a.dateCreation) }}</span>
+        </div>
+        <span class="notif-card__dot" *ngIf="!a.lue"></span>
+      </div>
+    </div>
+  </div>
+
   <div class="inf-layout">
 
     <!-- SIDEBAR -->
     <aside class="inf-sidebar">
-      <button class="inf-sidebar__item" [class.inf-sidebar__item--active]="showPatientsPanel"
-              (click)="showPatientsPanel = true; selectedPatient = null">
+      <button class="inf-sidebar__item"
+              [class.inf-sidebar__item--active]="activePage === 'planning' && !selectedPatient"
+              (click)="activePage = 'planning'; selectedPatient = null; showForm = false">
+        <span class="material-icons">calendar_today</span>
+        <span>Planning du jour</span>
+      </button>
+      <button class="inf-sidebar__item"
+              [class.inf-sidebar__item--active]="activePage === 'patients' && !selectedPatient"
+              (click)="activePage = 'patients'; selectedPatient = null; showForm = false">
         <span class="material-icons">group</span>
-        <span>Liste de patients</span>
+        <span>Mes patients</span>
       </button>
     </aside>
 
     <!-- MAIN WORKSPACE -->
     <main class="patient-workspace">
 
-      <!-- Vue : Liste de patients -->
-      <ng-container *ngIf="showPatientsPanel">
+      <!-- ══ PLANNING DU JOUR ══════════════════════════════════════════════ -->
+      <ng-container *ngIf="activePage === 'planning' && !selectedPatient">
+
+        <div class="planning-header">
+          <div class="planning-title">
+            <span class="material-icons">calendar_today</span>
+            <div>
+              <h2>Planning du jour</h2>
+              <p>{{ todayLabel() }}</p>
+            </div>
+          </div>
+          <button class="ghost-button" type="button" (click)="loadPlanning()">
+            <span class="material-icons">refresh</span>
+            Actualiser
+          </button>
+        </div>
+
+        <div class="state-box" *ngIf="isLoadingPlanning">
+          <span class="material-icons spin">progress_activity</span>
+          Chargement du planning…
+        </div>
+        <div class="state-box state-box--error" *ngIf="!isLoadingPlanning && planningError">
+          <span class="material-icons">cloud_off</span>
+          {{ planningError }}
+        </div>
+        <div class="empty-tab" *ngIf="!isLoadingPlanning && !planningError && seances.length === 0">
+          <span class="material-icons">event_available</span>
+          <p>Aucune séance planifiée pour aujourd'hui.</p>
+        </div>
+
+        <div class="planning-table-wrap" *ngIf="!isLoadingPlanning && !planningError && seances.length > 0">
+          <table class="planning-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Créneau</th>
+                <th>Statut</th>
+                <th>Action / Temps restant</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of seances"
+                  [class.planning-row--encours]="s.statut === 'EN_COURS'"
+                  [class.planning-row--done]="s.statut === 'TERMINEE'">
+
+                <!-- Patient -->
+                <td>
+                  <div class="planning-patient-cell" (click)="selectPatientById(s.patientId)">
+                    <span class="patient-row__avatar">{{ s.patientInit }}</span>
+                    <div>
+                      <strong>{{ s.patientNom }}</strong>
+                      <div class="planning-times" *ngIf="s.heureDebut">
+                        <span class="material-icons">schedule</span>
+                        Début {{ s.heureDebut }}
+                        <ng-container *ngIf="s.heureFinPrevue && !s.editingFin">
+                          →
+                          <button class="planning-fin-edit-btn" type="button"
+                                  (click)="$event.stopPropagation(); startEditFin(s)"
+                                  title="Corriger l'heure de fin">
+                            {{ s.heureFinPrevue }}
+                            <span class="material-icons" style="font-size:11px">edit</span>
+                          </button>
+                        </ng-container>
+                        <ng-container *ngIf="s.editingFin">
+                          → <input class="planning-fin-input" type="time"
+                                   [(ngModel)]="s.editFinValue"
+                                   (blur)="saveEditFin(s)"
+                                   (keyup.enter)="saveEditFin(s)"
+                                   (click)="$event.stopPropagation()" />
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Créneau -->
+                <td>
+                  <span class="pill pill--neutral">{{ creneauLabel(s.creneau) }}</span>
+                </td>
+
+                <!-- Statut -->
+                <td>
+                  <span class="pill"
+                        [class.pill--warn]="s.statut === 'PLANIFIEE'"
+                        [class.pill--ok]="s.statut === 'EN_COURS'"
+                        [class.pill--stable]="s.statut === 'TERMINEE'">
+                    {{ statutLabel(s.statut) }}
+                  </span>
+                </td>
+
+                <!-- Action -->
+                <td class="planning-action-cell">
+                  <!-- PLANIFIEE -->
+                  <button *ngIf="s.statut === 'PLANIFIEE'" class="primary-button" type="button"
+                          (click)="openDemarrerModal(s)">
+                    <span class="material-icons">play_arrow</span>
+                    Démarrer
+                  </button>
+
+                  <!-- EN_COURS -->
+                  <ng-container *ngIf="s.statut === 'EN_COURS'">
+                    <span class="planning-timer" [class.planning-timer--overdue]="isOverdue(s)">
+                      <span class="material-icons">{{ isOverdue(s) ? 'alarm_off' : 'timer' }}</span>
+                      {{ remainingLabel(s) }}
+                    </span>
+                    <button class="success-button" type="button" (click)="terminerSeance(s)">
+                      <span class="material-icons">check</span>
+                      Terminer
+                    </button>
+                  </ng-container>
+
+                  <!-- TERMINEE -->
+                  <span *ngIf="s.statut === 'TERMINEE'" class="planning-done">
+                    <span class="material-icons">check_circle</span>
+                    Terminée{{ s.heureFin ? ' à ' + s.heureFin : '' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </ng-container>
+
+      <!-- ══ LISTE DE PATIENTS ═════════════════════════════════════════════ -->
+      <ng-container *ngIf="activePage === 'patients' && !selectedPatient">
+
         <div class="state-box" *ngIf="isLoadingPatients">
           <span class="material-icons spin">progress_activity</span>
           Chargement des patients...
@@ -76,7 +237,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of filteredPatients" (click)="selectPatient(p); showPatientsPanel = false" class="patients-table__row">
+              <tr *ngFor="let p of filteredPatients" (click)="selectPatient(p)" class="patients-table__row">
                 <td>
                   <div class="patients-table__name">
                     <span class="patient-row__avatar">{{ p.initials }}</span>
@@ -98,20 +259,13 @@
             </tbody>
           </table>
         </div>
+
       </ng-container>
 
-      <!-- Vue : Dossier workspace -->
-      <ng-container *ngIf="!showPatientsPanel">
-        <section class="empty-detail" *ngIf="!selectedPatient">
-          <span class="material-icons">medical_services</span>
-          <h1>Sélectionnez un patient</h1>
-          <p>Les constantes vitales et les ordonnances apparaîtront ici.</p>
-        </section>
-      </ng-container>
+      <!-- ══ DOSSIER PATIENT ═══════════════════════════════════════════════ -->
+      <ng-container *ngIf="selectedPatient">
 
-      <ng-container *ngIf="selectedPatient && !showPatientsPanel">
-
-        <!-- Hero patient -->
+        <!-- Hero -->
         <section class="patient-hero">
           <div class="hero-avatar">{{selectedPatient.initials}}</div>
           <div class="hero-copy">
@@ -122,39 +276,80 @@
           <button class="icon-button" type="button" title="Fermer" (click)="closePatient()">
             <span class="material-icons">close</span>
           </button>
+
+          <!-- Bannière séance du jour -->
+          <ng-container *ngIf="getSeanceToday(selectedPatient.id) as seance">
+            <div class="seance-banner"
+                 [class.seance-banner--planifiee]="seance.statut === 'PLANIFIEE'"
+                 [class.seance-banner--encours]="seance.statut === 'EN_COURS'"
+                 [class.seance-banner--terminee]="seance.statut === 'TERMINEE'">
+              <span class="material-icons">
+                {{ seance.statut === 'TERMINEE' ? 'check_circle' : seance.statut === 'EN_COURS' ? 'radio_button_checked' : 'event' }}
+              </span>
+              <div class="seance-banner__info">
+                <strong *ngIf="seance.statut === 'PLANIFIEE'">Séance prévue — {{ creneauLabel(seance.creneau) }}</strong>
+                <strong *ngIf="seance.statut === 'EN_COURS'">Séance en cours — {{ creneauLabel(seance.creneau) }}</strong>
+                <strong *ngIf="seance.statut === 'TERMINEE'">Séance terminée — {{ creneauLabel(seance.creneau) }}</strong>
+                <span *ngIf="seance.statut === 'EN_COURS' && seance.heureFinPrevue">
+                  Fin prévue {{ seance.heureFinPrevue }} ·
+                  <span [class.seance-banner__timer--overdue]="isOverdue(seance)">{{ remainingLabel(seance) }}</span>
+                </span>
+                <span *ngIf="seance.statut === 'TERMINEE' && seance.heureFin">
+                  Terminée à {{ seance.heureFin }}
+                </span>
+              </div>
+              <button *ngIf="seance.statut === 'PLANIFIEE'" class="primary-button" type="button"
+                      style="flex-shrink:0" (click)="openDemarrerModal(seance)">
+                <span class="material-icons">play_arrow</span>
+                Démarrer
+              </button>
+              <button *ngIf="seance.statut === 'EN_COURS'" class="success-button" type="button"
+                      style="flex-shrink:0" (click)="terminerSeance(seance)">
+                <span class="material-icons">check</span>
+                Terminer
+              </button>
+            </div>
+          </ng-container>
         </section>
 
         <!-- Tabs -->
         <div class="quick-actions" *ngIf="!isLoadingDetails">
           <button class="quick-btn" type="button"
             [class.quick-btn--active]="activeTab === 'constantes'"
-            (click)="activeTab='constantes'">
+            (click)="setTab('constantes')">
             <span class="material-icons">monitor_heart</span>
             <span>Constantes vitales</span>
             <small>{{constantes.length}}</small>
           </button>
           <button class="quick-btn" type="button"
             [class.quick-btn--active]="activeTab === 'ordonnances'"
-            (click)="activeTab='ordonnances'">
+            (click)="setTab('ordonnances')">
             <span class="material-icons">receipt_long</span>
             <span>Ordonnances</span>
             <small>{{ordonnances.length}}</small>
           </button>
           <button class="quick-btn" type="button"
             [class.quick-btn--active]="activeTab === 'instructions'"
-            (click)="activeTab='instructions'">
+            (click)="setTab('instructions')">
             <span class="material-icons">assignment</span>
             <span>Instructions</span>
           </button>
+          <button class="quick-btn quick-btn--alert" type="button"
+            [class.quick-btn--active]="activeTab === 'alertes'"
+            (click)="setTab('alertes')">
+            <span class="material-icons">notifications_active</span>
+            <span>Alertes</span>
+            <small *ngIf="patientUnreadCount > 0" class="alert-badge-count">{{patientUnreadCount}}</small>
+          </button>
         </div>
 
-        <!-- Loading -->
+        <!-- Chargement dossier -->
         <div class="detail-loading" *ngIf="isLoadingDetails">
           <span class="material-icons spin">progress_activity</span>
           Chargement du dossier…
         </div>
 
-        <!-- TAB CONSTANTES -->
+        <!-- ── TAB CONSTANTES ── -->
         <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'constantes'">
 
           <button class="cv-add-btn" type="button" (click)="toggleForm()">
@@ -166,6 +361,10 @@
             <div class="cv-form-title">
               <span class="material-icons">monitor_heart</span>
               Nouvelle saisie de constantes
+              <span *ngIf="activeSeanceId" class="cv-seance-badge">
+                <span class="material-icons">link</span>
+                Séance #{{ activeSeanceId }}
+              </span>
             </div>
             <div class="cv-form-grid">
               <div class="cv-form-group">
@@ -257,7 +456,7 @@
           </div>
         </section>
 
-        <!-- TAB ORDONNANCES -->
+        <!-- ── TAB ORDONNANCES ── -->
         <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'ordonnances'">
           <div class="empty-tab" *ngIf="ordonnances.length === 0">
             <span class="material-icons">receipt_long</span>
@@ -299,7 +498,30 @@
           </div>
         </section>
 
-        <!-- TAB INSTRUCTIONS -->
+        <!-- ── TAB ALERTES ── -->
+        <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'alertes'">
+          <div class="empty-tab" *ngIf="patientAlertes.length === 0">
+            <span class="material-icons">notifications_none</span>
+            <p>Aucune alerte pour ce patient.</p>
+          </div>
+          <div class="alerte-list" *ngIf="patientAlertes.length > 0">
+            <div *ngFor="let a of patientAlertes"
+                 class="alerte-card {{ alerteTypeClass(a.type) }}"
+                 [class.alerte-card--read]="a.lue">
+              <span class="alerte-card__icon material-icons">{{ alerteTypeIcon(a.type) }}</span>
+              <div class="alerte-card__body">
+                <div class="alerte-card__header">
+                  <span class="alerte-card__type">{{ a.type }}</span>
+                  <span class="alerte-card__time">{{ alerteTimeLabel(a.dateCreation) }}</span>
+                  <span class="alerte-card__unread" *ngIf="!a.lue">Non lue</span>
+                </div>
+                <p class="alerte-card__msg">{{ a.message }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── TAB INSTRUCTIONS ── -->
         <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'instructions'">
           <div class="empty-tab" *ngIf="!instructions">
             <span class="material-icons">assignment</span>
@@ -412,5 +634,48 @@
 
       </ng-container>
     </main>
+  </div>
+</div>
+
+<!-- ══ MODAL : Durée de séance ══════════════════════════════════════════════ -->
+<div *ngIf="showDemarrerModal" class="modal-overlay" (click)="closeDemarrerModal()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+
+    <div class="modal-panel__head">
+      <span class="material-icons">play_circle</span>
+      <div>
+        <h3>Démarrer la séance</h3>
+        <p>{{ seanceADemarrer?.patientNom }}</p>
+      </div>
+    </div>
+
+    <div class="modal-panel__label">Durée de la séance</div>
+    <div class="inf-duree-grid">
+      <button *ngFor="let opt of dureeOptions"
+              class="inf-duree-btn" type="button"
+              [class.inf-duree-btn--active]="selectedDureeMin === opt.minutes"
+              (click)="selectedDureeMin = opt.minutes">
+        {{ opt.label }}
+      </button>
+    </div>
+
+    <div class="inf-duree-preview">
+      <span class="material-icons">schedule</span>
+      Fin prévue à <strong>{{ heureFinPreview() }}</strong>
+      <span class="inf-duree-preview__dur">{{ selectedDureeMin }} min</span>
+    </div>
+
+    <div class="modal-error" *ngIf="demarrerError">
+      <span class="material-icons">error_outline</span>
+      Erreur lors du démarrage. Veuillez réessayer.
+    </div>
+
+    <div class="modal-footer">
+      <button class="ghost-button" type="button" (click)="closeDemarrerModal()">Annuler</button>
+      <button class="primary-button" type="button" (click)="confirmerDemarrer()" [disabled]="isDemarrant">
+        <span class="material-icons">{{ isDemarrant ? 'autorenew' : 'play_arrow' }}</span>
+        {{ isDemarrant ? 'Démarrage…' : 'Confirmer' }}
+      </button>
+    </div>
   </div>
 </div>

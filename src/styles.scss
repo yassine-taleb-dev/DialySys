@@ -96,10 +96,17 @@ button { cursor: pointer; font-family: var(--f-body); }
   &__logo {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     padding: 20px 20px 16px;
     border-bottom: 1px solid var(--c-border);
     flex-shrink: 0;
+
+    .brand__logo-img {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+    }
 
     span {
       font-family: var(--f-head);

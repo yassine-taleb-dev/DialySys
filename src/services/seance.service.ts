@@ -85,4 +85,22 @@ export class SeanceService {
       tap(() => this.invalidateCache())
     );
   }
+
+  demarrer(id: number, dureeMinutes: number): Observable<SeanceDto> {
+    return this.http.put<SeanceDto>(`${this.api}/${id}/demarrer`, { dureeMinutes }).pipe(
+      tap(() => this.invalidateCache())
+    );
+  }
+
+  terminer(id: number): Observable<SeanceDto> {
+    return this.http.put<SeanceDto>(`${this.api}/${id}/terminer`, {}).pipe(
+      tap(() => this.invalidateCache())
+    );
+  }
+
+  updateHeureFin(id: number, payload: { heureFinEffective?: string; dureeMinutes?: number }): Observable<SeanceDto> {
+    return this.http.put<SeanceDto>(`${this.api}/${id}/heure-fin`, payload).pipe(
+      tap(() => this.invalidateCache())
+    );
+  }
 }

@@ -20,7 +20,8 @@ import { SeanceRequestDto } from '../../../models/seance-request-dto';
 import { SeanceUpdateRequestDto } from '../../../models/seance-update-request-dto';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AdminTab, AppUser, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
+import { AdminTab, AppUser, AuditEntryUI, BarPoint, DonutSegment, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
+import { AuditService } from '../../../services/audit.service';
 
 /** Horaire d'une séance pour un jour spécifique */
 export interface JourSeance {
@@ -78,7 +79,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     private patientService: PatientService,
     private seanceService: SeanceService,
     private adminSettingsService: AdminSettingsService,
-    private rolePermissionService: RolePermissionService
+    private rolePermissionService: RolePermissionService,
+    private auditService: AuditService
   ) {}
 
   // -- Sidebar mobile --
@@ -106,7 +108,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
   }
 
-  activeTab: AdminTab = (['profils', 'seances'].includes(localStorage.getItem('admin_activeTab') ?? '') ? localStorage.getItem('admin_activeTab') as AdminTab : 'profils');
+  activeTab: AdminTab = (['profils', 'seances', 'statistiques', 'audit'].includes(localStorage.getItem('admin_activeTab') ?? '') ? localStorage.getItem('admin_activeTab') as AdminTab : 'profils');
   activeProfilRole: RoleId = 'medecin';
   loading = false;
   isLight = true;
@@ -290,7 +292,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
     localStorage.setItem('admin_activeTab', tab);
     this.scrollAdminToTop();
-    this.refreshAdminCollections(false, false);
+    if (tab === 'audit') {
+      this.loadAuditEntries();
+    } else {
+      this.refreshAdminCollections(false, false);
+    }
   }
 
   selectKpi(role: string): void {
@@ -597,6 +603,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.utilisateurService.update(this.selectedUser.id, payload).subscribe({
       next: () => {
         this.showToast(`Profil de ${this.selectedUser?.prenom} ${this.selectedUser?.nom} mis a jour`, 'success');
+        this.logAction('MODIFICATION', 'Utilisateur', `Profil modifié: ${this.selectedUser?.prenom} ${this.selectedUser?.nom}`);
         this.closeUserModal(); this.refreshAfterMutation();
       },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de mettre a jour le profil', 'error')
@@ -624,7 +631,10 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (!this.confirmDeletion(`Supprimer ${user.prenom} ${user.nom} ? Cette action est irreversible.`)) return;
     const request = user.role === 'patient' ? this.patientService.delete(user.id) : this.utilisateurService.delete(user.id);
     request.subscribe({
-      next: () => { this.showToast(`${user.role === 'patient' ? 'Patient' : 'Utilisateur'} ${user.prenom} ${user.nom} supprime`, 'warning'); this.closeUserModal(); this.refreshAfterMutation(); },
+      next: () => {
+        this.logAction('SUPPRESSION', user.role === 'patient' ? 'Patient' : 'Utilisateur', `Suppression: ${user.prenom} ${user.nom}`);
+        this.showToast(`${user.role === 'patient' ? 'Patient' : 'Utilisateur'} ${user.prenom} ${user.nom} supprime`, 'warning'); this.closeUserModal(); this.refreshAfterMutation();
+      },
       error: (err) => this.showToast(err?.error?.message ?? 'Suppression impossible', 'error')
     });
   }
@@ -657,7 +667,11 @@ export class AdminComponent implements OnInit, OnDestroy {
       telephone: normalizedPhone || null, adresse: this.newPatient.adresse || null, genre: this.newPatient.genre || null
     };
     this.patientService.create(payload).subscribe({
-      next: () => { this.patientService.invalidateCache(); this.showNewPatientModal = false; this.showToast(`Patient ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation(); },
+      next: () => {
+        this.patientService.invalidateCache(); this.showNewPatientModal = false;
+        this.logAction('CREATION', 'Patient', `Nouveau patient: ${payload.prenom} ${payload.nom}`);
+        this.showToast(`Patient ${payload.prenom} ${payload.nom} cree`, 'success'); this.refreshAfterMutation();
+      },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de creer le patient', 'error')
     });
   }
@@ -722,6 +736,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: () => {
         this.showNewUserModal = false;
         this.showWizardModal = false;
+        this.logAction('CREATION', 'Utilisateur', `Nouveau compte: ${payload.prenom} ${payload.nom} (${payload.role})`);
         this.showToast(`Compte de ${payload.prenom} ${payload.nom} cree. Le mot de passe a ete envoye par email.`, 'success');
         this.refreshAfterMutation();
       },
@@ -1003,6 +1018,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (createdSeances) => {
         this.insertSeances(createdSeances);
         this.resetNewSeanceForm();
+        this.logAction('CREATION', 'Séance', `${createdSeances.length} séance(s) planifiée(s)`);
         this.showToast(`${createdSeances.length} séance(s) planifiée(s) avec succès`, 'success');
       },
       error: (err) => {
@@ -1242,6 +1258,247 @@ export class AdminComponent implements OnInit, OnDestroy {
   seanceStatutLabel(statut: string): string { const v = this.normalizeSeanceStatut(statut); return v === 'TERMINEE' ? 'Terminee' : v === 'EN_COURS' ? 'En cours' : v === 'ANNULEE' ? 'Annulee' : 'Planifiee'; }
 
   // ------------------------------------------------------------------------------
+  //  STATISTIQUES — charts data
+  // ------------------------------------------------------------------------------
+
+  get seancesBarChart(): BarPoint[] {
+    const today = new Date();
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() - (6 - i));
+      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const display = this.isoToDisplayDate(iso);
+      return {
+        label: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][d.getDay()],
+        count: this.seancesAdmin.filter(s => s.date === display).length,
+        pct: 0,
+      };
+    });
+    const max = Math.max(...days.map(d => d.count), 1);
+    return days.map(d => ({ ...d, pct: d.count / max }));
+  }
+
+  get userRoleDonut(): DonutSegment[] {
+    const total = this.users.length || 1;
+    const c = 282.74;
+    const roleData = [
+      { label: 'Médecins',    count: this.medecinCount,                                   color: '#00D9C4' },
+      { label: 'Inf. Maj.',   count: this.infMajeurCount,                                 color: '#A78BFA' },
+      { label: 'Infirmiers',  count: this.infirmierCount,                                 color: '#4EA8F8' },
+      { label: 'Patients',    count: this.patientCount,                                   color: '#22c55e' },
+      { label: 'Admins',      count: this.users.filter(u => u.role === 'admin').length,   color: '#ff5757' },
+    ].filter(r => r.count > 0);
+    let rot = -90;
+    return roleData.map(r => {
+      const pct = r.count / total;
+      const seg: DonutSegment = { ...r, dasharray: `${Math.max(0, pct * c - 1).toFixed(1)} ${c}`, rotate: rot };
+      rot += pct * 360;
+      return seg;
+    });
+  }
+
+  get tauxOccupation(): number {
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const mondayIso = monday.toISOString().slice(0, 10);
+    const sundayIso = sunday.toISOString().slice(0, 10);
+    const weekSeances = this.seancesAdmin.filter(s => {
+      const d = this.displayToIsoDate(s.date);
+      return d >= mondayIso && d <= sundayIso;
+    }).length;
+    const capacity = Math.max(1, this.infirmierCount * 2 * 5 * 3);
+    return Math.min(100, Math.round((weekSeances / capacity) * 100));
+  }
+
+  get seancesThisWeek(): number {
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const mondayIso = monday.toISOString().slice(0, 10);
+    const sundayIso = sunday.toISOString().slice(0, 10);
+    return this.seancesAdmin.filter(s => {
+      const d = this.displayToIsoDate(s.date);
+      return d >= mondayIso && d <= sundayIso;
+    }).length;
+  }
+
+  get newPatientsThisMonth(): number {
+    const now = new Date();
+    const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return this.users.filter(u => u.role === 'patient' && (u.dateCreation ?? '').startsWith(monthStr.split('-').reverse().join('/'))).length;
+  }
+
+  exportStatsPdf(): void {
+    const html = this.buildStatsPdfHtml();
+    const w = window.open('', '_blank', 'width=900,height=700,toolbar=0,menubar=0');
+    if (!w) { this.showToast("Autorisez les popups pour exporter en PDF.", 'warning'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => { w.focus(); w.print(); }, 600);
+    this.logAction('EXPORT', 'Statistiques', 'Export PDF statistiques');
+  }
+
+  private buildStatsPdfHtml(): string {
+    const now = new Date().toLocaleString('fr-FR');
+    const roleRows = this.userRoleDonut.map(s =>
+      `<tr><td>${s.label}</td><td>${s.count}</td><td>${((s.count / (this.users.length || 1)) * 100).toFixed(1)}%</td></tr>`
+    ).join('');
+    const barRows = this.seancesBarChart.map(b =>
+      `<tr><td>${b.label}</td><td>${b.count}</td></tr>`
+    ).join('');
+    return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Statistiques DialySys</title>
+<style>
+@page{margin:15mm 20mm;size:A4}*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{color:#1a1a2e;font-size:12px}
+h1{font-size:20px;color:#00857a;border-bottom:2px solid #00857a;padding-bottom:8px;margin-bottom:16px}
+h2{font-size:14px;color:#334155;margin:16px 0 8px;border-left:3px solid #00D9C4;padding-left:8px}
+table{width:100%;border-collapse:collapse;margin-bottom:16px}
+th{background:#f0fafa;text-align:left;padding:6px 10px;font-size:11px;border-bottom:2px solid #00D9C4}
+td{padding:5px 10px;border-bottom:1px solid #e2e8f0;font-size:11px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#f8fafc;border-radius:8px;padding:12px;text-align:center;border:1px solid #e2e8f0}
+.kpi-val{font-size:24px;font-weight:bold;color:#00857a}
+.kpi-label{font-size:10px;color:#64748b;margin-top:2px}
+.footer{text-align:right;font-size:10px;color:#94a3b8;margin-top:20px}
+</style></head><body>
+<h1>Tableau de Bord — Statistiques DialySys</h1>
+<div class="kpi-grid">
+<div class="kpi"><div class="kpi-val">${this.totalUsers}</div><div class="kpi-label">Utilisateurs total</div></div>
+<div class="kpi"><div class="kpi-val">${this.activeUsers}</div><div class="kpi-label">Utilisateurs actifs</div></div>
+<div class="kpi"><div class="kpi-val">${this.seancesThisWeek}</div><div class="kpi-label">Séances cette semaine</div></div>
+<div class="kpi"><div class="kpi-val">${this.tauxOccupation}%</div><div class="kpi-label">Taux occupation</div></div>
+</div>
+<h2>Répartition par rôle</h2>
+<table><thead><tr><th>Rôle</th><th>Nombre</th><th>%</th></tr></thead><tbody>${roleRows}</tbody></table>
+<h2>Séances — 7 derniers jours</h2>
+<table><thead><tr><th>Jour</th><th>Séances</th></tr></thead><tbody>${barRows}</tbody></table>
+<div class="footer">Exporté le ${now} — DialySys Admin</div>
+</body></html>`;
+  }
+
+  // ------------------------------------------------------------------------------
+  //  AUDIT LOG
+  // ------------------------------------------------------------------------------
+
+  auditEntries: AuditEntryUI[] = [];
+  auditFilterUser = '';
+  auditFilterAction: string = '';
+  auditFilterDate = '';
+  auditPage = 1;
+  readonly auditPageSize = 15;
+
+  loadAuditEntries(): void {
+    this.auditEntries = this.auditService.getAll() as AuditEntryUI[];
+  }
+
+  get filteredAuditEntries(): AuditEntryUI[] {
+    const q = this.auditFilterUser.toLowerCase().trim();
+    return this.auditEntries.filter(e =>
+      (!q || e.utilisateur.toLowerCase().includes(q) || e.details.toLowerCase().includes(q) || e.entite.toLowerCase().includes(q)) &&
+      (!this.auditFilterAction || e.action === this.auditFilterAction) &&
+      (!this.auditFilterDate || e.timestamp.startsWith(this.auditFilterDate))
+    );
+  }
+
+  get paginatedAuditEntries(): AuditEntryUI[] {
+    const items = this.filteredAuditEntries;
+    const total = Math.max(1, Math.ceil(items.length / this.auditPageSize));
+    if (this.auditPage > total) this.auditPage = total;
+    const start = (this.auditPage - 1) * this.auditPageSize;
+    return items.slice(start, start + this.auditPageSize);
+  }
+
+  get totalAuditPages(): number {
+    return Math.max(1, Math.ceil(this.filteredAuditEntries.length / this.auditPageSize));
+  }
+
+  clearAuditLog(): void {
+    if (!this.confirmDeletion('Effacer tout l\'historique des actions ?')) return;
+    this.auditService.clear();
+    this.auditEntries = [];
+    this.showToast('Historique effacé', 'info');
+  }
+
+  exportAuditPdf(): void {
+    const entries = this.filteredAuditEntries.slice(0, 200);
+    const rows = entries.map(e =>
+      `<tr>
+        <td>${new Date(e.timestamp).toLocaleString('fr-FR')}</td>
+        <td>${e.utilisateur}</td>
+        <td>${e.role}</td>
+        <td class="action action-${e.action.toLowerCase()}">${e.action}</td>
+        <td>${e.entite}</td>
+        <td>${e.details}</td>
+        <td class="${e.statut}">${e.statut === 'success' ? 'OK' : 'Erreur'}</td>
+      </tr>`
+    ).join('');
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Journal des Activités</title>
+<style>
+@page{margin:10mm 15mm;size:A4 landscape}*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;font-size:10px}
+body{color:#1a1a2e}
+h1{font-size:16px;color:#00857a;border-bottom:2px solid #00857a;padding-bottom:6px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+th{background:#f0fafa;text-align:left;padding:5px 8px;font-size:9px;border-bottom:2px solid #00D9C4;white-space:nowrap}
+td{padding:4px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+tr:nth-child(even) td{background:#f8fafc}
+.action{font-weight:bold}
+.action-creation{color:#22c55e}.action-modification{color:#f59e0b}.action-suppression{color:#ef4444}
+.action-connexion{color:#4EA8F8}.action-deconnexion{color:#94a3b8}.action-export{color:#A78BFA}
+.success{color:#22c55e}.error{color:#ef4444}
+.footer{text-align:right;font-size:9px;color:#94a3b8;margin-top:12px}
+</style></head><body>
+<h1>Journal des Activités — DialySys</h1>
+<table>
+<thead><tr><th>Horodatage</th><th>Utilisateur</th><th>Rôle</th><th>Action</th><th>Entité</th><th>Détails</th><th>Statut</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+<div class="footer">Exporté le ${new Date().toLocaleString('fr-FR')} — ${entries.length} entrée(s)</div>
+</body></html>`;
+    const w = window.open('', '_blank', 'width=1100,height=700,toolbar=0,menubar=0');
+    if (!w) { this.showToast("Autorisez les popups pour exporter.", 'warning'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => { w.focus(); w.print(); }, 600);
+    this.logAction('EXPORT', 'Audit', `Export PDF journal (${entries.length} entrées)`);
+  }
+
+  auditActionLabel(action: string): string {
+    const labels: Record<string, string> = {
+      CONNEXION: 'Connexion', CREATION: 'Création', MODIFICATION: 'Modification',
+      SUPPRESSION: 'Suppression', EXPORT: 'Export', DECONNEXION: 'Déconnexion',
+    };
+    return labels[action] ?? action;
+  }
+
+  auditActionClass(action: string): string {
+    const classes: Record<string, string> = {
+      CONNEXION: 'audit-action--connexion', CREATION: 'audit-action--creation',
+      MODIFICATION: 'audit-action--modification', SUPPRESSION: 'audit-action--suppression',
+      EXPORT: 'audit-action--export', DECONNEXION: 'audit-action--deconnexion',
+    };
+    return classes[action] ?? '';
+  }
+
+  fmtAuditDate(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  private logAction(action: import('../../../services/audit.service').AuditAction, entite: string, details: string, statut: 'success' | 'error' = 'success'): void {
+    const user = this.authService.getUtilisateur?.() ?? null;
+    const username = user ? `${user.prenom} ${user.nom}` : 'Admin';
+    this.auditService.log(username, 'ADMIN', action, entite, details, statut);
+  }
+
+  // ------------------------------------------------------------------------------
   //  KPI
   // ------------------------------------------------------------------------------
 
@@ -1263,7 +1520,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   statusLabel(status: UserStatus): string { return status === 'actif' ? 'Actif' : status === 'suspendu' ? 'Suspendu' : 'Inactif'; }
   initials(user: AppUser): string { return `${user.prenom?.[0] ?? ''}${user.nom?.[0] ?? ''}`.toUpperCase(); }
   profilTabLabel(role: RoleId): string { return ({ admin: 'Admins', medecin: 'Medecins', 'infirmier-majeur': 'Inf. Majeurs', infirmier: 'Infirmiers', patient: 'Patients' } as Record<RoleId, string>)[role]; }
-  get activeTabTitle(): string { return ({ profils: 'Gestion des Profils', seances: 'Planification des Seances' } as Record<AdminTab, string>)[this.activeTab]; }
+  get activeTabTitle(): string { return ({ profils: 'Gestion des Profils', seances: 'Planification des Séances', statistiques: 'Statistiques & Indicateurs', audit: 'Journal des Activités' } as Record<AdminTab, string>)[this.activeTab]; }
 
   /** Expose isoToDisplayDate au template */
   isoToDisplayDate(value: string): string {

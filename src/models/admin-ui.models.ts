@@ -1,6 +1,31 @@
 import { Role } from './role';
 
-export type AdminTab = 'profils' | 'seances';
+export type AdminTab = 'profils' | 'seances' | 'statistiques' | 'audit';
+
+export interface DonutSegment {
+  color: string;
+  label: string;
+  count: number;
+  dasharray: string;
+  rotate: number;
+}
+
+export interface BarPoint {
+  label: string;
+  count: number;
+  pct: number;
+}
+
+export interface AuditEntryUI {
+  id: number;
+  timestamp: string;
+  utilisateur: string;
+  role: string;
+  action: string;
+  entite: string;
+  details: string;
+  statut: 'success' | 'error';
+}
 export type RoleId = 'admin' | 'medecin' | 'infirmier-majeur' | 'infirmier' | 'patient';
 export type UserStatus = 'actif' | 'inactif' | 'suspendu';
 

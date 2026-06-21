@@ -12,17 +12,8 @@
 <div class="doctor-shell" [class.light]="isLight">
   <header class="doctor-topbar">
     <div class="brand">
-      <div class="brand__mark">
-        <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
-          <circle cx="26" cy="26" r="24" fill="rgba(0,217,196,0.15)" stroke="rgba(0,217,196,0.5)" stroke-width="1.5"/>
-          <path d="M26 13v10M21 18h10" stroke="#00D9C4" stroke-width="2.8" stroke-linecap="round"/>
-          <path d="M14 33c0 0 3-9 6-9s4 6 6 6 3-9 6-9 6 9 6 9" stroke="#00D9C4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-      </div>
-      <div>
-        <strong>DialySys</strong>
-        <span>Espace medecin</span>
-      </div>
+      <img src="dialisys.png" alt="DialySys" class="brand__logo-img" />
+      <span class="brand__space-label">Espace Médecin</span>
     </div>
 
     <div class="doctor-profile" *ngIf="currentUser">
@@ -36,11 +27,50 @@
       <button class="icon-button" type="button" [title]="isLight ? 'Mode sombre' : 'Mode clair'" (click)="toggleTheme()">
         <span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span>
       </button>
+      <button class="notif-btn" type="button" title="Notifications" (click)="notifOpen = !notifOpen; $event.stopPropagation()">
+        <span class="material-icons">notifications</span>
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+      </button>
       <button class="icon-button icon-button--danger" type="button" title="Deconnexion" (click)="logout()">
         <span class="material-icons">logout</span>
       </button>
     </div>
   </header>
+
+  <!-- Notification dropdown -->
+  <div class="notif-backdrop" *ngIf="notifOpen" (click)="notifOpen = false"></div>
+  <div class="notif-panel" *ngIf="notifOpen" (click)="$event.stopPropagation()">
+    <div class="notif-panel__head">
+      <span class="material-icons">notifications</span>
+      <strong>Alertes actives</strong>
+      <span class="notif-count" *ngIf="unreadCount > 0">{{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}</span>
+    </div>
+    <div class="notif-panel__body">
+      <div class="notif-loading" *ngIf="isLoadingNotif">
+        <span class="material-icons spin">progress_activity</span>
+      </div>
+      <div class="notif-empty" *ngIf="!isLoadingNotif && activeAlertes.length === 0">
+        <span class="material-icons">check_circle</span>
+        Toutes les alertes ont été traitées
+      </div>
+      <div *ngFor="let a of activeAlertes"
+           [class]="'notif-card ' + alerteTypeClass(a.type)"
+           (click)="openPatientFromNotif(a)">
+        <span class="material-icons notif-card__icon">{{ alerteTypeIcon(a.type) }}</span>
+        <div class="notif-card__body">
+          <strong>{{ a.patient.prenom }} {{ a.patient.nom }}</strong>
+          <span>{{ a.message }}</span>
+          <small>{{ alerteTimeLabel(a.dateCreation) }}</small>
+        </div>
+        <button class="btn-traiter" type="button"
+                title="Traiter l'alerte"
+                (click)="traiterAlerte(a, $event)">
+          <span class="material-icons">check_circle</span>
+          Traiter
+        </button>
+      </div>
+    </div>
+  </div>
 
 
   <!-- Dossier patient modal -->
@@ -224,6 +254,15 @@
           <button class="quick-btn" type="button" (click)="setTab('constantes')" [class.quick-btn--active]="activeTab === 'constantes'">
             <span class="material-icons">monitor_heart</span>
             <span>Instructions de patient</span>
+          </button>
+          <button class="quick-btn" type="button" (click)="setTab('statistiques')" [class.quick-btn--active]="activeTab === 'statistiques'">
+            <span class="material-icons">bar_chart</span>
+            <span>Statistiques</span>
+          </button>
+          <button class="quick-btn quick-btn--alert" type="button" (click)="setTab('alertes')" [class.quick-btn--active]="activeTab === 'alertes'">
+            <span class="material-icons">notifications_active</span>
+            <span>Alertes</span>
+            <small *ngIf="patientUnreadCount > 0">{{ patientUnreadCount }}</small>
           </button>
         </div>
 
@@ -459,16 +498,21 @@
           </div>
 
           <div class="ordonnance-list" *ngIf="ordonnances.length">
-            <button class="ordonnance-card" type="button" *ngFor="let ordonnance of ordonnances" (click)="openOrdonnance(ordonnance)">
-              <span class="material-icons">description</span>
-              <span class="ordonnance-card__body">
-                <strong>Ordonnance #{{ ordonnance.id }}</strong>
-                <small>{{ fmtDate(ordonnance.dateEmission) }} - {{ ordonnance.medicaments }}</small>
-              </span>
-              <span class="pill pill--{{ ordonnanceStatusTone(ordonnance.statut) }}">
-                {{ ordonnanceStatusLabel(ordonnance.statut) }}
-              </span>
-            </button>
+            <div class="ordonnance-card-row" *ngFor="let ordonnance of ordonnances">
+              <button class="ordonnance-card" type="button" (click)="openOrdonnance(ordonnance)" style="flex:1">
+                <span class="material-icons">description</span>
+                <span class="ordonnance-card__body">
+                  <strong>Ordonnance #{{ ordonnance.id }}</strong>
+                  <small>{{ fmtDate(ordonnance.dateEmission) }} - {{ ordonnance.medicaments }}</small>
+                </span>
+                <span class="pill pill--{{ ordonnanceStatusTone(ordonnance.statut) }}">
+                  {{ ordonnanceStatusLabel(ordonnance.statut) }}
+                </span>
+              </button>
+              <button class="icon-button print-btn" type="button" title="Imprimer" (click)="printOrdonnance(ordonnance)">
+                <span class="material-icons">print</span>
+              </button>
+            </div>
           </div>
 
           <div class="state-box" *ngIf="!ordonnances.length">
@@ -519,6 +563,143 @@
             </footer>
           </form>
         </section>
+
+        <!-- ─── STATISTIQUES ─── -->
+        <section class="tab-content stats-tab" *ngIf="!isLoadingDetails && activeTab === 'statistiques'">
+          <div class="state-box" *ngIf="isLoadingStats">
+            <span class="material-icons spin">progress_activity</span>Chargement des statistiques...
+          </div>
+          <ng-container *ngIf="!isLoadingStats">
+
+            <!-- KPI cards -->
+            <div class="stats-kpi-row">
+              <div class="stats-kpi stats-kpi--teal">
+                <span class="material-icons">people</span>
+                <div><strong>{{ patients.length }}</strong><small>Patients</small></div>
+              </div>
+              <div class="stats-kpi stats-kpi--red" *ngIf="alertesCritiques > 0">
+                <span class="material-icons">warning</span>
+                <div><strong>{{ alertesCritiques }}</strong><small>Alertes critiques</small></div>
+              </div>
+              <div class="stats-kpi stats-kpi--amber" *ngIf="alertesAttention > 0">
+                <span class="material-icons">notification_important</span>
+                <div><strong>{{ alertesAttention }}</strong><small>Alertes attention</small></div>
+              </div>
+              <div class="stats-kpi stats-kpi--green" *ngIf="selectedPatient">
+                <span class="material-icons">description</span>
+                <div><strong>{{ ordonnances.length }}</strong><small>Ordonnances</small></div>
+              </div>
+              <div class="stats-kpi stats-kpi--blue" *ngIf="selectedPatient">
+                <span class="material-icons">monitor_heart</span>
+                <div><strong>{{ constantes.length }}</strong><small>Constantes saisies</small></div>
+              </div>
+            </div>
+
+            <!-- No patient selected hint -->
+            <div class="state-box" *ngIf="!selectedPatient">
+              <span class="material-icons">person_search</span>
+              Sélectionnez un patient pour afficher ses graphiques.
+            </div>
+
+            <!-- Charts (only when patient selected + has data) -->
+            <ng-container *ngIf="selectedPatient">
+
+              <!-- Tension line chart -->
+              <div class="stat-chart-card" *ngIf="constantes.length >= 2">
+                <div class="stat-chart-card__head">
+                  <span class="material-icons">show_chart</span>
+                  Évolution de la tension — {{ selectedPatient.nomComplet }}
+                  <span class="chart-legend">
+                    <span class="legend-dot" style="background:#ef4444"></span>Sys.
+                    <span class="legend-dot" style="background:#4EA8F8;margin-left:10px"></span>Dia.
+                  </span>
+                </div>
+                <svg viewBox="0 0 300 120" class="line-chart-svg" preserveAspectRatio="xMidYMid meet">
+                  <!-- Grid lines -->
+                  <line x1="10" y1="20" x2="290" y2="20" stroke="var(--c-border)" stroke-width="1"/>
+                  <line x1="10" y1="60" x2="290" y2="60" stroke="var(--c-border)" stroke-width="1"/>
+                  <line x1="10" y1="100" x2="290" y2="100" stroke="var(--c-border)" stroke-width="1"/>
+                  <!-- Systolic path -->
+                  <path *ngIf="tensionSysPath" [attr.d]="tensionSysPath" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                  <!-- Diastolic path -->
+                  <path *ngIf="tensionDiaPath" [attr.d]="tensionDiaPath" fill="none" stroke="#4EA8F8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                  <!-- Data points -->
+                  <g *ngFor="let pt of tensionChartPoints">
+                    <circle [attr.cx]="pt.x" [attr.cy]="pt.ySys" r="3" fill="#ef4444"/>
+                    <circle [attr.cx]="pt.x" [attr.cy]="pt.yDia" r="3" fill="#4EA8F8"/>
+                    <text [attr.x]="pt.x" [attr.y]="pt.ySys - 5" text-anchor="middle" font-size="7" fill="var(--c-text-3)">{{pt.sys}}</text>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Ordonnances bar chart -->
+              <div class="stat-chart-card" *ngIf="ordonnances.length">
+                <div class="stat-chart-card__head">
+                  <span class="material-icons">bar_chart</span>
+                  Répartition des ordonnances — {{ selectedPatient.nomComplet }}
+                </div>
+                <div class="ordonnances-bar-wrap">
+                  <div class="ord-bar-item" *ngFor="let bar of ordonnancesBarChart">
+                    <div class="ord-bar-track">
+                      <div class="ord-bar-fill" [style.width.%]="bar.pct * 100" [style.background]="bar.color"></div>
+                    </div>
+                    <div class="ord-bar-meta">
+                      <span>{{ bar.label }}</span>
+                      <strong [style.color]="bar.color">{{ bar.count }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </ng-container>
+
+          </ng-container>
+        </section>
+
+        <!-- ─── ALERTES PATIENT ─── -->
+        <section class="tab-content" *ngIf="!isLoadingDetails && activeTab === 'alertes'">
+          <div class="alerte-section-head">
+            <span class="material-icons">notifications_active</span>
+            <strong>Alertes de {{ selectedPatient.nomComplet }}</strong>
+            <span class="alerte-section-badge" *ngIf="patientUnreadCount > 0">
+              {{ patientUnreadCount }} active{{ patientUnreadCount > 1 ? 's' : '' }}
+            </span>
+          </div>
+
+          <div class="empty-tab" *ngIf="patientAlertes.length === 0">
+            <span class="material-icons">check_circle</span>
+            <p>Aucune alerte pour ce patient.</p>
+          </div>
+
+          <div class="alerte-list" *ngIf="patientAlertes.length > 0">
+            <div *ngFor="let a of patientAlertes"
+                 [class]="'alerte-card ' + alerteTypeClass(a.type) + (a.traitee ? ' alerte-card--traitee' : '')">
+              <div class="alerte-card__icon">
+                <span class="material-icons">{{ alerteTypeIcon(a.type) }}</span>
+              </div>
+              <div class="alerte-card__body">
+                <strong>{{ a.message }}</strong>
+                <span class="alerte-card__time">{{ alerteTimeLabel(a.dateCreation) }}</span>
+                <span class="alerte-card__traitee-info" *ngIf="a.traitee && a.dateTraitement">
+                  <span class="material-icons">check_circle</span>
+                  Traité {{ alerteTimeLabel(a.dateTraitement) }}
+                  <ng-container *ngIf="a.traitePar"> · par {{ a.traitePar }}</ng-container>
+                </span>
+              </div>
+              <span class="alerte-card__badge">{{ a.type }}</span>
+              <button *ngIf="!a.traitee" class="btn-traiter btn-traiter--card" type="button"
+                      (click)="traiterAlerte(a, $event)">
+                <span class="material-icons">check_circle</span>
+                Traiter l'alerte
+              </button>
+              <span *ngIf="a.traitee" class="alerte-card__traitee-badge">
+                <span class="material-icons">done_all</span>
+                Traitée
+              </span>
+            </div>
+          </div>
+        </section>
+
       </ng-container>
     </main>
   </div>
@@ -531,9 +712,14 @@
         <span>Ordonnance #{{ selectedOrdonnance.id }}</span>
         <strong>{{ fmtDate(selectedOrdonnance.dateEmission) }}</strong>
       </div>
-      <button class="icon-button" type="button" title="Fermer" (click)="closeOrdonnance()">
-        <span class="material-icons">close</span>
-      </button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="icon-button" type="button" title="Imprimer l'ordonnance" (click)="printOrdonnance(selectedOrdonnance)" style="color:var(--c-teal)">
+          <span class="material-icons">print</span>
+        </button>
+        <button class="icon-button" type="button" title="Fermer" (click)="closeOrdonnance()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
     </header>
 
     <section>

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { catchError, forkJoin, of } from 'rxjs';
+import { catchError, forkJoin, of, map } from 'rxjs';
 
 import { ConstantesVitalesDto } from '../../../models/constantes-vitales-dto';
 import { todayIso, formatDateFr } from '../../../models/dateutils';
@@ -12,6 +12,8 @@ import { PatientDto } from '../../../models/patient-dto';
 import { PatientInstructionsDto } from '../../../models/patient-instructions-dto';
 import { PatientInstructionsRequestDto } from '../../../models/patient-instructions-request-dto';
 import { Utilisateur } from '../../../models/utilisateur';
+import { AlerteService } from '../../../services/alerte.service';
+import { AlerteDto } from '../../../models/alerte-dto';
 import { AuthService } from '../../../services/auth.service';
 import { ConstantesVitalesService } from '../../../services/constantes-vitales.service';
 import { DossierPatientService } from '../../../services/dossier-patient.service';
@@ -19,7 +21,7 @@ import { OrdonnanceService } from '../../../services/ordonnance.service';
 import { PatientInstructionsService } from '../../../services/patient-instructions.service';
 import { PatientService } from '../../../services/patient.service';
 
-type TabKey = 'resume' | 'constantes' | 'ordonnances' | 'rediger';
+type TabKey = 'resume' | 'constantes' | 'ordonnances' | 'rediger' | 'statistiques' | 'alertes';
 type ToastType = 'success' | 'warning' | 'info' | 'error';
 
 interface Toast {
@@ -80,7 +82,7 @@ interface InstructionsForm {
   templateUrl: './medecin.component.html',
   styleUrl: './medecin.component.scss',
 })
-export class MedecinComponent implements OnInit {
+export class MedecinComponent implements OnInit, OnDestroy {
   isLight = false;
   isLoadingPatients = true;
   isLoadingDetails = false;
@@ -118,6 +120,18 @@ export class MedecinComponent implements OnInit {
   toasts: Toast[] = [];
   private toastId = 0;
 
+  // Stats
+  alertesCritiques = 0;
+  alertesAttention = 0;
+  isLoadingStats = false;
+
+  // Notification panel
+  notifOpen = false;
+  allAlertes: AlerteDto[] = [];
+  patientAlertes: AlerteDto[] = [];
+  isLoadingNotif = false;
+  private alertInterval: ReturnType<typeof setInterval> | null = null;
+
   constructor(
     private patientService: PatientService,
     private ordonnanceService: OrdonnanceService,
@@ -125,10 +139,17 @@ export class MedecinComponent implements OnInit {
     private dossierService: DossierPatientService,
     private instructionsService: PatientInstructionsService,
     private authService: AuthService,
+    private alerteService: AlerteService,
   ) {}
 
   ngOnInit(): void {
     this.loadPatients();
+    this.loadAllAlertes();
+    this.alertInterval = setInterval(() => this.loadAllAlertes(), 60000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.alertInterval) clearInterval(this.alertInterval);
   }
 
   get currentUser(): Utilisateur | null {
@@ -192,9 +213,11 @@ export class MedecinComponent implements OnInit {
     this.selectedOrdonnance = null;
     this.ordonnances = [];
     this.constantes = [];
+    this.patientAlertes = [];
     this.ordonnanceForm = this.emptyOrdonnanceForm();
     this.instructionsForm = this.toInstructionsForm(null, patient.groupeSanguin);
     this.isLoadingDetails = true;
+    this.loadPatientAlertes(patient.id);
 
     forkJoin({
       ordonnances: this.ordonnanceService.getByPatient(patient.id).pipe(
@@ -228,6 +251,8 @@ export class MedecinComponent implements OnInit {
 
   setTab(tab: TabKey): void {
     this.activeTab = tab;
+    if (tab === 'statistiques') this.loadStats();
+    if (tab === 'alertes') this.markPatientAlertesAsRead();
   }
 
   get filteredDossierPatients(): PatientVM[] {
@@ -444,6 +469,278 @@ export class MedecinComponent implements OnInit {
     const updated = this.toPatientVM(patient);
     this.selectedPatient = updated;
     this.patients = this.patients.map(item => item.id === updated.id ? updated : item);
+  }
+
+  // ── Statistics tab ──────────────────────────────────────────────────────────
+
+  loadStats(): void {
+    if (this.isLoadingStats) return;
+    this.isLoadingStats = true;
+    this.alerteService.getMesAlertes(this.currentUser?.login ?? '')
+      .pipe(catchError(() => of([]))).subscribe(alertes => {
+        this.alertesCritiques = alertes.filter(a => !a.lue && a.type === 'CRITIQUE').length;
+        this.alertesAttention = alertes.filter(a => !a.lue && (a.type === 'ATTENTION' || a.type === 'IMPORTANT')).length;
+        this.isLoadingStats = false;
+      });
+  }
+
+  // ── Notification panel ───────────────────────────────────────────────────────
+
+  loadAllAlertes(): void {
+    this.isLoadingNotif = true;
+    const username = this.currentUser?.login ?? '';
+    (username
+      ? this.alerteService.getMesAlertes(username)
+      : this.alerteService.getAll()
+    ).pipe(catchError(() => of([]))).subscribe(list => {
+      this.allAlertes = list.sort((a, b) =>
+        new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
+      this.isLoadingNotif = false;
+    });
+  }
+
+  loadPatientAlertes(patientId: number): void {
+    this.alerteService.getByPatient(patientId)
+      .pipe(catchError(() => of([])))
+      .subscribe(list => {
+        this.patientAlertes = list.sort((a, b) =>
+          new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
+      });
+  }
+
+  openPatientFromNotif(alerte: AlerteDto): void {
+    this.notifOpen = false;
+    const p = this.patients.find(x => x.id === alerte.patient?.id);
+    if (p) {
+      this.showPatientsPanel = false;
+      this.selectPatient(p);
+      setTimeout(() => this.setTab('alertes'), 200);
+    }
+  }
+
+  markPatientAlertesAsRead(): void {
+    const unread = this.patientAlertes.filter(a => !a.lue);
+    unread.forEach(a => {
+      this.alerteService.marquerLue(a.id)
+        .pipe(catchError(() => of(null)))
+        .subscribe(updated => {
+          if (updated) {
+            a.lue = true;
+            const g = this.allAlertes.find(x => x.id === a.id);
+            if (g) g.lue = true;
+          }
+        });
+    });
+  }
+
+  traiterAlerte(alerte: AlerteDto, event: Event): void {
+    event.stopPropagation();
+    this.alerteService.traiter(alerte.id)
+      .pipe(catchError(() => of(null)))
+      .subscribe(updated => {
+        if (updated) {
+          alerte.traitee        = true;
+          alerte.dateTraitement = updated.dateTraitement;
+          alerte.traitePar      = updated.traitePar;
+          alerte.lue            = true;
+          const g = this.allAlertes.find(x => x.id === alerte.id);
+          if (g) { g.traitee = true; g.lue = true; g.dateTraitement = updated.dateTraitement; }
+        }
+      });
+  }
+
+  get activeAlertes(): AlerteDto[] {
+    return this.allAlertes.filter(a => !a.traitee);
+  }
+
+  get activePatientAlertes(): AlerteDto[] {
+    return this.patientAlertes.filter(a => !a.traitee);
+  }
+
+  get unreadCount(): number {
+    return this.allAlertes.filter(a => !a.traitee).length;
+  }
+
+  get patientUnreadCount(): number {
+    return this.patientAlertes.filter(a => !a.traitee).length;
+  }
+
+  alerteTypeClass(type: AlerteDto['type']): string {
+    return ({
+      CRITIQUE:  'alerte--critique',
+      IMPORTANT: 'alerte--important',
+      ATTENTION: 'alerte--important',
+      TENDANCE:  'alerte--tendance',
+      SEANCE:    'alerte--seance',
+      INFO:      'alerte--info',
+    } as Record<string, string>)[type] ?? 'alerte--info';
+  }
+
+  alerteTypeIcon(type: AlerteDto['type']): string {
+    return ({
+      CRITIQUE:  'emergency',
+      IMPORTANT: 'warning_amber',
+      ATTENTION: 'warning_amber',
+      TENDANCE:  'trending_up',
+      SEANCE:    'schedule',
+      INFO:      'info',
+    } as Record<string, string>)[type] ?? 'info';
+  }
+
+  alerteTimeLabel(iso: string): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  get ordonnancesActives(): number {
+    const today = new Date().toISOString().slice(0, 10);
+    return this.ordonnances.filter(o =>
+      o.statut === 'VALIDEE' || (o.statut === 'EN_ATTENTE' && (!o.dateExpiration || o.dateExpiration >= today))
+    ).length;
+  }
+
+  get ordonnancesExpirees(): number {
+    const today = new Date().toISOString().slice(0, 10);
+    return this.ordonnances.filter(o => o.dateExpiration && o.dateExpiration < today).length;
+  }
+
+  get tensionChartPoints(): { x: number; ySys: number; yDia: number; sys: number; dia: number }[] {
+    const pts = [...this.constantes].reverse().slice(0, 10);
+    if (pts.length < 1) return [];
+    const maxSys = Math.max(...pts.map(c => c.tensionSys ?? 0), 180);
+    const minDia = Math.min(...pts.map(c => c.tensionDia ?? 0), 50);
+    const range = Math.max(maxSys - minDia, 60);
+    return pts.map((c, i) => ({
+      x: pts.length === 1 ? 140 : i * (280 / (pts.length - 1)) + 10,
+      ySys: 100 - (((c.tensionSys ?? 0) - minDia) / range) * 80,
+      yDia: 100 - (((c.tensionDia ?? 0) - minDia) / range) * 80,
+      sys: c.tensionSys ?? 0,
+      dia: c.tensionDia ?? 0,
+    }));
+  }
+
+  get tensionSysPath(): string {
+    const pts = this.tensionChartPoints;
+    if (pts.length < 2) return '';
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.ySys.toFixed(1)}`).join(' ');
+  }
+
+  get tensionDiaPath(): string {
+    const pts = this.tensionChartPoints;
+    if (pts.length < 2) return '';
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.yDia.toFixed(1)}`).join(' ');
+  }
+
+  get ordonnancesBarChart(): { label: string; count: number; color: string; pct: number }[] {
+    const today = new Date().toISOString().slice(0, 10);
+    const items = [
+      { label: 'En attente', count: this.ordonnances.filter(o => o.statut === 'EN_ATTENTE').length, color: '#f59e0b' },
+      { label: 'Validées',   count: this.ordonnances.filter(o => o.statut === 'VALIDEE').length,    color: '#22c55e' },
+      { label: 'Annulées',   count: this.ordonnances.filter(o => o.statut === 'ANNULEE').length,    color: '#ef4444' },
+      { label: 'Expirées',   count: this.ordonnancesExpirees,                                       color: '#94a3b8' },
+    ];
+    const max = Math.max(...items.map(i => i.count), 1);
+    return items.map(i => ({ ...i, pct: i.count / max }));
+  }
+
+  // ── Print ordonnance ─────────────────────────────────────────────────────────
+
+  printOrdonnance(ord: OrdonnanceDto): void {
+    const patient = this.selectedPatient;
+    const doctor  = this.currentUser;
+    if (!patient) return;
+
+    const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Ordonnance — ${patient.nomComplet}</title>
+<style>
+@page { margin: 15mm 20mm; size: A4 portrait; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, 'Times New Roman', serif; color: #1a202c; font-size: 13px; line-height: 1.6; background: #fff; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 2px solid #00857a; margin-bottom: 22px; }
+.center-name { font-size: 17px; font-weight: bold; color: #00857a; }
+.center-sub { font-size: 11px; color: #718096; margin-top: 3px; }
+.doc-info { text-align: right; font-size: 11px; color: #4a5568; }
+.doc-name { font-weight: bold; font-size: 14px; color: #1a202c; }
+.title { text-align: center; margin: 18px 0 16px; font-size: 20px; font-weight: bold; letter-spacing: 4px; text-transform: uppercase; color: #00857a; }
+.patient-box { background: #f0fff4; border-left: 4px solid #00857a; padding: 12px 16px; margin-bottom: 22px; border-radius: 0 6px 6px 0; }
+.patient-name { font-size: 15px; font-weight: bold; color: #1a202c; }
+.patient-meta { display: flex; gap: 18px; margin-top: 5px; font-size: 11px; color: #718096; }
+.rx-block { border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+.rx-symbol { font-size: 22px; font-weight: bold; color: #00857a; float: left; margin-right: 10px; line-height: 1; }
+.rx-label { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: .5px; color: #718096; margin-bottom: 6px; }
+.rx-text { font-size: 14px; white-space: pre-wrap; color: #1a202c; clear: both; }
+.posologie { font-size: 12px; color: #4a5568; font-style: italic; margin-top: 8px; }
+.instructions { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 12px 16px; margin-top: 12px; font-size: 12px; border-radius: 0 4px 4px 0; }
+.instr-title { font-weight: bold; color: #92400e; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; }
+.footer { margin-top: 48px; display: flex; justify-content: space-between; align-items: flex-end; }
+.stamp { width: 90px; height: 90px; border: 2px dashed #cbd5e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 9px; color: #a0aec0; line-height: 1.3; }
+.signature-box { text-align: center; }
+.signature-line { border-top: 1px solid #1a202c; width: 200px; margin: 0 auto; padding-top: 6px; font-size: 11px; color: #4a5568; }
+.print-info { text-align: right; font-size: 10px; color: #a0aec0; margin-top: 10px; }
+.status-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: bold; background: #e6f7f5; color: #00857a; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="center-name">Centre d'Hémodialyse — DialySys</div>
+    <div class="center-sub">Service de Néphrologie &nbsp;·&nbsp; Unité d'Hémodialyse</div>
+  </div>
+  <div class="doc-info">
+    <div class="doc-name">Dr. ${this.escHtml(doctor?.prenom ?? '')} ${this.escHtml(doctor?.nom ?? '')}</div>
+    <div>Médecin Néphrologue</div>
+  </div>
+</div>
+
+<div class="title">Ordonnance Médicale</div>
+
+<div class="patient-box">
+  <div class="patient-name">${this.escHtml(patient.nomComplet)}<span class="status-badge">${this.ordonnanceStatusLabel(ord.statut)}</span></div>
+  <div class="patient-meta">
+    <span>Âge&nbsp;: ${patient.age} ans</span>
+    <span>CIN&nbsp;: ${this.escHtml(patient.cin ?? 'N/A')}</span>
+    <span>Groupe sanguin&nbsp;: ${this.escHtml(patient.groupeSanguin ?? 'N/A')}</span>
+    <span>Date émission&nbsp;: ${this.fmtDate(ord.dateEmission)}</span>
+    ${ord.dateExpiration ? `<span>Expire le&nbsp;: ${this.fmtDate(ord.dateExpiration)}</span>` : ''}
+  </div>
+</div>
+
+<div class="rx-block">
+  <div class="rx-symbol">Rx</div>
+  <div class="rx-label">Médicaments &amp; Traitements</div>
+  <div class="rx-text">${this.escHtml(ord.medicaments)}</div>
+  ${ord.posologie ? `<div class="posologie">Posologie&nbsp;: ${this.escHtml(ord.posologie)}</div>` : ''}
+</div>
+
+${ord.instructions ? `<div class="instructions"><div class="instr-title">Instructions spécifiques</div>${this.escHtml(ord.instructions).replace(/\n/g, '<br>')}</div>` : ''}
+
+<div class="footer">
+  <div class="stamp">Cachet<br>du<br>médecin</div>
+  <div class="signature-box">
+    <div class="signature-line">Dr. ${this.escHtml(doctor?.prenom ?? '')} ${this.escHtml(doctor?.nom ?? '')}</div>
+    <div style="font-size:10px;color:#a0aec0;margin-top:4px">Médecin Néphrologue — DialySys</div>
+  </div>
+</div>
+
+<div class="print-info">Imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} &nbsp;·&nbsp; DialySys</div>
+</body>
+</html>`;
+
+    const w = window.open('', '_blank', 'width=794,height=1123,toolbar=0,menubar=0,scrollbars=1');
+    if (!w) { this.showToast("Autorisez les popups pour imprimer.", 'warning'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => { w.focus(); w.print(); }, 700);
+  }
+
+  private escHtml(value: string): string {
+    return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   toggleTheme(): void {

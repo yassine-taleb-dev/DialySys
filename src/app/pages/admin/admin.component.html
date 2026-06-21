@@ -477,11 +477,14 @@
 <div class="admin-shell" [class.light]="isLight" [class.sidebar-open]="sidebarOpen">
   <div class="sidebar-backdrop" (click)="sidebarOpen = false"></div>
   <aside class="sidebar">
-    <div class="sidebar__logo"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><path d="M22 4C12.06 4 4 12.06 4 22s8.06 18 18 18 18-8.06 18-18S31.94 4 22 4Z" fill="rgba(0,217,196,0.1)" stroke="var(--c-teal)" stroke-width="1.5"/><path d="M22 12v8M18 16h8" stroke="var(--c-teal)" stroke-width="2.5" stroke-linecap="round"/><path d="M14 26c0 0 2-6 4-6s3 4 4 4 2-6 4-6 4 6 4 6" stroke="var(--c-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>DialySys</span></div>
+    <div class="sidebar__logo"><img src="dialisys.png" alt="DialySys" class="brand__logo-img" /></div>
     <nav class="sidebar__nav">
       <div class="nav-section-label">Administration</div>
       <a class="nav-item" [class.active]="activeTab === 'profils'" (click)="setActiveTab('profils')"><span class="material-icons">manage_accounts</span><span>Gestion des Profils</span><span class="nav-badge">{{ totalUsers }}</span></a>
       <a class="nav-item" [class.active]="activeTab === 'seances'" (click)="setActiveTab('seances')"><span class="material-icons">medical_services</span><span>Séances Patients</span><span class="nav-badge">{{ seancesAdmin.length }}</span></a>
+      <div class="nav-section-label" style="margin-top:12px">Analytique</div>
+      <a class="nav-item" [class.active]="activeTab === 'statistiques'" (click)="setActiveTab('statistiques')"><span class="material-icons">bar_chart</span><span>Statistiques</span></a>
+      <a class="nav-item" [class.active]="activeTab === 'audit'" (click)="setActiveTab('audit')"><span class="material-icons">policy</span><span>Journal des Activités</span></a>
     </nav>
     <div class="sidebar__user"><div class="user-avatar" style="background:rgba(255,87,87,.12);border-color:rgba(255,87,87,.3);color:var(--c-red)">AD</div><div class="user-info"><span class="user-name">Administrateur</span><span class="user-role">Accès total</span></div><button class="logout-btn" (click)="logout()"><span class="material-icons">logout</span></button></div>
   </aside>
@@ -493,6 +496,12 @@
         <button class="hamburger-btn" (click)="sidebarOpen = !sidebarOpen"><span class="material-icons">menu</span></button>
         <button class="btn-sm-primary" *ngIf="activeTab === 'profils'" (click)="openNewProfil()">
           <span class="material-icons">person_add</span>{{ activeProfilRole === 'patient' ? 'Nouveau patient' : 'Nouveau profil' }}
+        </button>
+        <button class="btn-sm-primary" *ngIf="activeTab === 'statistiques'" (click)="exportStatsPdf()" style="background:var(--c-purple)">
+          <span class="material-icons">picture_as_pdf</span>Exporter PDF
+        </button>
+        <button class="btn-sm-primary" *ngIf="activeTab === 'audit'" (click)="exportAuditPdf()" style="background:var(--c-purple)">
+          <span class="material-icons">picture_as_pdf</span>Exporter PDF
         </button>
         <button class="icon-btn" (click)="toggleTheme()" [title]="isLight ? 'Passer en mode sombre' : 'Passer en mode clair'"><span class="material-icons">{{ isLight ? 'dark_mode' : 'light_mode' }}</span></button>
         <button class="icon-btn" (click)="showSettingsModal = true"><span class="material-icons">settings</span></button>
@@ -719,6 +728,185 @@
           </div>
         </div>
         <div class="panel__footer">{{ filteredPersonSeances.length }} patient(s) · {{ seancesAdmin.length }} créneau(x) au total</div>
+      </div>
+    </ng-container>
+
+    <!-- ================================================ TAB STATISTIQUES -->
+    <ng-container *ngIf="activeTab === 'statistiques'">
+
+      <!-- KPI row -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-card--teal">
+          <div class="kpi-icon"><span class="material-icons">people</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ patientCount }}</span><span class="kpi-lbl">Patients actifs</span></div>
+        </div>
+        <div class="kpi-card kpi-card--blue">
+          <div class="kpi-icon"><span class="material-icons">event_available</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ seancesThisWeek }}</span><span class="kpi-lbl">Séances cette semaine</span></div>
+        </div>
+        <div class="kpi-card kpi-card--green">
+          <div class="kpi-icon"><span class="material-icons">person_add</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ newPatientsThisMonth }}</span><span class="kpi-lbl">Nouveaux patients ce mois</span></div>
+        </div>
+        <div class="kpi-card kpi-card--purple">
+          <div class="kpi-icon"><span class="material-icons">block</span></div>
+          <div class="kpi-body"><span class="kpi-val">{{ suspendedCount }}</span><span class="kpi-lbl">Comptes suspendus</span></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+
+        <!-- Bar chart: séances par jour -->
+        <div class="panel stat-panel">
+          <div class="panel__head"><h2><span class="material-icons">bar_chart</span>Séances — 7 derniers jours</h2></div>
+          <div class="chart-area">
+            <svg viewBox="0 0 350 140" preserveAspectRatio="xMidYMid meet" class="bar-chart-svg">
+              <g *ngFor="let bar of seancesBarChart; let i = index">
+                <rect
+                  [attr.x]="i * 46 + 14"
+                  [attr.y]="110 - bar.pct * 80"
+                  [attr.width]="32"
+                  [attr.height]="bar.pct * 80 + 0.01"
+                  rx="4"
+                  fill="var(--c-teal)"
+                  opacity="0.85"
+                />
+                <text [attr.x]="i * 46 + 30" [attr.y]="127" text-anchor="middle" font-size="9" fill="var(--c-text-3)">{{bar.label}}</text>
+                <text *ngIf="bar.count > 0" [attr.x]="i * 46 + 30" [attr.y]="104 - bar.pct * 80" text-anchor="middle" font-size="9" fill="var(--c-text-2)">{{bar.count}}</text>
+              </g>
+              <line x1="10" y1="110" x2="340" y2="110" stroke="var(--c-border)" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Donut chart: utilisateurs par rôle -->
+        <div class="panel stat-panel">
+          <div class="panel__head"><h2><span class="material-icons">donut_large</span>Utilisateurs par rôle</h2></div>
+          <div class="chart-area chart-area--donut">
+            <svg viewBox="0 0 120 120" class="donut-svg">
+              <circle cx="60" cy="60" r="45" fill="none" stroke="var(--c-border)" stroke-width="20"/>
+              <circle
+                *ngFor="let seg of userRoleDonut"
+                cx="60" cy="60" r="45"
+                fill="none"
+                [attr.stroke]="seg.color"
+                stroke-width="20"
+                [attr.stroke-dasharray]="seg.dasharray"
+                [attr.transform]="'rotate(' + seg.rotate + ' 60 60)'"
+              />
+              <text x="60" y="55" text-anchor="middle" font-size="18" font-weight="bold" fill="var(--c-text-1)">{{ totalUsers }}</text>
+              <text x="60" y="68" text-anchor="middle" font-size="8" fill="var(--c-text-3)">utilisateurs</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item" *ngFor="let seg of userRoleDonut">
+                <span class="legend-dot" [style.background]="seg.color"></span>
+                <span class="legend-label">{{ seg.label }}</span>
+                <span class="legend-val">{{ seg.count }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gauge: taux occupation -->
+        <div class="panel stat-panel">
+          <div class="panel__head"><h2><span class="material-icons">speed</span>Taux d'occupation créneaux</h2></div>
+          <div class="chart-area chart-area--gauge">
+            <svg viewBox="0 0 200 110" class="gauge-svg">
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--c-border)" stroke-width="18" stroke-linecap="round"/>
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none"
+                stroke="var(--c-teal)"
+                stroke-width="18"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="(tauxOccupation / 100 * 251.3).toFixed(1) + ' 251.3'"
+                [attr.stroke-dashoffset]="0"
+                style="transform-origin:100px 100px"
+              />
+              <text x="100" y="88" text-anchor="middle" font-size="28" font-weight="bold" fill="var(--c-teal)">{{ tauxOccupation }}%</text>
+              <text x="100" y="105" text-anchor="middle" font-size="9" fill="var(--c-text-3)">Taux occupation semaine</text>
+              <text x="22" y="115" font-size="8" fill="var(--c-text-3)">0%</text>
+              <text x="172" y="115" font-size="8" fill="var(--c-text-3)">100%</text>
+            </svg>
+            <div class="gauge-info">
+              <div class="gauge-row"><span>Séances cette semaine</span><strong>{{ seancesThisWeek }}</strong></div>
+              <div class="gauge-row"><span>Infirmiers actifs</span><strong>{{ infirmierCount }}</strong></div>
+              <div class="gauge-row"><span>Patients total</span><strong>{{ patientCount }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- ==================================================== TAB AUDIT LOG -->
+    <ng-container *ngIf="activeTab === 'audit'">
+      <div class="panel panel--full">
+        <div class="panel__head">
+          <h2><span class="material-icons">policy</span>Journal des Activités</h2>
+          <div class="panel-actions">
+            <input class="search-box" type="text" placeholder="Rechercher utilisateur / détail..." [(ngModel)]="auditFilterUser" style="width:220px"/>
+            <select class="filter-select" [(ngModel)]="auditFilterAction">
+              <option value="">Toutes les actions</option>
+              <option value="CONNEXION">Connexion</option>
+              <option value="CREATION">Création</option>
+              <option value="MODIFICATION">Modification</option>
+              <option value="SUPPRESSION">Suppression</option>
+              <option value="EXPORT">Export</option>
+              <option value="DECONNEXION">Déconnexion</option>
+            </select>
+            <input class="filter-date" type="date" [(ngModel)]="auditFilterDate" title="Filtrer par date"/>
+            <button class="btn-outline-sm" (click)="clearAuditLog()" style="color:var(--c-red);border-color:var(--c-red)">
+              <span class="material-icons">delete_sweep</span>Effacer
+            </button>
+          </div>
+        </div>
+
+        <div class="state-box" *ngIf="auditEntries.length === 0">
+          <span class="material-icons">history</span>
+          Aucune activité enregistrée — les actions effectuées dans cette session apparaîtront ici.
+        </div>
+
+        <div class="table-container" *ngIf="auditEntries.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Horodatage</th>
+                <th>Utilisateur</th>
+                <th>Rôle</th>
+                <th>Action</th>
+                <th>Entité</th>
+                <th>Détails</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of paginatedAuditEntries">
+                <td class="audit-ts">{{ fmtAuditDate(entry.timestamp) }}</td>
+                <td><strong>{{ entry.utilisateur }}</strong></td>
+                <td><span class="role-badge">{{ entry.role }}</span></td>
+                <td><span class="audit-action" [class]="auditActionClass(entry.action)">{{ auditActionLabel(entry.action) }}</span></td>
+                <td>{{ entry.entite }}</td>
+                <td class="audit-details">{{ entry.details }}</td>
+                <td>
+                  <span class="status-dot" [class.status-dot--ok]="entry.statut === 'success'" [class.status-dot--crit]="entry.statut === 'error'">
+                    <span class="material-icons">{{ entry.statut === 'success' ? 'check_circle' : 'error' }}</span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-bar" *ngIf="filteredAuditEntries.length > auditPageSize">
+          <span class="pg-rows-info">{{ (auditPage - 1) * auditPageSize + 1 }}–{{ pageEnd(auditPage, filteredAuditEntries.length) }} sur {{ filteredAuditEntries.length }}</span>
+          <div class="pg-nav">
+            <button class="pg-arrow" [disabled]="auditPage === 1" (click)="auditPage = 1"><span class="material-icons">first_page</span></button>
+            <button class="pg-arrow" [disabled]="auditPage === 1" (click)="auditPage = auditPage - 1"><span class="material-icons">chevron_left</span></button>
+            <span class="pg-label">{{ auditPage }} / {{ totalAuditPages }}</span>
+            <button class="pg-arrow" [disabled]="auditPage === totalAuditPages" (click)="auditPage = auditPage + 1"><span class="material-icons">chevron_right</span></button>
+            <button class="pg-arrow" [disabled]="auditPage === totalAuditPages" (click)="auditPage = totalAuditPages"><span class="material-icons">last_page</span></button>
+          </div>
+        </div>
+        <div class="panel__footer">{{ filteredAuditEntries.length }} entrée(s) — actions de la session courante stockées localement</div>
       </div>
     </ng-container>
 

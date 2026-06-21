@@ -42,4 +42,9 @@ export class AlerteService {
   marquerToutesLues(): Observable<MessageResponseDto> {
     return this.http.put<MessageResponseDto>(`${this.api}/lue-tout`, {});
   }
+
+  // ── PUT /api/alertes/{id}/traiter ─────────────────────────────────
+  traiter(id: number): Observable<AlerteDto> {
+    return this.http.put<AlerteDto>(`${this.api}/${id}/traiter`, {});
+  }
 }
