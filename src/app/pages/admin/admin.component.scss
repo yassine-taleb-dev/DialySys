@@ -394,7 +394,89 @@
   }
 }
 
-// Filter select 
+// ── Audit filter bar ──────────────────────────────────────────────────────────
+.audit-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+// Shared field shell
+.af-search,
+.af-select-wrap,
+.af-date-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  transition: border-color .18s, box-shadow .18s;
+
+  &:focus-within {
+    border-color: var(--c-teal);
+    box-shadow: 0 0 0 3px rgba(0,217,196,.12);
+  }
+
+  .af-icon {
+    font-size: 16px;
+    color: var(--c-text-3);
+    flex-shrink: 0;
+    pointer-events: none;
+    transition: color .18s;
+  }
+
+  &:focus-within .af-icon { color: var(--c-teal); }
+
+  input, select {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--c-text-1);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+
+    &::placeholder { color: var(--c-text-3); }
+  }
+}
+
+.af-search input     { width: 210px; cursor: text; }
+.af-select-wrap select { min-width: 150px; appearance: none; -webkit-appearance: none; padding-right: 4px; }
+.af-date-wrap input  { width: 128px; color-scheme: dark; }
+
+.admin-shell.light .af-date-wrap input { color-scheme: light; }
+
+// Clear button
+.af-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,87,87,.35);
+  background: rgba(255,87,87,.07);
+  color: var(--c-red);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, box-shadow .18s;
+
+  .material-icons { font-size: 16px; }
+
+  &:hover {
+    background: rgba(255,87,87,.15);
+    border-color: var(--c-red);
+    box-shadow: 0 0 0 3px rgba(255,87,87,.10);
+  }
+}
+
+// Legacy selectors kept for backwards compat (other tabs may use them)
 .filter-select {
   height: 34px;
   padding: 0 10px;

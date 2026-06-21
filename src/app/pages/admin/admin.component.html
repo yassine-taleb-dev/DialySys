@@ -842,20 +842,30 @@
       <div class="panel panel--full">
         <div class="panel__head">
           <h2><span class="material-icons">policy</span>Journal des Activités</h2>
-          <div class="panel-actions">
-            <input class="search-box" type="text" placeholder="Rechercher utilisateur / détail..." [(ngModel)]="auditFilterUser" style="width:220px"/>
-            <select class="filter-select" [(ngModel)]="auditFilterAction">
-              <option value="">Toutes les actions</option>
-              <option value="CONNEXION">Connexion</option>
-              <option value="CREATION">Création</option>
-              <option value="MODIFICATION">Modification</option>
-              <option value="SUPPRESSION">Suppression</option>
-              <option value="EXPORT">Export</option>
-              <option value="DECONNEXION">Déconnexion</option>
-            </select>
-            <input class="filter-date" type="date" [(ngModel)]="auditFilterDate" title="Filtrer par date"/>
-            <button class="btn-outline-sm" (click)="clearAuditLog()" style="color:var(--c-red);border-color:var(--c-red)">
-              <span class="material-icons">delete_sweep</span>Effacer
+          <div class="audit-filters">
+            <div class="af-search">
+              <span class="material-icons af-icon">search</span>
+              <input type="text" placeholder="Rechercher utilisateur / détail…" [(ngModel)]="auditFilterUser"/>
+            </div>
+            <div class="af-select-wrap">
+              <span class="material-icons af-icon">filter_list</span>
+              <select [(ngModel)]="auditFilterAction">
+                <option value="">Toutes les actions</option>
+                <option value="CONNEXION">Connexion</option>
+                <option value="CREATION">Création</option>
+                <option value="MODIFICATION">Modification</option>
+                <option value="SUPPRESSION">Suppression</option>
+                <option value="EXPORT">Export</option>
+                <option value="DECONNEXION">Déconnexion</option>
+              </select>
+            </div>
+            <div class="af-date-wrap">
+              <span class="material-icons af-icon">calendar_today</span>
+              <input type="date" [(ngModel)]="auditFilterDate" title="Filtrer par date"/>
+            </div>
+            <button class="af-clear-btn" (click)="clearAuditLog()" title="Effacer le journal">
+              <span class="material-icons">delete_sweep</span>
+              <span>Effacer</span>
             </button>
           </div>
         </div>
