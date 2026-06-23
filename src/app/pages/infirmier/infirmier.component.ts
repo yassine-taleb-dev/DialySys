@@ -37,6 +37,7 @@ interface SeanceVM {
   heureFin: string | null;
   heureFinPrevue: string | null;
   dureeMinutes: number | null;
+  constantesSaisies: boolean;
   date: string;
   editingFin: boolean;
   editFinValue: string;
@@ -161,6 +162,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
       heureFin:       s.statut === 'TERMINEE' ? this.timeFromIso(s.heureFinEffective) : null,
       heureFinPrevue: this.timeFromIso(s.heureFinEffective),
       dureeMinutes:   s.dureeMinutes  ?? null,
+      constantesSaisies: !!s.constantesSaisies,
       date:           s.date,
       editingFin:     false,
       editFinValue:   this.timeFromIso(s.heureFinEffective) ?? '',
@@ -172,7 +174,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
   }
 
   statutLabel(s: string): string {
-    return ({ PLANIFIEE: 'Planifiée', EN_COURS: 'En cours', TERMINEE: 'Terminée' } as Record<string, string>)[s] ?? s;
+    return ({ PLANIFIEE: 'Planifiée', EN_ATTENTE_CONSTANTES: 'Constantes requises', EN_COURS: 'En cours', TERMINEE: 'Terminée' } as Record<string, string>)[s] ?? s;
   }
 
   todayLabel(): string {
@@ -182,6 +184,21 @@ export class InfirmierComponent implements OnInit, OnDestroy {
   // ── Duration picker ───────────────────────────────────────────────────────
 
   openDemarrerModal(s: SeanceVM): void {
+    if (!s.constantesSaisies) {
+      this.seanceService.getById(s.id).subscribe({
+        next: (dto) => {
+          const updated = this.toSeanceVM(dto);
+          Object.assign(s, updated);
+          if (updated.constantesSaisies) {
+            this.openDemarrerModal(s);
+          } else {
+            this.inviteSaisieConstantesAvantDemarrage(s);
+          }
+        },
+        error: () => this.inviteSaisieConstantesAvantDemarrage(s),
+      });
+      return;
+    }
     this.seanceADemarrer = s;
     this.selectedDureeMin = 240;
     this.demarrerError = false;
@@ -219,9 +236,13 @@ export class InfirmierComponent implements OnInit, OnDestroy {
         this.closeDemarrerModal();
         this.showToast(`Séance démarrée — fin prévue à ${heureFinPrevue}`, 'success');
       },
-      error: () => {
+      error: (err) => {
         this.isDemarrant = false;
         this.demarrerError = true;
+        this.showToast(
+          err?.error?.message ?? 'Les constantes vitales doivent etre saisies avant de demarrer la seance.',
+          'warning'
+        );
       }
     });
   }
@@ -323,10 +344,12 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   get activeSeanceId(): number | null {
     if (!this.selectedPatient) return null;
-    for (const s of this.seances) {
-      if (s.patientId === this.selectedPatient.id && s.statut === 'EN_COURS') return s.id;
-    }
-    return null;
+    const active = this.seances.find(s => s.patientId === this.selectedPatient?.id && s.statut === 'EN_COURS');
+    if (active) return active.id;
+    return this.seances.find(s =>
+      s.patientId === this.selectedPatient?.id
+      && (s.statut === 'PLANIFIEE' || s.statut === 'EN_ATTENTE_CONSTANTES')
+    )?.id ?? null;
   }
 
   selectPatientById(patientId: number): void {
@@ -414,8 +437,9 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   saveConstantes(): void {
     if (!this.selectedPatient || this.isSaving) return;
-    if (!this.activeSeanceId) {
-      this.showToast('Démarrez la séance avant de saisir les constantes.', 'warning');
+    const seanceId = this.activeSeanceId;
+    if (!seanceId) {
+      this.showToast('Aucune seance planifiee ou en cours pour associer ces constantes.', 'warning');
       return;
     }
     const sys   = +this.cvForm.tensionSys;
@@ -433,15 +457,20 @@ export class InfirmierComponent implements OnInit, OnDestroy {
       notes:     this.cvForm.notes.trim(),
       date:      new Date().toISOString().slice(0, 10),
       patientId: this.selectedPatient.id,
-      seanceId:  this.activeSeanceId,
+      seanceId,
     };
     this.constantesService.create(payload).subscribe({
       next: (c) => {
         this.constantes = [c, ...this.constantes];
+        const seance = this.seances.find(s => s.id === seanceId);
+        if (seance) {
+          seance.constantesSaisies = true;
+        }
         this.isSaving = false;
         this.showForm = false;
         this.cvForm = { tensionSys: '', tensionDia: '', poids: '', bpm: '', notes: '' };
         this.showToast('Constantes enregistrées avec succès.', 'success');
+        this.seanceService.invalidateCache();
         this.loadPlanning();
       },
       error: (err) => {
@@ -470,6 +499,17 @@ export class InfirmierComponent implements OnInit, OnDestroy {
       initials:  `${p.prenom?.[0] ?? ''}${p.nom?.[0] ?? ''}`.toUpperCase(),
       nomComplet: `${p.prenom ?? ''} ${p.nom ?? ''}`.trim(),
     };
+  }
+
+  private inviteSaisieConstantesAvantDemarrage(seance: SeanceVM): void {
+    this.showToast('Saisissez les constantes vitales avant de demarrer la seance.', 'warning');
+    const patient = this.patients.find(p => p.id === seance.patientId);
+    if (patient) {
+      this.activePage = 'patients';
+      this.selectPatient(patient);
+      this.activeTab = 'constantes';
+      this.showForm = true;
+    }
   }
 
   private calcAge(dob: string): number {

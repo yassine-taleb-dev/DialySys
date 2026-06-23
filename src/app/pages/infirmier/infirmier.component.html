@@ -172,7 +172,7 @@
                 <!-- Statut -->
                 <td>
                   <span class="pill"
-                        [class.pill--warn]="s.statut === 'PLANIFIEE'"
+                        [class.pill--warn]="s.statut === 'PLANIFIEE' || s.statut === 'EN_ATTENTE_CONSTANTES'"
                         [class.pill--ok]="s.statut === 'EN_COURS'"
                         [class.pill--stable]="s.statut === 'TERMINEE'">
                     {{ statutLabel(s.statut) }}
@@ -182,7 +182,7 @@
                 <!-- Action -->
                 <td class="planning-action-cell">
                   <!-- PLANIFIEE -->
-                  <button *ngIf="s.statut === 'PLANIFIEE'" class="primary-button" type="button"
+                  <button *ngIf="s.statut === 'PLANIFIEE' || s.statut === 'EN_ATTENTE_CONSTANTES'" class="primary-button" type="button"
                           (click)="openDemarrerModal(s)">
                     <span class="material-icons">play_arrow</span>
                     Démarrer
@@ -280,14 +280,15 @@
           <!-- Bannière séance du jour -->
           <ng-container *ngIf="getSeanceToday(selectedPatient.id) as seance">
             <div class="seance-banner"
-                 [class.seance-banner--planifiee]="seance.statut === 'PLANIFIEE'"
+                 [class.seance-banner--planifiee]="seance.statut === 'PLANIFIEE' || seance.statut === 'EN_ATTENTE_CONSTANTES'"
                  [class.seance-banner--encours]="seance.statut === 'EN_COURS'"
                  [class.seance-banner--terminee]="seance.statut === 'TERMINEE'">
               <span class="material-icons">
-                {{ seance.statut === 'TERMINEE' ? 'check_circle' : seance.statut === 'EN_COURS' ? 'radio_button_checked' : 'event' }}
+                {{ seance.statut === 'TERMINEE' ? 'check_circle' : seance.statut === 'EN_COURS' ? 'radio_button_checked' : seance.statut === 'EN_ATTENTE_CONSTANTES' ? 'monitor_heart' : 'event' }}
               </span>
               <div class="seance-banner__info">
                 <strong *ngIf="seance.statut === 'PLANIFIEE'">Séance prévue — {{ creneauLabel(seance.creneau) }}</strong>
+                <strong *ngIf="seance.statut === 'EN_ATTENTE_CONSTANTES'">Constantes requises — {{ creneauLabel(seance.creneau) }}</strong>
                 <strong *ngIf="seance.statut === 'EN_COURS'">Séance en cours — {{ creneauLabel(seance.creneau) }}</strong>
                 <strong *ngIf="seance.statut === 'TERMINEE'">Séance terminée — {{ creneauLabel(seance.creneau) }}</strong>
                 <span *ngIf="seance.statut === 'EN_COURS' && seance.heureFinPrevue">
@@ -298,7 +299,7 @@
                   Terminée à {{ seance.heureFin }}
                 </span>
               </div>
-              <button *ngIf="seance.statut === 'PLANIFIEE'" class="primary-button" type="button"
+              <button *ngIf="seance.statut === 'PLANIFIEE' || seance.statut === 'EN_ATTENTE_CONSTANTES'" class="primary-button" type="button"
                       style="flex-shrink:0" (click)="openDemarrerModal(seance)">
                 <span class="material-icons">play_arrow</span>
                 Démarrer
