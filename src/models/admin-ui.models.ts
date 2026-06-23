@@ -53,6 +53,7 @@ export interface AppUser {
   dateNaissance?: string;
   groupeSanguin?: string;
   cin?: string | null;
+  genre?: string | null;
 }
 
 export interface Permission {

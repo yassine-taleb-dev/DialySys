@@ -97,7 +97,11 @@ export class AdminComponent implements OnInit, OnDestroy {
   private startPolling(): void {
     this.stopPolling();
     this.pollingInterval = setInterval(() => {
-      this.refreshAfterMutation();
+      if (this.activeTab === 'audit') {
+        this.loadAuditEntries(false);
+      } else {
+        this.refreshAfterMutation();
+      }
     }, this.POLLING_INTERVAL_MS);
   }
 
@@ -285,6 +289,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (this.isLight) document.body.classList.add('theme-light');
     this.loadSharedAdminData();
     this.refreshAdminCollections();
+    if (this.activeTab === 'audit') {
+      this.loadAuditEntries();
+    }
     this.startPolling();
   }
 
@@ -680,7 +687,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.editPatient = {
       id: user.id, nom: user.nom, prenom: user.prenom,
       dateNaissance: user.dateNaissance || '', groupeSanguin: user.groupeSanguin || '',
-      cin: user.cin || '', telephone: user.telephone || '', adresse: '', genre: ''
+      cin: user.cin || '', telephone: user.telephone || '', adresse: '', genre: user.genre || ''
     };
     this.showEditPatientModal = true;
   }
@@ -1391,10 +1398,30 @@ td{padding:5px 10px;border-bottom:1px solid #e2e8f0;font-size:11px}
   auditFilterAction: string = '';
   auditFilterDate = '';
   auditPage = 1;
+  auditLoading = false;
+  auditLoadError = '';
   readonly auditPageSize = 15;
 
-  loadAuditEntries(): void {
-    this.auditEntries = this.auditService.getAll() as AuditEntryUI[];
+  loadAuditEntries(showLoader = true): void {
+    if (showLoader) {
+      this.auditLoading = true;
+      this.auditLoadError = '';
+    }
+    this.auditService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (entries) => {
+          this.auditEntries = entries as AuditEntryUI[];
+          this.auditPage = Math.min(this.auditPage, this.totalAuditPages);
+          this.auditLoadError = '';
+          if (showLoader) this.auditLoading = false;
+        },
+        error: (err) => {
+          if (showLoader) this.auditLoading = false;
+          this.auditLoadError = err?.error?.message ?? 'Impossible de charger le journal depuis la base de données';
+          if (showLoader) this.showToast(this.auditLoadError, 'error');
+        }
+      });
   }
 
   get filteredAuditEntries(): AuditEntryUI[] {
@@ -1419,10 +1446,12 @@ td{padding:5px 10px;border-bottom:1px solid #e2e8f0;font-size:11px}
   }
 
   clearAuditLog(): void {
-    if (!this.confirmDeletion('Effacer tout l\'historique des actions ?')) return;
-    this.auditService.clear();
-    this.auditEntries = [];
-    this.showToast('Historique effacé', 'info');
+    this.auditFilterUser = '';
+    this.auditFilterAction = '';
+    this.auditFilterDate = '';
+    this.auditPage = 1;
+    this.loadAuditEntries(false);
+    this.showToast('Filtres du journal réinitialisés', 'info');
   }
 
   exportAuditPdf(): void {
@@ -1473,6 +1502,7 @@ tr:nth-child(even) td{background:#f8fafc}
     const labels: Record<string, string> = {
       CONNEXION: 'Connexion', CREATION: 'Création', MODIFICATION: 'Modification',
       SUPPRESSION: 'Suppression', EXPORT: 'Export', DECONNEXION: 'Déconnexion',
+      LECTURE: 'Lecture',
     };
     return labels[action] ?? action;
   }
@@ -1482,6 +1512,7 @@ tr:nth-child(even) td{background:#f8fafc}
       CONNEXION: 'audit-action--connexion', CREATION: 'audit-action--creation',
       MODIFICATION: 'audit-action--modification', SUPPRESSION: 'audit-action--suppression',
       EXPORT: 'audit-action--export', DECONNEXION: 'audit-action--deconnexion',
+      LECTURE: 'audit-action--lecture',
     };
     return classes[action] ?? '';
   }
@@ -1650,7 +1681,7 @@ tr:nth-child(even) td{background:#f8fafc}
       telephone: dto.telephone ?? '',
       service: dto.medecinReferent ? `Referent: ${dto.medecinReferent.prenom} ${dto.medecinReferent.nom}` : '',
       dateNaissance: dto.dateNaissance, groupeSanguin: dto.groupeSanguin,
-      cin: dto.cin ?? null
+      cin: dto.cin ?? null, genre: dto.genre ?? null
     };
   }
 

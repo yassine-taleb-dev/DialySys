@@ -855,6 +855,7 @@
                 <option value="CREATION">Création</option>
                 <option value="MODIFICATION">Modification</option>
                 <option value="SUPPRESSION">Suppression</option>
+                <option value="LECTURE">Lecture</option>
                 <option value="EXPORT">Export</option>
                 <option value="DECONNEXION">Déconnexion</option>
               </select>
@@ -863,19 +864,29 @@
               <span class="material-icons af-icon">calendar_today</span>
               <input type="date" [(ngModel)]="auditFilterDate" title="Filtrer par date"/>
             </div>
-            <button class="af-clear-btn" (click)="clearAuditLog()" title="Effacer le journal">
-              <span class="material-icons">delete_sweep</span>
-              <span>Effacer</span>
+            <button class="af-clear-btn" (click)="clearAuditLog()" title="Réinitialiser les filtres">
+              <span class="material-icons">filter_alt_off</span>
+              <span>Réinitialiser</span>
             </button>
           </div>
         </div>
 
-        <div class="state-box" *ngIf="auditEntries.length === 0">
-          <span class="material-icons">history</span>
-          Aucune activité enregistrée — les actions effectuées dans cette session apparaîtront ici.
+        <div class="state-box" *ngIf="auditLoading">
+          <span class="material-icons">sync</span>
+          Chargement du journal depuis la base de données…
         </div>
 
-        <div class="table-container" *ngIf="auditEntries.length > 0">
+        <div class="state-box" *ngIf="!auditLoading && auditLoadError">
+          <span class="material-icons">error</span>
+          {{ auditLoadError }}
+        </div>
+
+        <div class="state-box" *ngIf="!auditLoading && !auditLoadError && auditEntries.length === 0">
+          <span class="material-icons">history</span>
+          Aucune activité enregistrée dans la base de données.
+        </div>
+
+        <div class="table-container" *ngIf="!auditLoading && !auditLoadError && auditEntries.length > 0">
           <table class="data-table">
             <thead>
               <tr>
@@ -906,7 +917,7 @@
           </table>
         </div>
 
-        <div class="pagination-bar" *ngIf="filteredAuditEntries.length > auditPageSize">
+        <div class="pagination-bar" *ngIf="!auditLoading && !auditLoadError && filteredAuditEntries.length > auditPageSize">
           <span class="pg-rows-info">{{ (auditPage - 1) * auditPageSize + 1 }}–{{ pageEnd(auditPage, filteredAuditEntries.length) }} sur {{ filteredAuditEntries.length }}</span>
           <div class="pg-nav">
             <button class="pg-arrow" [disabled]="auditPage === 1" (click)="auditPage = 1"><span class="material-icons">first_page</span></button>
@@ -916,7 +927,7 @@
             <button class="pg-arrow" [disabled]="auditPage === totalAuditPages" (click)="auditPage = totalAuditPages"><span class="material-icons">last_page</span></button>
           </div>
         </div>
-        <div class="panel__footer">{{ filteredAuditEntries.length }} entrée(s) — actions de la session courante stockées localement</div>
+        <div class="panel__footer">{{ filteredAuditEntries.length }} entrée(s) — données récupérées depuis la base, actualisation automatique toutes les 30 s</div>
       </div>
     </ng-container>
 
