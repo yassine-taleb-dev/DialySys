@@ -1391,6 +1391,122 @@ table {
   }
 }
 
+/* ── Patients header (search + count) ── */
+.patients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &__count {
+    font-size: 13px;
+    color: var(--c-text-2);
+    font-weight: 500;
+  }
+}
+
+.patients-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  transition: border-color .18s, box-shadow .18s;
+
+  &:focus-within {
+    border-color: var(--c-teal);
+    box-shadow: 0 0 0 3px var(--c-teal-soft);
+  }
+
+  .material-icons { font-size: 16px; color: var(--c-text-2); pointer-events: none; }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--c-text);
+    font-size: 13px;
+    font-family: inherit;
+    width: 220px;
+    &::placeholder { color: var(--c-text-2); }
+  }
+
+  &__clear {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--c-text-2);
+    pointer-events: all;
+    .material-icons { font-size: 16px; }
+    &:hover { color: var(--c-text); }
+  }
+}
+
+/* ── Pagination (same as admin) ── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--c-border);
+}
+
+.pg-rows-info {
+  font-size: 12px;
+  color: var(--c-text-2);
+  white-space: nowrap;
+}
+
+.pg-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pg-label {
+  font-size: 12px;
+  color: var(--c-text);
+  white-space: nowrap;
+  padding: 0 6px;
+  min-width: 52px;
+  text-align: center;
+}
+
+.pg-arrow {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+
+  .material-icons { font-size: 18px; }
+
+  &:hover:not(:disabled) {
+    background: var(--c-teal-soft);
+    color: var(--c-teal);
+  }
+
+  &:disabled {
+    opacity: .25;
+    cursor: default;
+  }
+}
+
 /* ── Patients table ── */
 .patients-table-wrap {
   overflow-x: auto;

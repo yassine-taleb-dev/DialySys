@@ -100,10 +100,6 @@
               <p>{{ todayLabel() }}</p>
             </div>
           </div>
-          <button class="ghost-button" type="button" (click)="loadPlanning()">
-            <span class="material-icons">refresh</span>
-            Actualiser
-          </button>
         </div>
 
         <div class="state-box" *ngIf="isLoadingPlanning">
@@ -224,6 +220,14 @@
           <span class="material-icons">cloud_off</span>
           {{loadError}}
         </div>
+        <div class="patients-header" *ngIf="!isLoadingPatients && !loadError">
+          <span class="patients-header__count">{{ filteredPatients.length }} patient(s)</span>
+          <div class="patients-search">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher un patient…" [(ngModel)]="searchQuery" (ngModelChange)="onPatientSearch()"/>
+          </div>
+        </div>
+
         <div class="patients-table-wrap" *ngIf="!isLoadingPatients && !loadError">
           <table class="patients-table">
             <thead>
@@ -237,7 +241,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of filteredPatients" (click)="selectPatient(p)" class="patients-table__row">
+              <tr *ngFor="let p of paginatedPatients" (click)="selectPatient(p)" class="patients-table__row">
                 <td>
                   <div class="patients-table__name">
                     <span class="patient-row__avatar">{{ p.initials }}</span>
@@ -258,6 +262,17 @@
               </tr>
             </tbody>
           </table>
+
+          <div class="pagination-bar" *ngIf="filteredPatients.length > patientPageSize">
+            <span class="pg-rows-info">{{ (patientPage - 1) * patientPageSize + 1 }}–{{ patientPageEnd() }} sur {{ filteredPatients.length }}</span>
+            <div class="pg-nav">
+              <button class="pg-arrow" [disabled]="patientPage === 1" (click)="patientPage = 1"><span class="material-icons">first_page</span></button>
+              <button class="pg-arrow" [disabled]="patientPage === 1" (click)="patientPage = patientPage - 1"><span class="material-icons">chevron_left</span></button>
+              <span class="pg-label">{{ patientPage }} / {{ totalPatientPages }}</span>
+              <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="patientPage = patientPage + 1"><span class="material-icons">chevron_right</span></button>
+              <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="patientPage = totalPatientPages"><span class="material-icons">last_page</span></button>
+            </div>
+          </div>
         </div>
 
       </ng-container>

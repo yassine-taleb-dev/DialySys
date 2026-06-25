@@ -61,6 +61,8 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   patients: PatientVM[] = [];
   searchQuery = '';
+  patientPage = 1;
+  readonly patientPageSize = 8;
   activePage: 'planning' | 'patients' = 'planning';
   selectedPatient: PatientVM | null = null;
   activeTab: 'constantes' | 'ordonnances' | 'instructions' | 'alertes' = 'constantes';
@@ -74,6 +76,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
   patientAlertes: AlerteDto[] = [];
   isLoadingNotif = false;
   private alertInterval: ReturnType<typeof setInterval> | null = null;
+  private planningInterval: ReturnType<typeof setInterval> | null = null;
 
   constantes: ConstantesVitalesDto[] = [];
   ordonnances: OrdonnanceDto[] = [];
@@ -124,11 +127,13 @@ export class InfirmierComponent implements OnInit, OnDestroy {
       this.checkOverdueSessions();
     }, 30000);
     this.alertInterval = setInterval(() => this.loadAllAlertes(), 60000);
+    this.planningInterval = setInterval(() => this.loadPlanning(), 30000);
   }
 
   ngOnDestroy(): void {
     if (this.tickInterval) clearInterval(this.tickInterval);
     if (this.alertInterval) clearInterval(this.alertInterval);
+    if (this.planningInterval) clearInterval(this.planningInterval);
   }
 
   // ── Planning ──────────────────────────────────────────────────────────────
@@ -396,6 +401,23 @@ export class InfirmierComponent implements OnInit, OnDestroy {
       p.nomComplet.toLowerCase().includes(q) ||
       (p.cin ?? '').toLowerCase().includes(q)
     );
+  }
+
+  get totalPatientPages(): number {
+    return Math.max(1, Math.ceil(this.filteredPatients.length / this.patientPageSize));
+  }
+
+  get paginatedPatients(): PatientVM[] {
+    const start = (this.patientPage - 1) * this.patientPageSize;
+    return this.filteredPatients.slice(start, start + this.patientPageSize);
+  }
+
+  onPatientSearch(): void {
+    this.patientPage = 1;
+  }
+
+  patientPageEnd(): number {
+    return Math.min(this.patientPage * this.patientPageSize, this.filteredPatients.length);
   }
 
   setTab(tab: 'constantes' | 'ordonnances' | 'instructions' | 'alertes'): void {

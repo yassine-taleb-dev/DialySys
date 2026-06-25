@@ -95,6 +95,8 @@ export class MedecinComponent implements OnInit, OnDestroy {
   // Sidebar nav
   showPatientsPanel = true;
   dossierSearchQuery = '';
+  patientPage = 1;
+  readonly patientPageSize = 8;
 
   // Dossier modal
   showDossierModal = false;
@@ -263,6 +265,23 @@ export class MedecinComponent implements OnInit, OnDestroy {
       (p.cin ?? '').toLowerCase().includes(q) ||
       p.pathologie.toLowerCase().includes(q)
     );
+  }
+
+  get totalPatientPages(): number {
+    return Math.max(1, Math.ceil(this.filteredDossierPatients.length / this.patientPageSize));
+  }
+
+  get paginatedDossierPatients(): PatientVM[] {
+    const start = (this.patientPage - 1) * this.patientPageSize;
+    return this.filteredDossierPatients.slice(start, start + this.patientPageSize);
+  }
+
+  patientPageEnd(): number {
+    return Math.min(this.patientPage * this.patientPageSize, this.filteredDossierPatients.length);
+  }
+
+  onPatientSearch(): void {
+    this.patientPage = 1;
   }
 
   openDossierModal(patient: PatientVM): void {
@@ -488,15 +507,13 @@ export class MedecinComponent implements OnInit, OnDestroy {
 
   loadAllAlertes(): void {
     this.isLoadingNotif = true;
-    const username = this.currentUser?.login ?? '';
-    (username
-      ? this.alerteService.getMesAlertes(username)
-      : this.alerteService.getAll()
-    ).pipe(catchError(() => of([]))).subscribe(list => {
-      this.allAlertes = list.sort((a, b) =>
-        new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
-      this.isLoadingNotif = false;
-    });
+    this.alerteService.getAll()
+      .pipe(catchError(() => of([])))
+      .subscribe(list => {
+        this.allAlertes = list.sort((a, b) =>
+          new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
+        this.isLoadingNotif = false;
+      });
   }
 
   loadPatientAlertes(patientId: number): void {

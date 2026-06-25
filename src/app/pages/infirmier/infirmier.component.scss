@@ -3,7 +3,7 @@
   min-height: 100vh;
 }
 
-/* ── Dark mode (default) ── */
+
 .inf-shell {
   --c-bg:        #06090F;
   --c-surface-1: #06090F;
@@ -19,7 +19,7 @@
   --c-topbar-bg: rgba(11,17,30,.88);
 }
 
-/* ── Light mode ── */
+
 .inf-shell.light {
   --c-bg:        #f0f4f8;
   --c-surface-1: #f0f4f8;
@@ -56,7 +56,7 @@
   }
 }
 
-/* ── Topbar ── */
+
 .inf-topbar {
   height: 72px;
   padding: 0 28px;
@@ -122,7 +122,7 @@
   span   { font-size: 12px; color: var(--c-text-2); }
 }
 
-/* ── Layout ── */
+
 .inf-layout {
   min-height: 0;
   flex: 1;
@@ -131,7 +131,7 @@
   background: var(--c-bg);
 }
 
-/* ── Sidebar ── */
+
 .inf-sidebar {
   background: var(--c-card);
   border-right: 1px solid var(--c-border);
@@ -167,7 +167,7 @@
   }
 }
 
-/* ── Workspace ── */
+
 .patient-workspace {
   flex: 1;
   min-width: 0;
@@ -212,7 +212,7 @@
   background: rgba(255,87,87,.08);
 }
 
-/* ── Patient hero ── */
+
 .patient-hero {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -252,7 +252,7 @@
   text-transform: uppercase;
 }
 
-/* ── Tab buttons ── */
+
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -311,7 +311,7 @@
   }
 }
 
-/* ── Tab content ── */
+
 .tab-content {
   display: flex;
   flex-direction: column;
@@ -338,7 +338,7 @@
   p { margin: 0; font-size: 14px; }
 }
 
-/* ── Buttons ── */
+
 .icon-button,
 .primary-button,
 .ghost-button,
@@ -386,7 +386,7 @@
   background: var(--c-card);
 }
 
-/* ── Pills ── */
+
 .pill {
   display: inline-flex;
   align-items: center;
@@ -407,7 +407,110 @@
   &--crit    { color: #b42318;          background: #ffe0df; }
 }
 
-/* ── Patients table ── */
+
+.patients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &__count {
+    font-size: 13px;
+    color: var(--c-text-2);
+    font-weight: 500;
+  }
+}
+
+.patients-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  transition: border-color .18s, box-shadow .18s;
+
+  &:focus-within {
+    border-color: var(--c-teal);
+    box-shadow: 0 0 0 3px var(--c-teal-soft);
+  }
+
+  .material-icons { font-size: 16px; color: var(--c-text-2); pointer-events: none; }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--c-text-1);
+    font-size: 13px;
+    font-family: inherit;
+    width: 200px;
+    &::placeholder { color: var(--c-text-2); }
+  }
+}
+
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--c-border);
+}
+
+.pg-rows-info {
+  font-size: 12px;
+  color: var(--c-text-3);
+  white-space: nowrap;
+}
+
+.pg-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pg-label {
+  font-size: 12px;
+  color: var(--c-text-2);
+  white-space: nowrap;
+  padding: 0 6px;
+  min-width: 52px;
+  text-align: center;
+}
+
+.pg-arrow {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+
+  .material-icons { font-size: 18px; }
+
+  &:hover:not(:disabled) {
+    background: var(--c-surface-3);
+    color: var(--c-text-1);
+  }
+
+  &:disabled {
+    opacity: .25;
+    cursor: default;
+  }
+}
+
+
 .patients-table-wrap {
   overflow-x: auto;
   border-radius: 14px;
@@ -471,7 +574,7 @@
   background: var(--c-teal-soft);
 }
 
-/* ── Toasts ── */
+
 .toast-stack {
   position: fixed;
   right: 20px;
@@ -498,13 +601,11 @@
   &--info    .material-icons { color: #2f6fed; }
 }
 
-/* ── Spin ── */
+
 .spin { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ════════════════════════════════════════════════════════════
-   INFIRMIER-SPECIFIC: Constantes form
-   ════════════════════════════════════════════════════════════ */
+
 .cv-add-btn {
   display: flex; align-items: center; gap: 8px;
   padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 700;
@@ -596,7 +697,7 @@
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
 
-/* ── Constante cards ── */
+
 .cv-list { display: flex; flex-direction: column; gap: 16px; }
 
 .cv-card {
@@ -649,7 +750,7 @@
   .material-icons { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
 }
 
-/* ── Ordonnance cards ── */
+
 .ord-list { display: flex; flex-direction: column; gap: 14px; }
 
 .ord-card {
@@ -679,7 +780,7 @@
   text-transform: uppercase; letter-spacing: .04em;
 }
 
-/* ── Instructions cards (read-only) ── */
+
 .instr-card {
   border: 1px solid var(--c-border); border-radius: 10px;
   background: var(--c-card); box-shadow: 0 4px 18px rgba(0,0,0,.12);
@@ -715,9 +816,7 @@
   border-left: 3px solid #f5a623;
 }
 
-/* ══════════════════════════════════════════════════════════
-   PLANNING DU JOUR
-   ══════════════════════════════════════════════════════════ */
+
 
 .planning-header {
   display: flex;
@@ -896,9 +995,7 @@
   &:hover { background: rgba(34,197,94,.25); }
 }
 
-/* ══════════════════════════════════════════════════════════
-   BANNIÈRE SÉANCE (hero patient)
-   ══════════════════════════════════════════════════════════ */
+
 
 .seance-banner {
   grid-column: 1 / -1;
@@ -943,9 +1040,7 @@
   animation: blink-overdue 1s ease-in-out infinite;
 }
 
-/* ══════════════════════════════════════════════════════════
-   MODAL DURÉE DE SÉANCE
-   ══════════════════════════════════════════════════════════ */
+
 
 .modal-overlay {
   position: fixed;
@@ -1061,7 +1156,7 @@
   gap: 10px;
 }
 
-/* Badge séance dans le formulaire constantes */
+
 .cv-seance-badge {
   display: inline-flex;
   align-items: center;
@@ -1077,7 +1172,7 @@
   .material-icons { font-size: 13px; }
 }
 
-/* ── Notification bell ── */
+
 .notif-wrapper { position: relative; }
 
 .notif-btn {
@@ -1207,14 +1302,14 @@
   }
 }
 
-/* Alert level colours for notif cards + alerte-card */
+
 .alerte--critique  { .notif-card__icon, .alerte-card__icon { color: #ef4444; } border-left: 3px solid #ef4444; }
 .alerte--important { .notif-card__icon, .alerte-card__icon { color: #f97316; } border-left: 3px solid #f97316; }
 .alerte--tendance  { .notif-card__icon, .alerte-card__icon { color: #6366f1; } border-left: 3px solid #6366f1; }
 .alerte--seance    { .notif-card__icon, .alerte-card__icon { color: var(--c-teal); } border-left: 3px solid var(--c-teal); }
 .alerte--info      { .notif-card__icon, .alerte-card__icon { color: #60a5fa; } border-left: 3px solid #60a5fa; }
 
-/* ── Alertes tab ── */
+
 .quick-btn--alert {
   .material-icons { color: #ef4444; }
   &.quick-btn--active { border-color: #ef4444; }
@@ -1280,7 +1375,7 @@
   }
 }
 
-/* ── Responsive ── */
+
 @media (max-width: 1080px) {
   .cv-form-grid { grid-template-columns: 1fr 1fr; }
 }

@@ -181,43 +181,69 @@
           <span class="material-icons spin">progress_activity</span>
           Chargement des patients...
         </div>
-        <div class="patients-table-wrap" *ngIf="!isLoadingPatients">
-          <table class="patients-table">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Âge</th>
-                <th>CIN</th>
-                <th>Groupe sanguin</th>
-                <th>Pathologie</th>
-                <th>Genre</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let p of filteredDossierPatients" (click)="selectPatient(p); showPatientsPanel = false" class="patients-table__row">
-                <td>
-                  <div class="patients-table__name">
-                    <span class="patient-row__avatar">{{ p.initials }}</span>
-                    <strong>{{ p.nomComplet }}</strong>
-                  </div>
-                </td>
-                <td>{{ p.age > 0 ? p.age + ' ans' : '-' }}</td>
-                <td>{{ p.cin || '-' }}</td>
-                <td>{{ p.groupeSanguin || '-' }}</td>
-                <td>{{ p.pathologie || '-' }}</td>
-                <td>{{ p.genre || '-' }}</td>
-                <td><span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span></td>
-              </tr>
-              <tr *ngIf="filteredDossierPatients.length === 0">
-                <td colspan="7" style="text-align:center;padding:32px;color:#94a3b8">
-                  <span class="material-icons" style="display:block;font-size:36px;margin-bottom:8px">person_search</span>
-                  Aucun patient trouvé
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+
+        <ng-container *ngIf="!isLoadingPatients">
+          <div class="patients-header">
+            <span class="patients-header__count">{{ filteredDossierPatients.length }} patient(s)</span>
+            <div class="patients-search">
+              <span class="material-icons">search</span>
+              <input type="text" placeholder="Rechercher par nom, CIN, pathologie…"
+                     [(ngModel)]="dossierSearchQuery" (ngModelChange)="onPatientSearch()"/>
+              <button class="patients-search__clear" *ngIf="dossierSearchQuery" (click)="dossierSearchQuery = ''; onPatientSearch()" title="Effacer">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="patients-table-wrap">
+            <table class="patients-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Âge</th>
+                  <th>CIN</th>
+                  <th>Groupe sanguin</th>
+                  <th>Pathologie</th>
+                  <th>Genre</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of paginatedDossierPatients" (click)="selectPatient(p); showPatientsPanel = false" class="patients-table__row">
+                  <td>
+                    <div class="patients-table__name">
+                      <span class="patient-row__avatar">{{ p.initials }}</span>
+                      <strong>{{ p.nomComplet }}</strong>
+                    </div>
+                  </td>
+                  <td>{{ p.age > 0 ? p.age + ' ans' : '-' }}</td>
+                  <td>{{ p.cin || '-' }}</td>
+                  <td>{{ p.groupeSanguin || '-' }}</td>
+                  <td>{{ p.pathologie || '-' }}</td>
+                  <td>{{ p.genre || '-' }}</td>
+                  <td><span class="material-icons" style="color:var(--c-teal);font-size:18px">chevron_right</span></td>
+                </tr>
+                <tr *ngIf="filteredDossierPatients.length === 0">
+                  <td colspan="7" style="text-align:center;padding:32px;color:#94a3b8">
+                    <span class="material-icons" style="display:block;font-size:36px;margin-bottom:8px">person_search</span>
+                    Aucun patient trouvé
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="pagination-bar" *ngIf="filteredDossierPatients.length > patientPageSize">
+              <span class="pg-rows-info">{{ (patientPage - 1) * patientPageSize + 1 }}–{{ patientPageEnd() }} sur {{ filteredDossierPatients.length }}</span>
+              <div class="pg-nav">
+                <button class="pg-arrow" [disabled]="patientPage === 1" (click)="patientPage = 1"><span class="material-icons">first_page</span></button>
+                <button class="pg-arrow" [disabled]="patientPage === 1" (click)="patientPage = patientPage - 1"><span class="material-icons">chevron_left</span></button>
+                <span class="pg-label">{{ patientPage }} / {{ totalPatientPages }}</span>
+                <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="patientPage = patientPage + 1"><span class="material-icons">chevron_right</span></button>
+                <button class="pg-arrow" [disabled]="patientPage === totalPatientPages" (click)="patientPage = totalPatientPages"><span class="material-icons">last_page</span></button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
       </ng-container>
 
       <!-- Vue : Dossier workspace -->

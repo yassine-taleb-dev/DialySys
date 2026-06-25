@@ -89,23 +89,24 @@
         <div class="im-kpi-row">
           <div class="im-kpi im-kpi--teal">
             <span class="material-icons">wb_sunny</span>
-            <div><strong>{{sessionsMatin}}</strong><small>Matin</small></div>
+            <div class="im-kpi__body">
+              <span class="im-kpi__count">{{ sessionsMatin }}</span>
+              <small>Matin</small>
+            </div>
           </div>
           <div class="im-kpi im-kpi--blue">
             <span class="material-icons">wb_cloudy</span>
-            <div><strong>{{sessionsApresMidi}}</strong><small>Après-midi</small></div>
-          </div>
-          <div class="im-kpi im-kpi--purple">
-            <span class="material-icons">nightlight</span>
-            <div><strong>{{sessionsSoir}}</strong><small>Soir</small></div>
+            <div class="im-kpi__body">
+              <span class="im-kpi__count">{{ sessionsApresMidi }}</span>
+              <small>Après-midi</small>
+            </div>
           </div>
           <div class="im-kpi im-kpi--green">
             <span class="material-icons">play_circle</span>
-            <div><strong>{{sessionsEnCours}}</strong><small>En Cours</small></div>
-          </div>
-          <div class="im-kpi" [class.im-kpi--amber]="constantesManquantes > 0" [class.im-kpi--teal]="constantesManquantes === 0">
-            <span class="material-icons">{{constantesManquantes > 0 ? 'warning' : 'check_circle'}}</span>
-            <div><strong>{{constantesManquantes}}</strong><small>Constantes Manquantes</small></div>
+            <div class="im-kpi__body">
+              <span class="im-kpi__count">{{ sessionsEnCours }}</span>
+              <small>En Cours</small>
+            </div>
           </div>
         </div>
 

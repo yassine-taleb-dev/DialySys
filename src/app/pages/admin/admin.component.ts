@@ -115,7 +115,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   activeTab: AdminTab = (['profils', 'seances', 'statistiques', 'audit'].includes(localStorage.getItem('admin_activeTab') ?? '') ? localStorage.getItem('admin_activeTab') as AdminTab : 'profils');
   activeProfilRole: RoleId = 'medecin';
   loading = false;
-  isLight = true;
+  isLight = localStorage.getItem('admin_theme') !== 'dark';
   private profilsLoaded = false;
   private seancesLoaded = false;
 
@@ -621,6 +621,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.utilisateurService.toggleActif(user.id).subscribe({
       next: (updated) => {
         this.showToast(`Compte de ${updated.prenom} ${updated.nom} ${updated.actif ? 'active' : 'desactive'}`, updated.actif ? 'success' : 'warning');
+        this.applyLocalUserStatus(user.id, updated.actif);
         this.refreshAfterMutation();
       },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de modifier le statut du compte', 'error')
@@ -629,9 +630,23 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   suspendUser(user: AppUser): void {
     this.utilisateurService.update(user.id, { actif: false }).subscribe({
-      next: () => { this.showToast(`Compte de ${user.prenom} ${user.nom} suspendu`, 'warning'); this.closeUserModal(); this.refreshAfterMutation(); },
+      next: () => {
+        this.showToast(`Compte de ${user.prenom} ${user.nom} suspendu`, 'warning');
+        this.applyLocalUserStatus(user.id, false);
+        this.closeUserModal();
+        this.refreshAfterMutation();
+      },
       error: (err) => this.showToast(err?.error?.message ?? 'Impossible de suspendre le compte', 'error')
     });
+  }
+
+  private applyLocalUserStatus(id: number, actif: boolean): void {
+    const statut = actif ? 'actif' : 'suspendu';
+    [this.users, this.staffUsers].forEach(list => {
+      const u = list.find(x => x.id === id);
+      if (u) { u.actif = actif; u.statut = statut; }
+    });
+    if (this.selectedUser?.id === id) { this.selectedUser.actif = actif; this.selectedUser.statut = statut; }
   }
 
   deleteUser(user: AppUser): void {
@@ -1336,8 +1351,8 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   get newPatientsThisMonth(): number {
     const now = new Date();
-    const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    return this.users.filter(u => u.role === 'patient' && (u.dateCreation ?? '').startsWith(monthStr.split('-').reverse().join('/'))).length;
+    const monthPart = `/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+    return this.users.filter(u => u.role === 'patient' && (u.dateCreation ?? '').includes(monthPart)).length;
   }
 
   exportStatsPdf(): void {
@@ -1579,8 +1594,10 @@ tr:nth-child(even) td{background:#f8fafc}
     this.isLight = !this.isLight;
     if (this.isLight) {
       document.body.classList.add('theme-light');
+      localStorage.setItem('admin_theme', 'light');
     } else {
       document.body.classList.remove('theme-light');
+      localStorage.setItem('admin_theme', 'dark');
     }
   }
 
@@ -1664,7 +1681,7 @@ tr:nth-child(even) td{background:#f8fafc}
       id: dto.id, login: dto.login, username: dto.username, role, backendRole: dto.role,
       mat: dto.mat, nom: dto.nom, prenom: dto.prenom, email: dto.email, mdp: '********',
       dateCreation: this.formatDateTime(dto.dateCreation), actif: dto.actif,
-      statut: dto.actif ? 'actif' : 'inactif', derniereConnexion: '—',
+      statut: dto.actif ? 'actif' : 'suspendu', derniereConnexion: '—',
       specialite: dto.specialite, superviseurId: dto.superviseurId,
       telephone: dto.telephone || '',
       service: (dto.service || this.serviceParRole[role]) ?? ''
