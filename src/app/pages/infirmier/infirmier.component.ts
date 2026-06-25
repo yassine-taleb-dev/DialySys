@@ -126,7 +126,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
       this.now = new Date();
       this.checkOverdueSessions();
     }, 30000);
-    this.alertInterval = setInterval(() => this.loadAllAlertes(), 60000);
+    this.alertInterval = setInterval(() => this.loadAllAlertes(true), 15000);
     this.planningInterval = setInterval(() => this.loadPlanning(), 30000);
   }
 
@@ -309,6 +309,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
         s.statut   = dto.statut   ?? 'TERMINEE';
         s.heureFin = this.timeFromIso(dto.heureFinEffective);
         this.showToast(`Séance de ${s.patientNom} terminée avec succès.`, 'success');
+        this.refreshAlertes();
       },
       error: () => { this.showToast('Erreur lors de la terminaison de la séance.', 'error'); }
     });
@@ -422,7 +423,6 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   setTab(tab: 'constantes' | 'ordonnances' | 'instructions' | 'alertes'): void {
     this.activeTab = tab;
-    if (tab === 'alertes') this.markPatientAlertesAsRead();
   }
 
   selectPatient(p: PatientVM): void {
@@ -489,6 +489,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
           seance.constantesSaisies = true;
         }
         this.isSaving = false;
+        this.refreshAlertes();
         this.showForm = false;
         this.cvForm = { tensionSys: '', tensionDia: '', poids: '', bpm: '', notes: '' };
         this.showToast('Constantes enregistrées avec succès.', 'success');
@@ -592,21 +593,37 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   // ── Alertes / Notifications ───────────────────────────────────────────────
 
-  loadAllAlertes(): void {
+  loadAllAlertes(silent = false): void {
     const username = this.currentUser?.login ?? '';
     if (!username) return;
-    this.isLoadingNotif = true;
+    if (!silent) this.isLoadingNotif = true;
     this.alerteService.getMesAlertes(username).subscribe({
-      next: (list) => { this.allAlertes = list; this.isLoadingNotif = false; },
-      error: () => { this.isLoadingNotif = false; }
+      next: (list) => {
+        this.allAlertes = this.sortAlertes(list);
+        if (!silent) this.isLoadingNotif = false;
+      },
+      error: () => { if (!silent) this.isLoadingNotif = false; }
     });
   }
 
   loadPatientAlertes(patientId: number): void {
     this.alerteService.getByPatient(patientId).subscribe({
-      next: (list) => { this.patientAlertes = list; },
+      next: (list) => { this.patientAlertes = this.sortAlertes(list); },
       error: () => {}
     });
+  }
+
+  private refreshAlertes(): void {
+    this.loadAllAlertes(true);
+    if (this.selectedPatient) {
+      this.loadPatientAlertes(this.selectedPatient.id);
+    }
+  }
+
+  private sortAlertes(alertes: AlerteDto[]): AlerteDto[] {
+    return [...alertes].sort((a, b) =>
+      new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime()
+    );
   }
 
   openPatientFromNotif(alerte: AlerteDto): void {

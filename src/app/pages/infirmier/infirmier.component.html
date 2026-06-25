@@ -176,7 +176,8 @@
                 </td>
 
                 <!-- Action -->
-                <td class="planning-action-cell">
+                <td>
+                  <div class="planning-action-cell">
                   <!-- PLANIFIEE -->
                   <button *ngIf="s.statut === 'PLANIFIEE' || s.statut === 'EN_ATTENTE_CONSTANTES'" class="primary-button" type="button"
                           (click)="openDemarrerModal(s)">
@@ -201,6 +202,7 @@
                     <span class="material-icons">check_circle</span>
                     Terminée{{ s.heureFin ? ' à ' + s.heureFin : '' }}
                   </span>
+                  </div>
                 </td>
               </tr>
             </tbody>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -52,7 +52,7 @@ interface Toast { id: number; message: string; type: 'success' | 'warning' | 'in
   templateUrl: './infirmier-majeur.component.html',
   styleUrl: './infirmier-majeur.component.scss',
 })
-export class InfirmierMajeurComponent implements OnInit {
+export class InfirmierMajeurComponent implements OnInit, OnDestroy {
 
   isLight       = false;
   sidebarOpen   = false;
@@ -61,6 +61,7 @@ export class InfirmierMajeurComponent implements OnInit {
   loading = false;
   apiError = '';
   dashboard: SupervisionDashboardDto | null = null;
+  private alertInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -72,6 +73,11 @@ export class InfirmierMajeurComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getUtilisateur();
     this.loadBackendData();
+    this.alertInterval = setInterval(() => this.loadAlertes(), 15000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.alertInterval) clearInterval(this.alertInterval);
   }
 
   get userInitials(): string {
@@ -111,7 +117,7 @@ export class InfirmierMajeurComponent implements OnInit {
         this.dashboard = data.dashboard;
         this.applyInfirmiers(data.charge);
         this.seances = data.planning.map(s => this.mapSeance(s));
-        this.alertes = data.alertes.map(a => this.mapAlerte(a));
+        this.alertes = this.sortAlertes(data.alertes).map(a => this.mapAlerte(a));
         this.patients = data.patients.map(p => this.mapPatient(p));
         this.applyConstantes(data.patients, data.constantesManquantes);
         this.syncPatientSeanceStatus();
@@ -122,6 +128,20 @@ export class InfirmierMajeurComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  private loadAlertes(): void {
+    this.alerteService.getAll()
+      .pipe(catchError(() => of([])))
+      .subscribe(alertes => {
+        this.alertes = this.sortAlertes(alertes).map(a => this.mapAlerte(a));
+      });
+  }
+
+  private sortAlertes(alertes: AlerteDto[]): AlerteDto[] {
+    return [...alertes].sort((a, b) =>
+      new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime()
+    );
   }
 
   private applyInfirmiers(charges: InfirmierChargeDto[]): void {
@@ -580,14 +600,7 @@ export class InfirmierMajeurComponent implements OnInit {
   get alertesNormaleTotal():   number { return this.alertes.filter(a => a.priorite === 'normale').length; }
 
   traiterAlerte(a: Alerte): void {
-    if (a.priorite === 'critique') { this.showToast('Alertes critiques — traitement réservé au médecin', 'warning'); return; }
-    this.alerteService.marquerLue(a.id).subscribe({
-      next: () => {
-        a.statut = 'traitee';
-        this.showToast(`"${a.type}" marquée comme traitée`, 'success');
-      },
-      error: () => this.showToast('Impossible de traiter cette alerte', 'error'),
-    });
+    this.showToast(`Alerte consultée : ${a.type}`, 'info');
   }
   alertePrioriteClass(p: string): string { return p === 'critique' ? 'crit' : p === 'elevee' ? 'warn' : 'info'; }
   alertePrioriteIcon(p: string):  string { return p === 'critique' ? 'crisis_alert' : p === 'elevee' ? 'warning' : 'info'; }

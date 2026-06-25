@@ -877,6 +877,10 @@
 .planning-row--encours td { background: rgba(0,217,196,.04); }
 .planning-row--done   td { opacity: .72; }
 
+.planning-table tbody tr:hover > td {
+  background: rgba(0,217,196,.08) !important;
+}
+
 .planning-patient-cell {
   display: flex;
   align-items: center;

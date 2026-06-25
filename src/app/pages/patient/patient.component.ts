@@ -45,7 +45,7 @@ export class PatientComponent {
     { icon: 'event', text: 'Séance demain à 08:00 — Salle A Machine M-03', time: 'il y a 30min', type: 'info', read: false },
     { icon: 'warning_amber', text: 'Créatinine élevée — Résultat à consulter', time: 'il y a 2h', type: 'warn', read: false },
     { icon: 'check_circle',  text: 'Ordonnance EPO renouvelée par Dr. Benali', time: 'il y a 1j', type: 'ok',   read: true  },
-  ];
+  ].filter(n => n.icon !== 'warning_amber');
   get unreadCount() { return this.notifications.filter(n => !n.read).length; }
   toggleNotifPanel(): void { this.showNotifPanel = !this.showNotifPanel; }
   markAllRead(): void { this.notifications.forEach(n => n.read = true); this.showToast('Notifications marquées comme lues', 'info'); }

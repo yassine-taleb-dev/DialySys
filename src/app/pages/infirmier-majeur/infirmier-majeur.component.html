@@ -241,7 +241,7 @@
               <option value="">Tous créneaux</option>
               <option value="matin">Matin</option>
               <option value="apres-midi">Après-midi</option>
-              <option value="soir">Soir</option>
+              
             </select>
             <div class="im-search-mini">
               <span class="material-icons">search</span>
@@ -314,11 +314,6 @@
           </select>
         </div>
 
-        <div class="im-info-banner">
-          <span class="material-icons">lock</span>
-          Les alertes <strong>critiques</strong> sont réservées au médecin — lecture seule pour l'infirmier majeur.
-        </div>
-
         <div class="im-alerte-list">
           <div class="im-alerte-card" *ngFor="let a of filteredAlertes"
             [class.im-alerte-card--traitee]="a.statut==='traitee'"
@@ -342,7 +337,6 @@
                 <span class="pill pill--warning" *ngIf="a.priorite==='elevee'">Élevée</span>
                 <span class="pill pill--neutral" *ngIf="a.priorite==='normale'">Normale</span>
                 <span class="pill pill--ok" *ngIf="a.statut==='traitee'">Traitée</span>
-                <span class="im-lock-badge" *ngIf="a.priorite==='critique'"><span class="material-icons">lock</span>Médecin</span>
               </div>
               <p class="im-alerte-msg">{{a.message}}</p>
               <div class="im-alerte-meta">
@@ -352,11 +346,6 @@
               </div>
             </div>
             <div class="im-alerte-action">
-              <button class="quick-btn quick-btn--xs" type="button"
-                *ngIf="a.statut==='active' && a.priorite!=='critique'"
-                (click)="traiterAlerte(a)">
-                <span class="material-icons">check</span>Traiter
-              </button>
             </div>
           </div>
           <div class="im-empty-row" *ngIf="filteredAlertes.length === 0">
@@ -378,11 +367,6 @@
             <span class="material-icons">search</span>
             <input type="text" placeholder="Nom, pathologie…" [(ngModel)]="searchPatients"/>
           </div>
-        </div>
-
-        <div class="im-info-banner im-info-banner--blue">
-          <span class="material-icons">visibility</span>
-          Section <strong>lecture seule</strong> — les modifications sont réservées aux infirmiers assignés.
         </div>
 
         <div class="patients-table-wrap">
@@ -441,11 +425,6 @@
             <option value="saisie">Saisies</option>
             <option value="manquante">Manquantes</option>
           </select>
-        </div>
-
-        <div class="im-info-banner">
-          <span class="material-icons">lock</span>
-          Lecture seule — la saisie des constantes est <strong>réservée aux infirmiers</strong> assignés.
         </div>
 
         <div class="patients-table-wrap">
@@ -602,10 +581,6 @@
         </div>
       </div>
 
-      <div class="im-fiche-readonly">
-        <span class="material-icons">visibility</span>
-        Fiche en <strong>lecture seule</strong> — modifications réservées aux infirmiers assignés
-      </div>
     </div>
 
     <!-- Footer -->

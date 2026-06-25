@@ -147,7 +147,7 @@ export class MedecinComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadPatients();
     this.loadAllAlertes();
-    this.alertInterval = setInterval(() => this.loadAllAlertes(), 60000);
+    this.alertInterval = setInterval(() => this.loadAllAlertes(true), 15000);
   }
 
   ngOnDestroy(): void {
@@ -254,7 +254,6 @@ export class MedecinComponent implements OnInit, OnDestroy {
   setTab(tab: TabKey): void {
     this.activeTab = tab;
     if (tab === 'statistiques') this.loadStats();
-    if (tab === 'alertes') this.markPatientAlertesAsRead();
   }
 
   get filteredDossierPatients(): PatientVM[] {
@@ -505,14 +504,14 @@ export class MedecinComponent implements OnInit, OnDestroy {
 
   // ── Notification panel ───────────────────────────────────────────────────────
 
-  loadAllAlertes(): void {
-    this.isLoadingNotif = true;
+  loadAllAlertes(silent = false): void {
+    if (!silent) this.isLoadingNotif = true;
     this.alerteService.getAll()
       .pipe(catchError(() => of([])))
       .subscribe(list => {
         this.allAlertes = list.sort((a, b) =>
           new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
-        this.isLoadingNotif = false;
+        if (!silent) this.isLoadingNotif = false;
       });
   }
 
@@ -543,8 +542,9 @@ export class MedecinComponent implements OnInit, OnDestroy {
         .subscribe(updated => {
           if (updated) {
             a.lue = true;
+            a.traitee = true;
             const g = this.allAlertes.find(x => x.id === a.id);
-            if (g) g.lue = true;
+            if (g) { g.lue = true; g.traitee = true; }
           }
         });
     });
