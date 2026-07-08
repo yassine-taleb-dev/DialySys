@@ -608,7 +608,12 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   loadPatientAlertes(patientId: number): void {
     this.alerteService.getByPatient(patientId).subscribe({
-      next: (list) => { this.patientAlertes = this.sortAlertes(list); },
+      next: (list) => {
+        this.patientAlertes = this.sortAlertes(list).map(alerte => {
+          const globalAlerte = this.allAlertes.find(item => item.id === alerte.id);
+          return globalAlerte?.lue ? { ...alerte, lue: true } : alerte;
+        });
+      },
       error: () => {}
     });
   }
@@ -628,6 +633,7 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   openPatientFromNotif(alerte: AlerteDto): void {
     this.notifOpen = false;
+    this.markAlerteAsRead(alerte);
     const p = this.patients.find(x => x.id === alerte.patient?.id);
     if (p) {
       this.activePage = 'patients';
@@ -640,16 +646,26 @@ export class InfirmierComponent implements OnInit, OnDestroy {
 
   markPatientAlertesAsRead(): void {
     this.patientAlertes.filter(a => !a.lue).forEach(a => {
-      this.alerteService.marquerLue(a.id).subscribe({
-        next: (updated) => {
-          const idx = this.patientAlertes.findIndex(x => x.id === updated.id);
-          if (idx !== -1) this.patientAlertes[idx] = updated;
-          const globalIdx = this.allAlertes.findIndex(x => x.id === updated.id);
-          if (globalIdx !== -1) this.allAlertes[globalIdx] = updated;
-        },
-        error: () => {}
-      });
+      this.markAlerteAsRead(a);
     });
+  }
+
+  private markAlerteAsRead(alerte: AlerteDto): void {
+    if (alerte.lue) return;
+    this.applyAlerteReadState({ ...alerte, lue: true });
+    this.alerteService.marquerLue(alerte.id).subscribe({
+      next: (updated) => this.applyAlerteReadState(updated),
+      error: () => this.refreshAlertes()
+    });
+  }
+
+  private applyAlerteReadState(updated: AlerteDto): void {
+    this.allAlertes = this.allAlertes.map(alerte =>
+      alerte.id === updated.id ? { ...alerte, ...updated, lue: true } : alerte
+    );
+    this.patientAlertes = this.patientAlertes.map(alerte =>
+      alerte.id === updated.id ? { ...alerte, ...updated, lue: true } : alerte
+    );
   }
 
   get unreadCount(): number {

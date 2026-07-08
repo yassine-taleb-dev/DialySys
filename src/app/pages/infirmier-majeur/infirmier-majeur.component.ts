@@ -600,7 +600,22 @@ export class InfirmierMajeurComponent implements OnInit, OnDestroy {
   get alertesNormaleTotal():   number { return this.alertes.filter(a => a.priorite === 'normale').length; }
 
   traiterAlerte(a: Alerte): void {
-    this.showToast(`Alerte consultée : ${a.type}`, 'info');
+    if (a.statut === 'traitee') return;
+    this.alertes = this.alertes.map(alerte =>
+      alerte.id === a.id ? { ...alerte, statut: 'traitee' } : alerte
+    );
+    this.alerteService.marquerLue(a.id)
+      .pipe(catchError(() => of(null)))
+      .subscribe({
+        next: (updated) => {
+          if (updated) {
+            this.alertes = this.alertes.map(alerte =>
+              alerte.id === updated.id ? this.mapAlerte(updated) : alerte
+            );
+          }
+        },
+        error: () => this.loadAlertes()
+      });
   }
   alertePrioriteClass(p: string): string { return p === 'critique' ? 'crit' : p === 'elevee' ? 'warn' : 'info'; }
   alertePrioriteIcon(p: string):  string { return p === 'critique' ? 'crisis_alert' : p === 'elevee' ? 'warning' : 'info'; }

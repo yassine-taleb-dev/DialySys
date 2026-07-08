@@ -318,7 +318,8 @@
           <div class="im-alerte-card" *ngFor="let a of filteredAlertes"
             [class.im-alerte-card--traitee]="a.statut==='traitee'"
             [class.im-alerte-card--crit]="a.priorite==='critique'"
-            [class.im-alerte-card--warn]="a.priorite==='elevee'">
+            [class.im-alerte-card--warn]="a.priorite==='elevee'"
+            (click)="traiterAlerte(a)">
             <div class="im-alerte-stripe"
               [class.im-alerte-stripe--crit]="a.priorite==='critique'"
               [class.im-alerte-stripe--warn]="a.priorite==='elevee'"

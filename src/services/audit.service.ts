@@ -44,10 +44,10 @@ export class AuditService {
     entite: string,
     details: string,
     statut: 'success' | 'error' = 'success'
-  ): void {
-    this.http.post(this.api, { utilisateur, role, action, entite, details, statut }).subscribe({
-      error: () => {}
-    });
+  ): Observable<AuditEntry> {
+    return this.http
+      .post<AdminAuditLogDto>(this.api, { utilisateur, role, action, entite, details, statut })
+      .pipe(map(log => this.toAuditEntry(log)));
   }
 
   getAll(): Observable<AuditEntry[]> {

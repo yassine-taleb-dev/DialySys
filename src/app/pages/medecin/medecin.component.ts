@@ -519,13 +519,20 @@ export class MedecinComponent implements OnInit, OnDestroy {
     this.alerteService.getByPatient(patientId)
       .pipe(catchError(() => of([])))
       .subscribe(list => {
-        this.patientAlertes = list.sort((a, b) =>
-          new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
+        this.patientAlertes = list
+          .sort((a, b) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime())
+          .map(alerte => {
+            const globalAlerte = this.allAlertes.find(item => item.id === alerte.id);
+            return globalAlerte?.lue || globalAlerte?.traitee
+              ? { ...alerte, lue: true, traitee: true }
+              : alerte;
+          });
       });
   }
 
   openPatientFromNotif(alerte: AlerteDto): void {
     this.notifOpen = false;
+    this.markAlerteAsRead(alerte);
     const p = this.patients.find(x => x.id === alerte.patient?.id);
     if (p) {
       this.showPatientsPanel = false;
@@ -537,17 +544,23 @@ export class MedecinComponent implements OnInit, OnDestroy {
   markPatientAlertesAsRead(): void {
     const unread = this.patientAlertes.filter(a => !a.lue);
     unread.forEach(a => {
-      this.alerteService.marquerLue(a.id)
-        .pipe(catchError(() => of(null)))
-        .subscribe(updated => {
-          if (updated) {
-            a.lue = true;
-            a.traitee = true;
-            const g = this.allAlertes.find(x => x.id === a.id);
-            if (g) { g.lue = true; g.traitee = true; }
-          }
-        });
+      this.markAlerteAsRead(a);
     });
+  }
+
+  private markAlerteAsRead(alerte: AlerteDto): void {
+    if (alerte.lue || alerte.traitee) return;
+    this.applyAlerteReadState({ ...alerte, lue: true, traitee: true });
+    this.alerteService.marquerLue(alerte.id)
+      .pipe(catchError(() => of(null)))
+      .subscribe(updated => {
+        if (updated) {
+          this.applyAlerteReadState(updated);
+        } else {
+          this.loadAllAlertes(true);
+          if (this.selectedPatient) this.loadPatientAlertes(this.selectedPatient.id);
+        }
+      });
   }
 
   traiterAlerte(alerte: AlerteDto, event: Event): void {
@@ -556,14 +569,18 @@ export class MedecinComponent implements OnInit, OnDestroy {
       .pipe(catchError(() => of(null)))
       .subscribe(updated => {
         if (updated) {
-          alerte.traitee        = true;
-          alerte.dateTraitement = updated.dateTraitement;
-          alerte.traitePar      = updated.traitePar;
-          alerte.lue            = true;
-          const g = this.allAlertes.find(x => x.id === alerte.id);
-          if (g) { g.traitee = true; g.lue = true; g.dateTraitement = updated.dateTraitement; }
+          this.applyAlerteReadState(updated);
         }
       });
+  }
+
+  private applyAlerteReadState(updated: AlerteDto): void {
+    this.allAlertes = this.allAlertes.map(alerte =>
+      alerte.id === updated.id ? { ...alerte, ...updated, lue: true, traitee: true } : alerte
+    );
+    this.patientAlertes = this.patientAlertes.map(alerte =>
+      alerte.id === updated.id ? { ...alerte, ...updated, lue: true, traitee: true } : alerte
+    );
   }
 
   get activeAlertes(): AlerteDto[] {

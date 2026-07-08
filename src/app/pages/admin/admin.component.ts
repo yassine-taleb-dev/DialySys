@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { concat, forkJoin, of, Subject } from 'rxjs';
+import { catchError, takeUntil, toArray } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { UtilisateurCreateDto, UtilisateurService, UtilisateurUpdateDto } from '../../../services/utilisateur.service';
 import { PatientRequestDto, PatientService } from '../../../services/patient.service';
@@ -18,8 +18,6 @@ import { AdminSettingsDto } from '../../../models/admin-settings-dto';
 import { RolePermissionsDto } from '../../../models/role-permissions-dto';
 import { SeanceRequestDto } from '../../../models/seance-request-dto';
 import { SeanceUpdateRequestDto } from '../../../models/seance-update-request-dto';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { AdminTab, AppUser, AuditEntryUI, BarPoint, DonutSegment, Permission, RoleConfig, RoleId, SeanceAdminRow, Toast, UserStatus } from '../../../models/admin-ui.models';
 import { AuditService } from '../../../services/audit.service';
 
@@ -99,8 +97,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.pollingInterval = setInterval(() => {
       if (this.activeTab === 'audit') {
         this.loadAuditEntries(false);
-      } else {
-        this.refreshAfterMutation();
       }
     }, this.POLLING_INTERVAL_MS);
   }
@@ -279,7 +275,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   toasts: Toast[] = [];
 
   private pollingInterval: any = null;
-  private readonly POLLING_INTERVAL_MS = 30000;
+  private readonly POLLING_INTERVAL_MS = 2000;
 
   // ------------------------------------------------------------------------------
   //  LIFECYCLE
@@ -1245,7 +1241,16 @@ export class AdminComponent implements OnInit, OnDestroy {
       .filter(s => !currentDates.has(this.displayToIsoDate(s.date)) || duplicateSources.some(duplicate => duplicate.id === s.id))
       .map(s => this.seanceService.delete(s.id));
 
-    forkJoin([...updates, ...creations, ...deletions]).subscribe({
+    const operations = [...updates, ...creations, ...deletions];
+    if (!operations.length) {
+      this.showEditSeanceModal = false;
+      this.editSeance = null;
+      this.editSeanceDates = [];
+      this.editSeanceJours = [];
+      return;
+    }
+
+    concat(...operations).pipe(toArray()).subscribe({
       next: (results) => {
         const updatedSeances = results.slice(0, updates.length) as SeanceDto[];
         const createdSeances = results.slice(updates.length, updates.length + creations.length) as SeanceDto[];
@@ -1541,7 +1546,16 @@ tr:nth-child(even) td{background:#f8fafc}
   private logAction(action: import('../../../services/audit.service').AuditAction, entite: string, details: string, statut: 'success' | 'error' = 'success'): void {
     const user = this.authService.getUtilisateur?.() ?? null;
     const username = user ? `${user.prenom} ${user.nom}` : 'Admin';
-    this.auditService.log(username, 'ADMIN', action, entite, details, statut);
+    this.auditService.log(username, 'ADMIN', action, entite, details, statut)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          if (this.activeTab === 'audit') {
+            this.loadAuditEntries(false);
+          }
+        },
+        error: () => {}
+      });
   }
 
   // ------------------------------------------------------------------------------
