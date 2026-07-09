@@ -275,7 +275,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   toasts: Toast[] = [];
 
   private pollingInterval: any = null;
-  private readonly POLLING_INTERVAL_MS = 2000;
+  private readonly POLLING_INTERVAL_MS = 30000;
 
   // ------------------------------------------------------------------------------
   //  LIFECYCLE
@@ -285,9 +285,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (this.isLight) document.body.classList.add('theme-light');
     this.loadSharedAdminData();
     this.refreshAdminCollections();
-    if (this.activeTab === 'audit') {
-      this.loadAuditEntries();
-    }
+    this.loadAuditEntries(this.activeTab === 'audit');
     this.startPolling();
   }
 
@@ -1419,10 +1417,15 @@ td{padding:5px 10px;border-bottom:1px solid #e2e8f0;font-size:11px}
   auditFilterDate = '';
   auditPage = 1;
   auditLoading = false;
+  private auditRefreshing = false;
   auditLoadError = '';
   readonly auditPageSize = 15;
 
   loadAuditEntries(showLoader = true): void {
+    if (this.auditRefreshing) {
+      return;
+    }
+    this.auditRefreshing = true;
     if (showLoader) {
       this.auditLoading = true;
       this.auditLoadError = '';
@@ -1435,9 +1438,11 @@ td{padding:5px 10px;border-bottom:1px solid #e2e8f0;font-size:11px}
           this.auditPage = Math.min(this.auditPage, this.totalAuditPages);
           this.auditLoadError = '';
           if (showLoader) this.auditLoading = false;
+          this.auditRefreshing = false;
         },
         error: (err) => {
           if (showLoader) this.auditLoading = false;
+          this.auditRefreshing = false;
           this.auditLoadError = err?.error?.message ?? 'Impossible de charger le journal depuis la base de données';
           if (showLoader) this.showToast(this.auditLoadError, 'error');
         }
