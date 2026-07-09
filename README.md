@@ -27,23 +27,25 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
 ## La structure complète devient :
 ```
-DialySys/
-└── src/
-    └── app/
-        ├── pages/
-        │   ├── login/
-        │   ├── medecin/
-        │   ├── infirmier-majeur/
-        │   ├── infirmier/
-        │   ├── aide-soignant/
-        │   └── patient/
-        ├── services/
-        ├── guards/
-        ├── interceptors/
-        └── models/
-    └── environments/          
-        ├── environment.ts
-        └── environment.development.ts
+src/
+├── app/
+│   ├── app.component.ts       → composant racine
+│   ├── app.config.ts          → configuration globale (DI, routing, http)
+│   ├── app.routes.ts          → toutes les routes de l'application
+│   └── pages/                 → un dossier par écran/rôle
+│       ├── login/
+│       ├── medecin/
+│       ├── infirmier/
+│       ├── infirmier-majeur/
+│       ├── patient/
+│       ├── planning/
+│       ├── admin/
+│       └── unauthorized/
+├── services/       → 19 services (appels HTTP vers le backend Spring Boot)
+├── models/         → 32 interfaces TypeScript (DTOs)
+├── guards/         → auth.guard.ts (protection des routes)
+├── interceptors/   → jwt.interceptor.ts (ajout automatique du token)
+└── environments/   → URLs de l'API (dev / prod)
 ```
 ## l'architecture monolithique :
 <img width="808" height="866" alt="image" src="https://github.com/user-attachments/assets/9ec39570-fde0-473b-a7eb-f5d87ee59379" />
